@@ -1,39 +1,40 @@
-import { FastifyInstance } from "fastify";
 import { AuthRepository } from "./auth.repository";
 import { config } from "../../config/env";
+import { supabase } from "../../config/supabase";
+import { signAccessToken } from "../../utils/jwt";
 
-type Role = 'customer' | 'driver' | 'merchant'
+type Role = 'worker' | 'client' | 'admin'
 
 const permissionsMap: Record<Role, string[]> = {
-    customer: ['order:create', 'order:view'],
-    driver:   ['delivery:update_location'],
-    merchant: ['menu:update', 'order:prepare'],
+    worker: ['order:create', 'order:view'],
+    client:   ['delivery:update_location'],
+    admin: ['menu:update', 'order:prepare'],
 }
 
 export class AuthService {
     private readonly repo: AuthRepository
 
-    constructor(private readonly app: FastifyInstance) {
-        this.repo = new AuthRepository(app);
+    constructor() {
+        this.repo = new AuthRepository();
     }
 
     async exchangeToken(supabaseToken: string) {
-        const { data, error } = await this.app.supabase.auth.getUser(supabaseToken)
+        const { data, error } = await supabase.auth.getUser(supabaseToken)
 
         if (error || !data.user) {
             throw new Error('Invalid token')
         }
 
-        const user = await this.repo.findOrCreateUser({ authId: data.user.id, email: data.user.email!})
+        const user = await this.repo.findOrCreateUser({ authId: data.user.id, email: data.user.email! })
 
         const permissions = permissionsMap[user.role as Role] ?? []
 
-        const internalToken = this.app.jwt.sign({
+        const internalToken = signAccessToken({
             sub: user.id,
             role: user.role,
             permissions,
-        })
+        });
 
-        return { token: internalToken, expiresIn: config.jwtExpiresIn }
+        return { token: internalToken, expiresIn: config.jwtExpiresIn };
     }
 }

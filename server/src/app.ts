@@ -1,14 +1,15 @@
+import { config } from './config/env';
 import Fastify, { FastifyInstance } from 'fastify';
 import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-type-provider-zod"
 
 import securityPlugin from './plugins/security.plugin';
-import supabasePlugin from './plugins/supabase.plugin';
-import jwtPlugin from './plugins/jwt.plugin';
+import authPlugin from './plugins/auth.plugin';
+import rawBodyPlugin from './plugins/rawBody.plugin';
 import swaggerPlugin from './plugins/swagger.plugin';
+
 
 import { registerRoutes } from './routes';
 import { errorHandler } from './errors/errorHandler';
-import { config } from './config/env';
 
 export async function buildApp(): Promise<FastifyInstance> {
     const app = Fastify({
@@ -35,13 +36,12 @@ export async function buildApp(): Promise<FastifyInstance> {
 
     // ─── Security ─────────────────────────────────────────────────────────────
     await app.register(securityPlugin);
-    
 
-    // ─── Auth ─────────────────────────────────────────────────────────────────
-    await app.register(jwtPlugin);
+    // ─── Security ─────────────────────────────────────────────────────────────
+    await app.register(authPlugin);
 
     // ─── Infrastructure plugins ───────────────────────────────────────────────
-    await app.register(supabasePlugin);
+    await app.register(rawBodyPlugin);
     await app.register(swaggerPlugin);
 
     // ─── Routes ───────────────────────────────────────────────────────────────

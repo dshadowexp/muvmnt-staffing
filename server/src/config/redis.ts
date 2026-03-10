@@ -4,7 +4,7 @@ import { logger } from './logger';
 
 const clusterOptions: ClusterOptions = {
     redisOptions: {
-        password: config.redis.password,
+        password: config.redis.node.password,
         tls: config.nodeEnv === 'production' ? {} : undefined,
         connectTimeout: 10000,
     },
@@ -25,7 +25,7 @@ function parseClusterNodes(nodes: string): Array<{ host: string; port: number }>
 }
 
 export function createRedisCluster(): Cluster {
-    const nodes = parseClusterNodes(config.redis.clusterNodes);
+    const nodes = parseClusterNodes(`${config.redis.cluster.nodes}`);
     
     const cluster = new Redis.Cluster(nodes, clusterOptions);
 
@@ -37,10 +37,13 @@ export function createRedisCluster(): Cluster {
     return cluster;
 }
 
-let redisCluster: Cluster | null = null;
+let redisCluster: Cluster | Redis | null = null;
 
-export function getRedisCluster(): Cluster {
-    if (!redisCluster) {
+export function getRedisCluster(): Cluster | Redis {
+    if (true) {
+        console.log(config.redis.node);
+        redisCluster = new Redis(config.redis.node);
+    } else if (!redisCluster) {
         redisCluster = createRedisCluster();
     }
     return redisCluster;

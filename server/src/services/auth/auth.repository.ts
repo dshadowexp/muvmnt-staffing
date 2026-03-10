@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { supabase } from '../../config/supabase';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,11 +18,9 @@ export interface UserRecord {
 // ─── Repository ───────────────────────────────────────────────────────────────
 
 export class AuthRepository {
-  constructor(private readonly app: FastifyInstance) {}
+  constructor() {}
 
   async findOrCreateUser({ authId, email }: FindOrCreateUserParams): Promise<UserRecord> {
-    const supabase = this.app.supabase;
-
     const { data: existing, error: findError } = await supabase
       .from('users')
       .select('*')

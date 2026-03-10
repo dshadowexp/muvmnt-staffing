@@ -1,11 +1,17 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { AuthService } from '../../services/auth/auth.service';
-import { ErrorReply, ExchangeAuthTokenBody, ExchangeAuthTokenBodyType, ExchangeAuthTokenReply, ExchangeAuthTokenReplyType } from '../../schemas/auth.schema';
+import { 
+    ErrorReply, 
+    ExchangeAuthTokenBody, 
+    ExchangeAuthTokenBodyType, 
+    ExchangeAuthTokenReply, 
+    ExchangeAuthTokenReplyType 
+} from '../../schemas/auth.schema';
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export default async function authRoutes(app: FastifyInstance): Promise<void> {
-    const authService = new AuthService(app)
+    const authService = new AuthService()
 
     /**
      * POST /v1/auth/exchange-auth-token

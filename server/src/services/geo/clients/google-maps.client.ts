@@ -1,0 +1,142 @@
+import axios, { AxiosInstance } from 'axios'
+import { FastifyInstance } from 'fastify'
+import { config } from '../../../config/env'
+
+export interface GeocodeResult {
+    lat:             number
+    lng:             number
+    formattedAddress: string
+    placeId:         string
+    components: {
+        streetNumber?: string
+        route?:        string
+        city?:         string
+        state?:        string
+        country?:      string
+        postalCode?:   string
+    }
+}
+
+export interface PlacePrediction {
+    placeId:     string
+    description: string
+    mainText:    string
+    secondaryText: string
+}
+
+export class GoogleMapsClient {
+    private readonly http: AxiosInstance
+    private readonly apiKey: string
+
+    constructor() {
+        this.apiKey = config.google.mapsApiKey;
+        this.http   = axios.create({
+            baseURL: config.google.url,
+            timeout: 5000,
+        });
+    }
+
+    // ─── Geocode address → lat/lng ────────────────────────────────────────────
+
+    async geocode(address: string): Promise<GeocodeResult> {
+        const { data } = await this.http.get('/geocode/json', {
+            params: { address, key: this.apiKey },
+        })
+
+        if (data.status !== 'OK' || !data.results.length) {
+            throw new Error(`Geocoding failed: ${data.status} for address "${address}"`)
+        }
+
+        return this.parseGeocodeResult(data.results[0])
+    }
+
+    // ─── Reverse geocode lat/lng → address ───────────────────────────────────
+
+    async reverseGeocode(lat: number, lng: number): Promise<GeocodeResult> {
+        const { data } = await this.http.get('/geocode/json', {
+            params: { latlng: `${lat},${lng}`, key: this.apiKey },
+        })
+
+        if (data.status !== 'OK' || !data.results.length) {
+            throw new Error(`Reverse geocoding failed: ${data.status} for (${lat}, ${lng})`)
+        }
+
+        return this.parseGeocodeResult(data.results[0])
+    }
+
+    // ─── Autocomplete address search ──────────────────────────────────────────
+
+    async autocomplete(input: string, sessionToken?: string): Promise<PlacePrediction[]> {
+        const { data } = await this.http.get('/place/autocomplete/json', {
+            params: {
+                input,
+                key:          this.apiKey,
+                types:        'address',
+                sessiontoken: sessionToken,
+            },
+        })
+
+        if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+            throw new Error(`Autocomplete failed: ${data.status}`)
+        }
+
+        return (data.predictions ?? []).map((p: any) => ({
+            placeId:       p.place_id,
+            description:   p.description,
+            mainText:      p.structured_formatting?.main_text ?? '',
+            secondaryText: p.structured_formatting?.secondary_text ?? '',
+        }))
+    }
+
+    // ─── Resolve place ID → full geocode ─────────────────────────────────────
+
+    async getPlaceDetails(placeId: string, sessionToken?: string): Promise<GeocodeResult> {
+        const { data } = await this.http.get('/place/details/json', {
+            params: {
+                place_id:     placeId,
+                fields:       'geometry,formatted_address,address_components',
+                key:          this.apiKey,
+                sessiontoken: sessionToken,
+            },
+        })
+
+        if (data.status !== 'OK') {
+            throw new Error(`Place details failed: ${data.status} for placeId "${placeId}"`)
+        }
+
+        const result = data.result
+        return {
+            lat:              result.geometry.location.lat,
+            lng:              result.geometry.location.lng,
+            formattedAddress: result.formatted_address,
+            placeId,
+            components:       this.parseAddressComponents(result.address_components ?? []),
+        }
+    }
+
+    // ─── Private ─────────────────────────────────────────────────────────────
+
+    private parseGeocodeResult(result: any): GeocodeResult {
+        return {
+            lat:              result.geometry.location.lat,
+            lng:              result.geometry.location.lng,
+            formattedAddress: result.formatted_address,
+            placeId:          result.place_id,
+            components:       this.parseAddressComponents(result.address_components ?? []),
+        }
+    }
+
+    private parseAddressComponents(components: any[]): GeocodeResult['components'] {
+        const get = (type: string) =>
+        components.find((c: any) => c.types.includes(type))?.long_name
+
+        return {
+            streetNumber: get('street_number'),
+            route:        get('route'),
+            city:         get('locality') ?? get('postal_town'),
+            state:        get('administrative_area_level_1'),
+            country:      get('country'),
+            postalCode:   get('postal_code'),
+        }
+    }
+}
