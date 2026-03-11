@@ -41,7 +41,7 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
             request: FastifyRequest<{ Body: ExchangeAuthTokenBodyType }>,
             reply:   FastifyReply
         ): Promise<ExchangeAuthTokenReplyType> => {
-            const { token } = request.body;
+            const { token, role } = request.body;
 
             const result = await authService.exchangeToken(token);
 

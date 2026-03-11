@@ -22,13 +22,13 @@ export async function buildApp(): Promise<FastifyInstance> {
                 },
             }),
         },
-        ajv: {
-            customOptions: {
-                removeAdditional: 'all',
-                coerceTypes: true,
-                useDefaults: true,
-            },
-        },
+        // ajv: {
+        //     customOptions: {
+        //         removeAdditional: 'all',
+        //         coerceTypes: true,
+        //         useDefaults: true,
+        //     },
+        // },
     }).withTypeProvider<ZodTypeProvider>();
 
     app.setValidatorCompiler(validatorCompiler)

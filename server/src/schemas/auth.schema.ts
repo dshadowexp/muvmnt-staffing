@@ -7,12 +7,13 @@ export const ExchangeAuthTokenBody = z.object({
   token: z
     .string()
     .min(1, "Third-party or short-lived token to exchange"),
-})
+  role: z
+    .string()
+});
 
 // Success Response
 export const ExchangeAuthTokenReply = z.object({
   token: z.string(),
-  expiresIn: z.number().describe("Seconds until accessToken expires"),
 })
 
 // Error Response

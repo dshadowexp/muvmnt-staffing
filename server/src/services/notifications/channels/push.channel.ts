@@ -1,9 +1,10 @@
-import admin from 'firebase-admin';
+
 import { Messaging } from 'firebase-admin/messaging';
 import { renderPush } from '../template-engine';
 import { config } from '../../../config/env';
 import { supabase } from '../../../config/supabase';
 import { logger } from '../../../config/logger';
+import { getMessaging } from '../../../config/firebase';
 
 interface SendPushParams {
     userId:   string
@@ -15,13 +16,7 @@ export class PushChannel {
     private readonly messaging: Messaging;
 
     constructor() {
-        if (!admin.apps.length) {
-            admin.initializeApp({
-                credential: admin.credential.cert(config.firebase),
-            });
-        }
-
-        this.messaging = admin.messaging();
+        this.messaging = getMessaging();
     }
 
     async send({ userId, template, data }: SendPushParams): Promise<void> {

@@ -1,7 +1,6 @@
 import { AuthRepository } from "./auth.repository";
-import { config } from "../../config/env";
-import { supabase } from "../../config/supabase";
 import { signAccessToken } from "../../utils/jwt";
+import { verifyFirebaseIdToken } from "./decode";
 
 type Role = 'worker' | 'client' | 'admin'
 
@@ -18,14 +17,10 @@ export class AuthService {
         this.repo = new AuthRepository();
     }
 
-    async exchangeToken(supabaseToken: string) {
-        const { data, error } = await supabase.auth.getUser(supabaseToken)
+    async exchangeToken(externalToken: string, role?: string) {
+        const decoded = await verifyFirebaseIdToken(externalToken);
 
-        if (error || !data.user) {
-            throw new Error('Invalid token')
-        }
-
-        const user = await this.repo.findOrCreateUser({ authId: data.user.id, email: data.user.email! })
+        const user = await this.repo.findOrCreateUser({ authId: decoded.uid, email: decoded.email ?? "", role })
 
         const permissions = permissionsMap[user.role as Role] ?? []
 
@@ -35,6 +30,6 @@ export class AuthService {
             permissions,
         });
 
-        return { token: internalToken, expiresIn: config.jwtExpiresIn };
+        return { token: internalToken };
     }
 }

@@ -4,6 +4,8 @@ import notificationsRoutes from './v1/notifications.route';
 import paymentsRoutes from './v1/payments.route';
 import geoRoutes from './v1/geo.route';
 import uploadsRoutes from './v1/storage.route';
+import clientsRoutes from './v1/clients.routes';
+import workersRoutes from './v1/workers.routes';
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(authRoutes,          { prefix: '/v1/auth' });
@@ -11,6 +13,8 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(paymentsRoutes,      { prefix: '/v1/payments' });
   await app.register(geoRoutes,           { prefix: '/v1/geo' });
   await app.register(uploadsRoutes,       { prefix: '/v1/uploads' });
+  await app.register(clientsRoutes,       { prefix: '/v1/clients' });
+  await app.register(workersRoutes,       { prefix: '/v1/workers' });
 
   // ─── Health check ─────────────────────────────────────────────────────────
   app.get('/health', { logLevel: 'silent' }, async () => ({

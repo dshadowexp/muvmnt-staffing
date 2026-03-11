@@ -5,6 +5,7 @@ import { supabase } from '../../config/supabase';
 interface FindOrCreateUserParams {
   authId: string
   email:  string
+  role?: string
 }
 
 export interface UserRecord {
@@ -20,7 +21,7 @@ export interface UserRecord {
 export class AuthRepository {
   constructor() {}
 
-  async findOrCreateUser({ authId, email }: FindOrCreateUserParams): Promise<UserRecord> {
+  async findOrCreateUser({ authId, email, role }: FindOrCreateUserParams): Promise<UserRecord> {
     const { data: existing, error: findError } = await supabase
       .from('users')
       .select('*')
@@ -36,7 +37,7 @@ export class AuthRepository {
 
     const { data: newUser, error: insertError } = await supabase
       .from('users')
-      .insert({ auth_id: authId, email, role: 'customer' })
+      .insert({ auth_id: authId, email, role: role ?? "worker" })
       .select()
       .single();
 
