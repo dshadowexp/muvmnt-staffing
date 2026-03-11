@@ -22,6 +22,35 @@ export default async function paymentRoutes(app: FastifyInstance): Promise<void>
     const paymentsQueue = getPaymentsQueue();
 
     // ─── POST /payments/initiate ──────────────────────────────────────────────
+    app.get(
+        '/stripe-oauth-url',
+        {
+            onRequest: [app.authenticate],
+            schema: {
+                summary:  'Initiate shift payment',
+                tags:     ['Payments'],
+                security: [{ bearerAuth: [] }],
+            },
+        },
+        async (request, reply) => {
+            const user = { country: '', id: '', email: '' }
+            const state = Buffer.from(user.id).toString('base64');
+
+            const queryParams = new URLSearchParams({
+                response_type: 'code',
+                client_id: process.env.NEXT_PUBLIC_STRIPE_OAUTH_CLIENT_ID ?? '',
+                scope: 'read_write',
+                redirect_uri: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/stripe`,
+                "stripe_user[email]": user.email,
+                ...(user.country && { "stripe_user[country]": user.country }),
+                state
+            });
+
+            return reply.code(200).send({ url: `https://connect.stripe.com/oauth/authorize?${queryParams.toString()}` });
+        }
+    )
+
+    // ─── POST /payments/initiate ──────────────────────────────────────────────
 
     app.post<{ Body: InitiatePaymentBodyType }>(
         '/initiate',
