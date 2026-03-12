@@ -2,13 +2,7 @@ import { z } from 'zod'
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-export const ErrorReply = z.object({
-    statusCode: z.number(),
-    error:      z.string(),
-    message:    z.string(),
-})
-
-const StorageFolder = z.enum(['documents', 'avatars', 'compliance', 'receipts', 'shifts'])
+const StorageFolder = z.enum(['documents', 'avatars', 'compliance', 'receipts', 'shifts']);
 
 // ─── Upload (multipart) ───────────────────────────────────────────────────────
 
@@ -74,7 +68,6 @@ export const FileMetadataReply = z.object({
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ErrorReplyType          = z.infer<typeof ErrorReply>
 export type UploadQueryType         = z.infer<typeof UploadQuery>
 export type UploadReplyType         = z.infer<typeof UploadReply>
 export type PresignedUploadBodyType = z.infer<typeof PresignedUploadBody>

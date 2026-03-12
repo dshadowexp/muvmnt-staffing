@@ -5,8 +5,6 @@ import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-
 import securityPlugin from './plugins/security.plugin';
 import authPlugin from './plugins/auth.plugin';
 import rawBodyPlugin from './plugins/rawBody.plugin';
-import swaggerPlugin from './plugins/swagger.plugin';
-
 
 import { registerRoutes } from './routes';
 import { errorHandler } from './errors/errorHandler';
@@ -22,17 +20,18 @@ export async function buildApp(): Promise<FastifyInstance> {
                 },
             }),
         },
-        // ajv: {
-        //     customOptions: {
-        //         removeAdditional: 'all',
-        //         coerceTypes: true,
-        //         useDefaults: true,
-        //     },
-        // },
-    }).withTypeProvider<ZodTypeProvider>();
+        ajv: {
+            customOptions: {
+                removeAdditional: 'all',
+                coerceTypes: true,
+                useDefaults: true,
+            },
+        },
+    });
 
-    app.setValidatorCompiler(validatorCompiler)
-    app.setSerializerCompiler(serializerCompiler)
+    app.withTypeProvider<ZodTypeProvider>();
+    app.setValidatorCompiler(validatorCompiler);
+    app.setSerializerCompiler(serializerCompiler);
 
     // ─── Security ─────────────────────────────────────────────────────────────
     await app.register(securityPlugin);
@@ -42,7 +41,6 @@ export async function buildApp(): Promise<FastifyInstance> {
 
     // ─── Infrastructure plugins ───────────────────────────────────────────────
     await app.register(rawBodyPlugin);
-    await app.register(swaggerPlugin);
 
     // ─── Routes ───────────────────────────────────────────────────────────────
     await registerRoutes(app);

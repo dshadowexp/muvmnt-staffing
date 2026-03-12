@@ -7,6 +7,7 @@ const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
     PORT: z.string().transform(Number).default(3000),
     HOST: z.string().default('0.0.0.0'),
+    APP_URL: z.string().optional(),
     CORS_ORIGIN: z.string().default('*'),
     LOG_LEVEL: z.string().default('info'),
     REDIS_CLUSTER: z.string().transform(Boolean).default(false),
@@ -37,6 +38,7 @@ const envSchema = z.object({
     TWILIO_ACCOUNT_SID: z.string(),
     TWILIO_AUTH_TOKEN: z.string(),
     TWILIO_FROM_NUMBER: z.string(),
+    TWILIO_MESSAGING_ID: z.string(),
 
     FIREBASE_PROJECT_ID: z.string(),
     FIREBASE_CLIENT_EMAIL: z.string(),
@@ -66,6 +68,7 @@ export const config = {
     nodeEnv: parsed.data.NODE_ENV,
     port: parsed.data.PORT,
     host: parsed.data.HOST,
+    appUrl: parsed.data.APP_URL ?? `http://localhost:${parsed.data.PORT}`,
     corsOrigin: '*',
     logLevel: 'info',
     redisCluster: parsed.data.REDIS_CLUSTER,
@@ -112,6 +115,7 @@ export const config = {
         accountSid: parsed.data.TWILIO_ACCOUNT_SID,
         authToken: parsed.data.TWILIO_AUTH_TOKEN,
         fromNumber: parsed.data.TWILIO_FROM_NUMBER,
+        messagingId: parsed.data.TWILIO_MESSAGING_ID,
     },
 
     firebase: {

@@ -2,12 +2,6 @@ import { z } from 'zod'
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-export const ErrorReply = z.object({
-    statusCode: z.number(),
-    error:      z.string(),
-    message:    z.string(),
-})
-
 const EntityType = z.enum(['worker', 'client'])
 
 const CoordSchema = z.object({
@@ -105,7 +99,6 @@ export const NearbyResultReply = z.array(
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ErrorReplyType              = z.infer<typeof ErrorReply>
 export type SearchAddressQueryType      = z.infer<typeof SearchAddressQuery>
 export type GeocodeBodyType             = z.infer<typeof GeocodeBody>
 export type GeocodePlaceBodyType        = z.infer<typeof GeocodePlaceBody>

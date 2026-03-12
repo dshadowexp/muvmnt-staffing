@@ -1,19 +1,24 @@
 import { supabase } from '../../config/supabase';
+import { Role } from './permissions';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface FindOrCreateUserParams {
-  authId: string
-  email:  string
-  role?: string
+  authId:        string
+  email:         string
+  emailVerified: boolean,
+  role?:         Role
 }
 
 export interface UserRecord {
-  id:        string
-  auth_id:   string
-  email:     string
-  role:      string
-  is_active: boolean
+  id:                string
+  auth_id:           string
+  email:             string
+  phone_number:      string
+  role:              string
+  is_email_verified: boolean
+  is_phone_verified: boolean
+  is_active:         boolean
 }
 
 // ─── Repository ───────────────────────────────────────────────────────────────
@@ -21,23 +26,62 @@ export interface UserRecord {
 export class AuthRepository {
   constructor() {}
 
-  async findOrCreateUser({ authId, email, role }: FindOrCreateUserParams): Promise<UserRecord> {
-    const { data: existing, error: findError } = await supabase
+  async findById(id: string): Promise<UserRecord | null> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // row not found
+      throw new Error(`Failed to find user by id: ${error.message}`);
+    }
+
+    return data as UserRecord;
+  }
+
+  async findUserByAuthId(authId: string): Promise<UserRecord | null> {
+    const { data, error } = await supabase
       .from('users')
       .select('*')
       .eq('auth_id', authId)
       .single();
 
-    if (findError && findError.code !== 'PGRST116') {
-      // PGRST116 = row not found — anything else is a real DB error
-      throw new Error(`Failed to query user: ${findError.message}`);
+    if (error) {
+      if (error.code === 'PGRST116') return null; // row not found
+      throw new Error(`Failed to find user by auth_id: ${error.message}`);
     }
 
+    return data as UserRecord;
+  }
+
+  async updatePhoneVerified(userId: string, phoneNumber: string): Promise<void> {
+    const { error } = await supabase
+      .from('users')
+      .update({ is_phone_verified: true, phone_number: phoneNumber })
+      .eq('id', userId);
+
+    if (error) {
+      throw new Error(`Failed to update phone verified: ${error.message}`);
+    }
+  }
+
+  async updateEmailVerified(userId: string, email: string): Promise<void> {
+
+  }
+
+  async findOrCreateUser({ authId, email, role, emailVerified }: FindOrCreateUserParams): Promise<UserRecord> {
+    const existing = await this.findUserByAuthId(authId);
+
     if (existing) return existing as UserRecord
+    if (!role) {
+      throw new Error(`Failed to query user: unspecified role`);
+    }
 
     const { data: newUser, error: insertError } = await supabase
       .from('users')
-      .insert({ auth_id: authId, email, role: role ?? "worker" })
+      .insert({ auth_id: authId, email, role: role, is_email_verified: emailVerified })
       .select()
       .single();
 

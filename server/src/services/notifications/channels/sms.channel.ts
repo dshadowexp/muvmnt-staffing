@@ -2,6 +2,7 @@ import twilio from 'twilio';
 import { renderSms } from '../template-engine';
 import { config } from '../../../config/env';
 import { logger } from '../../../config/logger';
+import { twilioClient } from '../../../config/twilio';
 
 interface SendSmsParams {
     to:       string | null
@@ -10,14 +11,8 @@ interface SendSmsParams {
 }
 
 export class SmsChannel {
-    private readonly client: twilio.Twilio
 
-    constructor() {
-        this.client = twilio(
-            config.twilio.accountSid,
-            config.twilio.authToken
-        )
-    }
+    constructor() {}
 
     async send({ to, template, data }: SendSmsParams): Promise<void> {
         if (!to) {
@@ -27,7 +22,7 @@ export class SmsChannel {
 
         const body = renderSms(template, data)
 
-        await this.client.messages.create({
+        await twilioClient.messages.create({
             to,
             from: config.twilio.fromNumber,
             body,

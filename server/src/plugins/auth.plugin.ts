@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin'
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import jwt from 'jsonwebtoken'
+import { TokenExpiredError } from 'jsonwebtoken';
 import { verifyAccessToken } from '../utils/jwt'
 
 // ─── Plugin ───────────────────────────────────────────────────────────────────
@@ -20,15 +20,15 @@ export default fp(async function authPlugin(app: FastifyInstance) {
                 return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Missing Bearer token' })
             }
 
-            const token = authHeader.slice(7)
+            const token = authHeader.slice(7);
 
             try {
                 const payload = verifyAccessToken(token);
-                request.user  = payload
+                request.user  = payload;
             } catch (err) {
-                const message = err instanceof jwt.TokenExpiredError
-                ? 'Token expired'
-                : 'Invalid token'
+                const message = err instanceof TokenExpiredError
+                    ? 'Token expired'
+                    : 'Invalid token';
 
                 return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message })
             }

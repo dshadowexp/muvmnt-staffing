@@ -2,12 +2,6 @@ import { z } from "zod"
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-export const ErrorReply = z.object({
-  statusCode: z.number(),
-  error:      z.string(),
-  message:    z.string(),
-})
-
 // ─── Initiate payment ─────────────────────────────────────────────────────────
 
 export const InitiatePaymentBody = z.object({
@@ -101,7 +95,6 @@ export const RetryPayoutReply = z.object({
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ErrorReplyType           = z.infer<typeof ErrorReply>
 export type InitiatePaymentBodyType  = z.infer<typeof InitiatePaymentBody>
 export type InitiatePaymentReplyType = z.infer<typeof InitiatePaymentReply>
 export type PaymentParamsType        = z.infer<typeof PaymentParams>

@@ -2,12 +2,6 @@ import { z } from "zod"
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-export const ErrorReply = z.object({
-  statusCode: z.number(),
-  error:      z.string(),
-  message:    z.string(),
-})
-
 const NotificationChannel = z.enum(["email", "sms", "push"]);
 
 // ─── Send notification ────────────────────────────────────────────────────────
@@ -28,7 +22,6 @@ export const SendNotificationReply = z.object({
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ErrorReplyType             = z.infer<typeof ErrorReply>
 export type SendNotificationBodyType   = z.infer<typeof SendNotificationBody>
 export type SendNotificationReplyType  = z.infer<typeof SendNotificationReply>
 
