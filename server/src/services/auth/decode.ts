@@ -13,6 +13,5 @@ export async function updateFirebaseUser(uid: string, phoneNumber: string) {
   const user = await auth.updateUser(uid, {
     phoneNumber
   });
-  console.log(user);
 }
 

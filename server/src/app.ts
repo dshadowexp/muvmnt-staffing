@@ -38,7 +38,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
     // ─── Security ─────────────────────────────────────────────────────────────
     await app.register(authPlugin);
-
+    
     // ─── Infrastructure plugins ───────────────────────────────────────────────
     await app.register(rawBodyPlugin);
 

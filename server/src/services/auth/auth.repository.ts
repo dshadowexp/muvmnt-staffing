@@ -68,7 +68,14 @@ export class AuthRepository {
   }
 
   async updateEmailVerified(userId: string, email: string): Promise<void> {
+    const { error } = await supabase
+      .from('users')
+      .update({ is_email_verified: true, email: email })
+      .eq('id', userId);
 
+    if (error) {
+      throw new Error(`Failed to update phone verified: ${error.message}`);
+    }
   }
 
   async findOrCreateUser({ authId, email, role, emailVerified }: FindOrCreateUserParams): Promise<UserRecord> {

@@ -91,4 +91,21 @@ export class AuthService {
         await this.repo.updateEmailVerified(userId, email);
         return { verified: true };
     }
+
+    /**
+     * 
+     * @param userId 
+     * @returns 
+     */
+    async isFullyVerified(userId: string): Promise<{ verified: boolean }> {
+        const user = await this.repo.findById(userId);
+    
+        if (!user) {
+            throw new Error("User not found");
+        }
+    
+        const verified = user.is_email_verified && user.is_phone_verified;
+    
+        return { verified };
+    }
 }

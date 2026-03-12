@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-const StorageFolder = z.enum(['documents', 'avatars', 'compliance', 'receipts', 'shifts']);
+const StorageFolder = z.enum(['certifications', 'avatars', 'compliance', 'receipts', 'shifts']);
 
 // ─── Upload (multipart) ───────────────────────────────────────────────────────
 
@@ -22,11 +22,9 @@ export const UploadReply = z.object({
 // ─── Presigned upload URL ─────────────────────────────────────────────────────
 
 export const PresignedUploadBody = z.object({
-    folder:    StorageFolder,
-    ownerId:   z.string().uuid(),
+    context:    StorageFolder,
     filename:  z.string().min(1),
-    mimeType:  z.string().min(1),
-    expiresIn: z.number().int().positive().max(3600).optional(),
+    contentType:  z.string().min(1),
 });
 
 export const PresignedUrlReply = z.object({

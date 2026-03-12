@@ -18,13 +18,64 @@ import {
     VerifyEmailByTokenQueryType,
     SendEmailVerificationReply,
     SendEmailVerificationReplyType,
+    IsFullyVerifiedReply,
+    IsFullyVerifiedReplyType,
 } from '../../schemas/auth.schema';
 import { ErrorReply } from '../../schemas';
+import { config } from '../../config/env';
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export default async function authRoutes(app: FastifyInstance): Promise<void> {
-    const authService = new AuthService()
+    const authService = new AuthService();
+
+    /**
+     * GET /v1/auth/verify-email?token=...
+     *
+     * Handles the email verification link. Validates the token, marks the user's email verified, and deletes the token.
+     */
+    app.get(
+        '/verify-email',
+        {
+            schema: {
+                summary:     'Verify email (link)',
+                description: 'Verify email using the token from the verification email link.',
+                tags:        ['Auth'],
+                querystring: VerifyEmailByTokenQuery,
+                response: {
+                    200: VerifyEmailReply,
+                    400: ErrorReply,
+                },
+            },
+        },
+        async (request: FastifyRequest, reply: FastifyReply) => {
+            const { token } = request.query as VerifyEmailByTokenQueryType;
+            const result = await authService.verifyEmailByToken(token);
+            return reply.code(200).send(result);
+        }
+    );
+
+     /**
+     * GET /v1/auth/is-verified
+     *
+     * Sends a verification email to the authenticated user with a link to verify their email.
+     */
+     app.get("/is-verified", {
+        onRequest: [app.authenticate],
+        schema: {
+            summary:     'Send email verification',
+            description: 'Send an email with a verification link to the authenticated user.',
+            tags:        ['Auth'],
+            response: {
+                200: IsFullyVerifiedReply,
+                401: ErrorReply,
+            },
+        },
+    }, async (request: FastifyRequest, reply: FastifyReply): Promise<IsFullyVerifiedReplyType> => {
+        const userId = request.user.sub;
+        const result = authService.isFullyVerified(userId);
+        return reply.code(200).send(result);
+    });
 
     /**
      * POST /v1/auth/exchange-auth-token
@@ -74,6 +125,7 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
     app.post(
         '/send-sms-otp',
         {
+            onRequest: [app.authenticate],
             schema: {
                 summary:     'Send SMS OTP',
                 description: 'Send a one-time password via SMS to the given phone number.',
@@ -86,10 +138,10 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
             },
         },
         async (
-            request: FastifyRequest<{ Body: SendSmsOtpBodyType }>,
+            request: FastifyRequest,
             reply: FastifyReply
         ): Promise<SendSmsOtpReplyType> => {
-            const { phoneNumber } = request.body;
+            const { phoneNumber } = request.body as SendSmsOtpBodyType;
             const result = await authService.smsOTP(phoneNumber);
             return reply.code(200).send(result);
         }
@@ -120,32 +172,6 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
             const userId = request.user.sub;
             const body = request.body as VerifySmsOtpBodyType;
             const result = await authService.smsOTPCheck(userId, body.phoneNumber, body.code);
-            return reply.code(200).send(result);
-        }
-    );
-
-    /**
-     * GET /v1/auth/verify-email?token=...
-     *
-     * Handles the email verification link. Validates the token, marks the user's email verified, and deletes the token.
-     */
-    app.get(
-        '/verify-email',
-        {
-            schema: {
-                summary:     'Verify email (link)',
-                description: 'Verify email using the token from the verification email link.',
-                tags:        ['Auth'],
-                querystring: VerifyEmailByTokenQuery,
-                response: {
-                    200: VerifyEmailReply,
-                    400: ErrorReply,
-                },
-            },
-        },
-        async (request: FastifyRequest, reply: FastifyReply) => {
-            const { token } = request.query as VerifyEmailByTokenQueryType;
-            const result = await authService.verifyEmailByToken(token);
             return reply.code(200).send(result);
         }
     );

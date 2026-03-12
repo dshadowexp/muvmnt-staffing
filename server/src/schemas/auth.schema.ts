@@ -46,6 +46,10 @@ export const SendEmailVerificationReply = z.object({
   sent: z.boolean(),
 });
 
+export const IsFullyVerifiedReply = z.object({
+  verified: z.boolean(),
+});
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type ExchangeAuthTokenBodyType =
@@ -62,3 +66,6 @@ export type VerifySmsOtpReplyType = z.infer<typeof VerifySmsOtpReply>;
 
 export type VerifyEmailReplyType = z.infer<typeof VerifyEmailReply>;
 export type SendEmailVerificationReplyType = z.infer<typeof SendEmailVerificationReply>;
+
+export type IsFullyVerifiedReplyType =
+  z.infer<typeof IsFullyVerifiedReply>;

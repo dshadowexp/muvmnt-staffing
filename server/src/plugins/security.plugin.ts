@@ -18,8 +18,10 @@ export default fp(async (fastify) => {
     });
 
     await fastify.register(fastifyCors, {
-        origin: config.corsOrigin ?? '*',
+        origin:      'http://localhost:3000',
         credentials: true,
+        methods:     ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+
     });
     
     await fastify.register(fastifyRateLimit, {

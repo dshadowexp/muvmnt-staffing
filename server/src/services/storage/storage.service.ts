@@ -15,7 +15,7 @@ import { logger } from '../../config/logger';
   
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type StorageFolder = 'documents' | 'avatars' | 'compliance' | 'receipts' | 'shifts'
+export type StorageFolder = 'certifications' | 'avatars' | 'compliance' | 'receipts' | 'shifts'
 
 export interface UploadParams {
     folder:      StorageFolder
@@ -138,30 +138,32 @@ export class StorageService {
     // ─── Presigned upload URL (client uploads directly to S3) ─────────────────
 
     async presignedUploadUrl(params: {
-        folder:    StorageFolder
+        context:    StorageFolder
         ownerId:   string
         filename:  string
-        mimeType:  string
-        expiresIn?: number          // seconds, default 300
+        contentType:  string
     }): Promise<PresignedUrlResult> {
-        const key       = this.buildKey(params.folder, params.ownerId, params.filename)
-        const expiresIn = params.expiresIn ?? 300
+        const key       = this.buildKey(params.context, params.ownerId, params.filename)
+        const expiresIn = 300;
+
+        console.log(this.bucket)
+
+        const command = new PutObjectCommand({
+            Bucket:      this.bucket,
+            Key:         key,
+            ContentType: params.contentType,
+            Metadata: {
+                ownerId:  params.ownerId,
+                filename: params.filename,
+            },
+        });
 
         const url = await getSignedUrl(
             this.s3,
-            new PutObjectCommand({
-                Bucket:      this.bucket,
-                Key:         key,
-                ContentType: params.mimeType,
-                Metadata: {
-                ownerId:  params.ownerId,
-                filename: params.filename,
-                },
-            }),
+            command,
             { expiresIn }
         )
 
-        logger.info({ key, expiresIn }, 'Presigned upload URL generated');
         return { url, expiresIn, key };
     }
 

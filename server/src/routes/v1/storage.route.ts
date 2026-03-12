@@ -29,8 +29,9 @@ export default async function storageRoutes(app: FastifyInstance): Promise<void>
             },
         },
         async (request, reply) => {
+            const ownerId = request.user.sub;
             const body   = PresignedUploadBody.parse(request.body);
-            const result = await storage.presignedUploadUrl(body);
+            const result = await storage.presignedUploadUrl({ ...body, ownerId });
             return reply.code(200).send(result);
         }
     )
