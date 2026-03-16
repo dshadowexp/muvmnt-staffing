@@ -2,6 +2,7 @@ import fp from 'fastify-plugin'
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { TokenExpiredError } from 'jsonwebtoken';
 import { verifyAccessToken } from '../utils/jwt'
+import { UserRole } from '../services/auth/permissions';
 
 // ─── Plugin ───────────────────────────────────────────────────────────────────
 
@@ -39,20 +40,24 @@ export default fp(async function authPlugin(app: FastifyInstance) {
     // Must be used after app.authenticate — assumes request.user is populated.
     // Use as: onRequest: [app.authenticate, app.requireRole('admin')]
 
+    // server/src/plugins/auth.plugin.ts
+
     app.decorate(
         'requireRole',
-        function requireRole(role: string) {
+        function requireRole(roles: UserRole[]) {
             return async function (request: FastifyRequest, reply: FastifyReply): Promise<void> {
-                if (request.user?.role !== role) {
+                const userRole = request.user?.role;
+        
+                if (!userRole || !roles.includes(userRole)) {
                     return reply.code(403).send({
                         statusCode: 403,
                         error:      'Forbidden',
-                        message:    `Role '${role}' required`,
+                        message:    `Role${roles.length > 1 ? 's' : ''} '${roles.join(", ")}' required`,
                     });
                 }
-            }
+            };
         }
-    )
+  );
 
     // ─── app.requirePermission ───────────────────────────────────────────────
     // Checks the permissions array in the JWT payload.
@@ -60,15 +65,15 @@ export default fp(async function authPlugin(app: FastifyInstance) {
 
     app.decorate(
         'requirePermission',
-        function requirePermission(permission: string) {
+        function requirePermission(permissions: string[]) {
             return async function (request: FastifyRequest, reply: FastifyReply): Promise<void> {
-                if (!request.user?.permissions?.includes(permission)) {
-                    return reply.code(403).send({
-                        statusCode: 403,
-                        error:      'Forbidden',
-                        message:    `Permission '${permission}' required`,
-                    });
-                }
+                // if (!request.user?.permissions?.includes(permission)) {
+                //     return reply.code(403).send({
+                //         statusCode: 403,
+                //         error:      'Forbidden',
+                //         message:    `Permission '${permission}' required`,
+                //     });
+                // }
             }
         }
     )

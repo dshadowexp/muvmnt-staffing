@@ -3,7 +3,7 @@ import { signAccessToken } from "../../utils/jwt";
 import { updateFirebaseUser, verifyFirebaseIdToken } from "./decode";
 import { twilioClient } from "../../config/twilio";
 import { config } from "../../config/env";
-import { permissionsMap, Role } from "./permissions";
+import { permissionsMap, UserRole } from "./permissions";
 import { getNotificationsQueue } from "../../background/notifications.queue";
 import { decrypt, encrypt } from "../../utils/crypt";
 
@@ -14,20 +14,20 @@ export class AuthService {
         this.repo = new AuthRepository();
     }
 
-    async exchangeToken(externalToken: string, role?: Role) {
+    async exchangeToken(externalToken: string, role?: UserRole) {
         const decoded = await verifyFirebaseIdToken(externalToken);
 
         const user = await this.repo.findOrCreateUser({ authId: decoded.uid, email: decoded.email ?? "", emailVerified: decoded.email_verified ?? false, role })
 
-        const permissions = permissionsMap[user.role as Role] ?? []
+        const permissions = permissionsMap[user.role as UserRole] ?? []
 
         const internalToken = signAccessToken({
             sub: user.id,
-            role: user.role,
+            role: user.role as UserRole,
             permissions,
         });
 
-        return { token: internalToken, role: user.role };
+        return { token: internalToken, role: user.role, userId: user.id };
     }
 
     async smsOTP(phoneNumber: string) {

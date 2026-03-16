@@ -22,6 +22,10 @@ export interface PaymentResult {
     workerAmountCents: number
 }
 
+export interface SetupPaymentMethodParam {
+    userId: string
+}
+
 export class PaymentService {
     private readonly stripe:    StripeProcessor
     private readonly repo:      PaymentRepository
@@ -32,6 +36,24 @@ export class PaymentService {
         this.repo      = new PaymentRepository();
         this.payoutSvc = new PayoutService();
     }
+
+    async setupPaymentMethod(userId: string) {
+        const customerId = userId;
+        const intent = await this.stripe.client.setupIntents.create({
+            customer: customerId,
+            payment_method_types: ['card'],
+        });
+        return { clientSecret: intent.client_secret };
+    }
+
+    async listPaymethods(userId: string) {
+        const customerId = userId;
+        const methods = await this.stripe.client.paymentMethods.list({
+            customer: customerId,
+        });
+        return { methods };
+    }
+
 
     async initiatePayment(params: InitiatePaymentParams): Promise<PaymentResult> {
         const { shiftId, facilityId, amountCents } = params

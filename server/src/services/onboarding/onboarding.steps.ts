@@ -5,7 +5,7 @@
  * (status derivation) and sent to the frontend as part of the API response.
  */
 
-import { Role } from "../auth/permissions"
+import { UserRole } from "../auth/permissions"
 
 export type StepStatus =
     | 'complete'
@@ -52,7 +52,7 @@ export const WORKER_STEPS: OnboardingStepDef[] = [
         id:          'personal-details',
         title:       'Personal Details',
         description: 'Your name, contact info, location, and professional role.',
-        href:        '/onboarding/info',
+        href:        '/onboarding/profile',
         icon:        'user',
         requires:    ['verification'],
         estimate:    '3 min',
@@ -101,7 +101,7 @@ export const CLIENT_STEPS: OnboardingStepDef[] = [
         id:          'org-details',
         title:       'Organization Details',
         description: 'Your facility type, contact information, and service location.',
-        href:        '/onboarding/info',
+        href:        '/onboarding/profile',
         icon:        'building-2',
         requires:    ['verification'],
         estimate:    '4 min',
@@ -128,7 +128,7 @@ export const CLIENT_STEPS: OnboardingStepDef[] = [
 
 // ─── Step registry ────────────────────────────────────────────────────────────
 
-export const STEPS_BY_ROLE: Record<Role, OnboardingStepDef[]> = {
+export const STEPS_BY_ROLE: Record<UserRole, OnboardingStepDef[]> = {
     worker: WORKER_STEPS,
     client: CLIENT_STEPS,
     admin: []

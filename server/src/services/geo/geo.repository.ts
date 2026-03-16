@@ -1,8 +1,9 @@
 import { supabase } from '../../config/supabase';
+import { UserRole } from '../auth/permissions';
 
 export interface LocationRecord {
     entity_id:   string
-    entity_type: 'worker' | 'client'
+    entity_type: UserRole
     lat:         number
     lng:         number
     address:     string
@@ -12,7 +13,7 @@ export interface LocationRecord {
 
 interface UpsertLocationParams {
     entityId:   string
-    entityType: 'worker' | 'client'
+    entityType: UserRole
     lat:        number
     lng:        number
     address:    string
@@ -33,7 +34,6 @@ export class GeoRepository {
                     lng:         params.lng,
                     address:     params.address,
                     cell_id:     params.cellId,
-                    updated_at:  new Date().toISOString(),
                 },
                 { onConflict: 'entity_id' }
             );

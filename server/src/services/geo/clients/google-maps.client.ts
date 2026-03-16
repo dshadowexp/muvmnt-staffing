@@ -73,6 +73,7 @@ export class GoogleMapsClient {
                 key:          this.apiKey,
                 types:        'address',
                 sessiontoken: sessionToken,
+                components:   'country:ca' // 'country:ca|country:us'
             },
         })
 

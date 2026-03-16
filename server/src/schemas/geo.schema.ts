@@ -37,8 +37,6 @@ export const GeocodeBody = z.object({
 
 export const GeocodePlaceBody = z.object({
     placeId:      z.string().min(1, 'Place ID is required'),
-    entityId:     z.string().uuid(),
-    entityType:   EntityType,
     sessionToken: z.string().optional(),
 })
 

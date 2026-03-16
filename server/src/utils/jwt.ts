@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken"
 import { config } from "../config/env"
+import { UserRole } from "../services/auth/permissions"
 
 export interface JwtPayload {
     sub:         string
-    role:        string
+    role:        UserRole
     permissions: string[]
     iat?:        number
     exp?:        number

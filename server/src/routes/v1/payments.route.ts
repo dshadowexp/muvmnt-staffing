@@ -50,7 +50,29 @@ export default async function paymentRoutes(app: FastifyInstance): Promise<void>
         }
     )
 
+    app.delete(
+        '/method',
+        {
+            onRequest: [app.authenticate],
+            schema: {
+                summary:  'Remove payment method',
+                tags:     ['Payments'],
+                security: [{ bearerAuth: [] }],
+            },
+        },
+        async (request, reply) => {
+            const userId = request.user.sub;
+            const body   = { customerId: '' };
+
+            return reply.code(200).send({});
+        }
+    )
+
+    
+
     // ─── POST /payments/initiate ──────────────────────────────────────────────
+
+    
 
     app.post<{ Body: InitiatePaymentBodyType }>(
         '/initiate',

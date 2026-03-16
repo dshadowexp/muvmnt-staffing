@@ -1,5 +1,5 @@
 import { supabase } from '../../config/supabase';
-import { Role } from './permissions';
+import { UserRole } from './permissions';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -7,7 +7,7 @@ interface FindOrCreateUserParams {
   authId:        string
   email:         string
   emailVerified: boolean,
-  role?:         Role
+  role?:         UserRole
 }
 
 export interface UserRecord {

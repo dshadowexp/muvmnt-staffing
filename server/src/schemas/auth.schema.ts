@@ -9,6 +9,7 @@ export const ExchangeAuthTokenBody = z.object({
 
 // Success Response
 export const ExchangeAuthTokenReply = z.object({
+  userId: z.string(),
   token: z.string(),
   role: z.string()
 });

@@ -31,7 +31,7 @@ export default async function notificationsRoutes(app: FastifyInstance): Promise
     // userId is taken from the JWT — users can only update their own token.
 
     app.put<{ Body: UpsertFcmTokenBodyType }>(
-        '/fcm-token',
+        '/push-token',
         {
             onRequest: [app.authenticate],
             schema: {
@@ -53,7 +53,7 @@ export default async function notificationsRoutes(app: FastifyInstance): Promise
     // Called on logout to deregister the token so the user stops receiving push.
 
     app.delete<{ Params: { platform: string } }>(
-        '/fcm-token/:platform',
+        '/push-token/:platform',
         {
             onRequest: [app.authenticate],
             schema: {

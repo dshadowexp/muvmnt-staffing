@@ -1,4 +1,5 @@
 import { logger } from '../../config/logger';
+import { UserRole } from '../auth/permissions';
 import { GoogleMapsClient, PlacePrediction } from './clients/google-maps.client';
 import { H3Service } from './clients/h3.client';
 import { GeoRepository, LocationRecord } from './geo.repository'
@@ -11,7 +12,7 @@ export interface GeoServiceDeps {
 
 export interface Location {
   entityId:   string
-  entityType: 'worker' | 'client'
+  entityType: UserRole
   lat:        number
   lng:        number
   address:    string
@@ -46,7 +47,7 @@ export class GeoService {
 
     async saveLocationByAddress(params: {
         entityId:   string
-        entityType: 'worker' | 'client'
+        entityType: UserRole
         address:    string
     }): Promise<Location> {
         const geocoded = await this.maps.geocode(params.address);
@@ -55,7 +56,7 @@ export class GeoService {
 
     async saveLocationByPlace(params: {
         entityId:     string
-        entityType:   'worker' | 'client'
+        entityType:   UserRole
         placeId:      string
         sessionToken?: string
     }): Promise<Location> {
@@ -111,7 +112,7 @@ export class GeoService {
 
     private async persist(params: {
         entityId:   string
-        entityType: 'worker' | 'client'
+        entityType: UserRole
         lat:        number
         lng:        number
         address:    string

@@ -6,10 +6,10 @@ import {
 } from './onboarding.steps'
 import { OnboardingRepository, CompletionMap } from './onboarding.repository'
 import { logger } from '../../config/logger'
-import { Role } from '../auth/permissions'
+import { UserRole } from '../auth/permissions'
 
 export interface OnboardingProgress {
-  role:           Role
+  role:           UserRole
   steps:          OnboardingStep[]
   defs:           OnboardingStepDef[],
   totalSteps:     number
@@ -26,7 +26,7 @@ export class OnboardingService {
 
     // ─── Get full progress for a user ────────────────────────────────────────
 
-    async getProgress(userId: string, role: Role): Promise<OnboardingProgress> {
+    async getProgress(userId: string, role: UserRole): Promise<OnboardingProgress> {
         const defs          = STEPS_BY_ROLE[role];
         const completionMap = await this.repo.getCompletionMap(userId);
         const steps         = this.resolveStatuses(defs, completionMap, role);
@@ -53,7 +53,7 @@ export class OnboardingService {
 
     // ─── Mark a step incomplete (e.g. document rejected, re-verification) ────
 
-    async uncompleteStep(userId: string, role: Role, stepId: string): Promise<OnboardingProgress> {
+    async uncompleteStep(userId: string, role: UserRole, stepId: string): Promise<OnboardingProgress> {
         this.assertStepExists(role, stepId)
 
         // Also clear any steps that depend on this one — their completion is now invalid
@@ -71,7 +71,7 @@ export class OnboardingService {
     // Pure function — no DB calls. Takes step definitions + completion flags,
     // returns the same steps with a resolved status on each.
 
-    private resolveStatuses(defs: OnboardingStepDef[], completionMap: CompletionMap, role: Role): OnboardingStep[] {
+    private resolveStatuses(defs: OnboardingStepDef[], completionMap: CompletionMap, role: UserRole): OnboardingStep[] {
         const cmap: CompletionMap = role == 'worker' ? { 'verification': true, 'personal-details': true, 'certifications': true, 'identification': true } : { 'verification': true, 'org-details': true }
         return defs.map((def): OnboardingStep => ({
             ...def,
@@ -105,7 +105,7 @@ export class OnboardingService {
         return dependents;
     }
 
-    private assertStepExists(role: Role, stepId: string): void {
+    private assertStepExists(role: UserRole, stepId: string): void {
         const exists = STEPS_BY_ROLE[role].some((s) => s.id === stepId)
         if (!exists) throw new Error(`Step '${stepId}' does not exist for role '${role}'`)
     }
