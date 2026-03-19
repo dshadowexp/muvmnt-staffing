@@ -29,8 +29,7 @@ export const SearchAddressReply = z.array(
 
 export const GeocodeBody = z.object({
     address:    z.string().min(1, 'Address is required'),
-    entityId:   z.string().uuid(),
-    entityType: EntityType,
+    userId:   z.string().uuid(),
 })
 
 // ─── Geocode place ID ─────────────────────────────────────────────────────────
@@ -60,8 +59,7 @@ export const GeocodeReply = z.object({
 // ─── Update location by GPS coords ───────────────────────────────────────────
 
 export const UpdateLocationBody = CoordSchema.extend({
-    entityId:   z.string().uuid(),
-    entityType: EntityType,
+    userId:   z.string().uuid(),
 })
 
 // ─── Find nearby ──────────────────────────────────────────────────────────────

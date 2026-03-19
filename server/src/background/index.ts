@@ -2,12 +2,11 @@ import { Worker } from 'bullmq'
 import { FastifyInstance } from 'fastify'
 import { logger } from '../config/logger';
 import { getNotificationsQueue } from './notifications.queue';
-import { getPaymentsQueue } from './payments.queue';
 
 export async function startWorkers(app: FastifyInstance): Promise<void> {
     const workers: Worker[] = [
         getNotificationsQueue().createWorker(),
-        getPaymentsQueue().createWorker(), 
+        // getPaymentsQueue().createWorker(), 
     ]
 
     // Graceful shutdown — drain and close all workers before process exits

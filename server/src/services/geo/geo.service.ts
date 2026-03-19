@@ -11,8 +11,7 @@ export interface GeoServiceDeps {
 }
 
 export interface Location {
-  entityId:   string
-  entityType: UserRole
+  userId:     string
   lat:        number
   lng:        number
   address:    string
@@ -46,8 +45,7 @@ export class GeoService {
     // ─── Save location ────────────────────────────────────────────────────────
 
     async saveLocationByAddress(params: {
-        entityId:   string
-        entityType: UserRole
+        userId:     string
         address:    string
     }): Promise<Location> {
         const geocoded = await this.maps.geocode(params.address);
@@ -55,18 +53,40 @@ export class GeoService {
     }
 
     async saveLocationByPlace(params: {
-        entityId:     string
-        entityType:   UserRole
-        placeId:      string
+        userId:        string
+        placeId:       string
         sessionToken?: string
+        address?:     string
+        lat?:         number
+        lng?:         number
     }): Promise<Location> {
-        const geocoded = await this.maps.getPlaceDetails(params.placeId, params.sessionToken);
-        return this.persist({ ...params, lat: geocoded.lat, lng: geocoded.lng, address: geocoded.formattedAddress });
+        const hasDirectFields = params.address != null && params.lat != null && params.lng != null;
+
+        let lat: number;
+        let lng: number;
+        let address: string;
+
+        if (hasDirectFields) {
+            lat = params.lat!;
+            lng = params.lng!;
+            address = params.address!;
+        } else {
+            const geocoded = await this.maps.getPlaceDetails(params.placeId, params.sessionToken);
+            lat = geocoded.lat;
+            lng = geocoded.lng;
+            address = geocoded.formattedAddress;
+        }
+
+        return this.persist({
+            userId: params.userId,
+            lat,
+            lng,
+            address,
+        });
     }
 
     async saveLocationByCoords(params: {
-        entityId:   string
-        entityType: 'worker' | 'client'
+        userId:     string
         lat:        number
         lng:        number
     }): Promise<Location> {
@@ -111,24 +131,24 @@ export class GeoService {
     // ─── Private ─────────────────────────────────────────────────────────────
 
     private async persist(params: {
-        entityId:   string
-        entityType: UserRole
+        userId:     string
         lat:        number
         lng:        number
         address:    string
     }): Promise<Location> {
-        const cellId = this.h3.encode(params.lat, params.lng)
+        const cellId = this.h3.encode(params.lat, params.lng);
+
+        const location = await this.getLocation(params.userId);
 
         await this.repo.upsertLocation({ ...params, cellId })
 
         logger.info(
-            { entityId: params.entityId, entityType: params.entityType, cellId },
+            { userId: params.userId, cellId },
             'Location saved'
         )
 
         return {
-            entityId:   params.entityId,
-            entityType: params.entityType,
+            userId:   params.userId,
             lat:        params.lat,
             lng:        params.lng,
             address:    params.address,
@@ -139,8 +159,7 @@ export class GeoService {
 
     private toLocation(r: LocationRecord): Location {
         return {
-            entityId:   r.entity_id,
-            entityType: r.entity_type,
+            userId:     r.user_id,
             lat:        r.lat,
             lng:        r.lng,
             address:    r.address,

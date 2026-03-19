@@ -70,8 +70,8 @@ export default async function geoRoutes(app: FastifyInstance): Promise<void> {
         },
         async (request, reply) => {
             const body   = GeocodePlaceBody.parse(request.body);
-            const { sub: userId, role } = request.user;
-            const result = await geoService.saveLocationByPlace({ ...body, entityId: userId, entityType: role })
+            const { sub: userId } = request.user;
+            const result = await geoService.saveLocationByPlace({ ...body, userId: userId })
             return reply.code(200).send(result)
         }
     )

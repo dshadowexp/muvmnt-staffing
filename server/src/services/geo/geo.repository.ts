@@ -1,9 +1,7 @@
 import { supabase } from '../../config/supabase';
-import { UserRole } from '../auth/permissions';
 
 export interface LocationRecord {
-    entity_id:   string
-    entity_type: UserRole
+    user_id:     string
     lat:         number
     lng:         number
     address:     string
@@ -12,8 +10,7 @@ export interface LocationRecord {
 }
 
 interface UpsertLocationParams {
-    entityId:   string
-    entityType: UserRole
+    userId:     string
     lat:        number
     lng:        number
     address:    string
@@ -28,28 +25,32 @@ export class GeoRepository {
             .from('locations')
             .upsert(
                 {
-                    entity_id:   params.entityId,
-                    entity_type: params.entityType,
+                    user_id:     params.userId,
                     lat:         params.lat,
                     lng:         params.lng,
                     address:     params.address,
                     cell_id:     params.cellId,
                 },
-                { onConflict: 'entity_id' }
+                { onConflict: 'user_id' }
             );
 
         if (error) throw new Error(`Failed to upsert location: ${error.message}`);
     }
 
-    async findByEntityId(entityId: string): Promise<LocationRecord | null> {
+    async findByUserId(userId: string): Promise<LocationRecord | null> {
         const { data, error } = await supabase
             .from('locations')
             .select('*')
-            .eq('entity_id', entityId)
+            .eq('user_id', userId)
             .single();
 
         if (error) return null;
         return data as LocationRecord;
+    }
+
+    /** @deprecated Use findByUserId. Kept for compatibility with entityId (userId) in routes. */
+    async findByEntityId(entityId: string): Promise<LocationRecord | null> {
+        return this.findByUserId(entityId);
     }
 
     async findInCells(params: {
