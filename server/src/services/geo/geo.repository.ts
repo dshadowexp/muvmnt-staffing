@@ -21,6 +21,7 @@ export class GeoRepository {
     constructor() {}
 
     async upsertLocation(params: UpsertLocationParams): Promise<void> {
+        console.log(params);
         const { error } = await supabase
             .from('locations')
             .upsert(

@@ -1,0 +1,599 @@
+{
+    "_comment": "Muvmnt Staffing — English translations (en). Every user-facing string lives here.",
+  
+    "site": {
+        "name": "Muvmnt",
+        "tagline": "Healthcare Staffing Solutions",
+        "phone": "1-800-MUVMNT",
+        "email": "info@muvmnt.ca",
+        "provinces": "Ontario · Alberta · B.C. · Maritimes",
+        "copyright": "© {year} Muvmnt Staffing Inc. All rights reserved."
+    },
+  
+    "nav": {
+        "services": "Services",
+        "howItWorks": "How It Works",
+        "whyUs": "Why Us",
+        "contact": "Contact",
+        "findWork": "Find Work",
+        "findTalent": "Find Talent →",
+        "toggleMenu": "Toggle menu"
+    },
+  
+    "footer": {
+        "description": "Canada's modern healthcare staffing partner. Connecting facilities with credentialed professionals — fast, reliably, and with care.",
+        "columns": {
+            "services": {
+                "title": "Services",
+                "links": {
+                    "temporaryStaffing": "Temporary Staffing",
+                    "homeCareStaffing": "Home Care Staffing",
+                    "emergencyRelief": "Emergency Relief",
+                    "requestTalent": "Request Talent"
+                }
+            },
+            "company": {
+                "title": "Company",
+                "links": {
+                    "about": "About Us",
+                    "careers": "Careers",
+                    "blog": "Blog",
+                    "contact": "Contact"
+                }
+            },
+            "professionals": {
+                "title": "For Professionals",
+                "links": {
+                    "findWork": "Find Work",
+                    "submitResume": "Submit Resume",
+                    "careerCentre": "Career Centre",
+                    "faq": "FAQ"
+                }
+            }
+        },
+        "legal": {
+            "privacy": "Privacy Policy",
+            "terms": "Terms of Use"
+        }
+    },
+  
+    "hero": {
+        "badge": "Canada's Healthcare Staffing Partner",
+        "title": "The Right {accent} Staff. {underline} When You Need Them.",
+        "titleAccent": "Care",
+        "titleUnderline": "When You",
+        "subtitle": "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. From emergency relief shifts to ongoing home care, we keep care moving.",
+        "ctaPrimary": "Find Talent Now →",
+        "ctaSecondary": "I'm a Professional",
+        "stats": {
+            "facilitiesServed": "Facilities Served",
+            "fillRate": "Fill Rate",
+            "avgResponse": "Avg Response"
+        }
+    },
+  
+    "trustBar": {
+        "label": "Trusted by"
+    },
+  
+    "services": {
+        "sectionLabel": "Our Services",
+        "sectionTitle": "Staffing solutions built for healthcare.",
+        "sectionSubtitle": "Whether you need a nurse on the floor tonight or a reliable home care team, Muvmnt has you covered with qualified, compassionate professionals.",
+        "cta": "Request Staff →",
+        "items": {
+            "temporaryRelief": {
+                "title": "Temporary & Relief Staffing",
+                "description": "Rapid deployment of qualified healthcare professionals to cover sick leave, maternity/paternity leave, and unexpected absences — 24/7, coast to coast.",
+                "tags": ["Same-Day Placement", "RN · RPN · PSW", "Long-Term Care", "Hospitals", "Clinics"]
+            },
+            "homeCare": {
+                "title": "Home Care Staffing",
+                "description": "Compassionate, pre-screened personal support workers and healthcare aides placed directly in client homes to deliver consistent, high-quality care.",
+                "tags": ["PSW Placement", "Elderly Care", "Post-Surgical", "Ongoing Support"]
+            }
+        }
+    },
+  
+    "howItWorks": {
+        "sectionLabel": "How It Works",
+        "sectionTitle": "Simple. Fast. Reliable.",
+        "sectionSubtitle": "From request to placement in hours, not days. Our process is built for the pace of healthcare.",
+        "steps": {
+            "01": {
+                "title": "Submit Your Request",
+                "description": "Tell us your staffing needs, shift requirements, and preferred qualifications through our streamlined intake process."
+            },
+            "02": {
+                "title": "We Match & Screen",
+                "description": "Our team rapidly identifies best-fit candidates from our pre-vetted pool of credentialed healthcare professionals."
+            },
+            "03": {
+                "title": "Confirm & Deploy",
+                "description": "Review your matched professionals and confirm placement. We handle all onboarding logistics."
+            },
+            "04": {
+                "title": "Ongoing Support",
+                "description": "We follow up to ensure satisfaction and maintain a continuous pipeline for your future staffing needs."
+            }
+        }
+    },
+  
+    "whyUs": {
+        "sectionLabel": "Why Muvmnt",
+        "sectionTitle": "We move at the speed of care.",
+        "sectionSubtitle": "Healthcare can't wait. Neither can we. Muvmnt was built from the ground up to solve the unique pressures Canadian healthcare organizations face every day.",
+        "points": {
+            "rapidDeployment": {
+                "title": "Rapid Deployment",
+                "description": "We fill positions faster than anyone in the industry — including same-day emergency coverage."
+            },
+            "vettedTalent": {
+                "title": "Rigorously Vetted Talent",
+                "description": "Every professional is credentialed, reference-checked, and thoroughly screened before joining our roster."
+            },
+            "canadaCoverage": {
+                "title": "Canada-Wide Coverage",
+                "description": "Active placements across Ontario, Alberta, British Columbia, and the Maritimes."
+            },
+            "dedicatedSupport": {
+                "title": "Dedicated Account Support",
+                "description": "A single point of contact who knows your facility, your standards, and your culture."
+            }
+        },
+        "cards": {
+            "facilities": {
+                "title": "500+ Healthcare Facilities",
+                "subtitle": "Trust Muvmnt across Canada"
+            },
+            "fillRate": {
+                "title": "98% Fill Rate",
+                "subtitle": "Across all shift categories"
+            },
+            "responseTime": {
+                "title": "< 2hr Response Time",
+                "subtitle": "For emergency placements"
+            }
+        }
+    },
+  
+    "testimonials": {
+        "sectionLabel": "Testimonials",
+        "sectionTitle": "What our clients say.",
+        "items": [
+            {
+                "text": "Muvmnt filled three last-minute RN positions over the holiday weekend. I don't know what we would have done without them.",
+                "name": "Sandra K.",
+                "role": "Director of Care, LTC Facility — Toronto"
+            },
+            {
+                "text": "The PSWs they send are always professional and prepared. Our residents have commented on the consistency and warmth of care.",
+                "name": "James L.",
+                "role": "Administrator, Retirement Community — Calgary"
+            },
+            {
+                "text": "Onboarding was seamless. Within 48 hours we had vetted, experienced staff on the floor. Genuinely impressive.",
+                "name": "Maria T.",
+                "role": "HR Manager, Community Health Centre — Vancouver"
+            }
+        ]
+    },
+  
+    "cta": {
+        "title": "Ready to fill your next shift?",
+        "subtitle": "Join 500+ Canadian healthcare facilities who rely on Muvmnt for fast, dependable staffing solutions.",
+        "button": "Find Talent →",
+        "phone": "or call us: {phone}"
+    },
+  
+    "findWork": {
+        "meta": {
+            "title": "Find Work",
+            "description": "Join Muvmnt's network of healthcare professionals. Submit your details and resume to get matched with opportunities across Canada."
+        },
+        "hero": {
+            "badge": "Join Our Professional Network",
+            "title": "Your next {accent} move starts here.",
+            "titleAccent": "healthcare career",
+            "subtitle": "We connect skilled healthcare professionals with the best facilities across Canada. Submit your details once — we'll handle the matching.",
+            "breadcrumb": "Find Work"
+        },
+        "perks": {
+            "fastPlacements": {
+                "label": "Fast Placements",
+                "description": "Get matched with shifts quickly — including same-day opportunities."
+            },
+            "coastToCoast": {
+                "label": "Coast to Coast",
+                "description": "Opportunities in Ontario, Alberta, B.C., and the Maritimes."
+            },
+            "competitivePay": {
+                "label": "Competitive Pay",
+                "description": "We advocate for fair, competitive rates for every professional."
+            },
+            "dedicatedSupport": {
+                "label": "Dedicated Support",
+                "description": "A real person handles your file — no bots, no black holes."
+            }
+        },
+        "form": {
+            "sectionLabel": "Apply Now",
+            "sectionTitle": "Submit your details & resume",
+            "sectionSubtitle": "Takes less than 5 minutes. Our team reviews every application personally and will be in touch within 2 business days.",
+            "whatHappensNext": {
+                "title": "What happens next?",
+                "steps": [
+                    "We review your application within 48h",
+                    "Our team calls you for a brief screening",
+                    "You're added to our active roster",
+                    "We match you with fitting opportunities"
+                ]
+            }
+        }
+    },
+  
+    "applicationForm": {
+        "steps": {
+            "1": { "title": "Personal Info",        "description": "Tell us about yourself" },
+            "2": { "title": "Professional Details", "description": "Your credentials & availability" },
+            "3": { "title": "Resume & Message",     "description": "Upload your resume" }
+        },
+        "step1": {
+            "heading": "Personal Information",
+            "subheading": "Let's start with the basics. All fields marked * are required.",
+            "fields": {
+            "firstName":  { "label": "First Name",      "placeholder": "Jane" },
+            "lastName":   { "label": "Last Name",        "placeholder": "Doe" },
+            "email":      { "label": "Email Address",    "placeholder": "jane.doe@email.com" },
+            "phone":      { "label": "Phone Number",     "placeholder": "(416) 555-0100" },
+            "city":       { "label": "City",             "placeholder": "Toronto" },
+            "province":   { "label": "Province",         "placeholder": "Select province…" }
+            }
+        },
+        "step2": {
+            "heading": "Professional Details",
+            "subheading": "Tell us about your credentials, experience, and availability.",
+            "fields": {
+            "role":            { "label": "Your Role / Occupation",    "placeholder": "Select your role…" },
+            "yearsExperience": { "label": "Years of Experience",       "placeholder": "Select…" },
+            "licenseNumber":   {
+                "label": "License / Registration #",
+                "placeholder": "e.g. CNO-XXXXXXX",
+                "hint": "Leave blank if not applicable"
+            },
+            "availability": {
+                "label": "Availability",
+                "hint": "(select all that apply)"
+            },
+            "workSettings": {
+                "label": "Preferred Work Settings",
+                "hint": "(select all that apply)"
+            }
+            },
+            "experienceOptions": {
+            "lessThan1": "Less than 1 year",
+            "1to2":      "1–2 years",
+            "3to5":      "3–5 years",
+            "6to10":     "6–10 years",
+            "10plus":    "10+ years"
+            }
+        },
+        "step3": {
+            "heading": "Resume & Message",
+            "subheading": "Upload your resume and add a brief message for our team.",
+            "fields": {
+            "resume": {
+                "label": "Resume / CV",
+                "dropTitle": "Drag & drop your resume",
+                "dropTitleDragging": "Drop your file here",
+                "dropSubtitle": "or {clickToBrowse} to browse",
+                "clickToBrowse": "click",
+                "restrictions": "PDF, DOC, DOCX — max {maxMb}MB",
+                "remove": "Remove & replace"
+            },
+            "coverMessage": {
+                "label": "Message to Our Team",
+                "hint": "(optional)",
+                "placeholder": "Tell us a bit about yourself, your experience, and what you're looking for. This helps us match you with the best opportunities…",
+                "charCount": "{count} / 1000 characters"
+            },
+            "terms": {
+                "text": "I agree to Muvmnt's {privacyLink} and consent to having my information used for staffing placement purposes.",
+                "privacyLink": "Privacy Policy"
+            }
+            }
+        },
+        "navigation": {
+            "back": "← Back",
+            "continue": "Continue →",
+            "submit": "Submit Application ✓",
+            "submitting": "Submitting…"
+        },
+        "success": {
+            "title": "Application Received!",
+            "message": "Thanks, {name}! Our team will review your profile and reach out to {email} within 2 business days.",
+            "contactPrompt": "Questions? Call us: {phone}"
+        }
+    },
+  
+    "findTalent": {
+        "meta": {
+            "title": "Find Talent",
+            "description": "Request pre-screened, credentialed healthcare professionals for your organization or home. Temporary staffing, relief shifts, and home care — fast."
+        },
+        "hero": {
+            "badge": "For Healthcare Organizations & Individuals",
+            "title": "Qualified staff, {accent} you need them.",
+            "titleAccent": "exactly when",
+            "subtitle": "Submit your staffing request in minutes. Our team matches you with pre-screened, credentialed professionals — and we move fast.",
+            "breadcrumb": "Find Talent",
+            "trustPoints": {
+            "sameDayPlacements": "Same-day placements available",
+            "preScreened": "Every professional is pre-screened",
+            "fillRate": "98% shift fill rate",
+            "accountManager": "Dedicated account manager"
+            },
+            "rolesLabel": "We place professionals in",
+            "emergency": {
+            "title": "Need staff today?",
+            "subtitle": "Call us directly: {phone}"
+            }
+        },
+        "sidebar": {
+            "sectionLabel": "Submit Request",
+            "sectionTitle": "Tell us what you need",
+            "sectionSubtitle": "Fill out the form and we'll be in touch within 2 hours during business hours — or call us for emergency needs.",
+            "whatHappensNext": {
+            "title": "What happens next?",
+            "steps": [
+                "We review your request immediately",
+                "Our coordinator calls within 2 hours",
+                "We match and present candidates",
+                "You confirm — we deploy"
+            ]
+            },
+            "professionalPrompt": {
+            "lookingForWork": "Looking for work?",
+            "submitResume": "Submit your resume →"
+            }
+        }
+    },
+  
+    "talentRequestForm": {
+      "steps": {
+        "1": { "title": "Requester Info",  "description": "Who is requesting support?" },
+        "2": { "title": "Role & Schedule", "description": "What staff do you need?" },
+        "3": { "title": "Review & Submit", "description": "Confirm and send" }
+      },
+      "step1": {
+        "heading": "Who is requesting support?",
+        "subheading": "Start by telling us what type of organization or individual you are — this helps us tailor the right staffing solution.",
+        "requesterTypeLabel": "I am a…",
+        "fields": {
+          "organizationName": { "label": "Organization Name",     "placeholder": "e.g. Sunridge {type}" },
+          "agencyName":       { "label": "Agency Name",           "placeholder": "e.g. Sunridge Home Care Agency" },
+          "clinicName":       { "label": "Clinic Name",           "placeholder": "e.g. Sunridge Medical Clinic" },
+          "contactNameOrg":   { "label": "Primary Contact Name",  "placeholder": "e.g. Jennifer Malik" },
+          "contactNameInd":   { "label": "Your Full Name",        "placeholder": "e.g. Margaret Chen" },
+          "jobTitle":         { "label": "Job Title",             "hint": "e.g. HR Manager, Director of Care", "placeholder": "Director of Care" },
+          "email":            { "label": "Email Address" },
+          "emailPlaceholderOrg": "jmalik@organization.ca",
+          "emailPlaceholderInd": "your@email.com",
+          "phone":            { "label": "Phone Number",          "placeholder": "(416) 555-0199" },
+          "city":             { "label": "City",                  "placeholder": "Toronto" },
+          "province":         { "label": "Province",              "placeholder": "Select province…" },
+          "addressOrg":       { "label": "Street Address",        "placeholder": "123 Caregiving Ave, Suite 200", "hint": "Optional — helps us assign a local coordinator" },
+          "addressInd":       { "label": "Home Address",          "placeholder": "123 Maple Street, Unit 4",     "hint": "Helps us assign a local caregiver" }
+        }
+      },
+      "step2": {
+        "heading": "What staff do you need?",
+        "subheading": "Add one or more roles — each with its own shift type, dates, and any special requirements.",
+        "noRolesError": "Please add at least one role request.",
+        "addRoleButton": "+ Add Another Role"
+      },
+      "step3": {
+        "heading": "Review & Submit",
+        "subheading": "Almost there — confirm your details, select urgency, add any final notes, then submit.",
+        "summaryTitle": "📋 Request Summary",
+        "summaryLabels": {
+          "organization": "Organization",
+          "requester":    "Requester",
+          "contact":      "Contact",
+          "location":     "Location",
+          "roles":        "Roles ({count})"
+        },
+        "urgencyLabel": "How soon do you need support?",
+        "notesLabel": "Additional Notes",
+        "notesHint": "(optional)",
+        "notesPlaceholderOrg": "e.g. All staff must have current N95 fit-testing. Our facility follows strict IPAC protocols…",
+        "notesPlaceholderInd": "e.g. My mother needs overnight PSW support following hip surgery. Bilingual English/Cantonese preferred…",
+        "terms": {
+          "text": "I agree to Muvmnt's {privacyLink} and authorize Muvmnt to contact me regarding this staffing request.",
+          "privacyLink": "Privacy Policy"
+        }
+      },
+      "navigation": {
+        "back":       "← Back",
+        "continue":   "Continue →",
+        "submit":     "Submit Request ✓",
+        "submitting": "Submitting…"
+      },
+      "success": {
+        "title":         "Request Received!",
+        "messageOrg":    "Thanks, {name}. We've received your staffing request for {org}. Our team will reach out to {email} within 2 hours.",
+        "messageInd":    "Thanks, {name}. We've received your staffing request. Our team will reach out to {email} within 2 hours.",
+        "urgentPrompt":  "📞 Urgent? Call us now: {phone}"
+      }
+    },
+  
+    "shiftRequestCard": {
+        "headerLabel":   "Role Request #{number}",
+        "headerSuffix":  "Request",
+        "removeButton":  "Remove ✕",
+        "fields": {
+            "role":       { "label": "Role / Position",  "placeholder": "Select role…" },
+            "staffCount": { "label": "Staff Needed" },
+            "shiftType":  { "label": "Shift Type",       "hint": "(select all that apply)" },
+            "startDate":  { "label": "Start Date",       "hint": "" },
+            "endDate":    { "label": "End Date",         "hint": "Leave blank for single-day request" },
+            "notes":      {
+                "label": "Special Requirements",
+                "placeholder": "e.g. Must have dementia care experience, bilingual French/English, specific certifications required…"
+            }
+        }
+    },
+  
+    "requesterTypes": {
+      "Long-Term Care Home":            "Long-Term Care Home",
+      "Hospital":                       "Hospital",
+      "Retirement Community":           "Retirement Community",
+      "Home Care Agency":               "Home Care Agency",
+      "Community Health Centre":        "Community Health Centre",
+      "Rehabilitation Centre":          "Rehabilitation Centre",
+      "Dental / Medical Clinic":        "Dental / Medical Clinic",
+      "Individual / Private Home Care": "Individual / Private Home Care",
+      "Other":                          "Other"
+    },
+  
+    "professionalRoles": {
+      "RN":                        "RN",
+      "RPN":                       "RPN",
+      "PSW":                       "PSW",
+      "Healthcare Support Worker": "Healthcare Support Worker",
+      "Allied Health Practitioner":"Allied Health Practitioner",
+      "DSW":                       "DSW",
+      "Cook / Dietary Aide":       "Cook / Dietary Aide",
+      "Other":                     "Other"
+    },
+  
+    "availabilityOptions": {
+      "Full-Time":      "Full-Time",
+      "Part-Time":      "Part-Time",
+      "Casual / Relief":"Casual / Relief",
+      "Travel":         "Travel"
+    },
+  
+    "workSettings": {
+      "Long-Term Care":         "Long-Term Care",
+      "Hospital":               "Hospital",
+      "Home Care":              "Home Care",
+      "Retirement Community":   "Retirement Community",
+      "Community Clinic":       "Community Clinic",
+      "Rehabilitation Centre":  "Rehabilitation Centre"
+    },
+  
+    "shiftTypes": {
+      "Day":      "Day",
+      "Evening":  "Evening",
+      "Night":    "Night",
+      "Rotating": "Rotating",
+      "Flexible": "Flexible"
+    },
+  
+    "staffCounts": {
+      "1":    "1",
+      "2–5":  "2–5",
+      "6–10": "6–10",
+      "10+":  "10+"
+    },
+  
+    "urgencyOptions": {
+      "Emergency (today)": "Emergency (today)",
+      "Within 48 hours":   "Within 48 hours",
+      "This week":         "This week",
+      "Planning ahead":    "Planning ahead"
+    },
+  
+    "provinces": {
+      "Ontario":                  "Ontario",
+      "Alberta":                  "Alberta",
+      "British Columbia":         "British Columbia",
+      "Nova Scotia":              "Nova Scotia",
+      "New Brunswick":            "New Brunswick",
+      "Prince Edward Island":     "Prince Edward Island",
+      "Newfoundland & Labrador":  "Newfoundland & Labrador",
+      "Manitoba":                 "Manitoba",
+      "Saskatchewan":             "Saskatchewan",
+      "Quebec":                   "Québec"
+    },
+  
+    "validation": {
+      "required":         "This field is required.",
+      "requesterType":    "Please select a requester type.",
+      "organizationName": "Organization name is required.",
+      "contactName":      "Name is required.",
+      "email":            "Email is required.",
+      "emailInvalid":     "Please enter a valid email address.",
+      "phone":            "Phone number is required.",
+      "city":             "City is required.",
+      "province":         "Please select a province.",
+      "firstName":        "First name is required.",
+      "lastName":         "Last name is required.",
+      "role":             "Please select a role.",
+      "yearsExperience":  "Please select years of experience.",
+      "availability":     "Please select at least one availability option.",
+      "resumeRequired":   "Please upload your resume.",
+      "fileType":         "Please upload a PDF or Word document.",
+      "fileSize":         "File must be under {maxMb}MB.",
+      "urgency":          "Please select how soon you need support.",
+      "noRoles":          "Please add at least one role request.",
+      "shiftRole":        "Please select a role.",
+      "shiftStaffCount":  "Please select staff count.",
+      "shiftType":        "Select at least one shift type.",
+      "shiftStartDate":   "Start date is required.",
+      "agreeToTerms":     "You must agree to continue."
+    },
+  
+    "common": {
+      "breadcrumbHome":  "Home",
+      "optional":        "(optional)",
+      "selectAll":       "(select all that apply)",
+      "required":        "*",
+      "loading":         "Loading…",
+      "back":            "← Back",
+      "continue":        "Continue →",
+      "submit":          "Submit",
+      "stepOf":          "Step {current} of {total}",
+      "privacyOfficer":  "Privacy Officer",
+      "legalDisclaimer": "This document does not constitute legal advice."
+    },
+  
+    "legal": {
+      "badge":       "Legal Document",
+      "metaBadges": {
+        "effective":    "Effective",
+        "lastUpdated":  "Last Updated",
+        "jurisdiction": "Jurisdiction",
+        "canada":       "Canada"
+      },
+      "toc":              "Contents",
+      "questions":        "Questions?",
+      "contactPrivacy":   "Contact our Privacy Officer",
+      "disclaimer": {
+        "title": "This document does not constitute legal advice.",
+        "body":  "Muvmnt Staffing Inc. recommends that clients and professionals seek independent legal counsel for matters specific to their situation. For questions about this document, contact {email}."
+      },
+      "alsoSee": "Also see:"
+    },
+  
+    "privacy": {
+      "meta": {
+        "title":       "Privacy Policy",
+        "description": "Muvmnt Staffing Inc. Privacy Policy — how we collect, use, and protect your personal information in compliance with PIPEDA, PHIPA, and applicable provincial privacy laws."
+      },
+      "title":    "Privacy Policy",
+      "subtitle": "How Muvmnt Staffing Inc. collects, uses, protects, and discloses your personal information — in compliance with PIPEDA, PHIPA, and applicable provincial privacy laws across Canada.",
+      "relatedLink": "Terms of Use"
+    },
+  
+    "terms": {
+      "meta": {
+        "title":       "Terms of Use",
+        "description": "Muvmnt Staffing Inc. Terms of Use — governing the use of our website and staffing services for healthcare professionals and facility clients across Canada."
+      },
+      "title":    "Terms of Use",
+      "subtitle": "These Terms govern your use of the Muvmnt Staffing platform and services — whether you are a healthcare professional seeking placement or a facility seeking qualified staff.",
+      "relatedLink": "Privacy Policy"
+    }
+  }

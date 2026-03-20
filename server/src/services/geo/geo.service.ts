@@ -16,7 +16,7 @@ export interface Location {
   lng:        number
   address:    string
   cellId:     string
-  updatedAt:  string
+  updatedAt?:  string
 }
 
 export interface NearbyResult extends Location {
@@ -77,12 +77,15 @@ export class GeoService {
             address = geocoded.formattedAddress;
         }
 
-        return this.persist({
+        const cellId = this.h3.encode(lat, lng);
+
+        return {
             userId: params.userId,
             lat,
             lng,
             address,
-        });
+            cellId,
+        };
     }
 
     async saveLocationByCoords(params: {
@@ -136,11 +139,10 @@ export class GeoService {
         lng:        number
         address:    string
     }): Promise<Location> {
+        console.log(params);
         const cellId = this.h3.encode(params.lat, params.lng);
 
-        const location = await this.getLocation(params.userId);
-
-        await this.repo.upsertLocation({ ...params, cellId })
+        await this.repo.upsertLocation({ ...params, cellId });
 
         logger.info(
             { userId: params.userId, cellId },

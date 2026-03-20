@@ -1,0 +1,143 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { fetchToken } from "@/services/firebase/messaging";
+import { onMessage, Unsubscribe } from "firebase/messaging";
+import { messaging } from "@/services/firebase/messaging";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+async function getNotificationPermission() {
+    if (!('Notification' in window)) {
+        console.log("This browser does not support notifications");
+        return null;
+    }
+
+    if (Notification.permission === 'granted') {
+        return await fetchToken()
+    }
+
+    if (Notification.permission === 'denied') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            return await fetchToken();
+        }
+        console.log("The user has blocked notifications");
+    }
+
+    console.log("The user has not granted permission to receive notifications");
+    return null;
+}
+
+export const useFcmToken = () => {
+    const router = useRouter();
+    const [notificationPermissionStatus, setNotificationPermissionStatus] = useState<NotificationPermission | null>(null);
+    const [token, setToken] = useState<string | null>(null);
+    const retryLoadToken = useRef(0);
+    const isLoading = useRef(false);
+
+    const loadToken = async () => {
+        if (isLoading.current) return;
+        isLoading.current = true;
+        const token = await getNotificationPermission();
+
+        if (Notification.permission === 'denied') {
+            setNotificationPermissionStatus('denied');
+            isLoading.current = false;
+            return;
+        }
+
+        if (!token) {
+            if (retryLoadToken.current >= 3) {
+                alert("Unable to load FCM token. Please refresh the browser.");
+                isLoading.current = false;
+                return;
+            }
+
+            retryLoadToken.current++;
+            isLoading.current = false;
+            await loadToken();
+            return;
+        }
+
+        setNotificationPermissionStatus(Notification.permission);
+        setToken(token);
+        isLoading.current = false;
+    }
+
+    useEffect(() => {
+        if ("Notification" in window) {
+            loadToken();
+        }
+    }, []);
+
+    useEffect(() => {
+        const setupListener = async() => {
+            if (!token) return;
+
+            const m = await messaging();
+            if (!m) return;
+
+            const unsubscribe = await onMessage(m, async (payload) => {
+                console.log("Message received:", payload);
+                if (Notification.permission !== 'granted') return;
+
+                const link = payload.fcmOptions?.link || payload.data?.link;
+                if (!link) {
+                    toast.info(
+                        `{payload.notification?.title}: ${payload.notification?.body}`,
+                    )
+                } else {
+                    toast.info(
+                        `{payload.notification?.title}: ${payload.notification?.body}`,
+                        {
+                            action: {
+                                label: "Visit",
+                                onClick: () => {
+                                    const link = payload.fcmOptions?.link || payload.data?.link;
+                                    if (link) {
+                                        router.push(link);
+                                    }
+                                },
+                            },
+                        }
+                    )
+                }
+
+                const n = new Notification(
+                    payload.notification?.title || "New message",
+                    {
+                        body: payload.notification?.body || "This is a new message",
+                        data: link ? { url: link } : undefined,
+                    }
+                );
+
+                n.onclick = (event) => {
+                    event.preventDefault();
+                    const link = (event.target as Notification).data?.url;
+                    if (link) {
+                        router.push(link);
+                    } else {
+                        console.log("No link found in notification payload");
+                    }
+                };
+            });
+
+            return unsubscribe;
+        }
+
+        let unsubscribe: Unsubscribe | null = null;
+        setupListener().then((unsub) => {
+            if (unsub) {
+                unsubscribe = unsub;
+            }
+        });
+
+        return () => unsubscribe?.();
+    }, [token, router, toast]);
+
+    return {
+        notificationPermissionStatus,
+        token,
+    };
+}
