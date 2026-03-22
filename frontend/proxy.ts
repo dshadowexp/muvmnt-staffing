@@ -2,39 +2,39 @@ import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
 import { NON_ORG_PREFIXES, PUBLIC_PATHS } from './lib/constants';
-import { getSession } from './lib/session';
+import { UserAuth } from './types/auth';
 
 const intlMiddleware = createMiddleware(routing);
 
+function getSessionFromRequest(req: NextRequest): UserAuth | null {
+    const session = req.cookies.get("session")?.value;
+    if (!session) return null;
+    try {
+        return JSON.parse(session) as UserAuth;
+    } catch {
+        return null;
+    }
+}
+
+function isPublicRoute(pathname: string): boolean {
+    const exactMatch = PUBLIC_PATHS.includes(pathname);
+    const prefixMatch = NON_ORG_PREFIXES.some((p) => pathname.startsWith(p));
+    return exactMatch || prefixMatch;
+}
+
 export async function proxy(req: NextRequest) {
     const { pathname, search } = req.nextUrl;
-    const isPublic = PUBLIC_PATHS.includes(pathname);
-    const isNonOrgPath = NON_ORG_PREFIXES.some((p) => pathname.startsWith(p));
 
-    // Authentication check
-    // request.cookies is the middleware-native API — no import needed
-    // Get all cookies
-
-    // Read a specific cookie
-    const cookieSession = await getSession();
-    const isAuthed = !!cookieSession;
-
-    if (!isPublic && !cookieSession) {
-        const signinUrl = new URL('/sign-in', req.url);
-        signinUrl.searchParams.set('redirect', pathname + search);
-        return NextResponse.redirect(signinUrl);
-    }
-
-    if (isPublic || isNonOrgPath) {
+    if (isPublicRoute(pathname)) {
         return intlMiddleware(req);
     }
 
-    // ── 5. Protected route, no session → redirect to sign-in ─────────────────
-    if (!isAuthed) {
-        console.log('isAuthed is false, redirecting to sign-in');
-        const signInUrl = new URL('/sign-in', req.url);
-        if (pathname !== '/') signInUrl.searchParams.set('redirect', pathname + search);
-        return NextResponse.redirect(signInUrl);
+    const session = getSessionFromRequest(req);
+
+    if (!session) {
+        const signinUrl = new URL('/sign-in', req.url);
+        signinUrl.searchParams.set('redirect', pathname + search);
+        return NextResponse.redirect(signinUrl);
     }
 
     return intlMiddleware(req);
