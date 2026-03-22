@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/features/auth/auth-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Analytics } from "@vercel/analytics/next"
 
 const outfitSans = Outfit({
   variable: "--font-outfit-sans",
@@ -85,6 +86,7 @@ export default async function RootLayout({ children, params }: { children: React
         </ThemeProvider>
         </AuthProvider>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
