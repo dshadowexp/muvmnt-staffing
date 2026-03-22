@@ -1,5 +1,6 @@
 import { UserRole } from "@/types/auth";
 import { setSession } from "../session";
+import { env } from "@/data/env/client";
 
 export interface ExchangeTokenResponse {
     userId: string;
@@ -41,7 +42,7 @@ async function fetchExchange(
 
     try {
         res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/exchange-token`,
+            `${env.NEXT_PUBLIC_API_URL}/v1/auth/exchange-token`,
             {
                 method:  "POST",
                 headers: {
