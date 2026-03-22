@@ -5,6 +5,11 @@ import fastifyRateLimit from '@fastify/rate-limit';
 import { config } from "../config/env";
 // import { getRedisCluster } from "../config/redis";
 
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://muvmnt-staffing.vercel.app",
+  ];
+
 export default fp(async (fastify) => {
     await fastify.register(fastifyHelmet, {
         contentSecurityPolicy: {
@@ -18,7 +23,12 @@ export default fp(async (fastify) => {
     });
 
     await fastify.register(fastifyCors, {
-        origin:      'http://localhost:3000',
+        origin:      (origin, cb) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                return cb(null, true);
+            }
+            return cb(new Error('Not allowed'), false);
+        },
         credentials: true,
         methods:     ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 

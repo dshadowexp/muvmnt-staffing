@@ -50,12 +50,6 @@ const envSchema = z.object({
 
     GOOGLE_MAPS_API_KEY: z.string(),
     GOOGLE_MAPS_URL: z.string(),
-
-    AWS_REGION: z.string(),
-    AWS_ACCESS_KEY_ID: z.string(),
-    AWS_SECRET_ACCESS_KEY: z.string(),
-    AWS_S3_BUCKET: z.string(),
-    AWS_ENDPOINT_URL_S3: z.string()
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -135,12 +129,4 @@ export const config = {
         mapsApiKey: parsed.data.GOOGLE_MAPS_API_KEY,
         url: parsed.data.GOOGLE_MAPS_URL
     },
-
-    aws: {
-        region: parsed.data.AWS_REGION,
-        accessKey: parsed.data.AWS_ACCESS_KEY_ID,
-        secretKey: parsed.data.AWS_SECRET_ACCESS_KEY,
-        s3Bucket: parsed.data.AWS_S3_BUCKET,
-        endpoint: parsed.data.AWS_ENDPOINT_URL_S3,
-    }
 };
