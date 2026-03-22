@@ -59,11 +59,4 @@ export declare const config: {
         mapsApiKey: string;
         url: string;
     };
-    aws: {
-        region: string;
-        accessKey: string;
-        secretKey: string;
-        s3Bucket: string;
-        endpoint: string;
-    };
 };

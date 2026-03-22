@@ -45,11 +45,6 @@ const envSchema = zod_1.z.object({
     STRIPE_DEFAULT_CURRENCY: zod_1.z.string().default('cad'),
     GOOGLE_MAPS_API_KEY: zod_1.z.string(),
     GOOGLE_MAPS_URL: zod_1.z.string(),
-    AWS_REGION: zod_1.z.string(),
-    AWS_ACCESS_KEY_ID: zod_1.z.string(),
-    AWS_SECRET_ACCESS_KEY: zod_1.z.string(),
-    AWS_S3_BUCKET: zod_1.z.string(),
-    AWS_ENDPOINT_URL_S3: zod_1.z.string()
 });
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -117,12 +112,5 @@ exports.config = {
         mapsApiKey: parsed.data.GOOGLE_MAPS_API_KEY,
         url: parsed.data.GOOGLE_MAPS_URL
     },
-    aws: {
-        region: parsed.data.AWS_REGION,
-        accessKey: parsed.data.AWS_ACCESS_KEY_ID,
-        secretKey: parsed.data.AWS_SECRET_ACCESS_KEY,
-        s3Bucket: parsed.data.AWS_S3_BUCKET,
-        endpoint: parsed.data.AWS_ENDPOINT_URL_S3,
-    }
 };
 //# sourceMappingURL=env.js.map

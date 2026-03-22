@@ -2,7 +2,7 @@ import Handlebars from 'handlebars'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const TEMPLATES_DIR = join(__dirname, 'templates')
+const TEMPLATES_DIR = join(__dirname, 'templates');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

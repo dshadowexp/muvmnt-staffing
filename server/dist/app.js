@@ -19,7 +19,13 @@ async function buildApp() {
             ...(env_1.config.nodeEnv === 'development' && {
                 transport: {
                     target: 'pino-pretty',
-                    options: { colorize: true, translateTime: 'HH:MM:ss' },
+                    options: {
+                        colorize: true,
+                        translateTime: 'HH:MM:ss',
+                        singleLine: true,
+                        // ignore: 'pid,hostname,reqId,responseTime,req,res',
+                        // messageFormat: '{msg} {req.method} {req.url} {res.statusCode} {responseTime}ms',
+                    },
                 },
             }),
         },

@@ -8,7 +8,7 @@ import { config } from "../config/env";
 const allowedOrigins = [
     "http://localhost:3000",
     "https://muvmnt-staffing.vercel.app",
-  ];
+];
 
 export default fp(async (fastify) => {
     await fastify.register(fastifyHelmet, {
