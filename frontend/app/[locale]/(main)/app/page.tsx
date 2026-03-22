@@ -50,7 +50,16 @@ async function JobInfos() {
           </Link>
         </Button>
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 has-hover:*:not-hover:opacity-70">
+      <Link className="transition-opacity" href="/app/job-infos/new">
+        <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
+          <div className="text-lg flex items-center gap-2">
+            <PlusIcon className="size-6" />
+            New Request
+          </div>
+        </Card>
+      </Link>
       {jobInfos.map((jobInfo) => (
         <Link
           className="hover:scale-[1.02] transition-[transform_opacity]"
@@ -92,7 +101,7 @@ async function JobInfos() {
                   </span>
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-wrap items-center gap-2 border-t pt-4">
+              <CardFooter className="flex flex-wrap items-center gap-2 pt-6">
                 <Badge variant="secondary" className="font-semibold">
                   {formatCurrency(jobInfo.hourly_rate)}
                   <span className="ml-0.5 font-normal text-muted-foreground">
@@ -103,24 +112,12 @@ async function JobInfos() {
                   <UserIcon className="size-3" />
                   {jobInfo.positions} {jobInfo.positions === 1 ? "position" : "positions"}
                 </Badge>
-                {jobInfo.screening && (
-                  <Badge variant="outline" className="border-primary/50 text-primary">
-                    AI screening
-                  </Badge>
-                )}
               </CardFooter>
             </div>
           </Card>
         </Link>
       ))}
-      <Link className="transition-opacity" href="/app/job-infos/new">
-        <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
-          <div className="text-lg flex items-center gap-2">
-            <PlusIcon className="size-6" />
-            New Job
-          </div>
-        </Card>
-      </Link>
+      
       </div>
     </div>
   )

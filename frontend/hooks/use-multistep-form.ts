@@ -7,7 +7,10 @@ export interface MultistepFormStep {
     title:       string
     description: string
     route:       string
+    dependsOn:   string[]
+    freezesWhen: string[]
     icon:        LucideIcon
+    locked:      boolean
 }
 
 function getLastSegment(pathOrRoute: string): string {
@@ -15,15 +18,22 @@ function getLastSegment(pathOrRoute: string): string {
     return parts[parts.length - 1] ?? "";
 }
 
+function findStepIndex(steps: MultistepFormStep[], pathname: string): number {
+    const currentPath = getLastSegment(pathname ?? "");
+    return steps.findIndex((step) => getLastSegment(step.route) === currentPath);
+}
+
 export function useMultistepForm(steps: MultistepFormStep[]) {
     const pathname = usePathname();
-    const currentPath = getLastSegment(pathname ?? "");
-    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [currentStepIndex, setCurrentStepIndex] = useState(() => {
+        const idx = findStepIndex(steps, pathname ?? "");
+        return idx >= 0 ? idx : 0;
+    });
 
     useEffect(() => {
-        const idx = steps.findIndex((step) => getLastSegment(step.route) === currentPath);
-        setCurrentStepIndex(idx >= 0 ? idx : 0);
-    }, [currentPath, steps]);
+        const idx = findStepIndex(steps, pathname ?? "");
+        setCurrentStepIndex((prev) => (idx >= 0 ? idx : prev));
+    }, [pathname, steps]);
 
     function next() {
         setCurrentStepIndex(i => {

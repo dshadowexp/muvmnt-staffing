@@ -27,7 +27,6 @@ interface UploadedFile {
 }
 
 interface FileInputProps {
-  label: string;
   context: StorageFolder;
   accept?: string[];
   maxMb?: number;
@@ -56,7 +55,6 @@ function formatBytes(bytes: number) {
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function FileInput({
-  label,
   context,
   accept = [".pdf"],
   maxMb = 10,
@@ -91,11 +89,12 @@ export function FileInput({
       setFile(null);
       queueMicrotask(() => onFileChange?.(false));
       toast.success("File removed successfully");
-    } catch {
-      toast.error("Failed to remove file from storage.");
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Failed to remove file from storage.");
       setFile((prev) =>
         prev?.id === fileId ? { ...prev, isDeleting: false, error: true } : prev
-      );
+      ); 
     }
   }
 

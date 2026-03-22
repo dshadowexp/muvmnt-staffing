@@ -10,6 +10,7 @@ import {
   upsertWorkAuthorizationAction,
   deleteWorkAuthorizationAction,
 } from "@/features/profile/actions/authorization-actions";
+import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import { deleteFile } from "@/features/storage/dal/mutations";
 import {
   Field,
@@ -27,6 +28,7 @@ import {
   MultiSelectValue,
 } from "@/components/ui/multi-select";
 import { FileInput } from "@/features/storage/components/file-input";
+import { PhotoUpload } from "@/features/storage/components/photo-upload";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { toast } from "sonner";
 
@@ -34,11 +36,16 @@ interface WorkerAuthorizationFormProps {
   initialWorkAuthorization?:
     | { type: string; file_url: string }
     | null;
+  initialWorkerPhotoUrl?: string | null;
 }
 
 export function WorkerAuthorizationForm({
   initialWorkAuthorization,
+  initialWorkerPhotoUrl,
 }: WorkerAuthorizationFormProps) {
+  const [photoKey, setPhotoKey] = useState<string | null>(
+    initialWorkerPhotoUrl ?? null
+  );
   const [fileKey, setFileKey] = useState<string | null>(
     initialWorkAuthorization?.file_url ?? null
   );
@@ -89,6 +96,30 @@ export function WorkerAuthorizationForm({
     }
   }
 
+  function handlePhotoUploaded(file: { key?: string }) {
+    if (file.key) {
+      setPhotoKey(file.key);
+      updateWorkerPhotoAction(file.key).then(({ error, message }) => {
+        if (error) toast.error(message);
+        else toast.success(message);
+      });
+    }
+  }
+
+  async function handlePhotoRemoved() {
+    if (photoKey) {
+      try {
+        await deleteFile(photoKey);
+      } catch {
+        toast.error("Failed to remove photo from storage.");
+      }
+    }
+    setPhotoKey(null);
+    updateWorkerPhotoAction("").then(({ error, message }) => {
+      if (error) toast.error(message);
+    });
+  }
+
   async function handleFileRemoved() {
     setFileKey(null);
     const { error, message } = await deleteWorkAuthorizationAction();
@@ -119,6 +150,19 @@ export function WorkerAuthorizationForm({
   return (
     <>
       <FieldGroup>
+        <Field>
+          <FieldLabel>Photo</FieldLabel>
+          <FieldDescription>
+            Upload a clear photo of yourself for your profile
+          </FieldDescription>
+          <PhotoUpload
+            context="avatars"
+            initialFileKey={photoKey ?? undefined}
+            onUploaded={handlePhotoUploaded}
+            onFileChange={(hasFile) => !hasFile && handlePhotoRemoved()}
+          />
+        </Field>
+
         <Field data-invalid={!!form.formState.errors.workAuthorization}>
           <FieldLabel>Work authorization type</FieldLabel>
           <FieldDescription>
@@ -151,7 +195,6 @@ export function WorkerAuthorizationForm({
               Upload copy of your {workAuthorization} document.
             </FieldDescription>
             <FileInput
-              label="Choose file"
               context="compliance"
               initialFileKey={fileKey ?? undefined}
               onUploaded={handleFileUploaded}

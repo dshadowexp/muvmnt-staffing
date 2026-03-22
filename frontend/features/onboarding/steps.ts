@@ -18,6 +18,9 @@ const workerSteps: MultistepFormStep[] = [
         title:       'Verification',
         description: 'Confirm your email address and phone number to secure your account.',
         route:        '/onboarding/verification',
+        dependsOn:   [], 
+        locked:      true, 
+        freezesWhen: [], 
         icon:        MailCheck,
     },
     {
@@ -25,6 +28,9 @@ const workerSteps: MultistepFormStep[] = [
         title:       'Profile',
         description: 'Your name, contact info, location, and professional role.',
         route:        '/onboarding/profile',
+        dependsOn:   ['verification'],
+        locked:      false,
+        freezesWhen: ['authorization'],
         icon:        User,
     },
     {
@@ -32,6 +38,9 @@ const workerSteps: MultistepFormStep[] = [
         title:       'Location',
         description: 'Your location and address.',
         route:        '/onboarding/location',
+        dependsOn:   ['verification'],
+        locked:      false, 
+        freezesWhen: [],
         icon:        MapPin,
     },
     {
@@ -39,6 +48,9 @@ const workerSteps: MultistepFormStep[] = [
         title:       'Authorization',
         description: 'Select your work authorization type and upload your document.',
         route:        '/onboarding/authorization',
+        dependsOn:   ['personal-details', 'location'],
+        locked:      true,
+        freezesWhen: [],
         icon:        ShieldCheck,
     },
     {
@@ -46,6 +58,9 @@ const workerSteps: MultistepFormStep[] = [
         title:       'Certifications',
         description: 'Upload your CPR and First Aid certificates.',
         route:        '/onboarding/certifications',
+        dependsOn:   ['authorization'],
+        locked:      true,
+        freezesWhen: [],
         icon:        Award,
     },
     {
@@ -53,6 +68,9 @@ const workerSteps: MultistepFormStep[] = [
         title:       'Payroll',
         description: 'Add a void cheque or direct deposit details to receive payments.',
         route:        '/onboarding/payroll',
+        dependsOn:   ['authorization'],
+        locked:      true,
+        freezesWhen: [],
         icon:        CreditCard,
     },
 ]
@@ -65,6 +83,9 @@ const clientSteps: MultistepFormStep[] = [
         title:       'Verification',
         description: 'Confirm your email address and phone number to secure your account.',
         route:        '/onboarding/verification',
+        dependsOn:   [], 
+        locked:      true, 
+        freezesWhen: [],
         icon:        MailCheck,
     },
     {
@@ -72,6 +93,9 @@ const clientSteps: MultistepFormStep[] = [
         title:       'Details',
         description: 'Provide your basic information',
         route:        '/onboarding/details',
+        dependsOn:   ['verification'],
+        locked:      false, 
+        freezesWhen: [],
         icon:        Building2,
     },
     {
@@ -79,6 +103,9 @@ const clientSteps: MultistepFormStep[] = [
         title:       'Location',
         description: 'Your location and address.',
         route:        '/onboarding/location',
+        dependsOn:   ['verification'],
+        locked:      false, 
+        freezesWhen: [],
         icon:        MapPin,
     },
     {
@@ -86,6 +113,9 @@ const clientSteps: MultistepFormStep[] = [
         title:       'Billing',
         description: 'Add a payment method to authorize staffing placements.',
         route:        '/onboarding/billing',
+        dependsOn:   ['details', 'location'],
+        locked:      true,
+        freezesWhen: [],
         icon:        CreditCard,
     },
 ]
@@ -96,4 +126,9 @@ export const STEPS_BY_ROLE: Record<UserRole, MultistepFormStep[]> = {
     worker: workerSteps,
     client: clientSteps,
     admin: []
+}
+
+export interface OnboardingStepState {
+    completed:    boolean
+    completed_at: string | null
 }

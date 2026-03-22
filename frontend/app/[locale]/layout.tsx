@@ -3,11 +3,12 @@ import "./globals.css";
 import { Outfit } from "next/font/google"
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
-import { ThemeProvider } from "next-themes"
 import { routing } from '@/i18n/routing';
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/features/auth/auth-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const outfitSans = Outfit({
   variable: "--font-outfit-sans",
@@ -33,6 +34,27 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: "Fast, reliable healthcare staffing solutions for Canadian facilities.",
     type: "website",
+    siteName: SITE_NAME,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Muvmnt Staffing Inc.",
+      },
+    ],
+  },
+  robots: {
+    index: true,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+    },
   },
 };
 
@@ -58,8 +80,7 @@ export default async function RootLayout({ children, params }: { children: React
             enableColorScheme
             disableTransitionOnChange
           >
-            {children}
-            {/* Sonner Toaster */}
+            <TooltipProvider>{children}</TooltipProvider>
             <Toaster position="top-right" richColors closeButton duration={3000} />
         </ThemeProvider>
         </AuthProvider>

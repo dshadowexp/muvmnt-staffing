@@ -12,6 +12,9 @@ export async function deleteFile(key: string) {
     if (!exists) {
         throw new Error('File not found');
     }
+    console.log('Getting metadata for file', key);
+    console.log('Metadata', exists);
 
+    console.log('Deleting file', key);
     await s3Api.delete(key);
 }

@@ -36,7 +36,7 @@ export function ClientProfileForm({ form }: ClientProfileFormProps) {
         <Field data-invalid={!!errors.name}>
           <FieldLabel htmlFor="client-name">Organization name</FieldLabel>
           <FieldDescription>
-            Your facility or business name
+            Your name or business name
           </FieldDescription>
           <Input
             id="client-name"

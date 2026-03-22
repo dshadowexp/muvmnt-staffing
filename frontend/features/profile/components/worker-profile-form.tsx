@@ -33,6 +33,12 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+/** Parse "yyyy-MM-dd" as local date to avoid timezone shifting to previous day. */
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 interface WorkerProfileFormProps {
   form: UseFormReturn<WorkerProfileValues>;
 }
@@ -89,7 +95,7 @@ export function WorkerProfileForm({
               >
                 <CalendarIcon className="mr-2 size-4" />
                 {watch("dateOfBirth")
-                  ? format(new Date(watch("dateOfBirth")), "PPP")
+                  ? format(parseLocalDate(watch("dateOfBirth")!), "PPP")
                   : "Pick a date"}
               </Button>
             </PopoverTrigger>
@@ -98,7 +104,12 @@ export function WorkerProfileForm({
                 mode="single"
                 selected={
                   watch("dateOfBirth")
-                    ? new Date(watch("dateOfBirth")!)
+                    ? parseLocalDate(watch("dateOfBirth")!)
+                    : undefined
+                }
+                defaultMonth={
+                  watch("dateOfBirth")
+                    ? parseLocalDate(watch("dateOfBirth")!)
                     : undefined
                 }
                 onSelect={(d) =>

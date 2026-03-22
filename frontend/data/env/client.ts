@@ -12,9 +12,9 @@ export const env = createEnv({
         NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1),
         NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: z.string().min(1),
         NEXT_PUBLIC_FIREBASE_VAPID_KEY: z.string().min(1),
-        NEXT_PUBLIC_HUME_CONFIG_ID: z.string().min(1),
         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().min(1),
         NEXT_PUBLIC_GOOGLE_MAPS_URL: z.string().min(1),
+        NEXT_PUBLIC_HUME_CONFIG_ID: z.string().min(1),
     },
     emptyStringAsUndefined: true,
     experimental__runtimeEnv: {
@@ -27,8 +27,8 @@ export const env = createEnv({
         NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
         NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
         NEXT_PUBLIC_FIREBASE_VAPID_KEY: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-        NEXT_PUBLIC_HUME_CONFIG_ID: process.env.NEXT_PUBLIC_HUME_CONFIG_ID,
         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
         NEXT_PUBLIC_GOOGLE_MAPS_URL: process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL,
+        NEXT_PUBLIC_HUME_CONFIG_ID: process.env.NEXT_PUBLIC_HUME_CONFIG_ID,
     },
 })

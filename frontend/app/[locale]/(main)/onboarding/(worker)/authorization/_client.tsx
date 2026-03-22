@@ -10,13 +10,17 @@ import { useActionState } from "react";
 
 const initialState: FormErrors = {}
 
-interface WorkerAuthorizationFormProps {
+interface AuthorizationClientProps {
     initialWorkAuthorization?:
       | { type: string; file_url: string }
       | null;
+    initialWorkerPhotoUrl?: string | null;
   }
 
-export function AuthorizationClient({ initialWorkAuthorization }: WorkerAuthorizationFormProps) {
+export function AuthorizationClient({
+  initialWorkAuthorization,
+  initialWorkerPhotoUrl,
+}: AuthorizationClientProps) {
     const [serverErrors, formAction] = useActionState(authorizationAction, initialState);
 
     useEffect(() => {
@@ -26,8 +30,11 @@ export function AuthorizationClient({ initialWorkAuthorization }: WorkerAuthoriz
     }, [serverErrors]);
 
     return (
-        <form action={formAction}>
-            <WorkerAuthorizationForm initialWorkAuthorization={initialWorkAuthorization} />
+        <form action={formAction} className="space-y-6">
+            <WorkerAuthorizationForm
+              initialWorkAuthorization={initialWorkAuthorization}
+              initialWorkerPhotoUrl={initialWorkerPhotoUrl}
+            />
             <ContinueButton />
         </form>
     );

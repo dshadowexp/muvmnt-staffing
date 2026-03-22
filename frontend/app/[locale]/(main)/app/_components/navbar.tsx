@@ -1,13 +1,19 @@
-import LogoutButton from "@/features/auth/components/logout-button";
+import { LogoutButton } from "@/features/auth/components/logout-button";
 import { Logo } from "@/components/logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/features/users/components/user-avatar";
 import { LogOut, User, Wallet } from "lucide-react";
-import { UserRole } from "@/types/auth";
+import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
+import { redirect } from "next/navigation";
 
-export function Navbar({ user }: { user: { name: string; imageUrl: string, role: UserRole } }) {
+export async function Navbar() {
+  const { authUser, user } = await getCurrentUser({ allData: true });
+
+  if (authUser == null) return redirect("/sign-in");
+  if (user == null || user.is_active == false) return redirect("/onboarding");
+  
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-header border-b bg-background">
       <div className="container flex h-full items-center justify-between">
@@ -37,7 +43,7 @@ export function Navbar({ user }: { user: { name: string; imageUrl: string, role:
           
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <UserAvatar user={user} />
+              <UserAvatar user={{ name: authUser.displayName ?? "", imageUrl: authUser.photoURL ?? "" }} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem>
@@ -48,6 +54,12 @@ export function Navbar({ user }: { user: { name: string; imageUrl: string, role:
                 <DropdownMenuItem>
                   <Wallet className="mr-2" />
                   Payroll
+                </DropdownMenuItem>
+              )}
+              {user.role === "client" && (
+                <DropdownMenuItem>
+                  <Wallet className="mr-2" />
+                  Billing
                 </DropdownMenuItem>
               )}
               <LogoutButton asChild>

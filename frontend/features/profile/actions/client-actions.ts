@@ -5,29 +5,45 @@ import { clientSchema } from "@/features/profile/schemas/client";
 import { createAdminClient } from "@/services/supabase/server";
 import { z } from "zod";
 
-export async function createClientAction(unsafeData: z.infer<typeof clientSchema>) {
-    const { success, data } = clientSchema.safeParse(unsafeData);
-    if (!success) {
-        return { error: true, message: "Invalid profile data" };
+const clientPayload = (data: z.infer<typeof clientSchema>) => ({
+  name: data.name,
+  type: data.type,
+});
+
+export async function createClientAction(data: z.infer<typeof clientSchema>) {
+  const { user } = await getCurrentUser({ allData: true });
+  if (user == null) {
+    return { error: true, message: "User not authenticated" };
+  }
+
+  const userId = user.id;
+  const supabase = await createAdminClient();
+
+  const { data: existing } = await supabase
+    .from("clients")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabase
+      .from("clients")
+      .update(clientPayload(data))
+      .eq("user_id", userId);
+
+    if (error) {
+      return { error: true, message: error.message };
     }
-    
-    const { user } = await getCurrentUser({ allData: true });
-    if (user == null) {
-        return { error: true, message: "User not authenticated" };
-    }
+    return { error: false, message: "Profile updated successfully" };
+  }
 
-    const { id: userId } = user;
+  const { error } = await supabase.from("clients").insert({
+    ...clientPayload(data),
+    user_id: userId,
+  });
 
-    const supabase = await createAdminClient();
-    const { data: clientData, error: clientError } = await supabase
-        .from("clients")
-        .insert({ name: data.name, type: data.type, user_id: userId })
-        .select()
-        .single();
-
-    if (clientError || clientData == null) {
-        return { error: true, message: clientError?.message ?? "Failed to create client" };
-    }
-
-    return { error: false, message: "Client created successfully", data: clientData };
+  if (error) {
+    return { error: true, message: error.message };
+  }
+  return { error: false, message: "Profile saved successfully" };
 }

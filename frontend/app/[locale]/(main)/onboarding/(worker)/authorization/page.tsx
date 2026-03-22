@@ -1,8 +1,14 @@
-import { getWorkAuthorization } from "@/features/profile/dal/queries";
+import {
+  getWorkAuthorization,
+  getWorkerProfile,
+} from "@/features/profile/dal/queries";
 import { AuthorizationClient } from "./_client";
 
 export default async function AuthorizationPage() {
-  const workAuthorization = await getWorkAuthorization();
+  const [workAuthorization, workerProfile] = await Promise.all([
+    getWorkAuthorization(),
+    getWorkerProfile(),
+  ]);
 
   return (
     <>
@@ -15,6 +21,7 @@ export default async function AuthorizationPage() {
               }
             : null
         }
+        initialWorkerPhotoUrl={workerProfile?.photo_url ?? null}
       />
     </>
   );

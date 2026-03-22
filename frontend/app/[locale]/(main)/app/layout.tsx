@@ -1,17 +1,13 @@
-import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { Navbar } from "./_components/navbar";
-import { UserRole } from "@/types/auth";
+import { NavbarSkeleton } from "./_components/navbar-skeleton";
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const { authUser, user } = await getCurrentUser();
-
-  if (authUser == null) return redirect("/sign-in");
-  if (user == null || user.is_active == false) return redirect("/onboarding");
-
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Navbar user={{ name: authUser.displayName ?? "", imageUrl: authUser.photoURL ?? "", role: user?.role as UserRole }} />
+      <Suspense fallback={<NavbarSkeleton />}>
+        <Navbar />
+      </Suspense>
       <main className="pt-[var(--spacing-header)]">{children}</main>
     </>
   );

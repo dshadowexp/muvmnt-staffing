@@ -9,8 +9,6 @@ export const env = createEnv({
         // DB_USER: z.string().min(1),
         // DB_NAME: z.string().min(1),
         APP_URL: z.string().min(1),
-        HUME_API_KEY: z.string().min(1),
-        GEMINI_API_KEY: z.string().min(1),
         AWS_ACCESS_KEY_ID: z.string().min(1),
         AWS_SECRET_ACCESS_KEY: z.string().min(1),
         AWS_ENDPOINT_URL_S3: z.string().min(1),
@@ -21,6 +19,9 @@ export const env = createEnv({
         TWILIO_FROM_NUMBER: z.string().min(1),
         TWILIO_MESSAGING_ID: z.string().min(1),
         STRIPE_SECRET_KEY: z.string().min(1),
+        HUME_API_KEY: z.string().min(1),
+        HUME_SECRET_KEY: z.string().min(1),
+        GEMINI_API_KEY: z.string().min(1),
     },
     createFinalSchema: env => {
         return z.object(env).transform(val => {

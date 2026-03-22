@@ -15,7 +15,7 @@ export default async function OnboardingStepsLayout({
   const session = await getSession();
   if (!session) redirect("/sign-in");
 
-  const role = session.role;
+  const { role } = session;
 
   return (
     <OnboardingProvider role={role}>

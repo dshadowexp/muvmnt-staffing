@@ -14,7 +14,6 @@ const workerPayload = (data: z.infer<typeof workerSchema>) => ({
 });
 
 export async function upsertWorkerAction(data: z.infer<typeof workerSchema>) {
-
   const { user } = await getCurrentUser({ allData: true });
   if (user == null) {
     return { error: true, message: "User not authenticated" };
@@ -50,4 +49,22 @@ export async function upsertWorkerAction(data: z.infer<typeof workerSchema>) {
     return { error: true, message: error.message };
   }
   return { error: false, message: "Profile saved successfully" };
+}
+
+export async function updateWorkerPhotoAction(photoUrl: string) {
+  const { user } = await getCurrentUser({ allData: true });
+  if (user == null) {
+    return { error: true, message: "User not authenticated" };
+  }
+
+  const supabase = await createAdminClient();
+  const { error } = await supabase
+    .from("workers")
+    .update({ photo_url: photoUrl })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: true, message: error.message };
+  }
+  return { error: false, message: "Photo updated successfully" };
 }

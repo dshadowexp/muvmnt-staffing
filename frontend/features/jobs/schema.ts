@@ -25,7 +25,6 @@ export const jobFormSchema = z
     tasks: z.array(z.string().min(1)).default([]),
     hourlyRate: z.coerce.number().min(15, "Hourly rate must be above minimum wage"),
     positions: z.coerce.number().int().min(1, "At least 1 position required"),
-    screening: z.boolean().default(false),
     notes: z.string().optional(),
   })
   .refine(
@@ -63,7 +62,6 @@ export type JobInfoFormInput = Pick<
   | "tasks"
   | "hourly_rate"
   | "positions"
-  | "screening"
   | "notes"
 >;
 
@@ -89,7 +87,6 @@ export function mapJobInfoToFormValues(row: JobInfoFormInput): JobFormValues {
     tasks: row.tasks ?? [],
     hourlyRate: row.hourly_rate,
     positions: row.positions,
-    screening: row.screening ?? false,
     notes: row.notes ?? "",
   };
 }

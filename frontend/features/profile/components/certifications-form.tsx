@@ -156,7 +156,6 @@ export function CertificationsForm({
                     )}
                   </div>
                   <FileInput
-                    label={`Upload ${certifications[index]?.name}`}
                     context="certifications"
                     initialFileKey={certifications[index]?.file_url ?? undefined}
                     onUploaded={(file) =>

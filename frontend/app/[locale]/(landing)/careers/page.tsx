@@ -1,5 +1,18 @@
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Careers | Muvmnt Staffing Inc.",
+  description: "Careers at Muvmnt Staffing Inc.",
+  keywords: [
+    "careers",
+    "Muvmnt Staffing Inc.",
+    "job openings",
+    "employment opportunities",
+    "career opportunities",
+  ],
+};
 
 interface JobOpening {
   title: string;

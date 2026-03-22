@@ -19,3 +19,10 @@ export async function getPresignedUrl(params: {
         ownerId: user.id,
     });
 }
+
+export async function getPresignedDownloadUrl(key: string) {
+    const { user, authUser } = await getCurrentUser({ allData: true });
+    if (!user || !authUser) throw new Error("Unauthorized");
+
+    return await s3Api.presignedDownloadUrl({ key, expiresIn: 3600 });
+}

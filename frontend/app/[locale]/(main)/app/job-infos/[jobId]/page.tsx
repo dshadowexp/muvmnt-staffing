@@ -9,7 +9,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -35,24 +34,14 @@ import { notFound } from "next/navigation";
 
 const clientOptions = [
   {
-    label: "View Shifts",
+    label: "View Billing",
     description: "View the shifts for this job.",
     href: "shifts",
-  },
-  {
-    label: "Review Interviews",
-    description: "Review the interviews for this job.",
-    href: "interviews",
   },
   {
     label: "Update Job Details",
     description: "This should only be used for minor updates.",
     href: "edit",
-  },
-  {
-    label: "Archive Job",
-    description: "Archive the job and hide it from the public.",
-    href: null,
   },
 ];
 
@@ -160,11 +149,6 @@ function JobDetailContent({
             {jobInfo.positions}{" "}
             {jobInfo.positions === 1 ? "position" : "positions"}
           </Badge>
-          {jobInfo.screening && (
-            <Badge variant="outline" className="border-primary/50 text-primary">
-              AI screening
-            </Badge>
-          )}
         </div>
       </header>
 

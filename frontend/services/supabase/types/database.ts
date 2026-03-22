@@ -141,7 +141,6 @@ export type Database = {
           positions: number
           profession: string
           requirements: string[]
-          screening: boolean
           start_date: string
           start_time: string
           tasks: string[]
@@ -160,7 +159,6 @@ export type Database = {
           positions?: number
           profession: string
           requirements?: string[]
-          screening?: boolean
           start_date: string
           start_time: string
           tasks?: string[]
@@ -179,7 +177,6 @@ export type Database = {
           positions?: number
           profession?: string
           requirements?: string[]
-          screening?: boolean
           start_date?: string
           start_time?: string
           tasks?: string[]
@@ -232,6 +229,38 @@ export type Database = {
             foreignKeyName: "locations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding: {
+        Row: {
+          created_at: string
+          id: string
+          steps: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          steps?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          steps?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboariding_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -346,31 +375,37 @@ export type Database = {
       workers: {
         Row: {
           created_at: string
-          date_of_birth: string | null
+          date_of_birth: string
           first_name: string
           id: string
           last_name: string
+          photo_url: string | null
           profession: string
+          status: string
           user_id: string
           years_exp: number
         }
         Insert: {
           created_at?: string
-          date_of_birth?: string | null
+          date_of_birth: string
           first_name: string
           id?: string
           last_name: string
+          photo_url?: string | null
           profession: string
+          status?: string
           user_id: string
           years_exp: number
         }
         Update: {
           created_at?: string
-          date_of_birth?: string | null
+          date_of_birth?: string
           first_name?: string
           id?: string
           last_name?: string
+          photo_url?: string | null
           profession?: string
+          status?: string
           user_id?: string
           years_exp?: number
         }

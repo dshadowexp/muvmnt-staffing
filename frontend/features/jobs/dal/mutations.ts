@@ -35,7 +35,6 @@ export async function createJobInfo(data: JobFormValues) {
             positions: data.positions,
             requirements: data.requirements,
             tasks: data.tasks,
-            screening: data.screening,
             notes: data.notes,
             start_date: data.startDate.toISOString(), 
             end_date: data.endDate?.toISOString(), 
@@ -78,7 +77,6 @@ export async function updateJobInfo(id: string, data: Partial<JobFormValues>) {
     if (data.endTime !== undefined) update.end_time = data.endTime;
     if (data.requirements !== undefined) update.requirements = data.requirements;
     if (data.tasks !== undefined) update.tasks = data.tasks;
-    if (data.screening !== undefined) update.screening = data.screening;
     if (data.hourlyRate !== undefined) update.hourly_rate = data.hourlyRate;
     if (data.positions !== undefined) update.positions = data.positions;
     if (data.notes !== undefined) update.notes = data.notes;
