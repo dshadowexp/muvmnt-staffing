@@ -9,6 +9,7 @@ const envSchema = z.object({
     HOST: z.string().default('0.0.0.0'),
     APP_URL: z.string().optional(),
     CORS_ORIGIN: z.string().default('*'),
+    ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
     LOG_LEVEL: z.string().default('info'),
     REDIS_CLUSTER: z.string().transform(Boolean).default(false),
 
@@ -65,6 +66,7 @@ export const config = {
     host: parsed.data.HOST,
     appUrl: parsed.data.APP_URL ?? `http://localhost:${parsed.data.PORT}`,
     corsOrigin: '*',
+    allowedOrigins: parsed.data.ALLOWED_ORIGINS.split(','),
     logLevel: 'info',
     redisCluster: parsed.data.REDIS_CLUSTER,
 
