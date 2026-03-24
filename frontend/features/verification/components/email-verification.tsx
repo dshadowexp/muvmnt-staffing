@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { sendEmailVerification } from "firebase/auth";
 import { auth } from "@/services/firebase/client";
 import { useAuth } from "@/features/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ const POLL_INTERVAL_MS = 4000;
 const COOLDOWN_SECONDS = 60;
 
 export function EmailSection() {
-  const { firebaseUser: user, sendVerifyEmail, loading: authLoading } = useAuth();
+  const { firebaseUser: user, loading: authLoading } = useAuth();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -51,7 +52,7 @@ export function EmailSection() {
     setSending(true);
     setError("");
     try {
-      await sendVerifyEmail();
+      await sendEmailVerification(auth.currentUser);
       setSent(true);
       startCooldown();
       startPolling();
@@ -60,7 +61,7 @@ export function EmailSection() {
     } finally {
       setSending(false);
     }
-  }, [sendVerifyEmail, startCooldown, startPolling]);
+  }, [startCooldown, startPolling]);
 
   useEffect(() => {
     return () => {
