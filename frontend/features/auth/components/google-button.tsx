@@ -1,10 +1,10 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getAuthErrorMessage, loginWithGoogle } from "@/services/firebase/auth";
 import { useAuth } from "@/features/auth/auth-provider";
+import { LoadingSwap } from "@/components/ui/loading-swap";
 
 function GoogleIcon() {
     return (
@@ -38,8 +38,10 @@ export function GoogleButton() {
             disabled={loading}
             className="w-full gap-2.5 text-[0.9rem] font-medium"
         >
-            {loading ? <Loader2 className="size-4 animate-spin" /> : <GoogleIcon />}
-            {loading ? "Connecting…" : "Continue with Google"}
+            <GoogleIcon />
+            <LoadingSwap isLoading={loading}>
+                <span>Continue with Google</span>
+            </LoadingSwap>
         </Button>
     );
 }

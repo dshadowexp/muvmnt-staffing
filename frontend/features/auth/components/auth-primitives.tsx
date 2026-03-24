@@ -1,26 +1,6 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
-/* ── Show/hide password toggle ── */
-
-export function ShowHideButton({
-  show,
-  onToggle,
-}: {
-  show: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="cursor-pointer border-none bg-transparent px-1 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-    >
-      {show ? "Hide" : "Show"}
-    </button>
-  );
-}
-
 /* ── Error banner ── */
 
 export function ErrorBanner({ message }: { message: string }) {

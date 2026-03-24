@@ -6,6 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { OnboardingDetails } from "@/features/onboarding/components/onboarding-details";
+import { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Onboarding | Muvmnt" };
 
 export default async function OnboardingStepsLayout({
   children,

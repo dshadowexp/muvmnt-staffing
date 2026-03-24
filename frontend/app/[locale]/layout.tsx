@@ -76,13 +76,13 @@ export default async function RootLayout({ children, params }: { children: React
         <NextIntlClientProvider>
         <AuthProvider>
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableColorScheme
-            disableTransitionOnChange
-          >
-            <TooltipProvider>{children}</TooltipProvider>
-            <Toaster position="top-right" richColors closeButton duration={3000} />
+          attribute="class"
+          defaultTheme="system"
+          enableColorScheme
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster position="top-right" richColors closeButton duration={3000} />
         </ThemeProvider>
         </AuthProvider>
         </NextIntlClientProvider>

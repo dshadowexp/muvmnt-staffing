@@ -12,7 +12,7 @@ const POLL_INTERVAL_MS = 4000;
 const COOLDOWN_SECONDS = 60;
 
 export function EmailSection() {
-  const { user, sendVerifyEmail, loading: authLoading } = useAuth();
+  const { firebaseUser: user, sendVerifyEmail, loading: authLoading } = useAuth();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");

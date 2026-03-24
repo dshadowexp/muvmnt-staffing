@@ -1,5 +1,5 @@
 import { UserRole } from "@/types/auth";
-import { setSession } from "../session";
+import { setSession } from "../../lib/session";
 import { env } from "@/data/env/client";
 
 export interface ExchangeTokenResponse {

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { getAuthErrorMessage, logout } from "@/services/firebase/auth";
 import { LoadingSwap } from "@/components/ui/loading-swap";
-
+import { useRouter } from "@/i18n/navigation";
 
 interface LogoutButtonProps {
   asChild?: boolean;
@@ -16,11 +16,13 @@ interface LogoutButtonProps {
 
 export function LogoutButton({ asChild = false, children }: LogoutButtonProps) {
   const { loading } = useAuth();
+  const router = useRouter();
 
   const handleLogout = async () => {
     if (loading) return;
     try {
-        await logout();
+      await logout();
+      router.push("/sign-in");
     } catch (err) {
       const msg = getAuthErrorMessage(err);
       if (msg) toast.error(msg);

@@ -13,9 +13,6 @@ export const signInSchema = z.object({
 });
 
 export const signUpSchema = z.object({
-  role: z.enum(["client", "worker"], {
-    message: "Please select your account type.",
-  }),
   email: emailSchema,
   password: z
     .string()

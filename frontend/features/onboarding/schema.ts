@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const verificationSchema = z.object({
-    email: z.string().email("Invalid email"),
+    email: z.email("Invalid email"),
     phone: z.string().min(1, "Phone number is required"),
 });
 

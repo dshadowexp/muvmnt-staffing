@@ -5,9 +5,9 @@ export default function LandingLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <Navbar />
-        <main className="pt-[72px]">
-          {children}
-        </main>
+      <main className="pt-[72px]">
+        {children}
+      </main>
       <Footer />
     </>
   );

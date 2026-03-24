@@ -28,7 +28,7 @@ type FormValues = {
 };
 
 export function PhoneSection() {
-  const { user, loading: authLoading } = useAuth();
+  const { firebaseUser: user, loading: authLoading } = useAuth();
   const [step, setStep] = useState<PhoneStep>("input");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
