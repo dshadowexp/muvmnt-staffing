@@ -16,6 +16,15 @@ export function formatCurrency(amount: number, currency = "USD") {
     }).format(amount);
 }
 
+/** Hourly rate before pricing is accepted (null or ≤0). For badges: includes `/hr` when set. */
+export function formatJobHourlyRateLine(
+  amount: number | null | undefined,
+  currency = "USD",
+) {
+  if (amount == null || amount <= 0) return "Pending";
+  return `${formatCurrency(amount, currency)}/hr`;
+}
+
 /** Format time string (e.g. "09:00" or "09:00:00") to "9:00 AM" */
 export function formatTime(time: string) {
     const [h, m] = time.split(":").map(Number);

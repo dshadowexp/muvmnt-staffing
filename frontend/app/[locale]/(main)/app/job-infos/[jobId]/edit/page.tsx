@@ -15,9 +15,9 @@ export default async function EditJobInfoPage({
 
   return (
     <div className="container my-4 max-w-5xl space-y-4">
-      <BackLink backHref={`/app/job-infos/${jobId}`} title="Job" />
+      <BackLink backHref={`/app/job-infos/${jobId}`} title="Staff request" />
 
-      <h1 className="text-3xl md:text-4xl">Edit Job Description</h1>
+      <h1 className="text-3xl md:text-4xl">Edit staff request</h1>
 
       <Card>
         <CardContent>

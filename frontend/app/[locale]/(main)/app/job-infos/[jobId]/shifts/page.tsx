@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getJobInfo } from "@/features/jobs/dal/queries";
-import { formatCurrency, formatTime } from "@/lib/formatters";
+import { formatCurrency, formatJobHourlyRateLine, formatTime } from "@/lib/formatters";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { format, addDays } from "date-fns";
 import { notFound } from "next/navigation";
@@ -40,7 +40,7 @@ function getSimulatedShifts(
   status: "completed" | "scheduled" | "open";
 }> {
   const start = new Date(jobInfo.start_date);
-  const rate = jobInfo.hourly_rate;
+  const rate = jobInfo.hourly_rate ?? 0;
   const workers = ["Sarah Chen", "Marcus Johnson", "Elena Rivera", "—", "—"];
   const statuses: Array<"completed" | "scheduled" | "open"> = [
     "completed",
@@ -84,7 +84,7 @@ export default async function ShiftsPage({
 
   return (
     <div className="container my-4 max-w-4xl space-y-6">
-      <BackLink backHref={`/app/job-infos/${jobId}`} title="Job details" />
+      <BackLink backHref={`/app/job-infos/${jobId}`} title="Staff request" />
 
       <SuspendedItem
         item={shiftsData}
@@ -137,7 +137,7 @@ function ShiftsContent({
             <CardHeader>
                 <CardTitle>Shifts</CardTitle>
                 <CardDescription>
-                    {jobInfo.title} · {formatCurrency(jobInfo.hourly_rate)}/hr
+                    {jobInfo.profession} · {formatJobHourlyRateLine(jobInfo.hourly_rate)}
                 </CardDescription>
             </CardHeader>
             <CardContent className="p-0">

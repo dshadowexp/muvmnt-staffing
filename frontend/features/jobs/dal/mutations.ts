@@ -2,11 +2,11 @@
 
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { createAdminClient } from "@/services/supabase/server";
-import { JobFormValues } from "../schema";
+import type { JobFormValues, StaffRequestCreateValues } from "../schema";
 import { getJobInfo } from "./queries";
 import { redirect } from "next/navigation";
 
-export async function createJobInfo(data: JobFormValues) {
+export async function createJobInfo(data: StaffRequestCreateValues) {
     const { user} = await getCurrentUser({ allData: true });
     if (user == null)  return { error: true, message: "User not authenticated" };
     if (user.role === "worker") return { error: true, message: "User is not authorized" };
@@ -29,9 +29,7 @@ export async function createJobInfo(data: JobFormValues) {
         .insert({ 
             client_id: userId, 
             cell_id: cellData.cell_id,
-            title: data.title,
             profession: data.profession,  
-            hourly_rate: data.hourlyRate,
             positions: data.positions,
             requirements: data.requirements,
             tasks: data.tasks,
@@ -48,7 +46,7 @@ export async function createJobInfo(data: JobFormValues) {
         return { error: true, message: jobInfoError?.message ?? "Failed to create job info" };
     }
 
-    redirect(`/app/job-infos/${jobInfoData.id}`);
+    redirect(`/app/job-infos/${jobInfoData.id}/pricing`);
 }
 
 export async function updateJobInfo(id: string, data: Partial<JobFormValues>) {
@@ -69,7 +67,6 @@ export async function updateJobInfo(id: string, data: Partial<JobFormValues>) {
 
     const supabase = await createAdminClient();
     const update: Record<string, unknown> = {};
-    if (data.title !== undefined) update.title = data.title;
     if (data.profession !== undefined) update.profession = data.profession;
     if (data.startDate !== undefined) update.start_date = data.startDate.toISOString();
     if (data.endDate !== undefined) update.end_date = data.endDate?.toISOString() ?? null;
@@ -94,6 +91,45 @@ export async function updateJobInfo(id: string, data: Partial<JobFormValues>) {
     }
 
     redirect(`/app/job-infos/${jobInfoData.id}`);
+}
+
+const MIN_HOURLY_RATE = 15;
+
+export async function acceptStaffRequestHourlyRate(jobId: string, hourlyRate: number) {
+    const { user } = await getCurrentUser({ allData: true });
+    if (user == null) return { error: true, message: "User not authenticated" };
+    if (user.role === "worker") return { error: true, message: "User is not authorized" };
+
+    const { id: userId } = user;
+
+    if (!Number.isFinite(hourlyRate) || hourlyRate < MIN_HOURLY_RATE) {
+        return { error: true, message: "Invalid hourly rate" };
+    }
+
+    const { data: existingJobInfo, error: existingJobInfoError, message: existingJobInfoMessage } =
+        await getJobInfo(jobId);
+    if (existingJobInfoError || existingJobInfo == null) {
+        return { error: true, message: existingJobInfoMessage ?? "Failed to get job info" };
+    }
+
+    if (existingJobInfo.client_id !== userId) {
+        return { error: true, message: "User is not authorized to update this job info" };
+    }
+
+    const supabase = await createAdminClient();
+    const { data: jobInfoData, error: jobInfoError } = await supabase
+        .from("job_infos")
+        .update({ hourly_rate: hourlyRate })
+        .eq("id", jobId)
+        .eq("client_id", userId)
+        .select()
+        .single();
+
+    if (jobInfoError || jobInfoData == null) {
+        return { error: true, message: jobInfoError?.message ?? "Failed to save hourly rate" };
+    }
+
+    redirect(`/app/job-infos/${jobId}`);
 }
 
 export async function deleteJobInfo(id: string) {

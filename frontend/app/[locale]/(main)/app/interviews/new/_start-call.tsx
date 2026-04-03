@@ -77,7 +77,7 @@ export function StartCall({
                                 type: "session_settings",
                                 variables: {
                                 userName: user.name,
-                                title: jobInfo.title || "Not Specified",
+                                title: jobInfo.profession || "Not Specified",
                                 description: jobInfo.notes ?? "Not Specified",
                                 experienceLevel: jobInfo.profession,
                                 },

@@ -15,17 +15,16 @@ export default async function NewJobInfoPage() {
             <div className="container my-4 max-w-5xl space-y-4">
                 <BackLink
                     backHref={`/app`}
-                    title="Jobs"
+                    title="Staff requests"
                 />
+                <p className="text-sm font-medium text-muted-foreground">Step 1 of 2</p>
                 <h1 className="text-3xl md:text-4xl lg:text-5xl mb-4">
-                    Create new job
+                    Request staff
                 </h1>
                 <p className="text-muted-foreground mb-8">
-                    To get started, enter information about the type of job you are wanting
-                    to apply for. This can be specific information copied directly from a
-                    job listing or general information such as the tech stack you want to
-                    work in. The more specific you are in the description the closer the
-                    test interviews will be to the real thing.
+                    Describe the role, schedule, and requirements for the staff you need.
+                    After you submit, you will review price calculation for this request
+                    before it is finalized on your side.
                 </p>
                 <Card>  
                     <CardContent>

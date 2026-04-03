@@ -16,7 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getJobInfo } from "@/features/jobs/dal/queries";
-import { formatCurrency, formatTime } from "@/lib/formatters";
+import { formatJobHourlyRateLine, formatTime } from "@/lib/formatters";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import type { UserRole } from "@/types/auth";
 import { format } from "date-fns";
@@ -34,13 +34,13 @@ import { notFound } from "next/navigation";
 
 const clientOptions = [
   {
-    label: "View Billing",
-    description: "View the shifts for this job.",
+    label: "View billing",
+    description: "View shifts tied to this staff request.",
     href: "shifts",
   },
   {
-    label: "Update Job Details",
-    description: "This should only be used for minor updates.",
+    label: "Update staff request",
+    description: "Use for minor changes to the request.",
     href: "edit",
   },
 ];
@@ -81,7 +81,7 @@ export default async function JobInfoPage({
 
   return (
     <div className="container my-4 max-w-4xl space-y-6">
-      <BackLink backHref="/app" title="Jobs" />
+      <BackLink backHref="/app" title="Staff requests" />
 
       <SuspendedItem
         item={jobData}
@@ -99,7 +99,6 @@ function JobDetailSkeleton() {
     <div className="space-y-6">
       <div className="space-y-3">
         <Skeleton className="h-10 w-3/4" />
-        <Skeleton className="h-5 w-1/3" />
         <div className="flex gap-2">
           <Skeleton className="h-6 w-24" />
           <Skeleton className="h-6 w-24" />
@@ -130,19 +129,15 @@ function JobDetailContent({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              {jobInfo.title}
-            </h1>
-            <p className="mt-1 text-base font-medium text-primary">
               {jobInfo.profession}
-            </p>
+            </h1>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1 font-semibold">
             <DollarSignIcon className="size-3.5" />
-            {formatCurrency(jobInfo.hourly_rate)}
-            <span className="ml-0.5 font-normal text-muted-foreground">/hr</span>
+            {formatJobHourlyRateLine(jobInfo.hourly_rate)}
           </Badge>
           <Badge variant="outline" className="gap-1">
             <UserIcon className="size-3.5" />

@@ -34,7 +34,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
     const [authUser, setAuthUser] = useState<UserAuth | null>(null);
-    const [loading, setLoading] = useState(false);
+    /** True until the first `onIdTokenChanged` run finishes (avoids UI flash before Firebase resolves). */
+    const [loading, setLoading] = useState(true);
     const pendingRoleRef = useRef<UserRole | null>(null);
 
     const setPendingRole = useCallback((role: UserRole | null) => {

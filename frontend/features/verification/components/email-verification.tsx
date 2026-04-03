@@ -12,7 +12,7 @@ import { Check, Loader2 } from "lucide-react";
 const POLL_INTERVAL_MS = 4000;
 const COOLDOWN_SECONDS = 60;
 
-export function EmailSection() {
+export function EmailVerification() {
   const { firebaseUser: user, loading: authLoading } = useAuth();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -71,70 +71,81 @@ export function EmailSection() {
   }, []);
 
   const disabled = sending || cooldown > 0;
-  const showActions = !authLoading && !user?.emailVerified;
+  const needsVerification = !user?.emailVerified;
 
   return (
-    <div className="space-y-4">
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <FieldLabel className="font-semibold">Email</FieldLabel>
-        {authLoading ? (
-          <Loader2 className="size-4 animate-spin text-muted-foreground" />
-        ) : (
-          user?.emailVerified && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold">
-              <Check className="size-4" />
-              Verified
-            </span>
-          )
-        )}
+    <section className="space-y-3" aria-labelledby="email-verification-heading">
+      <div className="flex items-center justify-between gap-2">
+        <FieldLabel id="email-verification-heading" className="font-semibold">
+          Email
+        </FieldLabel>
+        {!authLoading && user?.emailVerified ? (
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
+            <Check className="size-4" aria-hidden />
+            Verified
+          </span>
+        ) : null}
       </div>
 
-      <p className="text-sm text-muted-foreground leading-relaxed">
-        {user?.email ?? ""}
-      </p>
-
-      {showActions && (
-        <div className="space-y-4">
-          {error && (
-            <p className="text-sm text-destructive" role="alert">
-              {error}
-            </p>
-          )}
-
-          {sent && (
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Check your inbox and click the link — this page updates
-              automatically.
-            </p>
-          )}
-
-          <div className="flex flex-wrap items-center gap-4">
-            <Button
-              type="button"
-              onClick={handleSend}
-              disabled={disabled}
-            >
-              <LoadingSwap isLoading={sending}>
-                <span>
-                  {sending
-                    ? "Sending…"
-                    : sent
-                      ? cooldown > 0
-                        ? `Resend in ${cooldown}s`
-                        : "Resend"
-                      : "Send link"}
-                </span>
-              </LoadingSwap>
-            </Button>
-
-            {sent && !user?.emailVerified && (
-              <Button variant="ghost" size="sm" onClick={startPolling}>
-                Check again
-              </Button>
-            )}
-          </div>
+      {authLoading ? (
+        <div
+          className="flex items-center gap-2 text-sm text-muted-foreground"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
         </div>
+      ) : (
+        <>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {user?.email ?? ""}
+          </p>
+
+          {needsVerification ? (
+            <div className="space-y-3">
+              {error ? (
+                <p className="text-sm text-destructive" role="alert">
+                  {error}
+                </p>
+              ) : null}
+
+              {sent ? (
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Check your inbox and click the link — this page updates
+                  automatically.
+                </p>
+              ) : null}
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={disabled}
+                >
+                  <LoadingSwap isLoading={sending}>
+                    <span>
+                      {sending
+                        ? "Sending…"
+                        : sent
+                          ? cooldown > 0
+                            ? `Resend in ${cooldown}s`
+                            : "Resend"
+                          : "Send link"}
+                    </span>
+                  </LoadingSwap>
+                </Button>
+
+                {sent && !user?.emailVerified ? (
+                  <Button variant="ghost" size="sm" type="button" onClick={startPolling}>
+                    Check again
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+        </>
       )}
-    </div>
+    </section>
   );
 }

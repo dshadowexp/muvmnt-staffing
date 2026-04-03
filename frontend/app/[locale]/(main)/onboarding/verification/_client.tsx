@@ -4,8 +4,8 @@ import { useEffect, useActionState } from "react";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
-import { EmailSection } from "@/features/verification/components/email-verification";
-import { PhoneSection } from "@/features/verification/components/phone-verification";
+import { EmailVerification } from "@/features/verification/components/email-verification";
+import { PhoneVerification } from "@/features/verification/components/phone-verification";
 import { FormErrors } from "@/types";
 import { verifyDetailsAction } from "./_action";
 
@@ -22,9 +22,9 @@ export function VerificationClient() {
 
     return (
         <form action={formAction} className="space-y-6">
-            <EmailSection />
+            <EmailVerification />
             <Separator className="my-6" />
-            <PhoneSection />
+            <PhoneVerification />
             <ContinueButton />
         </form>
     );

@@ -1,36 +1,41 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm, type Resolver, Controller } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { JOB_TASKS, PROFESSIONAL_ROLES } from "@/lib/constants";
 import type { ProfessionalRole } from "@/types";
-import { jobFormSchema, type JobFormValues } from "../schema";
+import {
+  jobFormSchema,
+  staffRequestCreateSchema,
+  type JobFormValues,
+  type StaffRequestCreateValues,
+} from "../schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
-    Field,
-    FieldDescription,
-    FieldError,
-    FieldGroup,
-    FieldLabel,
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
 } from "@/components/ui/field";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-    MultiSelect,
-    MultiSelectContent,
-    MultiSelectGroup,
-    MultiSelectItem,
-    MultiSelectTrigger,
-    MultiSelectValue,
-} from "@/components/ui/multi-select"
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { LoadingSwap } from "@/components/ui/loading-swap";
@@ -47,26 +52,26 @@ const COMMON_REQUIREMENTS = [
   "2+ Years Experience",
 ];
 
-export function JobInfoForm({ 
-  jobInfo 
-}: { 
-    jobInfo?: JobInfoFormInput
-}) {
-  const form = useForm<JobFormValues>({
-    defaultValues: jobInfo ? mapJobInfoToFormValues({ ...jobInfo }) : {
-      title: "",
-      profession: "" as ProfessionalRole,
-      startDate: undefined,
-      endDate: null,
-      startTime: "09:00",
-      endTime: "17:00",
-      requirements: [],
-      tasks: [],
-      hourlyRate: 0,
-      positions: 1,
-      notes: "",
-    },
-    resolver: zodResolver(jobFormSchema) as Resolver<JobFormValues>,
+const defaultCreateValues = {
+  profession: "" as ProfessionalRole,
+  startDate: undefined as unknown as Date,
+  endDate: null,
+  startTime: "09:00",
+  endTime: "17:00",
+  requirements: [] as string[],
+  tasks: [] as string[],
+  positions: 1,
+  notes: "",
+} as const satisfies StaffRequestCreateValues;
+
+export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
+  const isEdit = Boolean(jobInfo);
+
+  const form = useForm<JobFormValues | StaffRequestCreateValues>({
+    defaultValues: jobInfo ? mapJobInfoToFormValues({ ...jobInfo }) : defaultCreateValues,
+    resolver: zodResolver(
+      isEdit ? jobFormSchema : staffRequestCreateSchema,
+    ) as Resolver<JobFormValues | StaffRequestCreateValues>,
   });
 
   const { register, setValue, watch, reset, formState: { errors } } = form;
@@ -77,13 +82,24 @@ export function JobInfoForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobInfo?.id]);
-  
+
   const requirements = watch("requirements");
   const tasks = watch("tasks");
+  const ratePending =
+    isEdit &&
+    (jobInfo!.hourly_rate == null || jobInfo!.hourly_rate <= 0);
 
-  async function handleSubmit(data: JobFormValues) {
-    const action = jobInfo ? updateJobInfoAction.bind(null, jobInfo.id) : createJobInfoAction;
-    const result = await action(data);
+  async function handleSubmit(
+    data: JobFormValues | StaffRequestCreateValues,
+  ) {
+    if (isEdit && jobInfo) {
+      const result = await updateJobInfoAction(jobInfo.id, data);
+      if (result?.error) {
+        toast.error(result.message);
+      }
+      return;
+    }
+    const result = await createJobInfoAction(data);
     if (result?.error) {
       toast.error(result.message);
     }
@@ -95,25 +111,17 @@ export function JobInfoForm({
       className="space-y-6"
     >
       <FieldGroup>
-        <Field data-invalid={!!errors.title}>
-          <FieldLabel htmlFor="job-title">Job title</FieldLabel>
-          <FieldDescription>A short title to identify this job</FieldDescription>
-          <Input
-            id="job-title"
-            type="text"
-            placeholder="e.g. Weekend RN Shift"
-            {...register("title")}
-          />
-          <FieldError>{errors.title?.message}</FieldError>
-        </Field>
-
         <Field data-invalid={!!errors.profession}>
-          <FieldLabel>Professional role</FieldLabel>
+          <FieldLabel>Profession</FieldLabel>
           <FieldDescription>Select the role required for this shift</FieldDescription>
           <MultiSelect
             single
             values={form.watch("profession") ? [form.watch("profession")] : []}
-            onValuesChange={(v) => setValue("profession", (v[0] ?? "") as ProfessionalRole, { shouldValidate: true })}
+            onValuesChange={(v) =>
+              setValue("profession", (v[0] ?? "") as ProfessionalRole, {
+                shouldValidate: true,
+              })
+            }
           >
             <MultiSelectTrigger className="w-full">
               <MultiSelectValue placeholder="Select profession..." />
@@ -219,51 +227,51 @@ export function JobInfoForm({
         </div>
 
         <Field>
-            <FieldLabel>Requirements</FieldLabel>
-            <FieldDescription>
-                Select requirements. Search or pick from the list.
-            </FieldDescription>
-            <MultiSelect
-                values={requirements}
-                onValuesChange={(v) => setValue("requirements", v, { shouldValidate: true })}
-            >
-                <MultiSelectTrigger className="w-full">
-                    <MultiSelectValue placeholder="Select requirements..." />
-                </MultiSelectTrigger>
-                <MultiSelectContent search={{ placeholder: "Search requirements..." }}>
-                    <MultiSelectGroup>
-                        {COMMON_REQUIREMENTS.map((r) => (
-                        <MultiSelectItem key={r} value={r}>
-                            {r}
-                        </MultiSelectItem>
-                        ))}
-                    </MultiSelectGroup>
-                </MultiSelectContent>
-            </MultiSelect>
+          <FieldLabel>Requirements</FieldLabel>
+          <FieldDescription>
+            Select requirements. Search or pick from the list.
+          </FieldDescription>
+          <MultiSelect
+            values={requirements}
+            onValuesChange={(v) =>
+              setValue("requirements", v, { shouldValidate: true })
+            }
+          >
+            <MultiSelectTrigger className="w-full">
+              <MultiSelectValue placeholder="Select requirements..." />
+            </MultiSelectTrigger>
+            <MultiSelectContent search={{ placeholder: "Search requirements..." }}>
+              <MultiSelectGroup>
+                {COMMON_REQUIREMENTS.map((r) => (
+                  <MultiSelectItem key={r} value={r}>
+                    {r}
+                  </MultiSelectItem>
+                ))}
+              </MultiSelectGroup>
+            </MultiSelectContent>
+          </MultiSelect>
         </Field>
 
         <Field>
-            <FieldLabel>Tasks</FieldLabel>
-            <FieldDescription>
-                Select tasks required for this shift.
-            </FieldDescription>
-            <MultiSelect
-                values={tasks}
-                onValuesChange={(v) => setValue("tasks", v, { shouldValidate: true })}
-            >
-                <MultiSelectTrigger className="w-full">
-                    <MultiSelectValue placeholder="Select tasks..." />
-                </MultiSelectTrigger>
-                <MultiSelectContent search={{ placeholder: "Search tasks..." }}>
-                    <MultiSelectGroup>
-                        {JOB_TASKS.map((task) => (
-                            <MultiSelectItem key={task} value={task}>
-                                {task}
-                            </MultiSelectItem>
-                        ))}
-                    </MultiSelectGroup>
-                </MultiSelectContent>
-            </MultiSelect>
+          <FieldLabel>Tasks</FieldLabel>
+          <FieldDescription>Select tasks required for this shift.</FieldDescription>
+          <MultiSelect
+            values={tasks}
+            onValuesChange={(v) => setValue("tasks", v, { shouldValidate: true })}
+          >
+            <MultiSelectTrigger className="w-full">
+              <MultiSelectValue placeholder="Select tasks..." />
+            </MultiSelectTrigger>
+            <MultiSelectContent search={{ placeholder: "Search tasks..." }}>
+              <MultiSelectGroup>
+                {JOB_TASKS.map((task) => (
+                  <MultiSelectItem key={task} value={task}>
+                    {task}
+                  </MultiSelectItem>
+                ))}
+              </MultiSelectGroup>
+            </MultiSelectContent>
+          </MultiSelect>
         </Field>
 
         <Field data-invalid={!!errors.positions}>
@@ -278,18 +286,25 @@ export function JobInfoForm({
           <FieldError>{errors.positions?.message}</FieldError>
         </Field>
 
-        <Field data-invalid={!!errors.hourlyRate}>
-          <FieldLabel htmlFor="hourly-rate">Hourly rate ($)</FieldLabel>
-          <Input
-            id="hourly-rate"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("hourlyRate")}
-          />
-          <FieldError>{errors.hourlyRate?.message}</FieldError>
-        </Field>
+        {isEdit && (
+          <Field data-invalid={!!(errors as Partial<Record<keyof JobFormValues, { message?: string }>>).hourlyRate}>
+            <FieldLabel htmlFor="hourly-rate">Hourly rate ($)</FieldLabel>
+            <FieldDescription>
+              {ratePending
+                ? "No rate saved yet. Enter the agreed hourly rate (minimum $15/hr), or use the pricing step after submitting a new request."
+                : "Update the hourly rate for this request if needed."}
+            </FieldDescription>
+            <Input
+              id="hourly-rate"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              {...register("hourlyRate", { valueAsNumber: true })}
+            />
+            <FieldError>{(errors as { hourlyRate?: { message?: string } }).hourlyRate?.message}</FieldError>
+          </Field>
+        )}
 
         <Field>
           <FieldLabel htmlFor="notes">Notes</FieldLabel>
@@ -303,13 +318,13 @@ export function JobInfoForm({
           />
         </Field>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           size="lg"
           disabled={form.formState.isSubmitting}
         >
           <LoadingSwap isLoading={form.formState.isSubmitting}>
-            <span>Save Job Information</span>
+            <span>{isEdit ? "Save changes" : "Submit staff request"}</span>
           </LoadingSwap>
         </Button>
       </FieldGroup>

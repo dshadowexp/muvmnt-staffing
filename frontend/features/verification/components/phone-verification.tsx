@@ -27,7 +27,7 @@ type FormValues = {
   code: string;
 };
 
-export function PhoneSection() {
+export function PhoneVerification() {
   const { firebaseUser: user, loading: authLoading } = useAuth();
   const [step, setStep] = useState<PhoneStep>("input");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
@@ -124,28 +124,35 @@ export function PhoneSection() {
   const isVerified = done || !!user?.phoneNumber;
 
   return (
-    <div className="space-y-4">
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <FieldLabel className="font-semibold">Phone</FieldLabel>
-        {authLoading ? (
-          <Loader2 className="size-4 animate-spin text-muted-foreground" />
-        ) : (
-          isVerified && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold">
-              <Check className="size-4" />
-              Verified
-            </span>
-          )
-        )}
+    <section className="space-y-3" aria-labelledby="phone-verification-heading">
+      <div className="flex items-center justify-between gap-2">
+        <FieldLabel id="phone-verification-heading" className="font-semibold">
+          Phone
+        </FieldLabel>
+        {!authLoading && isVerified ? (
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
+            <Check className="size-4" aria-hidden />
+            Verified
+          </span>
+        ) : null}
       </div>
 
-      {authLoading ? null : isVerified ? (
-        <p className="text-sm text-muted-foreground">
+      {authLoading ? (
+        <div
+          className="flex items-center gap-2 text-sm text-muted-foreground"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+        </div>
+      ) : isVerified ? (
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {verifiedPhone ?? user?.phoneNumber ?? "Number confirmed"}
         </p>
       ) : step === "input" ? (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-3">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             We&apos;ll send a 6-digit SMS code to your Canadian number.
           </p>
 
@@ -174,8 +181,8 @@ export function PhoneSection() {
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-3">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             Enter the code sent to{" "}
             <span className="font-medium text-foreground">{phone}</span>
           </p>
@@ -209,8 +216,8 @@ export function PhoneSection() {
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={reset}>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="ghost" size="sm" type="button" onClick={reset}>
               Change number
             </Button>
             {cooldown > 0 ? (
@@ -221,6 +228,7 @@ export function PhoneSection() {
               <Button
                 variant="ghost"
                 size="sm"
+                type="button"
                 onClick={handleSend}
                 disabled={sending}
               >
@@ -230,6 +238,6 @@ export function PhoneSection() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

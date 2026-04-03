@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import { format } from "date-fns";
-import { formatCurrency, formatTime } from "@/lib/formatters";
+import { formatJobHourlyRateLine, formatTime } from "@/lib/formatters";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { UserRole } from "@/types/auth";
@@ -41,12 +41,12 @@ async function JobInfos() {
     <div className="container my-4">
       <div className="flex gap-2 justify-between mb-6">
         <h2 className="text-xl md:text-2xl lg:text-3xl">
-          Posted Jobs
+          Staff requests
         </h2>
         <Button asChild>
           <Link href="/app/job-infos/new">
             <PlusIcon />
-            Create Job
+            Request staff
           </Link>
         </Button>
       </div>
@@ -56,7 +56,7 @@ async function JobInfos() {
         <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
           <div className="text-lg flex items-center gap-2">
             <PlusIcon className="size-6" />
-            New Request
+            New staff request
           </div>
         </Card>
       </Link>
@@ -72,11 +72,8 @@ async function JobInfos() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <CardTitle className="text-lg leading-tight">
-                      {jobInfo.title}
-                    </CardTitle>
-                    <p className="mt-1 text-sm font-medium text-primary">
                       {jobInfo.profession}
-                    </p>
+                    </CardTitle>
                   </div>
                   <ArrowRightIcon className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                 </div>
@@ -103,10 +100,7 @@ async function JobInfos() {
               </CardContent>
               <CardFooter className="flex flex-wrap items-center gap-2 pt-6">
                 <Badge variant="secondary" className="font-semibold">
-                  {formatCurrency(jobInfo.hourly_rate)}
-                  <span className="ml-0.5 font-normal text-muted-foreground">
-                    /hr
-                  </span>
+                  {formatJobHourlyRateLine(jobInfo.hourly_rate)}
                 </Badge>
                 <Badge variant="outline" className="gap-1">
                   <UserIcon className="size-3" />
@@ -135,18 +129,16 @@ async function NoJobs() {
         Welcome to Muvmnt
       </h1>
       <p className="text-muted-foreground mb-8">
-        To get started, enter information about the type of job you are wanting
-        to apply for. This can be specific information copied directly from a
-        job listing or general information such as the tech stack you want to
-        work in. The more specific you are in the description the closer the
-        test interviews will be to the real thing.
+        Request staff by sharing the role, schedule, and what you need covered.
+        You will walk through price calculation in the next step after you submit
+        the request.
       </p>
       {role === "client" && (
         <Link className="transition-opacity" href="/app/job-infos/new">
         <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
           <div className="text-lg flex items-center gap-2">
             <PlusIcon className="size-6" />
-            New Job Description
+            New staff request
           </div>
         </Card>
       </Link>

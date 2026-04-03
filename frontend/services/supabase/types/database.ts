@@ -135,7 +135,7 @@ export type Database = {
           created_at: string
           end_date: string | null
           end_time: string
-          hourly_rate: number
+          hourly_rate: number | null
           id: string
           notes: string | null
           positions: number
@@ -144,7 +144,6 @@ export type Database = {
           start_date: string
           start_time: string
           tasks: string[]
-          title: string
           update_at: string
         }
         Insert: {
@@ -153,7 +152,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           end_time: string
-          hourly_rate: number
+          hourly_rate?: number | null
           id?: string
           notes?: string | null
           positions?: number
@@ -162,7 +161,6 @@ export type Database = {
           start_date: string
           start_time: string
           tasks?: string[]
-          title: string
           update_at?: string
         }
         Update: {
@@ -171,7 +169,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           end_time?: string
-          hourly_rate?: number
+          hourly_rate?: number | null
           id?: string
           notes?: string | null
           positions?: number
@@ -180,7 +178,6 @@ export type Database = {
           start_date?: string
           start_time?: string
           tasks?: string[]
-          title?: string
           update_at?: string
         }
         Relationships: [

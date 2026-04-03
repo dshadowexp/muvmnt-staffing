@@ -10,7 +10,7 @@ export async function analyzeResumeForJob({
   resumeFile: File
   jobInfo: Pick<
     JobInfoFormInput,
-    "title" | "profession" | "notes"
+    "profession" | "notes"
   >
 }) {
   return streamText({
@@ -36,8 +36,7 @@ Job Description:
 \`\`\`
 ${jobInfo.notes}
 \`\`\`
-Experience Level: ${jobInfo.profession}
-${jobInfo.title ? `\nJob Title: ${jobInfo.title}` : ""}
+Profession / role: ${jobInfo.profession}
 
 Your task is to evaluate the resume against the job requirements and provide structured feedback using the following categories:
 
