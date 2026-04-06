@@ -33,6 +33,31 @@ export function formatTime(time: string) {
     return `${hour}:${(m ?? 0).toString().padStart(2, "0")} ${period}`;
 }
 
+/**
+ * Calendar `{ day, month, year }` from a `yyyy-MM-dd` string (e.g. worker DOB in the DB).
+ * Month is 1–12. Uses the string parts directly so there is no timezone shift from `Date`.
+ */
+export function calendarPartsFromYyyyMmDd(
+  dateStr: string | null | undefined,
+): { day: number; month: number; year: number } | undefined {
+  if (!dateStr?.trim()) return undefined;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr.trim());
+  if (!m) return undefined;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (
+    !Number.isFinite(year) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return undefined;
+  }
+  return { day, month, year };
+}
+
 /** Format raw input to E.164 Canadian format (+1XXXXXXXXXX) */
 export function formatPhoneToE164(raw: string): string {
     const digits = raw.replace(/\D/g, "");

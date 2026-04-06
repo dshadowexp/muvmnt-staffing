@@ -9,6 +9,7 @@ const workerPayload = (data: z.infer<typeof workerSchema>) => ({
   first_name: data.firstName,
   last_name: data.lastName,
   date_of_birth: data.dateOfBirth,
+  gender: data.gender,
   profession: data.profession,
   years_exp: data.yearsExp,
 });

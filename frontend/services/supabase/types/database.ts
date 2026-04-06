@@ -193,31 +193,49 @@ export type Database = {
       locations: {
         Row: {
           address: string
+          address_line_1: string | null
+          address_line_2: string | null
+          admin_area: string | null
           cell_id: string
+          city: string | null
+          country_code: string | null
           created_at: string
           id: string
           lat: number
           lng: number
+          postal_code: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           address: string
+          address_line_1?: string | null
+          address_line_2?: string | null
+          admin_area?: string | null
           cell_id: string
+          city?: string | null
+          country_code?: string | null
           created_at?: string
           id?: string
           lat: number
           lng: number
+          postal_code?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           address?: string
+          address_line_1?: string | null
+          address_line_2?: string | null
+          admin_area?: string | null
           cell_id?: string
+          city?: string | null
+          country_code?: string | null
           created_at?: string
           id?: string
           lat?: number
           lng?: number
+          postal_code?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -235,6 +253,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_completed: boolean
           steps: Json
           updated_at: string
           user_id: string
@@ -242,6 +261,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_completed?: boolean
           steps?: Json
           updated_at?: string
           user_id: string
@@ -249,6 +269,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_completed?: boolean
           steps?: Json
           updated_at?: string
           user_id?: string
@@ -265,20 +286,29 @@ export type Database = {
       }
       payroll_accounts: {
         Row: {
+          charges_enabled: boolean | null
           created_at: string
+          details_submitted: boolean | null
           id: number
+          payouts_enabled: boolean | null
           stripe_account_id: string
           user_id: string
         }
         Insert: {
+          charges_enabled?: boolean | null
           created_at?: string
+          details_submitted?: boolean | null
           id?: number
+          payouts_enabled?: boolean | null
           stripe_account_id: string
           user_id: string
         }
         Update: {
+          charges_enabled?: boolean | null
           created_at?: string
+          details_submitted?: boolean | null
           id?: number
+          payouts_enabled?: boolean | null
           stripe_account_id?: string
           user_id?: string
         }
@@ -297,6 +327,7 @@ export type Database = {
           auth_id: string
           created_at: string
           email: string | null
+          fcm_token: string | null
           id: string
           is_active: boolean | null
           is_email_verified: boolean
@@ -309,6 +340,7 @@ export type Database = {
           auth_id: string
           created_at?: string
           email?: string | null
+          fcm_token?: string | null
           id?: string
           is_active?: boolean | null
           is_email_verified?: boolean
@@ -321,6 +353,7 @@ export type Database = {
           auth_id?: string
           created_at?: string
           email?: string | null
+          fcm_token?: string | null
           id?: string
           is_active?: boolean | null
           is_email_verified?: boolean
@@ -374,11 +407,12 @@ export type Database = {
           created_at: string
           date_of_birth: string
           first_name: string
+          gender: string
           id: string
           last_name: string
           photo_url: string | null
           profession: string
-          status: string
+          status: string | null
           user_id: string
           years_exp: number
         }
@@ -386,11 +420,12 @@ export type Database = {
           created_at?: string
           date_of_birth: string
           first_name: string
+          gender?: string
           id?: string
           last_name: string
           photo_url?: string | null
           profession: string
-          status?: string
+          status?: string | null
           user_id: string
           years_exp: number
         }
@@ -398,11 +433,12 @@ export type Database = {
           created_at?: string
           date_of_birth?: string
           first_name?: string
+          gender?: string
           id?: string
           last_name?: string
           photo_url?: string | null
           profession?: string
-          status?: string
+          status?: string | null
           user_id?: string
           years_exp?: number
         }

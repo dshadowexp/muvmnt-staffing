@@ -13,23 +13,9 @@ export async function searchAddresses(
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
-  const params = new URLSearchParams({ input });
-  if (sessionToken) params.set("sessionToken", sessionToken);
+  const results = await getGoogleMapsClient.autocomplete(input, sessionToken);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/v1/geo/search?${params}`,
-    {
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
-    },
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to search addresses");
-  }
-
-  return (await res.json()) as { placeId: string; description: string; mainText: string; secondaryText: string }[];
+  return results;
 }
 
 export async function getPlaceDetails(
@@ -75,5 +61,11 @@ export async function getAddressLocation(): Promise<AddressLocation | undefined>
     lng: data.lng,
     address: data.address,
     cellId: data.cell_id,
+    addressLine1: data.address_line_1,
+    addressLine2: data.address_line_2,
+    city: data.city,
+    adminArea: data.admin_area,
+    postalCode: data.postal_code,
+    countryCode: data.country_code,
   };
 }

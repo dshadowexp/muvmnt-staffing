@@ -17,7 +17,10 @@ export class AuthService {
     async exchangeToken(externalToken: string, role?: UserRole) {
         const decoded = await verifyFirebaseIdToken(externalToken);
 
-        const user = await this.repo.findOrCreateUser({ authId: decoded.uid, email: decoded.email ?? "", emailVerified: decoded.email_verified ?? false, role })
+        const user = await this.repo.findOrCreateUser({ authId: decoded.uid, email: decoded.email ?? "", emailVerified: decoded.email_verified ?? false, role });
+        if (!user) {
+            return null;
+        }
 
         const permissions = permissionsMap[user.role as UserRole] ?? []
 

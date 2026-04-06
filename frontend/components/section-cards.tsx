@@ -9,11 +9,81 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+import {
+  BriefcaseIcon,
+  Building2Icon,
+  TrendingDownIcon,
+  TrendingUpIcon,
+  UserSquareIcon,
+  UsersIcon,
+} from "lucide-react"
 
-export function SectionCards() {
+const gridClass =
+  "grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card"
+
+export type SectionCardsMetrics = {
+  users: number
+  workers: number
+  clients: number
+  jobPostings: number
+}
+
+export function SectionCards({ metrics }: { metrics?: SectionCardsMetrics }) {
+  if (metrics) {
+    const cards = [
+      {
+        label: "Users",
+        value: metrics.users,
+        hint: "Registered accounts on the platform",
+        Icon: UsersIcon,
+      },
+      {
+        label: "Workers",
+        value: metrics.workers,
+        hint: "Professional profiles",
+        Icon: UserSquareIcon,
+      },
+      {
+        label: "Clients",
+        value: metrics.clients,
+        hint: "Organizations",
+        Icon: Building2Icon,
+      },
+      {
+        label: "Job postings",
+        value: metrics.jobPostings,
+        hint: "Open staff requests",
+        Icon: BriefcaseIcon,
+      },
+    ] as const
+
+    return (
+      <div className={gridClass}>
+        {cards.map(({ label, value, hint, Icon }) => (
+          <Card key={label} className="@container/card">
+            <CardHeader>
+              <div className="flex items-center justify-between gap-2">
+                <CardDescription>{label}</CardDescription>
+                <Icon className="text-muted-foreground size-4 shrink-0" />
+              </div>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {value.toLocaleString()}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline" className="text-muted-foreground">
+                  Live
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="text-muted-foreground text-sm">{hint}</CardFooter>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+    <div className={gridClass}>
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Revenue</CardDescription>
@@ -109,3 +179,4 @@ export function SectionCards() {
     </div>
   )
 }
+

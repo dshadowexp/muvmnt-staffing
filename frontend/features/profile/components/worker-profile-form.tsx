@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { PROFESSIONAL_ROLES } from "@/lib/constants";
 import type { ProfessionalRole } from "@/types";
 import {
+  WORKER_GENDERS,
+  getLatestAllowedWorkerBirthDate,
+  type WorkerGender,
   WorkerProfileValues,
 } from "@/features/profile/schemas/worker";
 import { Button } from "@/components/ui/button";
@@ -32,6 +36,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /** Parse "yyyy-MM-dd" as local date to avoid timezone shifting to previous day. */
 function parseLocalDate(dateStr: string): Date {
@@ -48,6 +59,7 @@ export function WorkerProfileForm({
 }: WorkerProfileFormProps) {
   const { register, setValue, watch, formState } = form;
   const { errors } = formState;
+  const [dobOpen, setDobOpen] = useState(false);
 
   return (
     <>
@@ -81,9 +93,9 @@ export function WorkerProfileForm({
         <Field data-invalid={!!errors.dateOfBirth}>
           <FieldLabel htmlFor="worker-date-of-birth">Date of birth</FieldLabel>
           <FieldDescription>
-            Your date of birth for compliance and placement eligibility
+            You must be 18 or older. Used for compliance and placement eligibility.
           </FieldDescription>
-          <Popover>
+          <Popover open={dobOpen} onOpenChange={setDobOpen}>
             <PopoverTrigger asChild>
               <Button
                 id="worker-date-of-birth"
@@ -112,21 +124,55 @@ export function WorkerProfileForm({
                     ? parseLocalDate(watch("dateOfBirth")!)
                     : undefined
                 }
-                onSelect={(d) =>
+                onSelect={(d) => {
                   setValue(
                     "dateOfBirth",
                     d ? format(d, "yyyy-MM-dd") : "",
                     { shouldValidate: true },
-                  )
-                }
-                disabled={(d) => d > new Date()}
+                  );
+                  setDobOpen(false);
+                }}
+                disabled={(d) => {
+                  const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                  const t = new Date();
+                  const todayStart = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+                  if (day > todayStart) return true;
+                  const latest = getLatestAllowedWorkerBirthDate(18);
+                  return day > latest;
+                }}
                 captionLayout="dropdown"
                 fromYear={1900}
-                toYear={new Date().getFullYear()}
+                toYear={getLatestAllowedWorkerBirthDate(18).getFullYear()}
               />
             </PopoverContent>
           </Popover>
           <FieldError>{errors.dateOfBirth?.message}</FieldError>
+        </Field>
+
+        <Field data-invalid={!!errors.gender}>
+          <FieldLabel htmlFor="worker-gender">Gender at birth</FieldLabel>
+          <FieldDescription>
+            Select male or female as recorded for compliance and placement
+            eligibility
+          </FieldDescription>
+          <Select
+            value={watch("gender") ?? ""}
+            onValueChange={(v) =>
+              setValue("gender", v as WorkerGender, { shouldValidate: true })
+            }
+          >
+            <SelectTrigger id="worker-gender" className="w-full">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
+            <SelectContent>
+              {WORKER_GENDERS.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {value === "male" ? "Male" : "Female"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FieldError>{errors.gender?.message}</FieldError>
         </Field>
 
         <Field data-invalid={!!errors.profession}>

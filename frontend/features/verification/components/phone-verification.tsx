@@ -156,29 +156,32 @@ export function PhoneVerification() {
             We&apos;ll send a 6-digit SMS code to your Canadian number.
           </p>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <Field data-invalid={!!errors.phone} className="flex-1 sm:max-w-[200px]">
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="416 555 0123"
-                {...register("phone", {
-                  onChange: () => clearErrors("phone"),
-                })}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              />
-              <FieldError>{errors.phone?.message}</FieldError>
-            </Field>
-            <Button
-              type="button"
-              onClick={handleSend}
-              disabled={sending || !phone.trim()}
-            >
-              <LoadingSwap isLoading={sending}>
-                <span>{sending ? "Sending…" : "Send code"}</span>
-              </LoadingSwap>
-            </Button>
-          </div>
+          <Field data-invalid={!!errors.phone} className="w-full max-w-full gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div className="w-full flex-1 sm:max-w-[240px]">
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="416 555 0123"
+                  {...register("phone", {
+                    onChange: () => clearErrors("phone"),
+                  })}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                />
+              </div>
+              <Button
+                type="button"
+                className="shrink-0 sm:mt-0"
+                onClick={handleSend}
+                disabled={sending || !phone.trim()}
+              >
+                <LoadingSwap isLoading={sending}>
+                  <span>{sending ? "Sending…" : "Send code"}</span>
+                </LoadingSwap>
+              </Button>
+            </div>
+            <FieldError>{errors.phone?.message}</FieldError>
+          </Field>
         </div>
       ) : (
         <div className="space-y-3">

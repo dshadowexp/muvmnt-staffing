@@ -10,6 +10,8 @@ import {
 import { UserRole } from "@/types/auth";
 import { MultistepFormStep } from "@/hooks/use-multistep-form";
 
+export type { OnboardingStepState } from "@/features/onboarding/types";
+
 // ─── Worker steps ─────────────────────────────────────────────────────────────
 
 const workerSteps: MultistepFormStep[] = [
@@ -29,8 +31,8 @@ const workerSteps: MultistepFormStep[] = [
         description: 'Your name, contact info, location, and professional role.',
         route:        '/onboarding/profile',
         dependsOn:   ['verification'],
-        locked:      false,
-        freezesWhen: ['authorization'],
+        locked:      true,
+        freezesWhen: ['authorization', 'payroll'],
         icon:        User,
     },
     {
@@ -39,8 +41,8 @@ const workerSteps: MultistepFormStep[] = [
         description: 'Your location and address.',
         route:        '/onboarding/location',
         dependsOn:   ['verification'],
-        locked:      false, 
-        freezesWhen: [],
+        locked:      true, 
+        freezesWhen: ['payroll'],
         icon:        MapPin,
     },
     {
@@ -50,7 +52,7 @@ const workerSteps: MultistepFormStep[] = [
         route:        '/onboarding/authorization',
         dependsOn:   ['personal-details', 'location'],
         locked:      true,
-        freezesWhen: [],
+        freezesWhen: ['payroll'],
         icon:        ShieldCheck,
     },
     {
@@ -66,9 +68,9 @@ const workerSteps: MultistepFormStep[] = [
     {
         id:          'payroll',
         title:       'Payroll',
-        description: 'Add a void cheque or direct deposit details to receive payments.',
+        description: 'Setup your payroll account to receive payments.',
         route:        '/onboarding/payroll',
-        dependsOn:   ['authorization'],
+        dependsOn:   ['personal-details', 'location', 'authorization'],
         locked:      true,
         freezesWhen: [],
         icon:        CreditCard,
@@ -126,9 +128,4 @@ export const STEPS_BY_ROLE: Record<UserRole, MultistepFormStep[]> = {
     worker: workerSteps,
     client: clientSteps,
     admin: []
-}
-
-export interface OnboardingStepState {
-    completed:    boolean
-    completed_at: string | null
 }

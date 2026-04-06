@@ -1,0 +1,12 @@
+{{#> email-base previewText="Your application is under review"}}
+  {{#*inline "body"}}
+    <p class="label">Application status</p>
+    <h1>We received your application</h1>
+    <p>Hi {{firstName}},</p>
+    <p>
+      Thank you for completing onboarding. Your profile is now <strong>under review</strong> by our team.
+      We&apos;ll reach out by email or phone within 24 hours when your account has been approved.
+    </p>
+    <a href="{{reviewUrl}}" class="btn">View application status</a>
+  {{/inline}}
+{{/email-base}}

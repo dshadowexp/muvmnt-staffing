@@ -1,7 +1,7 @@
 import { Stripe, loadStripe } from '@stripe/stripe-js';
 
 let stripePromise: Promise<Stripe | null>;
-const getStripeClient = () => {
+const getStripeBrowser = () => {
     if (!stripePromise) {
         stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
     }
@@ -87,5 +87,5 @@ export const DARK_APPEARANCE = {
   };
   
 
-export default getStripeClient;
+export default getStripeBrowser;
 

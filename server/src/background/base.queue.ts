@@ -11,7 +11,7 @@ export const defualtQueueConfig: QueueOptions = {
             delay: 1000,
         },
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: true,
     },
 };
 
@@ -38,15 +38,15 @@ export abstract class BaseQueue<D, N extends string> {
 
     protected workerLogger(worker: Worker<D, void, N>) {
         worker.on('completed', (job) => {
-            logger.info({ jobId: job.id, idempotencyKey: job.id }, 'Notification job completed')
+            logger.info({ jobId: job.id, idempotencyKey: job.id }, `${this.queueName} job completed`)
         });
     
         worker.on('failed', (job, err) => {
-            logger.error({ jobId: job?.id, idempotencyKey: job?.id, err }, 'Notification job failed')
+            logger.error({ jobId: job?.id, idempotencyKey: job?.id, err }, `${this.queueName} job failed`)
         });
     
         worker.on('stalled', (jobId) => {
-            logger.warn({ jobId }, 'Notification job stalled')
+            logger.warn({ jobId }, `${this.queueName} job stalled`)
         });
     }
 }

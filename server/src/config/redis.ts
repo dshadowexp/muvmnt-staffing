@@ -41,7 +41,7 @@ let redisCluster: Cluster | Redis | null = null;
 
 export function getRedisCluster(): Cluster | Redis {
     if (true) {
-        console.log(config.redis.node);
+
         redisCluster = new Redis(config.redis.node);
     } else if (!redisCluster) {
         redisCluster = createRedisCluster();

@@ -129,8 +129,6 @@ class S3Api {
         const key       = this.buildKey(params.context, params.ownerId, params.filename)
         const expiresIn = 300;
 
-        console.log(this.bucket)
-
         const command = new PutObjectCommand({
             Bucket:      this.bucket,
             Key:         key,

@@ -17,6 +17,12 @@ export async function upsertLocationAction(location: AddressLocation) {
     lat: location.lat,
     lng: location.lng,
     user_id: user.id,
+    address_line_1: location.addressLine1,
+    address_line_2: location.addressLine2,
+    admin_area: location.adminArea,
+    city: location.city,
+    country_code: location.countryCode,
+    postal_code: location.postalCode,
   };
 
   const { data: existing } = await supabase

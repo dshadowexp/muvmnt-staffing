@@ -4,13 +4,25 @@ import { useFormStatus } from "react-dom";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/features/auth/auth-provider";
 import { useOnboarding } from "../onboarding-provider";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 
-export function ContinueButton({ text = "Continue" }: { id?: string, text?: string }) {
+interface ContinueButtonProps {
+  id?: string;
+  text?: string;
+  /** When using `onSubmit` + server action instead of `action={}`, pass `useTransition` pending. */
+  pending?: boolean;
+}
+
+export function ContinueButton({ text = "Continue", pending: pendingProp }: ContinueButtonProps) {
   const { back, isFirstStep, isLastStep, steps, currentStepIndex } = useOnboarding();
-  const { pending } = useFormStatus();
+  const { pending: formActionPending } = useFormStatus();
+  const pending = pendingProp ?? formActionPending;
+  const { loading: authLoading } = useAuth();
   const router = useRouter();
+
+  const disabled = pending || authLoading;
 
   function handleBack() {
     if (isFirstStep) return;
@@ -37,8 +49,8 @@ export function ContinueButton({ text = "Continue" }: { id?: string, text?: stri
           Back
         </Button>
       )}
-      <Button type="submit" variant="default" disabled={pending}>
-          <LoadingSwap isLoading={pending}>
+      <Button type="submit" variant="default" disabled={disabled}>
+          <LoadingSwap isLoading={pending || authLoading}>
             { text }
           </LoadingSwap>
       </Button>

@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 // ─── Desktop: vertical progress with number + title horizontally ──────────────
 
 function VerticalProgress() {
-  const { steps, currentStepIndex } = useOnboarding();
+  const { steps, currentStepIndex, stepCompletion } = useOnboarding();
 
   if (steps.length === 0) return null;
 
@@ -15,7 +15,7 @@ function VerticalProgress() {
     <div className="hidden md:flex flex-col min-w-[180px] shrink-0 pt-1">
       {steps.map((step, i) => {
         const isActive = i === currentStepIndex;
-        const isComplete = i < currentStepIndex;
+        const isComplete = stepCompletion[step.id]?.completed === true;
         const isLast = i === steps.length - 1;
 
         const Icon = step.icon;
@@ -63,7 +63,7 @@ function VerticalProgress() {
 // ─── Mobile: "Onboarding" with dashes on top ───────────────────────────────────
 
 function MobileDashes() {
-  const { steps, currentStepIndex, step } = useOnboarding();
+  const { steps, currentStepIndex, step, stepCompletion } = useOnboarding();
 
   if (steps.length === 0) return null;
 
@@ -73,9 +73,9 @@ function MobileDashes() {
         {step?.title ?? "Onboarding"}
       </p>
       <div className="flex gap-1.5">
-        {steps.map((_, i) => {
+        {steps.map((s, i) => {
           const isActive = i === currentStepIndex;
-          const isComplete = i < currentStepIndex;
+          const isComplete = stepCompletion[s.id]?.completed === true;
           return (
             <div
               key={i}

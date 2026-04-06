@@ -145,7 +145,9 @@ export function FileInput({
               }
               return prev;
             });
-            toast.success("File uploaded successfully");
+            if (!onUploaded) {
+              toast.success("File uploaded successfully");
+            }
             resolve();
           } else {
             reject(new Error(`Upload failed with status: ${xhr.status}`));

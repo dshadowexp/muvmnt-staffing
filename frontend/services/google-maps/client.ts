@@ -12,6 +12,8 @@ export interface GeocodeResult {
         city?:         string
         state?:        string
         country?:      string
+        /** ISO 3166-1 alpha-2 from Google `short_name` */
+        countryCode?:  string
         postalCode?:   string
     }
 }
@@ -127,16 +129,19 @@ export class GoogleMapsClient {
     }
 
     private parseAddressComponents(components: any[]): GeocodeResult['components'] {
-        const get = (type: string) =>
-        components.find((c: any) => c.types.includes(type))?.long_name
+        const getLong = (type: string) =>
+            components.find((c: any) => c.types.includes(type))?.long_name
+        const getShort = (type: string) =>
+            components.find((c: any) => c.types.includes(type))?.short_name
 
         return {
-            streetNumber: get('street_number'),
-            route:        get('route'),
-            city:         get('locality') ?? get('postal_town'),
-            state:        get('administrative_area_level_1'),
-            country:      get('country'),
-            postalCode:   get('postal_code'),
+            streetNumber: getLong('street_number'),
+            route:        getLong('route'),
+            city:         getLong('locality') ?? getLong('postal_town'),
+            state:        getLong('administrative_area_level_1'),
+            country:      getLong('country'),
+            countryCode:  getShort('country'),
+            postalCode:   getLong('postal_code'),
         }
     }
 }

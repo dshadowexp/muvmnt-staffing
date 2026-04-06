@@ -2,8 +2,8 @@ import { Database } from "@/services/supabase/types/database";
 import { z } from "zod";
 
 export const clientSchema = z.object({
-    name: z.string(),
-    type: z.string(),
+    name: z.string().min(1, "Organization name is required"),
+    type: z.string().min(1, "Organization type is required"),
 });
 
 export type ClientProfileValues = z.infer<typeof clientSchema>;

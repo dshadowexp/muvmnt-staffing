@@ -112,6 +112,9 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
             const { role } = request.body;
 
             const result = await authService.exchangeToken(token, role);
+            if (!result) {
+                return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: 'User not found' });
+            }
 
             return reply.code(200).send(result);
         }

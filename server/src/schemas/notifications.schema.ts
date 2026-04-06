@@ -8,7 +8,7 @@ const NotificationChannel = z.enum(["email", "sms", "push"]);
 
 export const SendNotificationBody = z.object({
     userId:          z.string().uuid("Invalid user ID"),
-    channels:        z.union([NotificationChannel, z.array(NotificationChannel).min(1)]),
+    channels:        z.array(NotificationChannel).min(1).max(3),
     subject:         z.string().optional(),
     template:        z.string().min(1, "Template name is required"),
     data:            z.record(z.string(), z.unknown()).default({}),

@@ -7,7 +7,7 @@ import { logger } from '../../../config/logger';
 import { getMessaging } from '../../../config/firebase';
 
 interface SendPushParams {
-    userId:   string
+    token:   string
     template: string
     data:     Record<string, unknown>
 }
@@ -19,18 +19,12 @@ export class PushChannel {
         this.messaging = getMessaging();
     }
 
-    async send({ userId, template, data }: SendPushParams): Promise<void> {
-        const { data: tokenRow, error } = await supabase
-            .from('push_tokens')
-            .select('token')
-            .eq('user_id', userId)
-            .single();
-
-        if (error || !tokenRow) {
-            logger.warn({ userId, template }, 'Push skipped — no push token for user')
+    async send({ token, template, data }: SendPushParams): Promise<void> {
+        if (!token) {
+            logger.warn({ template }, 'Push skipped — no push token for user')
             return
         }
-    
+
         const { title, body } = renderPush(template, data)
 
         const message = {
@@ -56,7 +50,7 @@ export class PushChannel {
         
         const response = await this.messaging!.send({
             ...message,
-            token: tokenRow.token
+            token: token
         });
 
         // return {
@@ -64,6 +58,6 @@ export class PushChannel {
         //     messageId: response
         // };
 
-        logger.info({ userId, template }, 'Push notification sent')
+        logger.info({ token, template }, 'Push notification sent')
     }
 }

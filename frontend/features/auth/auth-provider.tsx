@@ -17,7 +17,9 @@ import { exchangeToken, ExchangeTokenError } from "@/features/auth/api";
 import { deleteSession, setSession } from "@/lib/session";
 import { UserAuth, UserRole } from "@/types/auth";
 import { setCookie, deleteCookie } from "cookies-next";
-import { toast } from "sonner";
+import { redirect } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
+import { logout } from "@/services/firebase/auth";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type AuthContextType = {
@@ -32,9 +34,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const locale = useLocale();
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
     const [authUser, setAuthUser] = useState<UserAuth | null>(null);
-    /** True until the first `onIdTokenChanged` run finishes (avoids UI flash before Firebase resolves). */
     const [loading, setLoading] = useState(true);
     const pendingRoleRef = useRef<UserRole | null>(null);
 
@@ -45,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function runTokenExchange(firebaseUser: User) {
         const firebaseToken = await firebaseUser.getIdToken();
-        console.log(pendingRoleRef.current);
 
         const authUser = await exchangeToken(
             firebaseToken,
@@ -59,26 +60,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await setCookie("__session", firebaseToken);
     }
 
+    async function clearAuth() {
+        await deleteSession();
+        await deleteCookie("__session");
+        setFirebaseUser(null);
+        setAuthUser(null);
+        setLoading(false);
+    }
+
     useEffect(() => {
         const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
-            console.log("onIdTokenChanged", firebaseUser);
             setLoading(true);
 
             if (!firebaseUser) {
-                await deleteSession();
-                await deleteCookie("__session");
-                setFirebaseUser(null);
-                setAuthUser(null);
-                setLoading(false);
+                await clearAuth();
                 return;
             }
 
             try {
                 await runTokenExchange(firebaseUser);
             } catch (err) {
-                toast.error("Failed to exchange token", {
-                    description: err instanceof ExchangeTokenError ? err.message : "Unknown error",
-                });
+                if (err instanceof ExchangeTokenError) {
+                    if (err.kind === "not_found") {
+                        await clearAuth();
+                        await logout();
+                        redirect({ href: "/sign-up", locale });
+                        return;
+                    }
+                }
             }
 
             setFirebaseUser(firebaseUser);

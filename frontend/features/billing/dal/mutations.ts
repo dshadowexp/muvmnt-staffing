@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { createAdminClient } from "@/services/supabase/server";
 import { getStripeServer, STRIPE_PRICE_IDS } from "@/services/stripe/server";
 import { env } from "@/data/env/server";
-import { parseAddress } from "@/lib/formatters";
+import { calendarPartsFromYyyyMmDd, parseAddress } from "@/lib/formatters";
 
 export async function createSetupIntent() {
     const { user } = await getCurrentUser({ allData: true });
@@ -52,29 +52,46 @@ export async function createSetupIntent() {
 }
 
 export async function createConnectedAccountLink() {
-    const { user } = await getCurrentUser({ allData: true });
-    if (!user) return { error: "Unauthorized" };
+    const { user, authUser } = await getCurrentUser({ allData: true });
+    if (!user) return { error: "Unauthenticated" };
     if (user.role !== 'worker') return { error: "Unauthorized" };
 
     const supabase = await createAdminClient();
-    const { data, error } = await supabase
-        .from('payroll_accounts')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
 
-    if (error && error.code !== 'PGRST116') return { error: error.message };
+    const [
+        { data: payrollRow, error: payrollError },
+        { data: workerProfileData, error: workerProfileError },
+        { data: locationData, error: locationError },
+    ] = await Promise.all([
+        supabase.from("payroll_accounts").select("*").eq("user_id", user.id).single(),
+        supabase.from("workers").select("*").eq("user_id", user.id).single(),
+        supabase.from("locations").select("*").eq("user_id", user.id).single(),
+    ]);
 
-    const { data: workerProfileData, error: workerProfileError } = await supabase.from('workers').select('*').eq('user_id', user.id).single();
-    if (workerProfileError && workerProfileError.code !== 'PGRST116') return { error: workerProfileError.message };
-    if (!workerProfileData) return { error: 'Your profile is not completed' };
+    if (payrollError && payrollError.code !== "PGRST116") {
+        return { error: payrollError.message };
+    }
+    if (workerProfileError && workerProfileError.code !== "PGRST116") {
+        return { error: workerProfileError.message };
+    }
+    if (locationError && locationError.code !== "PGRST116") {
+        return { error: locationError.message };
+    }
+    if (!workerProfileData) return { error: "Your profile is not completed" };
+    if (!locationData) return { error: "Your location is not completed" };
+
+    console.log('countryCode', locationData.country_code?.trim().toUpperCase());
+    console.log('parsedAddress', locationData);
+    console.log("email", user.email ?? authUser?.email ?? "");
+    console.log("phone", user.phone_number ?? authUser?.phoneNumber ?? "");
 
     let stripeAccountId;
-    if (!data) {
+    if (!payrollRow) {
         const account = await getStripeServer().accounts.create({
             type: 'express',
-            country: 'CA',
-            email: user.email ?? "",
+            country: locationData.country_code?.trim().toUpperCase(),
+            email: user.email ?? authUser?.email ?? "",
+            metadata: { user_id: user.id },
             business_type: 'individual',
             capabilities: {
                 transfers: { requested: true },
@@ -96,36 +113,38 @@ export async function createConnectedAccountLink() {
         });
 
         stripeAccountId = account.id;
-    } else {
-        stripeAccountId = data.stripe_account_id;
-    }
-    // TODO: Add address and format to get line1, city, state, postal_code
-    const { data: locationData, error: locationError } = await supabase.from('locations').select('*').eq('user_id', user.id).single();
-    if (locationError && locationError.code !== 'PGRST116') return { error: locationError.message };
-    if (!locationData) return { error: 'Your location is not completed' };
-    const address = parseAddress(locationData.address);
 
-    await getStripeServer().accounts.createPerson(stripeAccountId, {
-        first_name: workerProfileData.first_name,
-        last_name: workerProfileData.last_name,
-        email: user.email ?? "",
-        phone: user.phone_number ?? "",
-        address: {
-            line1: address.street ?? "",
-            city: address.city ?? "",
-            state: address.province ?? "",
-            postal_code: address.postalCode ?? "",
-            country: address.country ?? "",
-        },
-        relationship: {
-            representative: true,
+        const dobParts = calendarPartsFromYyyyMmDd(workerProfileData.date_of_birth);
+        if (!dobParts) {
+            return { error: "Invalid date of birth" };
         }
-    });
 
+        await getStripeServer().accounts.createPerson(stripeAccountId, {
+            first_name: workerProfileData.first_name,
+            last_name: workerProfileData.last_name,
+            dob: dobParts,
+            email: user.email ?? authUser?.email ?? "",
+            phone: user.phone_number ?? authUser?.phoneNumber ?? "",
+            address: {
+                line1: locationData.address_line_1?.trim() ?? "",
+                line2: locationData.address_line_2?.trim() ?? "",
+                city: locationData.city?.trim() ?? "",
+                state: locationData.admin_area?.trim() ?? "",
+                postal_code: locationData.postal_code?.trim() ?? "",
+                country: locationData.country_code?.trim().toUpperCase(),
+            },
+            relationship: {
+                representative: true,
+            }
+        });
+    } else {
+        stripeAccountId = payrollRow.stripe_account_id;
+    }
+    
     const link = await getStripeServer().accountLinks.create({
         account: stripeAccountId,
-        refresh_url: `${env.APP_URL}/app/onboarding/payroll`,
-        return_url: `${env.APP_URL}/app/onboarding/payroll`,
+        refresh_url: `${env.APP_URL}/onboarding/payroll`,
+        return_url: `${env.APP_URL}/onboarding/payroll`,
         type: 'account_onboarding',
         collect: 'eventually_due',
     });

@@ -14,6 +14,10 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
+import {
+  addressLocationFromFields,
+  buildAddressLocation,
+} from "@/features/geo/lib/build-address-location";
 import type { AddressFields, AddressLocation } from "@/features/geo/types";
 
 interface AddressCardProps {
@@ -54,14 +58,24 @@ export function AddressCard({
     }
   }, [value?.id, value?.address, value?.cellId]);
 
+  function samePersistedAddress(a: AddressLocation, b: AddressLocation) {
+    return (
+      a.id === b.id &&
+      a.address === b.address &&
+      a.cellId === b.cellId &&
+      a.addressLine1 === b.addressLine1 &&
+      a.addressLine2 === b.addressLine2 &&
+      a.city === b.city &&
+      a.adminArea === b.adminArea &&
+      a.postalCode === b.postalCode &&
+      a.countryCode === b.countryCode
+    );
+  }
+
   // Once the server props catch up after refresh, drop redundant local copy
   useEffect(() => {
     if (!value || !localAddress) return;
-    if (
-      value.id === localAddress.id &&
-      value.address === localAddress.address &&
-      value.cellId === localAddress.cellId
-    ) {
+    if (samePersistedAddress(value, localAddress)) {
       setLocalAddress(null);
     }
   }, [value, localAddress]);
@@ -72,24 +86,20 @@ export function AddressCard({
     setResolving(true);
 
     const id = value?.id ?? crypto.randomUUID();
-    setLocalAddress({
-      id,
-      lat: value?.lat ?? 0,
-      lng: value?.lng ?? 0,
-      address: fields.description,
-      cellId: fields.placeId,
-    });
+    setLocalAddress(
+      addressLocationFromFields(id, fields, {
+        lat: value?.lat ?? 0,
+        lng: value?.lng ?? 0,
+      }),
+    );
 
     try {
       const details = await getPlaceDetails(fields.placeId);
 
-      const location: AddressLocation = {
-        id,
-        lat: details.lat,
-        lng: details.lng,
-        address: fields.description,
-        cellId: details.cellId,
-      };
+      const location = buildAddressLocation(id, details, {
+        displayAddress: fields.description,
+        fallback: fields,
+      });
       setLocalAddress(location);
       onChange?.(location);
     } catch {

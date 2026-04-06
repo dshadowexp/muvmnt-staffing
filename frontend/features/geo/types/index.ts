@@ -9,6 +9,7 @@ export interface PlaceDetails {
         city?:         string;
         state?:        string;
         country?:      string;
+        countryCode?:  string;
         postalCode?:   string;
     };
 }
@@ -28,4 +29,10 @@ export interface AddressLocation {
     lng: number;
     address: string;
     cellId: string;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    adminArea: string | null;
+    postalCode: string | null;
+    countryCode: string | null;
 }

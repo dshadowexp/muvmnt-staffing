@@ -155,23 +155,20 @@ export function PhotoUpload({
         xhr.onload = () => {
           if (xhr.status === 200 || xhr.status === 204) {
             setFile((prev) => {
-              if (prev?.file === f) {
-                const completed = {
-                  ...prev,
-                  progress: 100,
-                  uploading: false,
-                  error: false,
-                  key,
-                };
-                queueMicrotask(() => {
-                  onFileChange?.(true);
-                  onUploaded?.(completed);
-                });
-                return completed;
-              }
-              return prev;
+              if (prev?.file !== f) return prev;
+              return {
+                ...prev,
+                progress: 100,
+                uploading: false,
+                error: false,
+                key,
+              };
             });
-            toast.success("Photo uploaded successfully");
+            // Side effects outside the state updater (avoids Strict Mode double-invoke in dev).
+            queueMicrotask(() => {
+              onFileChange?.(true);
+              onUploaded?.({ key });
+            });
             resolve();
           } else {
             reject(new Error(`Upload failed with status: ${xhr.status}`));

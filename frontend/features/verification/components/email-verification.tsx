@@ -103,21 +103,23 @@ export function EmailVerification() {
           </p>
 
           {needsVerification ? (
-            <div className="space-y-3">
-              {error ? (
-                <p className="text-sm text-destructive" role="alert">
-                  {error}
-                </p>
-              ) : null}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-6">
+              <div className="min-w-0 flex-1 space-y-3">
+                {error ? (
+                  <p className="text-sm text-destructive" role="alert">
+                    {error}
+                  </p>
+                ) : null}
 
-              {sent ? (
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Check your inbox and click the link — this page updates
-                  automatically.
-                </p>
-              ) : null}
+                {sent ? (
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Check your inbox and click the link — this page updates
+                    automatically.
+                  </p>
+                ) : null}
+              </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex shrink-0 flex-wrap items-start gap-3 sm:flex-col sm:items-stretch">
                 <Button
                   type="button"
                   onClick={handleSend}

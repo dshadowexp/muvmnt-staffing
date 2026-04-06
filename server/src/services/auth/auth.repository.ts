@@ -78,12 +78,12 @@ export class AuthRepository {
     }
   }
 
-  async findOrCreateUser({ authId, email, role, emailVerified }: FindOrCreateUserParams): Promise<UserRecord> {
+  async findOrCreateUser({ authId, email, role, emailVerified }: FindOrCreateUserParams): Promise<UserRecord | null> {
     const existing = await this.findUserByAuthId(authId);
 
     if (existing) return existing as UserRecord
     if (!role) {
-      throw new Error(`Failed to query user: unspecified role`);
+      return null;
     }
 
     const { data: newUser, error: insertError } = await supabase

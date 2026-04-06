@@ -15,6 +15,7 @@ export type ExchangeErrorKind =
     | "bad_request"    // 400 — invalid role or malformed body (logic bug)
     | "server_error"   // 5xx — backend down / transient
     | "network"        // fetch threw — offline or DNS failure
+    | "not_found"      // 404 — user not found
     | "unknown";
 
 export class ExchangeTokenError extends Error {
@@ -68,6 +69,7 @@ async function fetchExchange(
     if (res.status === 401) throw new ExchangeTokenError("unauthorized", msg, 401);
     if (res.status === 400) throw new ExchangeTokenError("bad_request",  msg, 400);
     if (res.status >= 500)  throw new ExchangeTokenError("server_error", msg, res.status);
+    if (res.status === 404) throw new ExchangeTokenError("not_found", msg, 404);
 
     throw new ExchangeTokenError("unknown", msg, res.status);
 }
@@ -124,6 +126,9 @@ export async function exchangeToken(
 
             // 400: logic error, don't retry
             if (err.kind === "bad_request") break;
+
+            // 404: user not found, don't retry
+            if (err.kind === "not_found") break;
 
             // network / 5xx: wait and retry
             if (err.retryable && attempt < MAX_RETRIES - 1) {

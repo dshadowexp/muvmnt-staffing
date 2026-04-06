@@ -1,20 +1,28 @@
 import { createHash } from 'node:crypto';
 import { Worker, Job } from 'bullmq'
 import { BaseQueue } from "./base.queue";
-import { NotificationService, NotificationChannel, SendNotificationParams } from '../services/notifications/notifications.service'
 import { logger } from "../config/logger";
 import { config } from "../config/env";
-import { NotificationRepository } from '../services/notifications/notifications.repository';
+import { NotificationChannel } from '../services/notifications/notifications.service'
+import { supabase } from '../config/supabase';
+import { EmailChannel } from '../services/notifications/channels/email.channel';
+import { PushChannel } from '../services/notifications/channels/push.channel';
+import { SmsChannel } from '../services/notifications/channels/sms.channel';
 
 // ─── Job data ─────────────────────────────────────────────────────────────────
 
-export interface NotificationJobData {
-    idempotencyKey: string
+export interface EnqueueNotificationParams {
+    idempotencyKey?: string
+    delay?:          number
     userId:         string
     channels:       NotificationChannel[]
     subject?:       string
     template:       string
     data:           Record<string, unknown>
+}
+
+export interface NotificationJobData extends EnqueueNotificationParams {
+    userData:  { email: string; phone_number: string; push_token: string }
 }
 
 export type NotificationJobName =
@@ -25,24 +33,22 @@ export type NotificationJobName =
     | (string & {});
 
 export class NotificationsQueue extends BaseQueue<NotificationJobData, NotificationJobName> {
-    private readonly service: NotificationService;
-    private readonly repo: NotificationRepository;
+    private readonly email: EmailChannel
+    private readonly sms:   SmsChannel;
+    private readonly push:  PushChannel
 
     constructor() {
-        super('notifications');
-        this.service = new NotificationService();
-        this.repo = new NotificationRepository();
+        super('send-notifications', 5);
+        this.email = new EmailChannel();
+        this.sms   = new SmsChannel();
+        this.push  = new PushChannel();
     }
 
     createWorker() {
         const worker = new Worker<NotificationJobData, void, NotificationJobName>(
             this.queueName,
             async (job: Job<NotificationJobData, void, NotificationJobName>) => {
-                const { idempotencyKey, userId, channels, subject, template, data } = job.data
-    
-                logger.info({ jobId: job.id, idempotencyKey, userId, template }, 'Processing notification job');
-    
-                await this.service.send({ idempotencyKey, userId, channels, subject, template, data })
+                await this.dispatch(job.data);
             },
             {
                 connection:  config.redis.node,
@@ -51,14 +57,13 @@ export class NotificationsQueue extends BaseQueue<NotificationJobData, Notificat
         )
     
         this.workerLogger(worker);
-    
         return worker
     }
 
     // ─── Enqueue (non-blocking, called from routes) ───────────────────────────
 
-    async enqueue(params: SendNotificationParams): Promise<{ idempotencyKey: string }> {
-        const { userId, subject, template, data, delay } = params
+    async enqueue(params: EnqueueNotificationParams): Promise<void> {
+        const { userId, subject, template, data } = params
         const channels = Array.isArray(params.channels) ? params.channels : [params.channels]
 
         // Derive a stable key from the intent if caller didn't supply one.
@@ -66,17 +71,32 @@ export class NotificationsQueue extends BaseQueue<NotificationJobData, Notificat
         const idempotencyKey = params.idempotencyKey
         ?? this.deriveKey({ userId, template, data });
 
-        // Check Redis first (fast path) — BullMQ deduplicates by jobId
-        // The DB check below is the durable guarantee for cross-restart safety
-        const alreadySent = await this.repo.hasBeenSent(idempotencyKey)
-        if (alreadySent) {
-            logger.info({ idempotencyKey, userId, template }, 'Notification skipped — already sent')
-            return { idempotencyKey }
+        const existingJob = await this.queue.getJob(idempotencyKey);
+        if (existingJob) {
+            const state = await existingJob.getState();
+            if (state === 'completed' || state === 'failed') {
+                logger.info({ idempotencyKey, userId, template }, 'Notification skipped — already enqueued')
+                return;
+            }
+            logger.info({ idempotencyKey, userId, template }, 'Notification skipped — already enqueued')
+            return;
         }
+
+        const { data: userData, error } = await supabase
+            .from('users')
+            .select('email, phone_number, push_token')
+            .eq('id', userId)
+            .single();
+
+        if (error) throw new Error(`Failed to find user ${userId}: ${error?.message}`);
+        if (!userData) throw new Error(`User ${userId} not found`);
+
+        const userNotificationData = { email: userData.email, phone_number: userData.phone_number, push_token: userData.push_token };
 
         const jobData: NotificationJobData = {
             idempotencyKey,
             userId,
+            userData: userNotificationData,
             channels,
             subject,
             template,
@@ -86,15 +106,40 @@ export class NotificationsQueue extends BaseQueue<NotificationJobData, Notificat
         const jobName: NotificationJobName = channels.length > 1 ? 'send.all' : `send.${channels[0]}`
 
         await this.queue.add(jobName, jobData, {
-            delay,
             jobId: idempotencyKey,
         })
 
         logger.info({ idempotencyKey, userId, template, channels }, 'Notification enqueued')
-        return { idempotencyKey }
     }
 
     // ─── Private ─────────────────────────────────────────────────────────────
+    private async dispatch(payload: NotificationJobData): Promise<void> {
+        const { userId, subject, template, data, userData } = payload;
+        const channels = Array.isArray(payload.channels) ? payload.channels : [payload.channels];
+
+        const results = await Promise.allSettled(
+            channels.map((ch) => {
+                switch (ch) {
+                case 'email':
+                    return this.email.send({ to: userData.email, subject: subject ?? template, template, data })
+                case 'sms':
+                    return this.sms.send({ to: userData.phone_number, template, data })
+                case 'push':
+                    return this.push.send({ token:  userData.push_token, template, data })
+                }
+            })
+        )
+
+        results.forEach((result, i) => {
+            if (result.status === 'rejected') {
+                logger.error(
+                  { channel: channels[i], userId, template, err: result.reason },
+                  'Channel delivery failed'
+                )
+            }
+        })
+    }
+
     private deriveKey(input: { userId: string; template: string; data: Record<string, unknown> }): string {
         const stable = JSON.stringify({ ...input, data: this.sortKeys(input.data) })
         return createHash('sha256').update(stable).digest('hex')
@@ -110,8 +155,4 @@ const notificationsBackground = new NotificationsQueue();
 
 export function getNotificationsQueue() {
     return notificationsBackground;
-}
-
-export function createNotificationsWorker() {
-    return notificationsBackground.createWorker();
 }

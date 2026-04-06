@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -85,6 +85,8 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
 
   const requirements = watch("requirements");
   const tasks = watch("tasks");
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
   const ratePending =
     isEdit &&
     (jobInfo!.hourly_rate == null || jobInfo!.hourly_rate <= 0);
@@ -142,7 +144,7 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field data-invalid={!!errors.startDate}>
             <FieldLabel htmlFor="start-date">Start date</FieldLabel>
-            <Popover>
+            <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
               <PopoverTrigger asChild>
                 <Button
                   id="start-date"
@@ -162,7 +164,10 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
                 <Calendar
                   mode="single"
                   selected={form.watch("startDate")}
-                  onSelect={(d) => setValue("startDate", d!, { shouldValidate: true })}
+                  onSelect={(d) => {
+                    if (d) setValue("startDate", d, { shouldValidate: true });
+                    setStartDateOpen(false);
+                  }}
                   disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
                 />
               </PopoverContent>
@@ -172,7 +177,7 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
 
           <Field data-invalid={!!errors.endDate}>
             <FieldLabel htmlFor="end-date">End date (optional)</FieldLabel>
-            <Popover>
+            <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
               <PopoverTrigger asChild>
                 <Button
                   id="end-date"
@@ -192,7 +197,10 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
                 <Calendar
                   mode="single"
                   selected={form.watch("endDate") ?? undefined}
-                  onSelect={(d) => setValue("endDate", d ?? null, { shouldValidate: true })}
+                  onSelect={(d) => {
+                    setValue("endDate", d ?? null, { shouldValidate: true });
+                    setEndDateOpen(false);
+                  }}
                   disabled={(d) => {
                     const start = form.watch("startDate");
                     if (!start) return true;

@@ -2,10 +2,12 @@ import { Worker } from 'bullmq'
 import { FastifyInstance } from 'fastify'
 import { logger } from '../config/logger';
 import { getNotificationsQueue } from './notifications.queue';
+import { getStripeWebhooksQueue } from './stripe-webhooks.queue';
 
 export async function startWorkers(app: FastifyInstance): Promise<void> {
     const workers: Worker[] = [
         getNotificationsQueue().createWorker(),
+        getStripeWebhooksQueue().createWorker(),
         // getPaymentsQueue().createWorker(), 
     ]
 
