@@ -4,7 +4,7 @@ import { useFormStatus } from "react-dom";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
-import { useAuth } from "@/features/auth/auth-provider";
+import { useAuth } from "@/providers/auth-provider";
 import { useOnboarding } from "../onboarding-provider";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 

@@ -1,7 +1,7 @@
 import { Output, streamText } from "ai";
 import { google } from "../models/google"
 import { aiAnalyzeSchema } from "./schemas"
-import { JobInfoFormInput } from "@/features/jobs/schema"
+import { JobInfoFormInput } from "@/features/requests/schema"
 
 export async function analyzeResumeForJob({
   resumeFile,

@@ -34,6 +34,27 @@ export async function updateAdminWorkerStatus(
   return { ok: true };
 }
 
+export async function updateAdminUserAccountActive(
+  userId: string,
+  workerId: string,
+  isActive: boolean,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  await requireAdminSession();
+  const supabase = await createAdminClient();
+
+  const { error } = await supabase
+    .from("users")
+    .update({ is_active: isActive })
+    .eq("id", userId);
+
+  if (error) {
+    return { ok: false, message: error.message };
+  }
+
+  revalidateAdminWorkerPaths(workerId);
+  return { ok: true };
+}
+
 export async function verifyAdminCertification(
   certificationId: number,
   workerId: string,

@@ -31,6 +31,7 @@ export function PayrollClient({
     initialPayroll != null && initialPayroll.accountId && !isStripeComplete;
 
   const handleSetup: SubmitEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       await setupPayrollAction();
@@ -38,7 +39,7 @@ export function PayrollClient({
       unstable_rethrow(error);
       toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   }
 

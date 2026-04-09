@@ -32,59 +32,6 @@ export async function getBillingAccount() {
     }}
 }
 
-export async function payrollAccountMeetsOnboardingRequirements(userId: string) {
-    const supabase = await createAdminClient();
-    const { data, error } = await supabase
-        .from("payroll_accounts")
-        .select("charges_enabled, details_submitted, payouts_enabled")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-    if (error) {
-        return { ok: false as const, message: error.message };
-    }
-    if (!data) {
-        return {
-            ok: false as const,
-            message: "Complete payroll setup before continuing.",
-        };
-    }
-    if (
-        data.charges_enabled !== true ||
-        data.details_submitted !== true ||
-        data.payouts_enabled !== true
-    ) {
-        return {
-            ok: false as const,
-            message:
-                "Payroll account must have charges, payouts, and details fully enabled before continuing.",
-        };
-    }
-    return { ok: true as const };
-}
-
-export async function retrieveConnectedAccount() {
-    const session = await getSession();
-    if (!session) return { error: "Unauthenticated" };
-    const { userId } = session;
-
-    const supabase = await createAdminClient();
-    const { data, error } = await supabase
-        .from('payroll_accounts')
-        .select('*')
-        .eq('user_id', userId) 
-        .single();
-    if (error) return { error: error.message };
-    if (!data) return { error: null, data: null };
-
-    const account = await getStripeServer().accounts.retrieve(data.stripe_account_id);
-    return { data: {
-        accountId: data.stripe_account_id,
-        enabled: account.charges_enabled && account.payouts_enabled,
-        completed: account.details_submitted,
-    }};
-}
-
 export async function getPaymentMethods() {
     const session = await getSession();
     if (!session) return { error: "Unauthenticated" };
@@ -96,8 +43,6 @@ export async function getPaymentMethods() {
         .select('*')
         .eq('user_id', userId)
         .single();
-    console.log("data", data);
-    console.log("error", error);
 
     if (error && error.code !== "PGRST116") return { error: error.message };
     if (!data || !data.stripe_customer_id) return { data: [] as CardSummary[] };

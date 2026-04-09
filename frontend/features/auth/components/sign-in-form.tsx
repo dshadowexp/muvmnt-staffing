@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/features/auth/auth-provider";
+import { useAuth } from "@/providers/auth-provider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ import {
 } from "@/features/auth/schemas";
 import { getAuthErrorMessage, loginWithEmail } from "@/services/firebase/auth";
 import { useRouter } from "@/i18n/navigation";
-import { useAuthRedirect } from "../use-auth-redirect";
+import { useAuthRedirect } from "../../../hooks/use-auth-redirect";
 
 export function SignInForm() {
   const router = useRouter();

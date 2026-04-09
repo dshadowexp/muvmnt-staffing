@@ -2,6 +2,7 @@ import { config } from './config/env';
 import { logger } from './config/logger';
 import { buildApp } from './app'
 import { startWorkers } from './background';
+import { startSocketServer } from './ws';
 
 // import { startKafkaConsumers } from './kafka/consumers'
 
@@ -14,7 +15,10 @@ async function main() {
     // ─── Start background services ────────────────────────────────────────────
     // await startKafkaConsumers(app)
     await startWorkers(app);
-  
+
+    // ─── Socket.io ────────────────────────────────────────────────────
+    startSocketServer(app);
+
     // ─── Start HTTP server ────────────────────────────────────────────────────
     const port = config.port;
     const host = config.host;

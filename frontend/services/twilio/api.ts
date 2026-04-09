@@ -1,4 +1,3 @@
-import { config } from "@/proxy";
 import { twilioClient } from "./client";
 import { env } from "@/data/env/server";
 
@@ -39,7 +38,5 @@ export async function sendSms(to: string | null, body: string): Promise<void> {
         to,
         from: env.TWILIO_FROM_NUMBER,
         body,
-    })
-
-    console.log({ to }, 'SMS sent')
+    });
 }

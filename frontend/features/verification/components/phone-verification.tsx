@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useAuth } from "@/features/auth/auth-provider";
+import { useAuth } from "@/providers/auth-provider";
 import { sendPhoneOtp, verifyPhoneOtp } from "@/features/verification/dal/queries";
 import {
   phoneSchema,

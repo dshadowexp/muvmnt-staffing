@@ -3,6 +3,7 @@ import { NotificationService } from '../../services/notifications/notifications.
 import { SendNotificationBody, SendNotificationBodyType, UpsertFcmTokenBody, UpsertFcmTokenBodyType } from '../../schemas/notifications.schema';
 import { getNotificationsQueue } from '../../background/notifications.queue';
 import { logger } from '../../config/logger';
+import { ErrorReply } from '../../schemas';
 
 export default async function notificationsRoutes(app: FastifyInstance): Promise<void> {
     const notificationService = new NotificationService();

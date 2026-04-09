@@ -7,15 +7,13 @@ import { authorizationAction } from "./_action";
 import { useActionState } from "react";
 
 interface AuthorizationClientProps {
-    initialWorkAuthorization?:
-      | { type: string; file_url: string }
-      | null;
-    initialWorkerPhotoUrl?: string | null;
-  }
+  initialWorkAuthorization?: { type: string; file_url: string } | null;
+  workAuthorizationVerified?: boolean;
+}
 
 export function AuthorizationClient({
   initialWorkAuthorization,
-  initialWorkerPhotoUrl,
+  workAuthorizationVerified,
 }: AuthorizationClientProps) {
     const [state, formAction] = useActionState(authorizationAction, undefined);
     useOnboardingFormNavigate(state);
@@ -24,7 +22,7 @@ export function AuthorizationClient({
         <form action={formAction} className="space-y-6">
             <WorkerAuthorizationForm
               initialWorkAuthorization={initialWorkAuthorization}
-              initialWorkerPhotoUrl={initialWorkerPhotoUrl}
+              workAuthorizationVerified={workAuthorizationVerified}
             />
             <ContinueButton />
         </form>

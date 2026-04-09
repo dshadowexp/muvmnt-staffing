@@ -47,3 +47,6 @@ export async function createClientAction(data: z.infer<typeof clientSchema>) {
   }
   return { error: false, message: "Profile saved successfully" };
 }
+
+/** Same as {@link createClientAction}; use on account settings pages. */
+export const updateClientProfileAction = createClientAction;

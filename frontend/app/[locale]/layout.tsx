@@ -7,7 +7,7 @@ import { routing } from '@/i18n/routing';
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
-import { AuthProvider } from "@/features/auth/auth-provider";
+import { AuthProvider } from "@/providers/auth-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next"
 

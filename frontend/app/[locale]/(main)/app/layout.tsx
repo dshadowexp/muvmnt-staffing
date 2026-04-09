@@ -8,7 +8,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Suspense fallback={<NavbarSkeleton />}>
         <Navbar />
       </Suspense>
-      <main className="pt-[var(--spacing-header)]">{children}</main>
+      <main className="pt-[var(--spacing-header)]">
+        {children}
+      </main>
     </>
   );
 }

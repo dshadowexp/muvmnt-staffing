@@ -1,6 +1,6 @@
 "use client"
 
-import { JobInfoFormInput } from "@/features/jobs/schema";
+import { JobInfoFormInput } from "@/features/requests/schema";
 import { useVoice, VoiceReadyState } from "@humeai/voice-react"
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";

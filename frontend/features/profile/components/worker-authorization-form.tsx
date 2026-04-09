@@ -10,7 +10,6 @@ import {
   upsertWorkAuthorizationAction,
   deleteWorkAuthorizationAction,
 } from "@/features/profile/actions/authorization-actions";
-import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import { deleteFile } from "@/features/storage/dal/mutations";
 import {
   Field,
@@ -28,24 +27,22 @@ import {
   MultiSelectValue,
 } from "@/components/ui/multi-select";
 import { FileInput } from "@/features/storage/components/file-input";
-import { PhotoUpload } from "@/features/storage/components/photo-upload";
 import { LoadingSwap } from "@/components/ui/loading-swap";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 interface WorkerAuthorizationFormProps {
   initialWorkAuthorization?:
     | { type: string; file_url: string }
     | null;
-  initialWorkerPhotoUrl?: string | null;
+  /** When true, work authorization cannot be changed. */
+  workAuthorizationVerified?: boolean;
 }
 
 export function WorkerAuthorizationForm({
   initialWorkAuthorization,
-  initialWorkerPhotoUrl,
+  workAuthorizationVerified = false,
 }: WorkerAuthorizationFormProps) {
-  const [photoKey, setPhotoKey] = useState<string | null>(
-    initialWorkerPhotoUrl ?? null
-  );
   const [fileKey, setFileKey] = useState<string | null>(
     initialWorkAuthorization?.file_url ?? null
   );
@@ -58,7 +55,7 @@ export function WorkerAuthorizationForm({
     resolver: zodResolver(authorizationSchema),
   });
 
-  const { setValue, watch, formState } = form;
+  const { setValue, watch } = form;
   const workAuthorization = watch("workAuthorization");
 
   const hasType = !!workAuthorization;
@@ -71,6 +68,7 @@ export function WorkerAuthorizationForm({
     fileKey === initialWorkAuthorization.file_url;
 
   useEffect(() => {
+    if (workAuthorizationVerified) return;
     if (!canSave || isUnchanged) return;
 
     async function save() {
@@ -88,36 +86,18 @@ export function WorkerAuthorizationForm({
     }
 
     save();
-  }, [canSave, isUnchanged, workAuthorization, fileKey]);
+  }, [
+    workAuthorizationVerified,
+    canSave,
+    isUnchanged,
+    workAuthorization,
+    fileKey,
+  ]);
 
   function handleFileUploaded(file: { key?: string }) {
     if (file.key) {
       setFileKey(file.key);
     }
-  }
-
-  function handlePhotoUploaded(file: { key?: string }) {
-    if (file.key) {
-      setPhotoKey(file.key);
-      updateWorkerPhotoAction(file.key).then(({ error, message }) => {
-        if (error) toast.error(message);
-        else toast.success(message);
-      });
-    }
-  }
-
-  async function handlePhotoRemoved() {
-    if (photoKey) {
-      try {
-        await deleteFile(photoKey);
-      } catch {
-        toast.error("Failed to remove photo from storage.");
-      }
-    }
-    setPhotoKey(null);
-    updateWorkerPhotoAction("").then(({ error, message }) => {
-      if (error) toast.error(message);
-    });
   }
 
   async function handleFileRemoved() {
@@ -147,22 +127,34 @@ export function WorkerAuthorizationForm({
     }
   }
 
+  if (workAuthorizationVerified) {
+    return (
+      <FieldGroup>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge>Verified</Badge>
+          <span className="text-muted-foreground text-sm">
+            This information was reviewed and can&apos;t be changed here.
+          </span>
+        </div>
+        <Field>
+          <FieldLabel>Work authorization type</FieldLabel>
+          <p className="text-sm">
+            {initialWorkAuthorization?.type ?? "—"}
+          </p>
+        </Field>
+        <Field>
+          <FieldLabel>Authorization document</FieldLabel>
+          <p className="text-sm">
+            {fileKey ? "Document on file." : "—"}
+          </p>
+        </Field>
+      </FieldGroup>
+    );
+  }
+
   return (
     <>
       <FieldGroup>
-        <Field>
-          <FieldLabel>Photo</FieldLabel>
-          <FieldDescription>
-            Upload a clear photo of yourself for your profile
-          </FieldDescription>
-          <PhotoUpload
-            context="avatars"
-            initialFileKey={photoKey ?? undefined}
-            onUploaded={handlePhotoUploaded}
-            onFileChange={(hasFile) => !hasFile && handlePhotoRemoved()}
-          />
-        </Field>
-
         <Field data-invalid={!!form.formState.errors.workAuthorization}>
           <FieldLabel>Work authorization type</FieldLabel>
           <FieldDescription>

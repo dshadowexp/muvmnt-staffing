@@ -1,4 +1,4 @@
-import { retrievePayrollAccountAction } from "@/features/billing/actions";
+import { retrievePayrollAccountAction } from "@/features/payroll/actions";
 import { PayrollClient } from "./_client";
 
 export default async function PayrollPage() {

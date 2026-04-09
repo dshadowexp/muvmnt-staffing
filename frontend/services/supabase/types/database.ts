@@ -128,68 +128,6 @@ export type Database = {
           },
         ]
       }
-      job_infos: {
-        Row: {
-          cell_id: string
-          client_id: string
-          created_at: string
-          end_date: string | null
-          end_time: string
-          hourly_rate: number | null
-          id: string
-          notes: string | null
-          positions: number
-          profession: string
-          requirements: string[]
-          start_date: string
-          start_time: string
-          tasks: string[]
-          update_at: string
-        }
-        Insert: {
-          cell_id: string
-          client_id: string
-          created_at?: string
-          end_date?: string | null
-          end_time: string
-          hourly_rate?: number | null
-          id?: string
-          notes?: string | null
-          positions?: number
-          profession: string
-          requirements?: string[]
-          start_date: string
-          start_time: string
-          tasks?: string[]
-          update_at?: string
-        }
-        Update: {
-          cell_id?: string
-          client_id?: string
-          created_at?: string
-          end_date?: string | null
-          end_time?: string
-          hourly_rate?: number | null
-          id?: string
-          notes?: string | null
-          positions?: number
-          profession?: string
-          requirements?: string[]
-          start_date?: string
-          start_time?: string
-          tasks?: string[]
-          update_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "job_infos_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       locations: {
         Row: {
           address: string
@@ -286,29 +224,29 @@ export type Database = {
       }
       payroll_accounts: {
         Row: {
-          charges_enabled: boolean | null
+          charges_enabled: boolean
           created_at: string
-          details_submitted: boolean | null
-          id: number
-          payouts_enabled: boolean | null
+          details_submitted: boolean
+          id: string
+          payouts_enabled: boolean
           stripe_account_id: string
           user_id: string
         }
         Insert: {
-          charges_enabled?: boolean | null
+          charges_enabled?: boolean
           created_at?: string
-          details_submitted?: boolean | null
-          id?: number
-          payouts_enabled?: boolean | null
+          details_submitted?: boolean
+          id?: string
+          payouts_enabled?: boolean
           stripe_account_id: string
           user_id: string
         }
         Update: {
-          charges_enabled?: boolean | null
+          charges_enabled?: boolean
           created_at?: string
-          details_submitted?: boolean | null
-          id?: number
-          payouts_enabled?: boolean | null
+          details_submitted?: boolean
+          id?: string
+          payouts_enabled?: boolean
           stripe_account_id?: string
           user_id?: string
         }
@@ -322,44 +260,106 @@ export type Database = {
           },
         ]
       }
+      staff_requests: {
+        Row: {
+          cell_id: string
+          client_id: string
+          created_at: string
+          end_date: string | null
+          end_time: string
+          hourly_rate: number | null
+          id: string
+          notes: string | null
+          positions: number
+          profession: string
+          requirements: string[]
+          start_date: string
+          start_time: string
+          tasks: string[]
+          update_at: string
+        }
+        Insert: {
+          cell_id: string
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          end_time: string
+          hourly_rate?: number | null
+          id?: string
+          notes?: string | null
+          positions?: number
+          profession: string
+          requirements?: string[]
+          start_date: string
+          start_time: string
+          tasks?: string[]
+          update_at?: string
+        }
+        Update: {
+          cell_id?: string
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          end_time?: string
+          hourly_rate?: number | null
+          id?: string
+          notes?: string | null
+          positions?: number
+          profession?: string
+          requirements?: string[]
+          start_date?: string
+          start_time?: string
+          tasks?: string[]
+          update_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_infos_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           auth_id: string
           created_at: string
           email: string | null
-          fcm_token: string | null
           id: string
           is_active: boolean | null
           is_email_verified: boolean
           is_phone_verified: boolean
           phone_number: string | null
           plan: string
+          push_token: string | null
           role: string | null
         }
         Insert: {
           auth_id: string
           created_at?: string
           email?: string | null
-          fcm_token?: string | null
           id?: string
           is_active?: boolean | null
           is_email_verified?: boolean
           is_phone_verified?: boolean
           phone_number?: string | null
           plan?: string
+          push_token?: string | null
           role?: string | null
         }
         Update: {
           auth_id?: string
           created_at?: string
           email?: string | null
-          fcm_token?: string | null
           id?: string
           is_active?: boolean | null
           is_email_verified?: boolean
           is_phone_verified?: boolean
           phone_number?: string | null
           plan?: string
+          push_token?: string | null
           role?: string | null
         }
         Relationships: []

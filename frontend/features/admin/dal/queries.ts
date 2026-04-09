@@ -178,7 +178,7 @@ export async function getAdminJobsList(limit = 100): Promise<AdminJobRow[]> {
   await requireAdminSession();
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("job_infos")
+    .from("staff_requests")
     .select("id, profession, positions, client_id, start_date, created_at")
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -207,7 +207,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
       .order("created_at", { ascending: false })
       .limit(12),
     supabase
-      .from("job_infos")
+      .from("staff_requests")
       .select("id, profession, positions, client_id, start_date, created_at", {
         count: "exact",
       })

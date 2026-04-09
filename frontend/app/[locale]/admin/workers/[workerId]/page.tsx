@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,6 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getAdminWorkerReview } from "@/features/admin/dal/queries";
+import { AdminWorkerAccountActiveEditor } from "@/features/admin/components/admin-worker-account-active-editor";
+import { AdminWorkerStatusEditor } from "@/features/admin/components/admin-worker-status-editor";
 import {
   AdminWorkerAuthorizationsFileOpen,
   AdminWorkerCertificationsFileOpen,
@@ -84,9 +85,11 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
             <DetailRow
               label="Status"
               value={
-                <Badge variant="secondary">
-                  {worker.status?.trim() || "Pending"}
-                </Badge>
+                <AdminWorkerStatusEditor
+                  workerId={worker.id}
+                  workerName={`${worker.first_name} ${worker.last_name}`}
+                  initialStatus={worker.status}
+                />
               }
             />
             <DetailRow
@@ -117,7 +120,14 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
             />
             <DetailRow
               label="Account active"
-              value={boolLabel(user?.is_active)}
+              value={
+                <AdminWorkerAccountActiveEditor
+                  workerId={worker.id}
+                  workerName={`${worker.first_name} ${worker.last_name}`}
+                  userId={worker.user_id}
+                  initialAccountActive={user?.is_active}
+                />
+              }
             />
             {worker.photo_url ? (
               <DetailRow

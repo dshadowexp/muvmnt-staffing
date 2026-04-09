@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sendEmailVerification } from "firebase/auth";
 import { auth } from "@/services/firebase/client";
-import { useAuth } from "@/features/auth/auth-provider";
+import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { FieldLabel } from "@/components/ui/field";
 import { LoadingSwap } from "@/components/ui/loading-swap";

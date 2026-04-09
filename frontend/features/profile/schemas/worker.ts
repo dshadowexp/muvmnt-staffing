@@ -56,6 +56,16 @@ export const workerSchema = z.object({
 
 export type WorkerProfileValues = z.infer<typeof workerSchema>;
 
+/** Account settings: only profession and experience may be edited after onboarding. */
+export const workerProfessionExperienceSchema = z.object({
+  profession: workerSchema.shape.profession,
+  yearsExp: workerSchema.shape.yearsExp,
+});
+
+export type WorkerProfessionExperienceValues = z.infer<
+  typeof workerProfessionExperienceSchema
+>;
+
 export type WorkerProfileFormInput = {
   first_name: string;
   last_name: string;

@@ -3,7 +3,6 @@ import { BillingClient } from "./_client";
 
 export default async function BillingPage() {
   const { error, data } = await getPaymentMethods();
-  console.log("error", error);
 
   if (error) {
     return (

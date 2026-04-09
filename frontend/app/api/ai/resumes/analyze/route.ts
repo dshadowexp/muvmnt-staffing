@@ -1,5 +1,5 @@
 import { PLAN_LIMIT_MESSAGE } from "@/components/error-toast";
-import { getJobInfo } from "@/features/jobs/dal/queries";
+import { getJobInfo } from "@/features/requests/dal/queries";
 import { canRunResumeAnalysis } from "@/features/resume-analysis/permissions";
 import { analyzeResumeForJob } from "@/services/ai/resumes/ai";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";

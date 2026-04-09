@@ -4,7 +4,8 @@ import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-
 
 import securityPlugin from './plugins/security.plugin';
 import authPlugin from './plugins/auth.plugin';
-import rawBodyPlugin from './plugins/rawBody.plugin';
+import rawBodyPlugin from './plugins/raw-body.plugin';
+import socketIoPlugin from './plugins/socket-io.plugin';
 
 import { registerRoutes } from './routes';
 import { errorHandler } from './errors/errorHandler';
@@ -47,6 +48,8 @@ export async function buildApp(): Promise<FastifyInstance> {
     
     // ─── Infrastructure plugins ───────────────────────────────────────────────
     await app.register(rawBodyPlugin);
+
+    await app.register(socketIoPlugin);
 
     // ─── Routes ───────────────────────────────────────────────────────────────
     await registerRoutes(app);

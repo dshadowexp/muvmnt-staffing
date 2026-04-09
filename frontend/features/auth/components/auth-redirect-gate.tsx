@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuth } from "@/features/auth/auth-provider";
-import { useAuthRedirect } from "@/features/auth/use-auth-redirect";
+import { useAuth } from "@/providers/auth-provider";
+import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import { useRouter, usePathname } from "@/i18n/navigation";
 
 export function AuthRedirectGate({ children }: { children: React.ReactNode }) {

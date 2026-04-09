@@ -2,7 +2,7 @@
 
 import { Slot } from "@radix-ui/react-slot";
 import { toast } from "sonner";
-import { useAuth } from "@/features/auth/auth-provider";
+import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { getAuthErrorMessage, logout } from "@/services/firebase/auth";

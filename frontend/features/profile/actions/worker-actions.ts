@@ -1,7 +1,10 @@
 "use server";
 
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
-import { workerSchema } from "@/features/profile/schemas/worker";
+import {
+  workerProfessionExperienceSchema,
+  workerSchema,
+} from "@/features/profile/schemas/worker";
 import { createAdminClient } from "@/services/supabase/server";
 import { z } from "zod";
 
@@ -68,4 +71,45 @@ export async function updateWorkerPhotoAction(photoUrl: string) {
     return { error: true, message: error.message };
   }
   return { error: false, message: "Photo updated successfully" };
+}
+
+export async function updateWorkerProfessionAndExperienceAction(
+  data: z.infer<typeof workerProfessionExperienceSchema>,
+) {
+  const parsed = workerProfessionExperienceSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: true, message: parsed.error.message };
+  }
+
+  const { user } = await getCurrentUser({ allData: true });
+  if (user == null) {
+    return { error: true, message: "User not authenticated" };
+  }
+
+  const supabase = await createAdminClient();
+  const { data: existing, error: fetchErr } = await supabase
+    .from("workers")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (fetchErr) {
+    return { error: true, message: fetchErr.message };
+  }
+  if (!existing) {
+    return { error: true, message: "Worker profile not found" };
+  }
+
+  const { error } = await supabase
+    .from("workers")
+    .update({
+      profession: parsed.data.profession,
+      years_exp: parsed.data.yearsExp,
+    })
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: true, message: error.message };
+  }
+  return { error: false, message: "Profile updated successfully" };
 }

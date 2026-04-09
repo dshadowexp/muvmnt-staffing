@@ -7,7 +7,7 @@ import { fetchAccessToken } from "hume"
 import { env } from "@/data/env/server"
 import { VoiceProvider } from "@humeai/voice-react"
 import { StartCall } from "./_start-call";
-import { getJobInfo } from "@/features/jobs/dal/queries";
+import { getJobInfo } from "@/features/requests/dal/queries";
 import { canCreateInterview } from "@/features/interviews/permission";
 
 export default async function InterviewPage({
