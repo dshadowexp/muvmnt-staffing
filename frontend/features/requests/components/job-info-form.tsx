@@ -10,7 +10,7 @@ import type { ProfessionalRole } from "@/types";
 import {
   jobFormSchema,
   staffRequestCreateSchema,
-  type JobFormValues,
+  type StaffRequestFormValues,
   type StaffRequestCreateValues,
 } from "../schema";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { createJobInfoAction, updateJobInfoAction } from "../actions";
-import { type JobInfoFormInput, mapJobInfoToFormValues } from "../schema";
+import { type StaffRequestFormInput, mapStaffRequestToFormValues } from "../schema";
 
 const COMMON_REQUIREMENTS = [
   "First Aid",
@@ -64,21 +64,21 @@ const defaultCreateValues = {
   notes: "",
 } as const satisfies StaffRequestCreateValues;
 
-export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
+export function JobInfoForm({ jobInfo }: { jobInfo?: StaffRequestFormInput }) {
   const isEdit = Boolean(jobInfo);
 
-  const form = useForm<JobFormValues | StaffRequestCreateValues>({
-    defaultValues: jobInfo ? mapJobInfoToFormValues({ ...jobInfo }) : defaultCreateValues,
+  const form = useForm<StaffRequestFormValues | StaffRequestCreateValues>({
+    defaultValues: jobInfo ? mapStaffRequestToFormValues({ ...jobInfo }) : defaultCreateValues,
     resolver: zodResolver(
       isEdit ? jobFormSchema : staffRequestCreateSchema,
-    ) as Resolver<JobFormValues | StaffRequestCreateValues>,
+    ) as Resolver<StaffRequestFormValues | StaffRequestCreateValues>,
   });
 
   const { register, setValue, watch, reset, formState: { errors } } = form;
 
   useEffect(() => {
     if (jobInfo) {
-      reset(mapJobInfoToFormValues({ ...jobInfo }));
+      reset(mapStaffRequestToFormValues({ ...jobInfo }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobInfo?.id]);
@@ -92,7 +92,7 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
     (jobInfo!.hourly_rate == null || jobInfo!.hourly_rate <= 0);
 
   async function handleSubmit(
-    data: JobFormValues | StaffRequestCreateValues,
+    data: StaffRequestFormValues | StaffRequestCreateValues,
   ) {
     if (isEdit && jobInfo) {
       const result = await updateJobInfoAction(jobInfo.id, data);
@@ -293,26 +293,6 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: JobInfoFormInput }) {
           />
           <FieldError>{errors.positions?.message}</FieldError>
         </Field>
-
-        {isEdit && (
-          <Field data-invalid={!!(errors as Partial<Record<keyof JobFormValues, { message?: string }>>).hourlyRate}>
-            <FieldLabel htmlFor="hourly-rate">Hourly rate ($)</FieldLabel>
-            <FieldDescription>
-              {ratePending
-                ? "No rate saved yet. Enter the agreed hourly rate (minimum $15/hr), or use the pricing step after submitting a new request."
-                : "Update the hourly rate for this request if needed."}
-            </FieldDescription>
-            <Input
-              id="hourly-rate"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              {...register("hourlyRate", { valueAsNumber: true })}
-            />
-            <FieldError>{(errors as { hourlyRate?: { message?: string } }).hourlyRate?.message}</FieldError>
-          </Field>
-        )}
 
         <Field>
           <FieldLabel htmlFor="notes">Notes</FieldLabel>

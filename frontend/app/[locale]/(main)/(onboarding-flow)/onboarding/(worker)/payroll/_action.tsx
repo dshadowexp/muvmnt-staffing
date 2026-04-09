@@ -1,10 +1,10 @@
 "use server";
 
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
-import { payrollAccountMeetsOnboardingRequirements } from "@/features/billing/dal/queries";
 import { enqueueWorkerOnboardingSubmittedNotification } from "@/features/notifications/server/enqueue-worker-onboarding-submitted";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
+import { payrollAccountMeetsOnboardingRequirements } from "@/features/payroll/dal/queries";
 
 export const payrollAction = async (
   _prevState: OnboardingStepFormState | undefined,

@@ -1,7 +1,7 @@
 import { Output, streamText } from "ai";
 import { google } from "../models/google"
 import { aiAnalyzeSchema } from "./schemas"
-import { JobInfoFormInput } from "@/features/requests/schema"
+import { StaffRequestFormInput } from "@/features/requests/schema"
 
 export async function analyzeResumeForJob({
   resumeFile,
@@ -9,7 +9,7 @@ export async function analyzeResumeForJob({
 }: {
   resumeFile: File
   jobInfo: Pick<
-    JobInfoFormInput,
+  StaffRequestFormInput,
     "profession" | "notes"
   >
 }) {

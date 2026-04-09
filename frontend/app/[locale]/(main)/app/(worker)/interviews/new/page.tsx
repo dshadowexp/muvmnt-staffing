@@ -7,7 +7,7 @@ import { fetchAccessToken } from "hume"
 import { env } from "@/data/env/server"
 import { VoiceProvider } from "@humeai/voice-react"
 import { StartCall } from "./_start-call";
-import { getJobInfo } from "@/features/requests/dal/queries";
+import { getStaffRequest } from "@/features/requests/dal/queries";
 import { canCreateInterview } from "@/features/interviews/permission";
 
 export default async function InterviewPage({
@@ -38,7 +38,7 @@ async function SuspendedComponent({ jobInfoId }: { jobInfoId: string }) {
   
     if (!(await canCreateInterview())) return redirect("/app/upgrade")
   
-    const { error, data: jobInfo } = await getJobInfo(jobInfoId);
+    const { error, data: jobInfo } = await getStaffRequest(jobInfoId);
     if (error) return notFound();
     if (jobInfo == null) return notFound()
   

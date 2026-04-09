@@ -1,6 +1,6 @@
 "use client"
 
-import { JobInfoFormInput } from "@/features/requests/schema";
+import { StaffRequestFormInput } from "@/features/requests/schema";
 import { useVoice, VoiceReadyState } from "@humeai/voice-react"
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ export function StartCall({
     jobInfo, user, accessToken 
 }: { 
     accessToken: string
-    jobInfo: JobInfoFormInput
+    jobInfo: StaffRequestFormInput
     user: {
         name: string
         imageUrl: string

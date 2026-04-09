@@ -1,5 +1,5 @@
 import { PLAN_LIMIT_MESSAGE } from "@/components/error-toast";
-import { getJobInfo } from "@/features/requests/dal/queries";
+import { getStaffRequest } from "@/features/requests/dal/queries";
 import { canRunResumeAnalysis } from "@/features/resume-analysis/permissions";
 import { analyzeResumeForJob } from "@/services/ai/resumes/ai";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         });
     }
 
-    const { error, message, data: jobInfo } = await getJobInfo(jobInfoId);
+    const { error, message, data: jobInfo } = await getStaffRequest(jobInfoId);
     if (error || jobInfo == null) {
         return new Response(message || "Job not found", { status: 404 });
     }

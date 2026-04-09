@@ -1,7 +1,7 @@
 import { BackLink } from "@/components/back-link";
 import { Card, CardContent } from "@/components/ui/card";
 import { JobInfoForm } from "@/features/requests/components/job-info-form";
-import { getJobInfo } from "@/features/requests/dal/queries";
+import { getStaffRequest } from "@/features/requests/dal/queries";
 import { Loader2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -34,7 +34,7 @@ export default async function EditJobInfoPage({
 
 async function SuspendedForm({ jobInfoId }: { jobInfoId: string }) {
   
-    const { error, data: jobInfo } = await getJobInfo(jobInfoId)
+    const { error, data: jobInfo } = await getStaffRequest(jobInfoId)
     if (error || jobInfo == null) return notFound();
   
     return <JobInfoForm jobInfo={{ ...jobInfo }} />

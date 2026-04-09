@@ -7,7 +7,7 @@ import { SubmitEventHandler, useState } from "react";
 import { useActionState } from "react";
 import { toast } from "sonner";
 import { payrollAction } from "./_action";
-import { setupPayrollAction } from "@/features/billing/actions";
+import { setupPayrollAction } from "@/features/payroll/actions";
 import { Check } from "lucide-react";
 
 type PayrollInitialSnapshot = {
