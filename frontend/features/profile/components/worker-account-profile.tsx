@@ -1,8 +1,6 @@
 "use client";
 
 import { updateWorkerProfessionAndExperienceAction } from "@/features/profile/actions/worker-actions";
-import { ClientAccountAddressSection } from "@/features/profile/components/client-account-address-section";
-import { CertificationsForm } from "@/features/profile/components/certifications-form";
 import { WorkerAuthorizationForm } from "@/features/profile/components/worker-authorization-form";
 import type { AddressLocation } from "@/features/geo/types";
 import {
@@ -40,6 +38,7 @@ import { format } from "date-fns";
 import { useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { AddressCard } from "@/features/geo/components/address-card";
 
 type WorkerRow = {
   first_name: string;
@@ -53,12 +52,10 @@ type WorkerRow = {
 export function WorkerAccountProfile({
   worker,
   location,
-  certifications,
   workAuthorization,
 }: {
   worker: WorkerRow;
   location: AddressLocation | null;
-  certifications: { name: string; file_url: string }[];
   workAuthorization: {
     type: string;
     file_url: string;
@@ -128,8 +125,9 @@ export function WorkerAccountProfile({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ClientAccountAddressSection
-            location={location}
+          <AddressCard
+            value={location ?? undefined}
+            onChange={(loc) => {}}
             label="Your address"
           />
         </CardContent>
@@ -216,18 +214,6 @@ export function WorkerAccountProfile({
             }
             workAuthorizationVerified={workAuthorization?.is_verified === true}
           />
-        </CardContent>
-      </Card>
-
-      <Card size="sm">
-        <CardHeader>
-          <CardTitle>Certifications & credentials</CardTitle>
-          <CardDescription>
-            Add or update certifications the same way as during onboarding.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CertificationsForm initialCertifications={certifications} />
         </CardContent>
       </Card>
     </div>

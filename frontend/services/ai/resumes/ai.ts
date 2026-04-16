@@ -1,17 +1,19 @@
 import { Output, streamText } from "ai";
 import { google } from "../models/google"
 import { aiAnalyzeSchema } from "./schemas"
-import { StaffRequestFormInput } from "@/features/requests/schema"
+import type { Database } from "@/services/supabase/types/database";
+
+type ResumeJobContext = Pick<
+  Database["public"]["Tables"]["staff_requests"]["Row"],
+  "notes"
+>;
 
 export async function analyzeResumeForJob({
   resumeFile,
   jobInfo,
 }: {
-  resumeFile: File
-  jobInfo: Pick<
-  StaffRequestFormInput,
-    "profession" | "notes"
-  >
+  resumeFile: File;
+  jobInfo: ResumeJobContext;
 }) {
   return streamText({
     model: google("gemini-2.5-flash"),
@@ -36,7 +38,7 @@ Job Description:
 \`\`\`
 ${jobInfo.notes}
 \`\`\`
-Profession / role: ${jobInfo.profession}
+Role: Open / general staffing (use the job description and listed requirements below)
 
 Your task is to evaluate the resume against the job requirements and provide structured feedback using the following categories:
 

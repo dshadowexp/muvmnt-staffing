@@ -5,8 +5,22 @@ import { createAdminClient } from "@/services/supabase/server";
 import type { StaffRequestFormValues, StaffRequestCreateValues } from "../schema";
 import { getStaffRequest } from "./queries";
 import { redirect } from "next/navigation";
+import { calendarDayStrings } from "../lib/calendar-day-strings";
+import { mapStaffRequestToFormValues } from "../schema";
 
 const MIN_HOURLY_RATE = 15;
+
+function dailyTimeWindowsFromForm(data: {
+  startDate: Date;
+  endDate?: Date | null;
+  startTime: string;
+  endTime: string;
+}) {
+  return calendarDayStrings(data.startDate, data.endDate).map((date) => ({
+    date,
+    slots: [{ startTime: data.startTime, endTime: data.endTime }],
+  }));
+}
 
 type InsertStaffRequestResult =
   | { ok: true; id: string }
@@ -45,16 +59,14 @@ async function insertStaffRequestForClient(
     .insert({
       client_id: userId,
       cell_id: cellData.cell_id,
-      profession: data.profession,
       positions: data.positions,
       requirements: data.requirements,
       tasks: data.tasks,
       notes: data.notes,
       start_date: data.startDate.toISOString(),
       end_date: data.endDate?.toISOString() ?? null,
-      start_time: data.startTime,
-      end_time: data.endTime,
-      hourly_rate: hourlyRate,
+      daily_time_windows: dailyTimeWindowsFromForm(data),
+      pricing_rate: hourlyRate,
     })
     .select()
     .single();
@@ -93,15 +105,22 @@ export async function updateJobInfo(id: string, data: Partial<StaffRequestFormVa
 
     const supabase = await createAdminClient();
     const update: Record<string, unknown> = {};
-    if (data.profession !== undefined) update.profession = data.profession;
     if (data.startDate !== undefined) update.start_date = data.startDate.toISOString();
     if (data.endDate !== undefined) update.end_date = data.endDate?.toISOString() ?? null;
-    if (data.startTime !== undefined) update.start_time = data.startTime;
-    if (data.endTime !== undefined) update.end_time = data.endTime;
     if (data.requirements !== undefined) update.requirements = data.requirements;
     if (data.tasks !== undefined) update.tasks = data.tasks;
     if (data.positions !== undefined) update.positions = data.positions;
     if (data.notes !== undefined) update.notes = data.notes;
+
+    if (
+      data.startDate !== undefined ||
+      data.endDate !== undefined ||
+      data.startTime !== undefined ||
+      data.endTime !== undefined
+    ) {
+      const merged = { ...mapStaffRequestToFormValues(existingJobInfo), ...data };
+      update.daily_time_windows = dailyTimeWindowsFromForm(merged);
+    }
 
     const { data: jobInfoData, error: jobInfoError } = await supabase
         .from("staff_requests")
@@ -142,7 +161,7 @@ export async function acceptStaffRequestHourlyRate(jobId: string, hourlyRate: nu
     const supabase = await createAdminClient();
     const { data: jobInfoData, error: jobInfoError } = await supabase
         .from("staff_requests")
-        .update({ hourly_rate: hourlyRate })
+        .update({ pricing_rate: hourlyRate })
         .eq("id", jobId)
         .eq("client_id", userId)
         .select()

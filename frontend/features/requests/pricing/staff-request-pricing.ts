@@ -1,18 +1,15 @@
 import type { Database } from "@/services/supabase/types/database";
+import { STAFF_REQUEST_PROFESSION_PLACEHOLDER } from "../constants";
+import { calendarDayStrings } from "../lib/calendar-day-strings";
+import { parseStaffRequestDailyWindows } from "../lib/parse-staff-request-daily-windows";
+import type { DaySchedule } from "../types/staff-match";
 
 type StaffRequestRow = Database["public"]["Tables"]["staff_requests"]["Row"];
 
 /** Input needed to price a staff request once rules exist (rates, multipliers, fees, etc.). */
 export type StaffRequestPricingInput = Pick<
   StaffRequestRow,
-  | "id"
-  | "profession"
-  | "hourly_rate"
-  | "positions"
-  | "start_date"
-  | "end_date"
-  | "start_time"
-  | "end_time"
+  "id" | "pricing_rate" | "positions" | "start_date" | "end_date" | "daily_time_windows"
 >;
 
 /** Serializable draft for preview before a row exists (wizard). */
@@ -20,9 +17,11 @@ export type StaffRequestPricingDraft = {
   profession: string;
   start_date: string;
   end_date: string | null;
-  start_time: string;
-  end_time: string;
   positions: number;
+  dailyWindows: {
+    date: string;
+    slots: { startTime: string; endTime: string }[];
+  }[];
 };
 
 export type StaffRequestPricingResult = {
@@ -54,17 +53,6 @@ function hoursPerShift(startTime: string, endTime: string): number {
   return Math.max(0, (endMins - startMins) / 60);
 }
 
-function billableDaysInclusive(startDateIso: string, endDateIso: string | null): number {
-  const start = new Date(startDateIso);
-  if (Number.isNaN(start.getTime())) return 1;
-  if (!endDateIso) return 1;
-  const end = new Date(endDateIso);
-  if (Number.isNaN(end.getTime())) return 1;
-  const ms = end.getTime() - start.getTime();
-  if (ms < 0) return 1;
-  return Math.floor(ms / 86_400_000) + 1;
-}
-
 function hashProfessionToRateBase(profession: string): number {
   let sum = 0;
   for (let i = 0; i < profession.length; i += 1) {
@@ -78,11 +66,16 @@ export function baseHourlyRateForProfession(profession: string): number {
   return Math.min(55, Math.max(18, hashProfessionToRateBase(profession)));
 }
 
-/** Total scheduled hours (all positions × days × daily shift length). */
+/** Total scheduled hours (all positions × per-day shift lengths). */
 export function totalBillableHours(draft: StaffRequestPricingDraft): number {
-  const days = billableDaysInclusive(draft.start_date, draft.end_date);
-  const hoursPerDay = hoursPerShift(draft.start_time, draft.end_time);
-  return hoursPerDay * days * Math.max(1, draft.positions);
+  const pos = Math.max(1, draft.positions);
+  let hours = 0;
+  for (const day of draft.dailyWindows) {
+    for (const slot of day.slots) {
+      hours += hoursPerShift(slot.startTime, slot.endTime);
+    }
+  }
+  return hours * pos;
 }
 
 export function estimatedTotalCentsForHourly(
@@ -90,6 +83,25 @@ export function estimatedTotalCentsForHourly(
   hourlyRate: number,
 ): number {
   return Math.round(totalBillableHours(draft) * hourlyRate * 100);
+}
+
+/** Sum of shift lengths from matched worker assignments (person-hours). */
+export function totalCoveredHoursFromMatchSchedule(schedule: DaySchedule[]): number {
+  let hours = 0;
+  for (const day of schedule) {
+    for (const a of day.assignments) {
+      hours += hoursPerShift(a.startTime, a.endTime);
+    }
+  }
+  return hours;
+}
+
+/** Estimate total charge in cents for **matched coverage only** (partial or full). */
+export function estimatedCoverageTotalCentsForHourly(
+  schedule: DaySchedule[],
+  hourlyRate: number,
+): number {
+  return Math.round(totalCoveredHoursFromMatchSchedule(schedule) * hourlyRate * 100);
 }
 
 export function simulateStaffRequestPricingQuote(
@@ -102,7 +114,7 @@ export function simulateStaffRequestPricingQuote(
     estimatedTotalCents,
     currency: "CAD",
     statusMessage:
-      "Simulated estimate from role, shift length, and schedule. Replace with live pricing rules when ready.",
+      "Simulated estimate from shift length and schedule. Replace with live pricing rules when ready.",
     suggestedHourlyRate,
   };
 }
@@ -114,12 +126,21 @@ export function simulateStaffRequestPricingQuote(
 export async function calculateStaffRequestPricing(
   input: StaffRequestPricingInput,
 ): Promise<StaffRequestPricingResult> {
+  let dailyWindows = parseStaffRequestDailyWindows(input.daily_time_windows);
+  if (dailyWindows.length === 0) {
+    const start = new Date(input.start_date);
+    const end = input.end_date ? new Date(input.end_date) : null;
+    const days = calendarDayStrings(start, end);
+    dailyWindows = days.map((date) => ({
+      date,
+      slots: [{ startTime: "09:00", endTime: "17:00" }],
+    }));
+  }
   return simulateStaffRequestPricingQuote({
-    profession: input.profession,
+    profession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
     start_date: input.start_date,
     end_date: input.end_date,
-    start_time: input.start_time,
-    end_time: input.end_time,
     positions: input.positions,
+    dailyWindows,
   });
 }

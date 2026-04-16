@@ -29,11 +29,11 @@ export type AdminDashboardSnapshot = {
   }[];
   jobs: {
     id: string;
-    profession: string;
     positions: number;
     client_id: string;
     start_date: string;
     created_at: string;
+    status: string;
   }[];
 };
 
@@ -179,7 +179,7 @@ export async function getAdminJobsList(limit = 100): Promise<AdminJobRow[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("staff_requests")
-    .select("id, profession, positions, client_id, start_date, created_at")
+    .select("id, positions, client_id, start_date, created_at, status")
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -208,7 +208,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
       .limit(12),
     supabase
       .from("staff_requests")
-      .select("id, profession, positions, client_id, start_date, created_at", {
+      .select("id, positions, client_id, start_date, created_at, status", {
         count: "exact",
       })
       .order("created_at", { ascending: false })

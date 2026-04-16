@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import { NotificationService } from '../../services/notifications/notifications.service';
 import { SendNotificationBody, SendNotificationBodyType, UpsertFcmTokenBody, UpsertFcmTokenBodyType } from '../../schemas/notifications.schema';
-import { getNotificationsQueue } from '../../background/notifications.queue';
+import { getSendNotificationsQueue } from '../../background/send-notifications.queue';
 import { logger } from '../../config/logger';
 import { ErrorReply } from '../../schemas';
 
@@ -33,7 +33,7 @@ export default async function notificationsRoutes(app: FastifyInstance): Promise
                 });
             }
             
-            await getNotificationsQueue().enqueue(body);
+            await getSendNotificationsQueue().enqueue(body);
             return reply.code(202).send({ success: true });
         }
     )

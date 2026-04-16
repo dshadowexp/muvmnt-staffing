@@ -1,0 +1,31 @@
+{{#> email-base previewText=previewText}}
+  {{#*inline "body"}}
+    <p class="label">Staff request</p>
+    <h1>Booking<br>confirmed.</h1>
+    <p>Hi {{clientFirstName}}, your staff request is booked and workers have been notified.</p>
+
+    <div class="details">
+      <div class="detail-row">
+        <span class="detail-key">Schedule</span>
+        <span class="detail-value" style="text-align:right;max-width:60%">{{scheduleLine}}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Shifts</span>
+        <span class="detail-value">{{shiftsLine}}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Amount charged</span>
+        <span class="detail-value">{{amountLine}}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Reference</span>
+        <span class="detail-value" style="font-size:13px;word-break:break-all">{{requestId}}</span>
+      </div>
+    </div>
+
+    <p style="margin-top:28px;margin-bottom:8px;font-size:14px;color:#666">View your request:</p>
+    <a href="{{requestUrl}}" class="btn">Open request</a>
+
+    <p style="margin-top:32px;font-size:13px;color:#888">You’ll receive updates as workers confirm their shifts.</p>
+  {{/inline}}
+{{/email-base}}

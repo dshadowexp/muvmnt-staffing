@@ -1,12 +1,21 @@
 /** Mirrors frontend pricing helpers for staff-request totals. */
 
+export type StaffRequestDaySlot = {
+  startTime: string;
+  endTime: string;
+};
+
+export type StaffRequestDailyWindow = {
+  date:  string;
+  slots: StaffRequestDaySlot[];
+};
+
 export type StaffRequestPricingDraft = {
   profession: string;
   start_date: string;
   end_date: string | null;
-  start_time: string;
-  end_time: string;
   positions: number;
+  dailyWindows: StaffRequestDailyWindow[];
 };
 
 function normalizeTimeForCalc(time: string): { h: number; m: number } {
@@ -25,17 +34,6 @@ function hoursPerShift(startTime: string, endTime: string): number {
   return Math.max(0, (endMins - startMins) / 60);
 }
 
-function billableDaysInclusive(startDateIso: string, endDateIso: string | null): number {
-  const start = new Date(startDateIso);
-  if (Number.isNaN(start.getTime())) return 1;
-  if (!endDateIso) return 1;
-  const end = new Date(endDateIso);
-  if (Number.isNaN(end.getTime())) return 1;
-  const ms = end.getTime() - start.getTime();
-  if (ms < 0) return 1;
-  return Math.floor(ms / 86_400_000) + 1;
-}
-
 function hashProfessionToRateBase(profession: string): number {
   let sum = 0;
   for (let i = 0; i < profession.length; i += 1) {
@@ -49,9 +47,14 @@ export function baseHourlyRateForProfession(profession: string): number {
 }
 
 export function totalBillableHours(draft: StaffRequestPricingDraft): number {
-  const days = billableDaysInclusive(draft.start_date, draft.end_date);
-  const hoursPerDay = hoursPerShift(draft.start_time, draft.end_time);
-  return hoursPerDay * days * Math.max(1, draft.positions);
+  const pos = Math.max(1, draft.positions);
+  let hours = 0;
+  for (const day of draft.dailyWindows) {
+    for (const slot of day.slots) {
+      hours += hoursPerShift(slot.startTime, slot.endTime);
+    }
+  }
+  return hours * pos;
 }
 
 export function estimatedTotalCentsForHourly(

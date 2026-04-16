@@ -1,5 +1,5 @@
 import { SITE_NAME } from "@/lib/constants";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export function Logo({ href = "/" }: { href?: string }) {
     return (

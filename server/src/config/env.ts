@@ -8,6 +8,8 @@ const envSchema = z.object({
     PORT: z.string().transform(Number).default(3000),
     HOST: z.string().default('0.0.0.0'),
     APP_URL: z.string().optional(),
+    /** Worker app / marketing site — used in shift emails and HTML redirects. */
+    WEB_APP_URL: z.string().optional(),
     CORS_ORIGIN: z.string().default('*'),
     ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
     LOG_LEVEL: z.string().default('info'),
@@ -65,6 +67,11 @@ export const config = {
     port: parsed.data.PORT,
     host: parsed.data.HOST,
     appUrl: parsed.data.APP_URL ?? `http://localhost:${parsed.data.PORT}`,
+    webAppUrl:
+      parsed.data.WEB_APP_URL?.trim()
+      || parsed.data.ALLOWED_ORIGINS.split(',')[0]?.trim()
+      || parsed.data.APP_URL?.trim()
+      || `http://localhost:${parsed.data.PORT}`,
     corsOrigin: '*',
     allowedOrigins: parsed.data.ALLOWED_ORIGINS.split(','),
     logLevel: 'info',

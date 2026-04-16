@@ -14,7 +14,8 @@
     "pm2:delete": "pm2 delete ecosystem.config.js",
     "pm2:logs": "pm2 logs",
     "pm2:monit": "pm2 monit",
-    "copy:templates": "cp -r src/services/notifications/templates dist/services/notifications/templates"
+    "copy:templates": "cp -r src/services/notifications/templates dist/services/notifications/templates",
+    "gen-types": "supabase gen types typescript --project-id gyjvlazhyqoqlfldlcfn --schema public > ./src/types/database.ts"
   },
   "author": "Google LLC",
   "license": "Apache-2.0",
@@ -24,8 +25,9 @@
     "@types/nodemailer": "^7.0.11",
     "nodemon": "^3.1.0",
     "pm2": "^6.0.14",
+    "supabase": "^2.89.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.4.5"
+    "typescript": "^6.0.2"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -35,10 +37,11 @@
     "@supabase/supabase-js": "^2.98.0",
     "axios": "^1.13.6",
     "bullmq": "^5.70.4",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^17.3.1",
     "fastify": "^5.8.4",
     "fastify-raw-body": "^5.0.0",
-    "fastify-socket.io": "^5.1.0",
     "fastify-type-provider-zod": "^6.1.0",
     "firebase-admin": "^10.3.0",
     "h3-js": "^4.4.0",

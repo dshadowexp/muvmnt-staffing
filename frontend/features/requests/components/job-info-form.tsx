@@ -5,8 +5,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { JOB_TASKS, PROFESSIONAL_ROLES } from "@/lib/constants";
-import type { ProfessionalRole } from "@/types";
+import { JOB_TASKS } from "@/lib/constants";
 import {
   jobFormSchema,
   staffRequestCreateSchema,
@@ -53,7 +52,6 @@ const COMMON_REQUIREMENTS = [
 ];
 
 const defaultCreateValues = {
-  profession: "" as ProfessionalRole,
   startDate: undefined as unknown as Date,
   endDate: null,
   startTime: "09:00",
@@ -87,9 +85,6 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: StaffRequestFormInput }) {
   const tasks = watch("tasks");
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [endDateOpen, setEndDateOpen] = useState(false);
-  const ratePending =
-    isEdit &&
-    (jobInfo!.hourly_rate == null || jobInfo!.hourly_rate <= 0);
 
   async function handleSubmit(
     data: StaffRequestFormValues | StaffRequestCreateValues,
@@ -113,34 +108,6 @@ export function JobInfoForm({ jobInfo }: { jobInfo?: StaffRequestFormInput }) {
       className="space-y-6"
     >
       <FieldGroup>
-        <Field data-invalid={!!errors.profession}>
-          <FieldLabel>Profession</FieldLabel>
-          <FieldDescription>Select the role required for this shift</FieldDescription>
-          <MultiSelect
-            single
-            values={form.watch("profession") ? [form.watch("profession")] : []}
-            onValuesChange={(v) =>
-              setValue("profession", (v[0] ?? "") as ProfessionalRole, {
-                shouldValidate: true,
-              })
-            }
-          >
-            <MultiSelectTrigger className="w-full">
-              <MultiSelectValue placeholder="Select profession..." />
-            </MultiSelectTrigger>
-            <MultiSelectContent search={{ placeholder: "Search profession..." }}>
-              <MultiSelectGroup>
-                {(PROFESSIONAL_ROLES as ProfessionalRole[]).map((role) => (
-                  <MultiSelectItem key={role} value={role}>
-                    {role}
-                  </MultiSelectItem>
-                ))}
-              </MultiSelectGroup>
-            </MultiSelectContent>
-          </MultiSelect>
-          <FieldError>{errors.profession?.message}</FieldError>
-        </Field>
-
         <div className="grid gap-4 sm:grid-cols-2">
           <Field data-invalid={!!errors.startDate}>
             <FieldLabel htmlFor="start-date">Start date</FieldLabel>

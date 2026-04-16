@@ -20,9 +20,17 @@ export function formatCurrency(amount: number, currency = "USD") {
 export function formatJobHourlyRateLine(
   amount: number | null | undefined,
   currency = "USD",
+  opts?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
 ) {
   if (amount == null || amount <= 0) return "Pending";
-  return `${formatCurrency(amount, currency)}/hr`;
+  const min = opts?.minimumFractionDigits ?? 0;
+  const max = opts?.maximumFractionDigits ?? 0;
+  return `${new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: min,
+    maximumFractionDigits: max,
+  }).format(amount)}/hr`;
 }
 
 /** Format time string (e.g. "09:00" or "09:00:00") to "9:00 AM" */

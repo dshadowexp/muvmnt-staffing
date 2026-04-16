@@ -4,7 +4,7 @@ import { updateFirebaseUser, verifyFirebaseIdToken } from "./decode";
 import { twilioClient } from "../../config/twilio";
 import { config } from "../../config/env";
 import { permissionsMap, UserRole } from "./permissions";
-import { getNotificationsQueue } from "../../background/notifications.queue";
+import { getSendNotificationsQueue } from "../../background/send-notifications.queue";
 import { decrypt, encrypt } from "../../utils/crypt";
 
 export class AuthService {
@@ -74,7 +74,7 @@ export class AuthService {
         const token = encrypt(`${user.id}:${user.email}`);
 
         const verifyUrl = `${config.appUrl}/v1/auth/verify-email?token=${token}`;
-        await getNotificationsQueue().enqueue({
+        await getSendNotificationsQueue().enqueue({
             userId,
             channels: ['email'],
             subject: 'Verify your email',

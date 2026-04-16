@@ -1,26 +1,45 @@
-/** Aligns with Fastify `CreateAndMatchReply.tiers` items. */
+/** Aligns with Fastify `CreateAndMatchReply` (server staff-requests.schema). */
 
-export type MatchedWorkerPreview = {
+export type WorkerAssignment = {
   userId: string;
   displayName: string;
   yearsExp: number;
+  photoUrl: string | null;
+  startTime: string;
+  endTime: string;
 };
 
-export type StaffMatchTierId = "pulse" | "harbor" | "summit";
-
-export type StaffMatchTier = {
-  tierId: StaffMatchTierId;
-  name: string;
-  tagline: string;
-  worker: MatchedWorkerPreview | null;
-  hourlyRate: number;
-  estimatedTotalCents: number;
+export type DaySchedule = {
+  date: string;
+  dayOfWeek: number;
+  assignments: WorkerAssignment[];
+  covered: boolean;
 };
 
 export type CreateAndMatchApiData = {
   jobId: string;
-  tiers: StaffMatchTier[];
-  ringCellCount: number;
+  schedule: DaySchedule[];
+  totalWorkers: number;
+  fullyCovered: boolean;
   candidateCount: number;
+  ringCellCount: number;
   currency: "CAD";
+  /** Present when the API echoes persisted tier / rate after match. */
+  pricingTier?: string;
+  pricingRate?: number;
+};
+
+export type PricingTierOffer = {
+  tierId: string;
+  label: string;
+  description: string;
+  hourlyRate: number;
+  candidateCount: number;
+  available: boolean;
+};
+
+export type StaffRequestPricingTiersData = {
+  tiers: PricingTierOffer[];
+  currency: "CAD";
+  ringCellCount: number;
 };

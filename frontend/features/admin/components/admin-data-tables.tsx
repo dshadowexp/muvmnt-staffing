@@ -61,7 +61,7 @@ export function AdminJobsTable({ jobs }: { jobs: AdminJobRow[] }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Profession</TableHead>
+            <TableHead>Request</TableHead>
             <TableHead className="text-right">Positions</TableHead>
             <TableHead className="font-mono text-xs">Client ID</TableHead>
             <TableHead className="text-right">Start</TableHead>
@@ -80,7 +80,7 @@ export function AdminJobsTable({ jobs }: { jobs: AdminJobRow[] }) {
           ) : (
             jobs.map((j) => (
               <TableRow key={j.id}>
-                <TableCell className="font-medium">{j.profession}</TableCell>
+                <TableCell className="font-medium">Staff request</TableCell>
                 <TableCell className="text-right tabular-nums">
                   {j.positions}
                 </TableCell>

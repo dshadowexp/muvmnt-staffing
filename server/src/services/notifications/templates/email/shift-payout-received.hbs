@@ -1,0 +1,23 @@
+{{#> email-base previewText=previewText}}
+  {{#*inline "body"}}
+    <p class="label">Shift payment</p>
+    <h1>Payment<br>sent.</h1>
+    <p>Hi {{workerFirstName}}, we transferred <strong>{{amountLine}}</strong> to your payroll account for a completed shift.</p>
+
+    <div class="details">
+      <div class="detail-row">
+        <span class="detail-key">Shift hours</span>
+        <span class="detail-value">{{hoursLine}}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Reference</span>
+        <span class="detail-value" style="font-size:13px;word-break:break-all">{{referenceLine}}</span>
+      </div>
+    </div>
+
+    <p style="margin-top:28px;margin-bottom:8px;font-size:14px;color:#666">Open your account:</p>
+    <a href="{{shiftsUrl}}" class="btn">View shifts</a>
+
+    <p style="margin-top:32px;font-size:13px;color:#888">Funds appear in your connected account per Stripe payout timing.</p>
+  {{/inline}}
+{{/email-base}}

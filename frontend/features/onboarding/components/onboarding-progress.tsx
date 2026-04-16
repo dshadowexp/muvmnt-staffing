@@ -12,7 +12,7 @@ function VerticalProgress() {
   if (steps.length === 0) return null;
 
   return (
-    <div className="hidden md:flex flex-col min-w-[180px] shrink-0 pt-1">
+    <div className="hidden md:flex flex-col min-w-[200px] shrink-0 pt-1">
       {steps.map((step, i) => {
         const isActive = i === currentStepIndex;
         const isComplete = stepCompletion[step.id]?.completed === true;
@@ -38,7 +38,7 @@ function VerticalProgress() {
               </div>
               <span
                 className={cn(
-                  "text-sm font-medium truncate",
+                  "text-sm font-medium leading-snug",
                   (isActive || isComplete) ? "text-foreground" : "text-muted-foreground"
                 )}
               >
@@ -98,7 +98,7 @@ function MobileDashes() {
 
 export function OnboardingProgress() {
   return (
-    <div className="flex w-full flex-col md:w-auto md:min-w-[180px] md:max-w-[180px] md:shrink-0">
+    <div className="flex w-full flex-col md:w-auto md:min-w-[200px] md:max-w-[220px] md:shrink-0">
       <MobileDashes />
       <VerticalProgress />
     </div>

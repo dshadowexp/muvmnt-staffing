@@ -1,11 +1,11 @@
 import {
     MailCheck,
     User,
-    Award,
     CreditCard,
     Building2,
     ShieldCheck,
     MapPin,
+    CalendarClock,
 } from "lucide-react";
 import { UserRole } from "@/types/auth";
 import { MultistepFormStep } from "@/hooks/use-multistep-form";
@@ -56,21 +56,21 @@ const workerSteps: MultistepFormStep[] = [
         icon:        ShieldCheck,
     },
     {
-        id:          'certifications',
-        title:       'Certifications',
-        description: 'Upload your CPR and First Aid certificates.',
-        route:        '/onboarding/certifications',
+        id:          'availability',
+        title:       'Availability',
+        description: 'Weekly hours and timezone.',
+        route:        '/onboarding/availability',
         dependsOn:   ['authorization'],
         locked:      true,
-        freezesWhen: [],
-        icon:        Award,
+        freezesWhen: ['payroll'],
+        icon:        CalendarClock,
     },
     {
         id:          'payroll',
         title:       'Payroll',
         description: 'Setup your payroll account to receive payments.',
         route:        '/onboarding/payroll',
-        dependsOn:   ['personal-details', 'location', 'authorization'],
+        dependsOn:   ['availability'],
         locked:      true,
         freezesWhen: [],
         icon:        CreditCard,

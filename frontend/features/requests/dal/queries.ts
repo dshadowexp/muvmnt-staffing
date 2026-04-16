@@ -2,6 +2,7 @@
 
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { createAdminClient } from "@/services/supabase/server";
+import { STAFF_REQUEST_STATUS_CONFIRMED } from "../constants";
 
 export async function getStaffRequest(id: string) {
     const { user} = await getCurrentUser({ allData: true });
@@ -30,6 +31,7 @@ export async function getJobInfos() {
         .from("staff_requests")
         .select("*")
         .eq("client_id", user.id)
+        .eq("status", STAFF_REQUEST_STATUS_CONFIRMED)
         .order("created_at", { ascending: false });
 
     if (error) {

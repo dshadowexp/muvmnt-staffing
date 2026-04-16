@@ -31,6 +31,21 @@ export const NON_ORG_PREFIXES: string[] = [
   "/terms",
 ];
 
+/** Authenticated route prefixes (locale stripped by proxy). Use absolute paths. */
+export const ADMIN_PREFIXES: string[] = ["/admin"];
+
+export const WORKER_PREFIXES: string[] = [
+  "/worker",
+  "/onboarding",
+  "/review",
+];
+
+export const CLIENT_PREFIXES: string[] = [
+  "/client",
+  "/onboarding",
+  "/review",
+];
+
 // ── Navigation ────────────────────────────────────────────────────────────────
 export const NAV_LINKS = [
   { label: "Services",    href: "/#services" },
@@ -52,7 +67,6 @@ export const CERTIFICATION_NAMES = [
   "CPR",
   "First Aid",
   "PSW Certificate",
-  "Resume",
   "Medication Administration",
   "Covid-19 Vaccination",
   "G2 Driver's License",

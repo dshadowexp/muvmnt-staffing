@@ -51,6 +51,59 @@ export async function createSetupIntent() {
     return { data: { clientSecret: intent.client_secret } };
 }
 
+/**
+ * After a successful SetupIntent, persist the saved payment method as the account default
+ * and set it on the Stripe customer for off-session charges.
+ */
+export async function syncDefaultPaymentMethodAfterSetupIntent(setupIntentId: string) {
+    const { user } = await getCurrentUser({ allData: true });
+    if (!user) return { error: "Unauthorized" as const };
+
+    const id = setupIntentId?.trim();
+    if (!id) return { error: "Invalid setup intent" as const };
+
+    const supabase = await createAdminClient();
+    const { data: row, error } = await supabase
+        .from("billing_accounts")
+        .select("stripe_customer_id")
+        .eq("user_id", user.id)
+        .single();
+
+    if (error && error.code !== "PGRST116") return { error: error.message };
+    if (!row?.stripe_customer_id) return { error: "Billing account not setup" as const };
+
+    const si = await getStripeServer().setupIntents.retrieve(id);
+
+    const customerOnIntent =
+        typeof si.customer === "string" ? si.customer : si.customer?.id;
+    if (!customerOnIntent || customerOnIntent !== row.stripe_customer_id) {
+        return { error: "Setup intent does not belong to this account" as const };
+    }
+
+    if (si.status !== "succeeded") {
+        return { error: "Setup was not completed" as const };
+    }
+
+    const pmId =
+        typeof si.payment_method === "string"
+            ? si.payment_method
+            : si.payment_method?.id;
+    if (!pmId) return { error: "No payment method on setup intent" as const };
+
+    await getStripeServer().customers.update(row.stripe_customer_id, {
+        invoice_settings: { default_payment_method: pmId },
+    });
+
+    const { error: upErr } = await supabase
+        .from("billing_accounts")
+        .update({ default_payment_method_id: pmId })
+        .eq("user_id", user.id);
+
+    if (upErr) return { error: upErr.message };
+
+    return { data: { paymentMethodId: pmId } };
+}
+
 export async function createCheckoutSession(priceId: string) {
     const { user } = await getCurrentUser();
     if (!user) throw new Error('Unauthenticated');
