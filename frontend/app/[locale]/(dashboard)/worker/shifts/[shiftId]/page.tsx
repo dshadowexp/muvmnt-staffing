@@ -1,7 +1,8 @@
 import { BackLink } from "@/components/back-link";
 import { ShiftLocationDetails } from "@/features/shifts/components/shift-location-details";
 import { ShiftStatusBadge } from "@/features/shifts/components/shift-status-badge";
-import { STAFF_REQUEST_DISPLAY_TITLE } from "@/features/requests/constants";
+import { ShiftTimeline } from "@/features/shifts/components/shift-timeline";
+import { Separator } from "@/components/ui/separator";
 import { getShiftForWorker } from "@/features/shifts/dal/queries";
 import {
   effectiveHourlyRate,
@@ -106,8 +107,20 @@ export default async function WorkerShiftDetailPage({
           
         </dl>
 
-        <div className="border-border flex flex-col gap-3 border-t pt-6">
-          <h2 className="text-sm font-medium">Actions</h2>
+        <ShiftTimeline
+          audience="worker"
+          shift={{
+            created_at: shift.created_at,
+            confirm_time: shift.confirm_time,
+            checkin_time: shift.checkin_time,
+            checkout_time: shift.checkout_time,
+            complete_time: shift.complete_time,
+          }}
+        />
+
+        <Separator />
+        <div>
+          <h2 className="mb-4 text-lg font-semibold">Actions</h2>
           <WorkerShiftActions shiftId={shift.id} status={shift.status} />
         </div>
       </div>

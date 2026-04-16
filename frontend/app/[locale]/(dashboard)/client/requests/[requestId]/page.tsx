@@ -15,19 +15,19 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { STAFF_REQUEST_DISPLAY_TITLE } from "@/features/requests/constants";
-import { getStaffRequest } from "@/features/requests/dal/queries";
+import {
+  getStaffRequest,
+  getStaffRequestSiteAndPayments,
+  type StaffRequestSiteAndPayments,
+} from "@/features/requests/dal/queries";
 import { ShiftsTable } from "@/features/shifts/components/shifts-table";
 import { listShiftsForStaffRequest } from "@/features/shifts/dal/queries";
-import { formatJobHourlyRateLine, formatTime } from "@/lib/formatters";
-import {
-  parseStaffRequestDailyWindows,
-  type StaffRequestDayPlanJson,
-} from "@/features/requests/lib/parse-staff-request-daily-windows";
-import { format, parseISO } from "date-fns";
+import { attachResolvedWorkerPhotos } from "@/features/shifts/lib/resolve-worker-photo-url";
+import type { ShiftTableRow } from "@/features/shifts/types/shift-table-row";
+import { formatCurrency, formatJobHourlyRateLine } from "@/lib/formatters";
+import { format } from "date-fns";
 import {
   ArrowRightIcon,
-  CalendarIcon,
   CheckCircle2Icon,
   DollarSignIcon,
   ListChecksIcon,
@@ -63,8 +63,16 @@ export default async function StaffRequestPage({
   const jobData = (async () => {
     const { error, data: staffRequest } = await getStaffRequest(id);
     if (error || staffRequest == null) notFound();
-    const shiftsForRequest = await listShiftsForStaffRequest(id);
-    return { staffRequest, shiftsForRequest };
+    const [shiftsRaw, sitePayments] = await Promise.all([
+      listShiftsForStaffRequest(id),
+      getStaffRequestSiteAndPayments(id),
+    ]);
+    const shiftsForRequest = await attachResolvedWorkerPhotos(shiftsRaw);
+    const billing: StaffRequestSiteAndPayments =
+      sitePayments.error || sitePayments.data == null
+        ? { location: null, payments: [] }
+        : sitePayments.data;
+    return { staffRequest, shiftsForRequest, billing };
   })();
 
   return (
@@ -74,11 +82,12 @@ export default async function StaffRequestPage({
       <SuspendedItem
         item={jobData}
         fallback={<JobDetailSkeleton />}
-        result={({ staffRequest, shiftsForRequest }) => (
+        result={({ staffRequest, shiftsForRequest, billing }) => (
           <JobDetailContent
             staffRequest={staffRequest}
             requestId={id}
             shiftsForRequest={shiftsForRequest}
+            billing={billing}
           />
         )}
       />
@@ -105,30 +114,34 @@ function JobDetailSkeleton() {
   );
 }
 
+function formatSiteAddress(
+  loc: StaffRequestSiteAndPayments["location"],
+): string | null {
+  if (loc == null) return null;
+  const single = loc.address?.trim();
+  if (single) return single;
+  const parts = [
+    loc.address_line_1,
+    loc.address_line_2,
+    [loc.city, loc.admin_area].filter(Boolean).join(", ") || null,
+    loc.postal_code,
+    loc.country_code,
+  ].filter(Boolean) as string[];
+  return parts.length > 0 ? parts.join(", ") : null;
+}
+
 function JobDetailContent({
   staffRequest,
   requestId,
   shiftsForRequest,
+  billing,
 }: {
   staffRequest: NonNullable<StaffRequest>;
   requestId: string;
-  shiftsForRequest: Awaited<ReturnType<typeof listShiftsForStaffRequest>>;
+  shiftsForRequest: ShiftTableRow[];
+  billing: StaffRequestSiteAndPayments;
 }) {
-  const dailyWindows = parseStaffRequestDailyWindows(staffRequest.daily_time_windows);
-
-  function slotsKey(plan: StaffRequestDayPlanJson): string {
-    return JSON.stringify(plan.slots.map((s) => [s.startTime, s.endTime]));
-  }
-
-  const uniformDailyTime =
-    dailyWindows.length > 0 &&
-    dailyWindows.every((w) => slotsKey(w) === slotsKey(dailyWindows[0]!));
-
-  function formatDaySlots(plan: StaffRequestDayPlanJson) {
-    return plan.slots
-      .map((s) => `${formatTime(s.startTime)} – ${formatTime(s.endTime)}`)
-      .join("; ");
-  }
+  const addressLine = formatSiteAddress(billing.location);
 
   return (
     <div className="space-y-6">
@@ -137,67 +150,101 @@ function JobDetailContent({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              {STAFF_REQUEST_DISPLAY_TITLE}
+              {`Staff request ${staffRequest.id.substring(0, 8)}`}
             </h1>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1 font-semibold">
+          <Badge variant="outline" className="gap-1 font-normal">
+            {staffRequest.pricing_tier}
+          </Badge>
+          <Badge variant="outline" className="gap-1 font-normal">
             <DollarSignIcon className="size-3.5" />
             {formatJobHourlyRateLine(staffRequest.pricing_rate)}
           </Badge>
-          <Badge variant="outline" className="gap-1">
+          <Badge variant="outline" className="gap-1 font-normal">
             <UserIcon className="size-3.5" />
-            {staffRequest.positions}{" "}
-            {staffRequest.positions === 1 ? "position" : "positions"}
+            {`${staffRequest.positions} /shift`}
           </Badge>
         </div>
       </header>
 
-      {/* Collapsible Job Details */}
-      <Accordion type="multiple" className="w-full" defaultValue={["schedule", "requirements"]}>
-        <AccordionItem value="schedule">
-          <AccordionTrigger className="px-4 py-3 hover:no-underline">
-            <span className="flex items-center gap-2">
-              <CalendarIcon className="size-4 shrink-0" />
-              Schedule
+      <div className="rounded-xl border border-border px-4 py-4 text-sm">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:gap-3">
+            <span className="text-muted-foreground shrink-0 sm:min-w-[5.5rem]">
+              Site
             </span>
-          </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4">
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Dates:</span>
-                <span>
-                  {format(new Date(staffRequest.start_date), "MMM d, yyyy")}
-                  {staffRequest.end_date
-                    ? ` – ${format(new Date(staffRequest.end_date), "MMM d, yyyy")}`
-                    : " (ongoing)"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <span className="text-muted-foreground shrink-0">Times:</span>
-                <div className="min-w-0 space-y-1">
-                  {dailyWindows.length === 0 ? (
-                    <span>—</span>
-                  ) : uniformDailyTime ? (
-                    <span>{formatDaySlots(dailyWindows[0]!)}</span>
-                  ) : (
-                    <ul className="list-disc space-y-0.5 pl-4">
-                      {dailyWindows.map((w) => (
-                        <li key={w.date}>
-                          {format(parseISO(`${w.date}T12:00:00`), "MMM d")}:{" "}
-                          {formatDaySlots(w)}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+            <span className="min-w-0">
+              {addressLine ?? (
+                <span className="text-muted-foreground">Not on file</span>
+              )}
+            </span>
+          </div>
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:gap-3">
+            <span className="text-muted-foreground shrink-0 sm:min-w-[5.5rem]">
+              Billing
+            </span>
+            <div className="min-w-0">
+              {billing.payments.length === 0 ? (
+                <p className="text-muted-foreground">No charges recorded yet.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {billing.payments.map((p) => (
+                    <li
+                      key={p.id}
+                      className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5"
+                    >
+                      <span className="text-muted-foreground tabular-nums">
+                        {format(new Date(p.created_at), "MMM d, yyyy")}
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        {formatCurrency(
+                          (p.amount_cents ?? 0) / 100,
+                          p.currency.toUpperCase(),
+                        )}
+                      </span>
+                      <span className="text-muted-foreground text-xs">
+                        {p.card_display}
+                      </span>
+                      <span className="text-muted-foreground text-xs capitalize">
+                        {p.status}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          </AccordionContent>
-        </AccordionItem>
+          </div>
+        </div>
+      </div>
 
+      <Separator />
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">Shifts</h2>
+        <p className="text-muted-foreground text-sm">
+          Workers and hours booked under this staff request.
+        </p>
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <ShiftsTable rows={shiftsForRequest} variant="client-request" />
+        </div>
+      </div>
+
+      {/* Collapsible Job Details */}
+      <Accordion
+        type="multiple"
+        className="w-full"
+        defaultValue={
+          staffRequest.requirements.length > 0
+            ? ["requirements"]
+            : staffRequest.tasks.length > 0
+              ? ["tasks"]
+              : (staffRequest.notes ?? "").trim()
+                ? ["notes"]
+                : []
+        }
+      >
         {staffRequest.requirements.length > 0 && (
           <AccordionItem value="requirements">
             <AccordionTrigger className="px-4 py-3 hover:no-underline">
@@ -260,17 +307,6 @@ function JobDetailContent({
           </AccordionItem>
         )}
       </Accordion>
-
-      <Separator />
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Shifts</h2>
-        <p className="text-muted-foreground text-sm">
-          Workers and hours booked under this staff request.
-        </p>
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <ShiftsTable rows={shiftsForRequest} variant="client-request" />
-        </div>
-      </div>
 
       <Separator />
 

@@ -301,6 +301,7 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          payment_method: Json
           request_id: string
           status: string
           stripe_payment_id: string
@@ -310,6 +311,7 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          payment_method?: Json
           request_id: string
           status?: string
           stripe_payment_id: string
@@ -319,6 +321,7 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          payment_method?: Json
           request_id?: string
           status?: string
           stripe_payment_id?: string
@@ -376,6 +379,8 @@ export type Database = {
           checkin_time: string | null
           checkout_time: string | null
           client_id: string
+          complete_time: string | null
+          confirm_time: string | null
           created_at: string
           end_time: string | null
           hourly_rate: number | null
@@ -391,6 +396,8 @@ export type Database = {
           checkin_time?: string | null
           checkout_time?: string | null
           client_id: string
+          complete_time?: string | null
+          confirm_time?: string | null
           created_at?: string
           end_time?: string | null
           hourly_rate?: number | null
@@ -406,6 +413,8 @@ export type Database = {
           checkin_time?: string | null
           checkout_time?: string | null
           client_id?: string
+          complete_time?: string | null
+          confirm_time?: string | null
           created_at?: string
           end_time?: string | null
           hourly_rate?: number | null

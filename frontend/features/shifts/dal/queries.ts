@@ -10,7 +10,7 @@ export type StaffRequestShiftEmbed = Pick<
 
 export type WorkerNameEmbed = Pick<
   Database["public"]["Tables"]["workers"]["Row"],
-  "first_name" | "last_name"
+  "first_name" | "last_name" | "photo_url"
 >;
 
 export type ShiftWithStaffRequest = ShiftRow & {
@@ -40,7 +40,7 @@ const staffRequestSelect = `
   client_id
 `;
 
-const workerSelect = `first_name, last_name`;
+const workerSelect = `first_name, last_name, photo_url`;
 
 const clientSelect = `id, name`;
 

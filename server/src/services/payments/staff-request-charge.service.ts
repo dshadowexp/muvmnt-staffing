@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { stripe } from '../../config/stripe';
 import { insertStaffRequestPayment } from './payments.repository';
+import { cardSnapshotFromStripePaymentMethod } from './staff-request-payment-method-snapshot';
 
 export type StaffRequestChargeResult =
   | { ok: true; paymentIntentId: string; amountCents: number }
@@ -88,6 +89,31 @@ export async function chargeStaffRequestOffSession(params: {
   }
 
   try {
+    // Customer-scoped retrieve (snapshot survives if the PM is later detached from the customer).
+    // https://docs.stripe.com/api/payment_methods/customer
+    let retrievedPm: Stripe.PaymentMethod;
+    try {
+      retrievedPm = await stripe.customers.retrievePaymentMethod(
+        params.stripeCustomerId,
+        params.paymentMethodId,
+      );
+    } catch (err) {
+      const msg =
+        err instanceof Stripe.errors.StripeInvalidRequestError && err.code === 'resource_missing'
+          ? 'This payment method is no longer available. Add a card and try again.'
+          : 'Could not load the selected payment method.';
+      return { ok: false, message: msg, code: 'payment_method_unavailable' };
+    }
+
+    const paymentMethodSnapshot = cardSnapshotFromStripePaymentMethod(retrievedPm);
+    if (paymentMethodSnapshot == null) {
+      return {
+        ok:      false,
+        message: 'Only card payment methods can be used for this charge.',
+        code:    'unsupported_payment_method',
+      };
+    }
+
     const intent = await stripe.paymentIntents.create(
       {
         amount:                   params.amountCents,
@@ -117,6 +143,7 @@ export async function chargeStaffRequestOffSession(params: {
     const saved = await insertStaffRequestPayment({
       requestId:             params.jobId,
       stripePaymentIntentId: intent.id,
+      paymentMethod:         paymentMethodSnapshot,
       amountCents:           params.amountCents,
       currency:              'cad',
       status:                'succeeded',

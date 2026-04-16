@@ -29,7 +29,11 @@ export async function completeClientShift(
     return { ok: false, message: 'Only checked-out shifts can be marked complete' };
   }
 
-  const up = await updateShiftById(shiftId, { status: SHIFT_STATUS_COMPLETED });
+  const now = new Date().toISOString();
+  const up = await updateShiftById(shiftId, {
+    status:         SHIFT_STATUS_COMPLETED,
+    complete_time:  now,
+  });
   if (!up.ok) return { ok: false, message: up.message };
 
   try {
@@ -37,7 +41,10 @@ export async function completeClientShift(
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Failed to queue payout';
     logger.error({ shiftId, err: e }, 'completeClientShift: enqueue payout failed');
-    await updateShiftById(shiftId, { status: SHIFT_STATUS_CHECKED_OUT });
+    await updateShiftById(shiftId, {
+      status:        SHIFT_STATUS_CHECKED_OUT,
+      complete_time: null,
+    });
     return { ok: false, message };
   }
 

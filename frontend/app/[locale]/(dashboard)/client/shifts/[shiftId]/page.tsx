@@ -1,19 +1,17 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BackLink } from "@/components/back-link";
 import { ShiftLocationDetails } from "@/features/shifts/components/shift-location-details";
 import { ShiftStatusBadge } from "@/features/shifts/components/shift-status-badge";
-import { STAFF_REQUEST_DISPLAY_TITLE } from "@/features/requests/constants";
+import { ShiftTimeline } from "@/features/shifts/components/shift-timeline";
 import { ClientShiftCompleteButton } from "@/features/shifts/components/client-shift-complete-button";
+import { Separator } from "@/components/ui/separator";
 import { getShiftForClientUser } from "@/features/shifts/dal/queries";
+import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
 import { isCheckedOutShiftStatus } from "@/features/shifts/lib/shift-status";
 import {
-  effectiveHourlyRate,
   formatExpectedShiftEnd,
   formatExpectedShiftStart,
-  formatShiftPay,
-  shiftHoursBetween,
 } from "@/features/shifts/lib/present-shift";
-import { formatJobHourlyRateLine } from "@/lib/formatters";
-import { format, isValid, parseISO } from "date-fns";
 import { getSession } from "@/lib/session";
 import { notFound, redirect } from "next/navigation";
 
@@ -23,6 +21,16 @@ function workerDisplayName(
 ): string {
   const name = `${first ?? ""} ${last ?? ""}`.trim();
   return name.length > 0 ? name : "—";
+}
+
+function workerInitials(
+  first: string | null | undefined,
+  last: string | null | undefined,
+): string {
+  const a = (first?.trim()?.[0] ?? "").toUpperCase();
+  const b = (last?.trim()?.[0] ?? "").toUpperCase();
+  const pair = `${a}${b}`;
+  return pair.length > 0 ? pair : "?";
 }
 
 export default async function ClientShiftDetailPage({
@@ -39,9 +47,6 @@ export default async function ClientShiftDetailPage({
   if (shift == null) notFound();
 
   const sr = shift.staff_requests;
-  const rate = effectiveHourlyRate(shift.hourly_rate, sr?.pricing_rate);
-  const hours = shiftHoursBetween(shift.start_time, shift.end_time);
-  const { payLabel } = formatShiftPay(hours, rate);
   const expectedStart = formatExpectedShiftStart(
     shift.start_time,
     sr?.start_date ?? null,
@@ -54,22 +59,13 @@ export default async function ClientShiftDetailPage({
     shift.workers?.first_name,
     shift.workers?.last_name,
   );
-
-  function formatActualTime(value: string | null | undefined): string {
-    if (value == null || value === "") return "—";
-    const normalized = /^\d{4}-\d{2}-\d{2}\s+\d/.test(value.trim())
-      ? value.trim().replace(/^(\d{4}-\d{2}-\d{2})\s+/, "$1T")
-      : value.trim();
-    const d = parseISO(normalized);
-    if (!isValid(d)) return value;
-    return format(d, "MMM d, yyyy · h:mm a");
-  }
+  const workerPhotoSrc = await resolveWorkerPhotoSrc(shift.workers?.photo_url);
 
   const showComplete = isCheckedOutShiftStatus(shift.status);
 
   return (
     <div className="flex w-full max-w-2xl flex-col gap-8">
-      <BackLink backHref="/client/shifts" title="Shifts" />
+      <BackLink backHref="/client" title="Shifts" />
 
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-4">
@@ -78,11 +74,27 @@ export default async function ClientShiftDetailPage({
         </div>
 
         <dl className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className="col-span-2">
             <dt className="text-muted-foreground text-sm font-medium">Worker</dt>
-            <dd className="mt-0.5 text-sm">{workerName}</dd>
+            <dd className="mt-0.5 flex items-center gap-2 text-sm">
+              <Avatar size="sm" className="shrink-0">
+                {workerPhotoSrc ? (
+                  <AvatarImage
+                    src={workerPhotoSrc}
+                    alt={workerName === "—" ? "Worker" : workerName}
+                  />
+                ) : null}
+                <AvatarFallback className="text-[10px] font-medium">
+                  {workerInitials(
+                    shift.workers?.first_name,
+                    shift.workers?.last_name,
+                  )}
+                </AvatarFallback>
+              </Avatar>
+              <span>{workerName}</span>
+            </dd>
           </div>
-          <div>
+          <div className="col-span-2">
             <ShiftLocationDetails location={shift.location} />
           </div>
           <div>
@@ -93,30 +105,27 @@ export default async function ClientShiftDetailPage({
             <dt className="text-muted-foreground text-sm font-medium">Expected end</dt>
             <dd className="mt-0.5 text-sm">{expectedEnd}</dd>
           </div>
-          
-          {(shift.checkin_time != null && shift.checkin_time !== "") ||
-          (shift.checkout_time != null && shift.checkout_time !== "") ? (
-            <>
-              <div>
-                <dt className="text-muted-foreground text-sm font-medium">Check-in time</dt>
-                <dd className="mt-0.5 text-sm tabular-nums">{formatActualTime(shift.checkin_time)}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm font-medium">Check-ou time</dt>
-                <dd className="mt-0.5 text-sm tabular-nums">{formatActualTime(shift.checkout_time)}</dd>
-              </div>
-            </>
-          ) : null}
         </dl>
 
+        <ShiftTimeline
+          shift={{
+            created_at: shift.created_at,
+            confirm_time: shift.confirm_time,
+            checkin_time: shift.checkin_time,
+            checkout_time: shift.checkout_time,
+            complete_time: shift.complete_time,
+          }}
+        />
+
         {showComplete ? (
-          <div className="border-border flex flex-col gap-3 border-t pt-6">
-            <p className="text-muted-foreground text-sm">
-              The worker has checked out. Confirm completion to close this shift and release payment
-              to their payroll account.
-            </p>
-            <ClientShiftCompleteButton shiftId={shift.id} />
-          </div>
+          <>
+            <div>
+              <h2 className="mb-4 text-lg font-semibold">Actions</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ClientShiftCompleteButton shiftId={shift.id} />
+              </div>
+            </div>
+          </>
         ) : null}
       </div>
     </div>

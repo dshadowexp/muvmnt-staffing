@@ -37,7 +37,11 @@ export async function confirmWorkerShift(
     return { ok: false, message: 'Only scheduled shifts can be confirmed' };
   }
 
-  const up = await updateShiftById(shiftId, { status: SHIFT_STATUS_CONFIRMED });
+  const now = new Date().toISOString();
+  const up = await updateShiftById(shiftId, {
+    status:       SHIFT_STATUS_CONFIRMED,
+    confirm_time: now,
+  });
   return up.ok ? { ok: true } : { ok: false, message: up.message };
 }
 

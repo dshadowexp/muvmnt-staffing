@@ -3,7 +3,6 @@
 import { useRouter } from "@/i18n/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
   cancelWorkerShiftAction,
   checkInWorkerShiftAction,
@@ -12,6 +11,7 @@ import {
   declineWorkerShiftAction,
   requestWorkerShiftTransferAction,
 } from "@/features/shifts/actions";
+import { ShiftActionCard } from "@/features/shifts/components/shift-action-card";
 import {
   isCheckedOutShiftStatus,
   isCompletedShiftStatus,
@@ -36,9 +36,10 @@ export function WorkerShiftActions({
 
   if (isScheduledShiftStatus(status)) {
     return (
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <Button
-          type="button"
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ShiftActionCard
+          title="Confirm shift"
+          description="Accept this booking. You can check in when you arrive on site."
           disabled={isPending}
           onClick={() => {
             startTransition(async () => {
@@ -51,12 +52,10 @@ export function WorkerShiftActions({
               router.refresh();
             });
           }}
-        >
-          {isPending ? "…" : "Confirm shift"}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
+        />
+        <ShiftActionCard
+          title="Decline shift"
+          description="Another worker may be assigned. Only decline if you cannot work this shift."
           disabled={isPending}
           onClick={() => {
             if (!window.confirm("Decline this shift? Another worker may be assigned.")) return;
@@ -71,12 +70,10 @@ export function WorkerShiftActions({
               router.refresh();
             });
           }}
-        >
-          Decline
-        </Button>
-        <Button
-          type="button"
-          variant="destructive"
+        />
+        <ShiftActionCard
+          title="Cancel shift"
+          description="Remove yourself from this shift before accepting. This cannot be undone."
           disabled={isPending}
           onClick={() => {
             if (!window.confirm("Cancel this shift?")) return;
@@ -90,9 +87,7 @@ export function WorkerShiftActions({
               router.refresh();
             });
           }}
-        >
-          Cancel shift
-        </Button>
+        />
       </div>
     );
   }
@@ -100,17 +95,18 @@ export function WorkerShiftActions({
   if (isReassigningShiftStatus(status)) {
     return (
       <p className="text-muted-foreground text-sm">
-        We&apos;re looking for another worker to take this shift. You can refresh this page
-        in a few moments for updates.
+        We&apos;re looking for another worker to take this shift. You can refresh this page in a few
+        moments for updates.
       </p>
     );
   }
 
   if (isConfirmedShiftStatus(status)) {
     return (
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <Button
-          type="button"
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ShiftActionCard
+          title="Check in to start shift"
+          description="Start the clock when you arrive and are ready to work."
           disabled={isPending}
           onClick={() => {
             startTransition(async () => {
@@ -123,12 +119,10 @@ export function WorkerShiftActions({
               router.refresh();
             });
           }}
-        >
-          {isPending ? "…" : "Check in to start shift"}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
+        />
+        <ShiftActionCard
+          title="Transfer shift"
+          description="We’ll look for another worker. You may keep the shift if no one is available."
           disabled={isPending}
           onClick={() => {
             if (
@@ -148,36 +142,35 @@ export function WorkerShiftActions({
               router.refresh();
             });
           }}
-        >
-          Transfer shift
-        </Button>
+        />
       </div>
     );
   }
 
   if (isInProgressShiftStatus(status)) {
     return (
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <p className="text-muted-foreground text-sm sm:mr-2">
+      <div className="space-y-4">
+        <p className="text-muted-foreground text-sm">
           This shift is in progress. Check out when you are done.
         </p>
-        <Button
-          type="button"
-          disabled={isPending}
-          onClick={() => {
-            startTransition(async () => {
-              const res = await checkOutWorkerShiftAction(shiftId);
-              if (res.error) {
-                toast.error(res.error);
-                return;
-              }
-              toast.success("Checked out — waiting for client confirmation");
-              router.refresh();
-            });
-          }}
-        >
-          {isPending ? "…" : "Check out"}
-        </Button>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ShiftActionCard
+            title="Check out"
+            description="End your shift when you finish. The client will confirm completion afterward."
+            disabled={isPending}
+            onClick={() => {
+              startTransition(async () => {
+                const res = await checkOutWorkerShiftAction(shiftId);
+                if (res.error) {
+                  toast.error(res.error);
+                  return;
+                }
+                toast.success("Checked out — waiting for client confirmation");
+                router.refresh();
+              });
+            }}
+          />
+        </div>
       </div>
     );
   }
@@ -191,9 +184,7 @@ export function WorkerShiftActions({
   }
 
   if (isCompletedShiftStatus(status)) {
-    return (
-      <p className="text-muted-foreground text-sm">This shift is complete.</p>
-    );
+    return <p className="text-muted-foreground text-sm">This shift is complete.</p>;
   }
 
   if (isDeclinedShiftStatus(status)) {
@@ -205,14 +196,10 @@ export function WorkerShiftActions({
   }
 
   if (s === "cancelled" || s === "canceled") {
-    return (
-      <p className="text-muted-foreground text-sm">This shift was cancelled.</p>
-    );
+    return <p className="text-muted-foreground text-sm">This shift was cancelled.</p>;
   }
 
   return (
-    <p className="text-muted-foreground text-sm">
-      No actions are available for this shift status.
-    </p>
+    <p className="text-muted-foreground text-sm">No actions are available for this shift status.</p>
   );
 }

@@ -30,6 +30,7 @@ import {
   UsersIcon,
   WalletIcon,
   CheckIcon,
+  ListChecksIcon,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/providers/auth-provider";
@@ -106,9 +107,9 @@ function mainNavItems(role: string | null | undefined): {
         icon: <LayoutDashboardIcon className="size-4" />,
       },
       {
-        title: "Shifts",
-        url: "/client/shifts",
-        icon: <CalendarDays className="size-4" />,
+        title: "Requests",
+        url: "/client/requests",
+        icon: <ListChecksIcon className="size-4" />,
       },
       {
         title: "Account",
