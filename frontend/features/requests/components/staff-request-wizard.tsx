@@ -728,8 +728,8 @@ export function StaffRequestWizard() {
                             const yMax = Math.max(...years);
                             const yearsLabel =
                               yMin === yMax
-                                ? `${yMin} yrs experience`
-                                : `${yMin}–${yMax} yrs experience`;
+                                ? `${yMin} yrs exp`
+                                : `${yMin}–${yMax} yrs exp`;
                             const names = group.map((g) => g.displayName).join(", ");
                             const rowKey = `${day.date}-${windowKey}-${group.map((g) => g.userId).join("-")}`;
 
@@ -748,7 +748,7 @@ export function StaffRequestWizard() {
                                   <div className="min-w-0 flex-1">
                                     <p className="text-sm font-medium">{a.displayName}</p>
                                     <p className="text-muted-foreground text-xs">
-                                      {a.yearsExp} yrs experience
+                                      {a.yearsExp} yrs exp
                                     </p>
                                   </div>
                                   <span className="text-muted-foreground shrink-0 text-right text-sm tabular-nums">
@@ -804,7 +804,7 @@ export function StaffRequestWizard() {
                                               <span className="font-medium">{a.displayName}</span>
                                               <span className="text-muted-foreground text-xs">
                                                 {" "}
-                                                · {a.yearsExp} yrs experience
+                                                · {a.yearsExp} yrs exp
                                               </span>
                                             </li>
                                           ))}

@@ -1,599 +1,876 @@
 {
-    "_comment": "Muvmnt Staffing — English translations (en). Every user-facing string lives here.",
-  
-    "site": {
-        "name": "Muvmnt",
-        "tagline": "Healthcare Staffing Solutions",
-        "phone": "1-800-MUVMNT",
-        "email": "info@muvmnt.ca",
-        "provinces": "Ontario · Alberta · B.C. · Maritimes",
-        "copyright": "© {year} Muvmnt Staffing Inc. All rights reserved."
-    },
-  
-    "nav": {
-        "services": "Services",
-        "howItWorks": "How It Works",
-        "whyUs": "Why Us",
-        "contact": "Contact",
-        "findWork": "Find Work",
-        "findTalent": "Find Talent →",
-        "toggleMenu": "Toggle menu"
-    },
-  
-    "footer": {
-        "description": "Canada's modern healthcare staffing partner. Connecting facilities with credentialed professionals — fast, reliably, and with care.",
-        "columns": {
-            "services": {
-                "title": "Services",
-                "links": {
-                    "temporaryStaffing": "Temporary Staffing",
-                    "homeCareStaffing": "Home Care Staffing",
-                    "emergencyRelief": "Emergency Relief",
-                    "requestTalent": "Request Talent"
-                }
-            },
-            "company": {
-                "title": "Company",
-                "links": {
-                    "about": "About Us",
-                    "careers": "Careers",
-                    "blog": "Blog",
-                    "contact": "Contact"
-                }
-            },
-            "professionals": {
-                "title": "For Professionals",
-                "links": {
-                    "findWork": "Find Work",
-                    "submitResume": "Submit Resume",
-                    "careerCentre": "Career Centre",
-                    "faq": "FAQ"
-                }
-            }
-        },
-        "legal": {
-            "privacy": "Privacy Policy",
-            "terms": "Terms of Use"
-        }
-    },
-  
-    "hero": {
-        "badge": "Canada's Healthcare Staffing Partner",
-        "title": "The Right {accent} Staff. {underline} When You Need Them.",
-        "titleAccent": "Care",
-        "titleUnderline": "When You",
-        "subtitle": "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. From emergency relief shifts to ongoing home care, we keep care moving.",
-        "ctaPrimary": "Find Talent Now →",
-        "ctaSecondary": "I'm a Professional",
-        "stats": {
-            "facilitiesServed": "Facilities Served",
-            "fillRate": "Fill Rate",
-            "avgResponse": "Avg Response"
-        }
-    },
-  
-    "trustBar": {
-        "label": "Trusted by"
-    },
-  
-    "services": {
-        "sectionLabel": "Our Services",
-        "sectionTitle": "Staffing solutions built for healthcare.",
-        "sectionSubtitle": "Whether you need a nurse on the floor tonight or a reliable home care team, Muvmnt has you covered with qualified, compassionate professionals.",
-        "cta": "Request Staff →",
-        "items": {
-            "temporaryRelief": {
-                "title": "Temporary & Relief Staffing",
-                "description": "Rapid deployment of qualified healthcare professionals to cover sick leave, maternity/paternity leave, and unexpected absences — 24/7, coast to coast.",
-                "tags": ["Same-Day Placement", "RN · RPN · PSW", "Long-Term Care", "Hospitals", "Clinics"]
-            },
-            "homeCare": {
-                "title": "Home Care Staffing",
-                "description": "Compassionate, pre-screened personal support workers and healthcare aides placed directly in client homes to deliver consistent, high-quality care.",
-                "tags": ["PSW Placement", "Elderly Care", "Post-Surgical", "Ongoing Support"]
-            }
-        }
-    },
-  
-    "howItWorks": {
-        "sectionLabel": "How It Works",
-        "sectionTitle": "Simple. Fast. Reliable.",
-        "sectionSubtitle": "From request to placement in hours, not days. Our process is built for the pace of healthcare.",
-        "steps": {
-            "01": {
-                "title": "Submit Your Request",
-                "description": "Tell us your staffing needs, shift requirements, and preferred qualifications through our streamlined intake process."
-            },
-            "02": {
-                "title": "We Match & Screen",
-                "description": "Our team rapidly identifies best-fit candidates from our pre-vetted pool of credentialed healthcare professionals."
-            },
-            "03": {
-                "title": "Confirm & Deploy",
-                "description": "Review your matched professionals and confirm placement. We handle all onboarding logistics."
-            },
-            "04": {
-                "title": "Ongoing Support",
-                "description": "We follow up to ensure satisfaction and maintain a continuous pipeline for your future staffing needs."
-            }
-        }
-    },
-  
-    "whyUs": {
-        "sectionLabel": "Why Muvmnt",
-        "sectionTitle": "We move at the speed of care.",
-        "sectionSubtitle": "Healthcare can't wait. Neither can we. Muvmnt was built from the ground up to solve the unique pressures Canadian healthcare organizations face every day.",
-        "points": {
-            "rapidDeployment": {
-                "title": "Rapid Deployment",
-                "description": "We fill positions faster than anyone in the industry — including same-day emergency coverage."
-            },
-            "vettedTalent": {
-                "title": "Rigorously Vetted Talent",
-                "description": "Every professional is credentialed, reference-checked, and thoroughly screened before joining our roster."
-            },
-            "canadaCoverage": {
-                "title": "Canada-Wide Coverage",
-                "description": "Active placements across Ontario, Alberta, British Columbia, and the Maritimes."
-            },
-            "dedicatedSupport": {
-                "title": "Dedicated Account Support",
-                "description": "A single point of contact who knows your facility, your standards, and your culture."
-            }
-        },
-        "cards": {
-            "facilities": {
-                "title": "500+ Healthcare Facilities",
-                "subtitle": "Trust Muvmnt across Canada"
-            },
-            "fillRate": {
-                "title": "98% Fill Rate",
-                "subtitle": "Across all shift categories"
-            },
-            "responseTime": {
-                "title": "< 2hr Response Time",
-                "subtitle": "For emergency placements"
-            }
-        }
-    },
-  
-    "testimonials": {
-        "sectionLabel": "Testimonials",
-        "sectionTitle": "What our clients say.",
-        "items": [
-            {
-                "text": "Muvmnt filled three last-minute RN positions over the holiday weekend. I don't know what we would have done without them.",
-                "name": "Sandra K.",
-                "role": "Director of Care, LTC Facility — Toronto"
-            },
-            {
-                "text": "The PSWs they send are always professional and prepared. Our residents have commented on the consistency and warmth of care.",
-                "name": "James L.",
-                "role": "Administrator, Retirement Community — Calgary"
-            },
-            {
-                "text": "Onboarding was seamless. Within 48 hours we had vetted, experienced staff on the floor. Genuinely impressive.",
-                "name": "Maria T.",
-                "role": "HR Manager, Community Health Centre — Vancouver"
-            }
+  "site": {
+    "name": "Muvmnt",
+    "tagline": "Healthcare Staffing Solutions",
+    "phone": "1-437-979-7797",
+    "email": "info@muvmnt.ca",
+    "countries": "Canada, USA, UK",
+    "copyright": "© {year} Muvmnt Staffing Inc. All rights reserved."
+  },
+
+  "meta": {
+    "description": "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief across Canada.",
+    "openGraphDescription": "Fast, reliable healthcare staffing solutions for Canadian facilities.",
+    "openGraphImageAlt": "Muvmnt Staffing Inc."
+  },
+
+  "common": {
+    "home": "Home",
+    "continue": "Continue",
+    "back": "Back",
+    "submit": "Submit",
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "clear": "Clear",
+    "or": "OR",
+    "required": "*",
+    "toggleMenu": "Toggle menu",
+    "switchLanguage": "Switch language",
+    "dashboard": "Dashboard",
+    "pickADate": "Pick a date"
+  },
+
+  "nav": {
+    "links": [
+      { "label": "How it works", "href": "/#how" },
+      { "label": "Why us", "href": "/#why" }
+    ],
+    "findWork": "Find work",
+    "requestStaff": "Request staff",
+    "dashboard": "Dashboard",
+    "menu": "Menu"
+  },
+
+  "footer": {
+    "brandDescription": "AI-powered instant healthcare staffing solutions.",
+    "columns": {
+      "facilities": {
+        "title": "For facilities",
+        "links": [
+          { "label": "Request staff", "href": "/find-staff" },
+          { "label": "How it works", "href": "/#how" }
         ]
-    },
-  
-    "cta": {
-        "title": "Ready to fill your next shift?",
-        "subtitle": "Join 500+ Canadian healthcare facilities who rely on Muvmnt for fast, dependable staffing solutions.",
-        "button": "Find Talent →",
-        "phone": "or call us: {phone}"
-    },
-  
-    "findWork": {
-        "meta": {
-            "title": "Find Work",
-            "description": "Join Muvmnt's network of healthcare professionals. Submit your details and resume to get matched with opportunities across Canada."
-        },
-        "hero": {
-            "badge": "Join Our Professional Network",
-            "title": "Your next {accent} move starts here.",
-            "titleAccent": "healthcare career",
-            "subtitle": "We connect skilled healthcare professionals with the best facilities across Canada. Submit your details once — we'll handle the matching.",
-            "breadcrumb": "Find Work"
-        },
-        "perks": {
-            "fastPlacements": {
-                "label": "Fast Placements",
-                "description": "Get matched with shifts quickly — including same-day opportunities."
-            },
-            "coastToCoast": {
-                "label": "Coast to Coast",
-                "description": "Opportunities in Ontario, Alberta, B.C., and the Maritimes."
-            },
-            "competitivePay": {
-                "label": "Competitive Pay",
-                "description": "We advocate for fair, competitive rates for every professional."
-            },
-            "dedicatedSupport": {
-                "label": "Dedicated Support",
-                "description": "A real person handles your file — no bots, no black holes."
-            }
-        },
-        "form": {
-            "sectionLabel": "Apply Now",
-            "sectionTitle": "Submit your details & resume",
-            "sectionSubtitle": "Takes less than 5 minutes. Our team reviews every application personally and will be in touch within 2 business days.",
-            "whatHappensNext": {
-                "title": "What happens next?",
-                "steps": [
-                    "We review your application within 48h",
-                    "Our team calls you for a brief screening",
-                    "You're added to our active roster",
-                    "We match you with fitting opportunities"
-                ]
-            }
-        }
-    },
-  
-    "applicationForm": {
-        "steps": {
-            "1": { "title": "Personal Info",        "description": "Tell us about yourself" },
-            "2": { "title": "Professional Details", "description": "Your credentials & availability" },
-            "3": { "title": "Resume & Message",     "description": "Upload your resume" }
-        },
-        "step1": {
-            "heading": "Personal Information",
-            "subheading": "Let's start with the basics. All fields marked * are required.",
-            "fields": {
-            "firstName":  { "label": "First Name",      "placeholder": "Jane" },
-            "lastName":   { "label": "Last Name",        "placeholder": "Doe" },
-            "email":      { "label": "Email Address",    "placeholder": "jane.doe@email.com" },
-            "phone":      { "label": "Phone Number",     "placeholder": "(416) 555-0100" },
-            "city":       { "label": "City",             "placeholder": "Toronto" },
-            "province":   { "label": "Province",         "placeholder": "Select province…" }
-            }
-        },
-        "step2": {
-            "heading": "Professional Details",
-            "subheading": "Tell us about your credentials, experience, and availability.",
-            "fields": {
-            "role":            { "label": "Your Role / Occupation",    "placeholder": "Select your role…" },
-            "yearsExperience": { "label": "Years of Experience",       "placeholder": "Select…" },
-            "licenseNumber":   {
-                "label": "License / Registration #",
-                "placeholder": "e.g. CNO-XXXXXXX",
-                "hint": "Leave blank if not applicable"
-            },
-            "availability": {
-                "label": "Availability",
-                "hint": "(select all that apply)"
-            },
-            "workSettings": {
-                "label": "Preferred Work Settings",
-                "hint": "(select all that apply)"
-            }
-            },
-            "experienceOptions": {
-            "lessThan1": "Less than 1 year",
-            "1to2":      "1–2 years",
-            "3to5":      "3–5 years",
-            "6to10":     "6–10 years",
-            "10plus":    "10+ years"
-            }
-        },
-        "step3": {
-            "heading": "Resume & Message",
-            "subheading": "Upload your resume and add a brief message for our team.",
-            "fields": {
-            "resume": {
-                "label": "Resume / CV",
-                "dropTitle": "Drag & drop your resume",
-                "dropTitleDragging": "Drop your file here",
-                "dropSubtitle": "or {clickToBrowse} to browse",
-                "clickToBrowse": "click",
-                "restrictions": "PDF, DOC, DOCX — max {maxMb}MB",
-                "remove": "Remove & replace"
-            },
-            "coverMessage": {
-                "label": "Message to Our Team",
-                "hint": "(optional)",
-                "placeholder": "Tell us a bit about yourself, your experience, and what you're looking for. This helps us match you with the best opportunities…",
-                "charCount": "{count} / 1000 characters"
-            },
-            "terms": {
-                "text": "I agree to Muvmnt's {privacyLink} and consent to having my information used for staffing placement purposes.",
-                "privacyLink": "Privacy Policy"
-            }
-            }
-        },
-        "navigation": {
-            "back": "← Back",
-            "continue": "Continue →",
-            "submit": "Submit Application ✓",
-            "submitting": "Submitting…"
-        },
-        "success": {
-            "title": "Application Received!",
-            "message": "Thanks, {name}! Our team will review your profile and reach out to {email} within 2 business days.",
-            "contactPrompt": "Questions? Call us: {phone}"
-        }
-    },
-  
-    "findTalent": {
-        "meta": {
-            "title": "Find Talent",
-            "description": "Request pre-screened, credentialed healthcare professionals for your organization or home. Temporary staffing, relief shifts, and home care — fast."
-        },
-        "hero": {
-            "badge": "For Healthcare Organizations & Individuals",
-            "title": "Qualified staff, {accent} you need them.",
-            "titleAccent": "exactly when",
-            "subtitle": "Submit your staffing request in minutes. Our team matches you with pre-screened, credentialed professionals — and we move fast.",
-            "breadcrumb": "Find Talent",
-            "trustPoints": {
-            "sameDayPlacements": "Same-day placements available",
-            "preScreened": "Every professional is pre-screened",
-            "fillRate": "98% shift fill rate",
-            "accountManager": "Dedicated account manager"
-            },
-            "rolesLabel": "We place professionals in",
-            "emergency": {
-            "title": "Need staff today?",
-            "subtitle": "Call us directly: {phone}"
-            }
-        },
-        "sidebar": {
-            "sectionLabel": "Submit Request",
-            "sectionTitle": "Tell us what you need",
-            "sectionSubtitle": "Fill out the form and we'll be in touch within 2 hours during business hours — or call us for emergency needs.",
-            "whatHappensNext": {
-            "title": "What happens next?",
-            "steps": [
-                "We review your request immediately",
-                "Our coordinator calls within 2 hours",
-                "We match and present candidates",
-                "You confirm — we deploy"
-            ]
-            },
-            "professionalPrompt": {
-            "lookingForWork": "Looking for work?",
-            "submitResume": "Submit your resume →"
-            }
-        }
-    },
-  
-    "talentRequestForm": {
-      "steps": {
-        "1": { "title": "Requester Info",  "description": "Who is requesting support?" },
-        "2": { "title": "Role & Schedule", "description": "What staff do you need?" },
-        "3": { "title": "Review & Submit", "description": "Confirm and send" }
       },
-      "step1": {
-        "heading": "Who is requesting support?",
-        "subheading": "Start by telling us what type of organization or individual you are — this helps us tailor the right staffing solution.",
-        "requesterTypeLabel": "I am a…",
-        "fields": {
-          "organizationName": { "label": "Organization Name",     "placeholder": "e.g. Sunridge {type}" },
-          "agencyName":       { "label": "Agency Name",           "placeholder": "e.g. Sunridge Home Care Agency" },
-          "clinicName":       { "label": "Clinic Name",           "placeholder": "e.g. Sunridge Medical Clinic" },
-          "contactNameOrg":   { "label": "Primary Contact Name",  "placeholder": "e.g. Jennifer Malik" },
-          "contactNameInd":   { "label": "Your Full Name",        "placeholder": "e.g. Margaret Chen" },
-          "jobTitle":         { "label": "Job Title",             "hint": "e.g. HR Manager, Director of Care", "placeholder": "Director of Care" },
-          "email":            { "label": "Email Address" },
-          "emailPlaceholderOrg": "jmalik@organization.ca",
-          "emailPlaceholderInd": "your@email.com",
-          "phone":            { "label": "Phone Number",          "placeholder": "(416) 555-0199" },
-          "city":             { "label": "City",                  "placeholder": "Toronto" },
-          "province":         { "label": "Province",              "placeholder": "Select province…" },
-          "addressOrg":       { "label": "Street Address",        "placeholder": "123 Caregiving Ave, Suite 200", "hint": "Optional — helps us assign a local coordinator" },
-          "addressInd":       { "label": "Home Address",          "placeholder": "123 Maple Street, Unit 4",     "hint": "Helps us assign a local caregiver" }
-        }
+      "professionals": {
+        "title": "For professionals",
+        "links": [
+          { "label": "Find work", "href": "/find-work" }
+        ]
       },
-      "step2": {
-        "heading": "What staff do you need?",
-        "subheading": "Add one or more roles — each with its own shift type, dates, and any special requirements.",
-        "noRolesError": "Please add at least one role request.",
-        "addRoleButton": "+ Add Another Role"
-      },
-      "step3": {
-        "heading": "Review & Submit",
-        "subheading": "Almost there — confirm your details, select urgency, add any final notes, then submit.",
-        "summaryTitle": "📋 Request Summary",
-        "summaryLabels": {
-          "organization": "Organization",
-          "requester":    "Requester",
-          "contact":      "Contact",
-          "location":     "Location",
-          "roles":        "Roles ({count})"
-        },
-        "urgencyLabel": "How soon do you need support?",
-        "notesLabel": "Additional Notes",
-        "notesHint": "(optional)",
-        "notesPlaceholderOrg": "e.g. All staff must have current N95 fit-testing. Our facility follows strict IPAC protocols…",
-        "notesPlaceholderInd": "e.g. My mother needs overnight PSW support following hip surgery. Bilingual English/Cantonese preferred…",
-        "terms": {
-          "text": "I agree to Muvmnt's {privacyLink} and authorize Muvmnt to contact me regarding this staffing request.",
-          "privacyLink": "Privacy Policy"
-        }
-      },
-      "navigation": {
-        "back":       "← Back",
-        "continue":   "Continue →",
-        "submit":     "Submit Request ✓",
-        "submitting": "Submitting…"
-      },
-      "success": {
-        "title":         "Request Received!",
-        "messageOrg":    "Thanks, {name}. We've received your staffing request for {org}. Our team will reach out to {email} within 2 hours.",
-        "messageInd":    "Thanks, {name}. We've received your staffing request. Our team will reach out to {email} within 2 hours.",
-        "urgentPrompt":  "📞 Urgent? Call us now: {phone}"
+      "company": {
+        "title": "Company",
+        "links": [
+          { "label": "FAQ", "href": "/faq" }
+        ]
       }
     },
-  
-    "shiftRequestCard": {
-        "headerLabel":   "Role Request #{number}",
-        "headerSuffix":  "Request",
-        "removeButton":  "Remove ✕",
-        "fields": {
-            "role":       { "label": "Role / Position",  "placeholder": "Select role…" },
-            "staffCount": { "label": "Staff Needed" },
-            "shiftType":  { "label": "Shift Type",       "hint": "(select all that apply)" },
-            "startDate":  { "label": "Start Date",       "hint": "" },
-            "endDate":    { "label": "End Date",         "hint": "Leave blank for single-day request" },
-            "notes":      {
-                "label": "Special Requirements",
-                "placeholder": "e.g. Must have dementia care experience, bilingual French/English, specific certifications required…"
-            }
-        }
-    },
-  
-    "requesterTypes": {
-      "Long-Term Care Home":            "Long-Term Care Home",
-      "Hospital":                       "Hospital",
-      "Retirement Community":           "Retirement Community",
-      "Home Care Agency":               "Home Care Agency",
-      "Community Health Centre":        "Community Health Centre",
-      "Rehabilitation Centre":          "Rehabilitation Centre",
-      "Dental / Medical Clinic":        "Dental / Medical Clinic",
-      "Individual / Private Home Care": "Individual / Private Home Care",
-      "Other":                          "Other"
-    },
-  
-    "professionalRoles": {
-      "RN":                        "RN",
-      "RPN":                       "RPN",
-      "PSW":                       "PSW",
-      "Healthcare Support Worker": "Healthcare Support Worker",
-      "Allied Health Practitioner":"Allied Health Practitioner",
-      "DSW":                       "DSW",
-      "Cook / Dietary Aide":       "Cook / Dietary Aide",
-      "Other":                     "Other"
-    },
-  
-    "availabilityOptions": {
-      "Full-Time":      "Full-Time",
-      "Part-Time":      "Part-Time",
-      "Casual / Relief":"Casual / Relief",
-      "Travel":         "Travel"
-    },
-  
-    "workSettings": {
-      "Long-Term Care":         "Long-Term Care",
-      "Hospital":               "Hospital",
-      "Home Care":              "Home Care",
-      "Retirement Community":   "Retirement Community",
-      "Community Clinic":       "Community Clinic",
-      "Rehabilitation Centre":  "Rehabilitation Centre"
-    },
-  
-    "shiftTypes": {
-      "Day":      "Day",
-      "Evening":  "Evening",
-      "Night":    "Night",
-      "Rotating": "Rotating",
-      "Flexible": "Flexible"
-    },
-  
-    "staffCounts": {
-      "1":    "1",
-      "2–5":  "2–5",
-      "6–10": "6–10",
-      "10+":  "10+"
-    },
-  
-    "urgencyOptions": {
-      "Emergency (today)": "Emergency (today)",
-      "Within 48 hours":   "Within 48 hours",
-      "This week":         "This week",
-      "Planning ahead":    "Planning ahead"
-    },
-  
-    "provinces": {
-      "Ontario":                  "Ontario",
-      "Alberta":                  "Alberta",
-      "British Columbia":         "British Columbia",
-      "Nova Scotia":              "Nova Scotia",
-      "New Brunswick":            "New Brunswick",
-      "Prince Edward Island":     "Prince Edward Island",
-      "Newfoundland & Labrador":  "Newfoundland & Labrador",
-      "Manitoba":                 "Manitoba",
-      "Saskatchewan":             "Saskatchewan",
-      "Quebec":                   "Québec"
-    },
-  
-    "validation": {
-      "required":         "This field is required.",
-      "requesterType":    "Please select a requester type.",
-      "organizationName": "Organization name is required.",
-      "contactName":      "Name is required.",
-      "email":            "Email is required.",
-      "emailInvalid":     "Please enter a valid email address.",
-      "phone":            "Phone number is required.",
-      "city":             "City is required.",
-      "province":         "Please select a province.",
-      "firstName":        "First name is required.",
-      "lastName":         "Last name is required.",
-      "role":             "Please select a role.",
-      "yearsExperience":  "Please select years of experience.",
-      "availability":     "Please select at least one availability option.",
-      "resumeRequired":   "Please upload your resume.",
-      "fileType":         "Please upload a PDF or Word document.",
-      "fileSize":         "File must be under {maxMb}MB.",
-      "urgency":          "Please select how soon you need support.",
-      "noRoles":          "Please add at least one role request.",
-      "shiftRole":        "Please select a role.",
-      "shiftStaffCount":  "Please select staff count.",
-      "shiftType":        "Select at least one shift type.",
-      "shiftStartDate":   "Start date is required.",
-      "agreeToTerms":     "You must agree to continue."
-    },
-  
-    "common": {
-      "breadcrumbHome":  "Home",
-      "optional":        "(optional)",
-      "selectAll":       "(select all that apply)",
-      "required":        "*",
-      "loading":         "Loading…",
-      "back":            "← Back",
-      "continue":        "Continue →",
-      "submit":          "Submit",
-      "stepOf":          "Step {current} of {total}",
-      "privacyOfficer":  "Privacy Officer",
-      "legalDisclaimer": "This document does not constitute legal advice."
-    },
-  
     "legal": {
-      "badge":       "Legal Document",
-      "metaBadges": {
-        "effective":    "Effective",
-        "lastUpdated":  "Last Updated",
-        "jurisdiction": "Jurisdiction",
-        "canada":       "Canada"
-      },
-      "toc":              "Contents",
-      "questions":        "Questions?",
-      "contactPrivacy":   "Contact our Privacy Officer",
-      "disclaimer": {
-        "title": "This document does not constitute legal advice.",
-        "body":  "Muvmnt Staffing Inc. recommends that clients and professionals seek independent legal counsel for matters specific to their situation. For questions about this document, contact {email}."
-      },
-      "alsoSee": "Also see:"
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use"
+    }
+  },
+
+  "landing": {
+    "hero": {
+      "badge": "Healthcare staffing, simplified",
+      "titleLead": "Request",
+      "titleAccent": "care staff",
+      "titleTail": "in minutes.",
+      "subtitle": "Muvmnt connects healthcare teams with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
+      "ctaRequest": "Request staff →",
+      "ctaProfessional": "I'm a professional",
+      "stats": [
+        { "value": "500+", "label": "Facilities served" },
+        { "value": "98%", "label": "Shift fill rate" },
+        { "value": "<2h", "label": "Avg. response" }
+      ]
     },
-  
-    "privacy": {
-      "meta": {
-        "title":       "Privacy Policy",
-        "description": "Muvmnt Staffing Inc. Privacy Policy — how we collect, use, and protect your personal information in compliance with PIPEDA, PHIPA, and applicable provincial privacy laws."
-      },
-      "title":    "Privacy Policy",
-      "subtitle": "How Muvmnt Staffing Inc. collects, uses, protects, and discloses your personal information — in compliance with PIPEDA, PHIPA, and applicable provincial privacy laws across Canada.",
-      "relatedLink": "Terms of Use"
+    "trust": {
+      "label": "Trusted by healthcare teams across the world"
     },
-  
-    "terms": {
+    "how": {
+      "overline": "How it works",
+      "title": "Post, match, confirm.",
+      "subtitle": "From request to placement in hours, not days.",
+      "steps": [
+        { "num": "01", "title": "Post your shift", "description": "Tell us the dates and hours. Takes under two minutes." },
+        { "num": "02", "title": "We match fast", "description": "Our roster of credentialed professionals is ready to cover shifts day or night." },
+        { "num": "03", "title": "Confirm coverage", "description": "Review matched workers, accept the tier that fits your budget, and lock it in." },
+        { "num": "04", "title": "Shift runs smoothly", "description": "Staff clock in, you approve hours, we handle payouts and follow-up." }
+      ],
+      "ctaRequest": "Request staff →",
+      "ctaJoin": "Join as a professional"
+    },
+    "why": {
+      "overline": "Why Muvmnt",
+      "title": "We move at the speed of care.",
+      "subtitle": "Healthcare can't wait. Neither can we. Muvmnt was built for the pressures Canadian teams face every day.",
+      "points": [
+        { "icon": "Zap", "title": "Fast coverage", "description": "Most requests are matched the same day — including emergency relief." },
+        { "icon": "BadgeCheck", "title": "Vetted professionals", "description": "Every worker is credentialed, reference-checked, and compliance-verified." },
+        { "icon": "MapPin", "title": "Local reach", "description": "Active coverage across Ontario, with more provinces rolling out." },
+        { "icon": "MessageCircle", "title": "Real support", "description": "A dedicated team that knows your facility — no tickets, no chatbots." }
+      ],
+      "statCards": [
+        { "title": "500+ facilities", "subtitle": "Trust Muvmnt across Ontario" },
+        { "title": "98% fill rate", "subtitle": "Across all shift types" },
+        { "title": "<2h response", "subtitle": "For emergency coverage" }
+      ]
+    },
+    "testimonials": {
+      "overline": "Testimonials",
+      "title": "What facilities say.",
+      "items": [
+        { "stars": 5, "text": "Muvmnt filled three RN shifts over a holiday weekend. Honestly a lifesaver.", "name": "Sandra K.", "role": "Director of Care — Toronto" },
+        { "stars": 5, "text": "The PSWs they send are professional and warm. Residents have noticed the difference.", "name": "James L.", "role": "Administrator — Calgary" },
+        { "stars": 5, "text": "Signed up and had vetted staff on the floor within 48 hours. Impressive.", "name": "Maria T.", "role": "HR Manager — Vancouver" }
+      ],
+      "ctaRequest": "Request staff →",
+      "ctaFindWork": "Find work"
+    }
+  },
+
+  "findStaff": {
+    "meta": {
+      "title": "Request healthcare staff",
+      "description": "Get matched with vetted healthcare staff. Same-day coverage available.",
+      "ogDescription": "Fill nursing, PSW, and allied health shifts fast — same-day relief to long-term coverage."
+    },
+    "breadcrumb": "Request staff",
+    "badge": "For facilities",
+    "titleLead": "Requests",
+    "titleAccent": "get matched",
+    "titleTail": "in under two minutes.",
+    "subtitle": "Tell us who you need. We'll connect you to vetted, credentialed professionals and confirm coverage instantly.",
+    "points": [
+      { "icon": "Timer", "label": "Same-day placement" },
+      { "icon": "BadgeCheck", "label": "Credentialed professionals" },
+      { "icon": "ShieldCheck", "label": "PIPEDA-compliant" }
+    ],
+    "rolesLabel": "We place",
+    "roles": ["RN", "RPN", "PSW", "DSW", "Allied", "Support"],
+    "card": {
+      "title": "Submit a request",
+      "subtitle": "Get matched with staff instantly."
+    },
+    "form": {
+      "positions": "How many staff?",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "endDatePlaceholder": "Same day",
+      "help": "You can continue to finalize times and requirements, review matches, and confirm pricing.",
+      "submit": "Continue",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "validation": {
+        "positionsMin": "At least 1 staff member",
+        "positionsMax": "Contact us for 50+",
+        "startDateRequired": "Start date is required",
+        "endAfterStart": "End date must be on or after start date",
+        "timeFormat": "Use HH:mm",
+        "endAfterStartTime": "End time must be after start time"
+      }
+    },
+    "how": {
+      "steps": [
+        { "num": "01", "title": "Tell us your need", "description": "Dates, hours, and how many staff you need." },
+        { "num": "02", "title": "We match fast", "description": "Review proposed coverage and pick a pricing tier." },
+        { "num": "03", "title": "Confirm & go", "description": "Lock in staff. Hours are tracked and paid out for you." }
+      ]
+    },
+    "urgent": {
+      "title": "Urgent need?",
+      "description": "Most same-day requests are matched in under three hours."
+    }
+  },
+
+  "findWork": {
+    "meta": {
+      "title": "Find healthcare work",
+      "description": "Join Muvmnt's network of nurses, PSWs, and allied health professionals. Create a free account and get matched to shifts that fit your life.",
+      "ogDescription": "Pick the shifts that fit your life. Muvmnt matches credentialed professionals to local healthcare jobs across Canada."
+    },
+    "breadcrumb": "Find work",
+    "badge": "For healthcare professionals",
+    "titleLead": "Your next",
+    "titleAccent": "shift",
+    "titleTail": "is one click away.",
+    "subtitle": "Create a free Muvmnt account and get matched with shifts that fit your skills, schedule, and preferred settings — across Ontario and beyond.",
+    "ctaCreate": "Create free account →",
+    "ctaSignIn": "Already have an account? Sign in",
+    "perksOverline": "Why Muvmnt",
+    "perksTitle": "Built for the way you actually work.",
+    "perks": [
+      { "icon": "Zap", "title": "Pick your shifts", "description": "Choose days, nights, weekends, or relief work — whatever fits your life." },
+      { "icon": "CalendarClock", "title": "Fast matching", "description": "Get notified the moment a shift that fits your skills opens nearby." },
+      { "icon": "DollarSign", "title": "Fair, clear pay", "description": "See rates upfront. Hours are tracked and paid out weekly." },
+      { "icon": "Headset", "title": "Human support", "description": "A real person handles your file — no bots, no black holes." }
+    ],
+    "rolesOverline": "Roles we place",
+    "rolesTitle": "Nurses, PSWs, allied health, and support.",
+    "seeFaq": "See FAQ",
+    "roles": [
+      { "abbr": "RN", "full": "Registered Nurse" },
+      { "abbr": "RPN", "full": "Registered Practical Nurse" },
+      { "abbr": "PSW", "full": "Personal Support Worker" },
+      { "abbr": "DSW", "full": "Developmental Support Worker" },
+      { "abbr": "Allied", "full": "Allied Health" },
+      { "abbr": "Support", "full": "Healthcare Support" }
+    ]
+  },
+
+  "faq": {
+    "meta": {
+      "title": "FAQ",
+      "description": "Common questions about Muvmnt — healthcare staffing for facilities and professionals in Canada."
+    },
+    "breadcrumb": "FAQ",
+    "title": "Frequently asked questions",
+    "subtitle": "Quick answers about how Muvmnt works for healthcare teams and professionals.",
+    "items": [
+      { "id": "what-is-muvmnt", "question": "What is Muvmnt?", "answer": "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles." },
+      { "id": "who-can-use", "question": "Who can use Muvmnt?", "answer": "Healthcare organizations and facilities can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability." },
+      { "id": "how-matching", "question": "How does matching work?", "answer": "Facilities describe the role, dates, and requirements. We surface candidates from our vetted pool based on credentials, experience, and availability. Workers can also browse and apply to open roles that fit their preferences." },
+      { "id": "cost", "question": "Is there a cost to create an account?", "answer": "You can create an account and explore the platform at no upfront cost. Pricing for facilities and optional upgrades for professionals are described in our pricing section when you sign in." },
+      { "id": "credentials", "question": "How are credentials verified?", "answer": "We collect and verify professional licenses, certifications, and other requirements according to your role and provincial rules. Exact steps are shown during onboarding so you always know what's needed." },
+      { "id": "data-privacy", "question": "How is my data protected?", "answer": "We handle personal information in line with Canadian privacy law (including PIPEDA where applicable). We only share what's necessary for placements, and you can read more in our Privacy Policy." },
+      { "id": "ontario", "question": "Do you operate outside Ontario?", "answer": "We're focused on Ontario healthcare staffing today. If you're elsewhere in Canada, you can still reach out — we'll let you know when coverage expands." },
+      { "id": "support", "question": "How do I get help?", "answer": "Use the contact options in the footer or email us at info@muvmnt.ca. For account-specific issues, sign in and use in-app support where available." }
+    ],
+    "cta": {
+      "title": "Ready to get started?",
+      "primary": "Request staff",
+      "secondary": "Find work"
+    }
+  },
+
+  "auth": {
+    "legal": {
+      "prefix": "By continuing, you agree to Muvmnt's",
+      "privacy": "Privacy Policy",
+      "and": "and",
+      "terms": "Terms of Use"
+    },
+    "google": "Continue with Google",
+    "or": "OR",
+    "signIn": {
       "meta": {
-        "title":       "Terms of Use",
-        "description": "Muvmnt Staffing Inc. Terms of Use — governing the use of our website and staffing services for healthcare professionals and facility clients across Canada."
+        "title": "Sign In",
+        "description": "Sign in to your Muvmnt account. Access your staffing requests and account details."
       },
-      "title":    "Terms of Use",
-      "subtitle": "These Terms govern your use of the Muvmnt Staffing platform and services — whether you are a healthcare professional seeking placement or a facility seeking qualified staff.",
-      "relatedLink": "Privacy Policy"
+      "overline": "Welcome back",
+      "title": "Sign in to your account",
+      "subtitle": "Access your staffing requests and account details.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@organization.ca",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in →",
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one"
+    },
+    "signUp": {
+      "meta": {
+        "title": "Sign Up",
+        "description": "Create your free Muvmnt account. Join as a healthcare worker or staffing facility."
+      },
+      "overline": "Get started free",
+      "referralBanner": "You've been referred! Sign up to get started.",
+      "referralInvalidToast": "That referral link is invalid or has expired.",
+      "roleLabel": "I am looking for",
+      "roleClient": "Staffing",
+      "roleWorker": "Work",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@organization.ca",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a password",
+      "submit": "Create account →",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "forgot": {
+      "meta": {
+        "title": "Reset Password",
+        "description": "Reset your password. Enter your email to receive a reset link."
+      },
+      "overline": "Account recovery",
+      "title": "Reset your password",
+      "subtitle": "Enter the email address you used to sign up and we'll send you a reset link.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@organization.ca",
+      "submit": "Send reset link →",
+      "remembered": "Remembered it?",
+      "backToSignIn": "Back to sign in",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up for free",
+      "sentTitle": "Reset link sent",
+      "sentSubtitle": "Follow the link in your email to choose a new password.",
+      "sentMessage": "We've sent a password reset link to {email}. Check your inbox — it may take a minute or two to arrive.",
+      "sentNotFound": "If an account exists for {email}, a reset link has been sent. Check your inbox.",
+      "backButton": "← Back to sign in",
+      "needHelp": "Need help?",
+      "contactSupport": "Contact support"
+    },
+    "validation": {
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordMin": "Password must be at least 6 characters.",
+      "passwordLength": "Use 8+ characters for a stronger password.",
+      "passwordUpper": "Include at least one uppercase letter.",
+      "passwordNumber": "Include at least one number.",
+      "passwordSpecial": "Include at least one special character."
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "userNotFound": "No account found with this email.",
+      "emailInUse": "An account with this email already exists.",
+      "weakPassword": "Password is too weak.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "networkRequest": "Network error. Please check your connection and try again.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "password": {
+      "show": "Show password",
+      "hide": "Hide password",
+      "minHint": "Minimum 6 characters",
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      }
+    }
+  },
+
+  "dashboard": {
+    "nav": {
+      "home": "Home",
+      "dashboardLabel": "Dashboard",
+      "shifts": "Shifts",
+      "availability": "Availability",
+      "assessments": "Assessments",
+      "compliance": "Compliance",
+      "payroll": "Payroll",
+      "requests": "Requests",
+      "account": "Account",
+      "billing": "Billing",
+      "lifecycle": "Lifecycle",
+      "analytics": "Analytics",
+      "projects": "Projects",
+      "team": "Team",
+      "settings": "Settings",
+      "getHelp": "Get help",
+      "search": "Search",
+      "quickCreate": "Quick create",
+      "inbox": "Inbox",
+      "referAndEarn": "Refer and earn",
+      "feedback": "Feedback",
+      "loading": "Loading…"
+    },
+    "accountMenu": {
+      "accountLabel": "Account",
+      "profileLabel": "Profile",
+      "logout": "Log out",
+      "accountMenuAria": "Account menu",
+      "notifications": "Notifications",
+      "defaultName": "Account"
+    },
+    "worker": {
+      "home": {
+        "welcome": "Welcome, {name}",
+        "subtitle": "Here's a snapshot of your activity.",
+        "shiftsCompleted": "Shifts completed",
+        "totalEarned": "Total earned",
+        "pendingActionsTitle": "Pending actions",
+        "pendingActionsSubtitle": "A few things to finish so you're ready for work.",
+        "todaysShifts": "Today's shifts",
+        "noShifts": "No shifts scheduled for today.",
+        "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today.",
+        "professionInterview": {
+          "title": "Profession interview",
+          "description": "Complete the interview so clients can match you to shifts."
+        },
+        "resumeInterview": {
+          "title": "Resume interview",
+          "description": "Walk us through your experience to finish onboarding."
+        },
+        "workAuth": {
+          "title": "Work authorization",
+          "description": "Your document is being reviewed by our team.",
+          "badge": "Validating"
+        }
+      },
+      "shifts": {
+        "title": "Shifts",
+        "subtitle": "Find your upcoming and past shifts."
+      },
+      "availability": {
+        "title": "Availability",
+        "subtitle": "Times when you are available for shifts."
+      },
+      "payroll": {
+        "title": "Payroll",
+        "subtitle": "View your Stripe Connect balance and manage payouts.",
+        "loadError": "We couldn't load your payroll details. You can still complete or resume setup below.",
+        "needSetup": "Set up your payroll account to view your balance and manage payouts.",
+        "transferHistory": "Transfer history",
+        "transferHistorySubtitle": "Payments received for completed shifts.",
+        "tips": "Tips",
+        "tipsSubtitle": "Tips clients sent you directly to your Stripe payout account."
+      },
+      "compliance": {
+        "document": "Document",
+        "status": "Status",
+        "uploaded": "Uploaded",
+        "actions": "Actions"
+      },
+      "profile": {
+        "title": "Profile",
+        "subtitle": "Manage your worker profile and work authorization. Certifications and assessments live under Assessments."
+      }
+    },
+    "client": {
+      "home": {
+        "welcome": "Welcome",
+        "welcomeWithName": "Welcome, {name}",
+        "subtitle": "Here's a snapshot of your activity.",
+        "shiftsCompleted": "Shifts completed",
+        "totalTimeCovered": "Total time covered",
+        "makeRequest": "Make request",
+        "makeRequestSubtitle": "Create a new staff request to get started.",
+        "newStaffRequest": "New staff request",
+        "todaysShifts": "Today's shifts",
+        "noShifts": "No shifts scheduled for today.",
+        "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today."
+      },
+      "requests": {
+        "title": "Your requests",
+        "newRequest": "New request",
+        "staffRequestId": "Staff request {id}",
+        "emptyPrefix": "You have no confirmed staff requests yet. Create one with",
+        "emptyAction": "New request",
+        "emptySuffix": "."
+      },
+      "billing": {
+        "title": "Billing",
+        "subtitle": "Payment methods and payment history.",
+        "cardsTitle": "Credit/debit cards",
+        "cardsDescription": "Manage cards that will be used for payments.",
+        "paymentHistory": "Payment history",
+        "paymentHistorySubtitle": "Completed payments across your staff requests."
+      },
+      "account": {
+        "title": "Account",
+        "subtitle": "Organization profile and address."
+      }
+    },
+    "admin": {
+      "home": {
+        "subtitle": "Platform overview — key metrics, activity chart, and records.",
+        "recentWorkers": "Recent workers",
+        "recentWorkersDescription": "Latest registered profiles",
+        "recentClients": "Recent clients",
+        "recentClientsDescription": "Organizations on the platform",
+        "recentJobs": "Recent job postings",
+        "recentJobsDescription": "Staff requests from clients"
+      },
+      "meta": {
+        "workers": "Workers | Admin",
+        "clients": "Clients | Admin",
+        "jobs": "Job postings | Admin"
+      }
+    }
+  },
+
+  "kyc": {
+    "onboarding": {
+      "meta": {
+        "title": "Onboarding | Muvmnt"
+      },
+      "progressFallback": "Onboarding",
+      "continue": "Continue",
+      "back": "Back",
+      "steps": {
+        "verification": {
+          "title": "Verification",
+          "description": "Confirm your email address and phone number to secure your account."
+        },
+        "personal-details": {
+          "title": "Profile",
+          "description": "Your name, contact info, location, and professional role."
+        },
+        "location": {
+          "title": "Location",
+          "description": "Your location and address."
+        },
+        "authorization": {
+          "title": "Authorization",
+          "description": "Select your work authorization type and upload your document."
+        },
+        "availability": {
+          "title": "Availability",
+          "description": "Weekly hours and timezone."
+        },
+        "compliance": {
+          "title": "Compliance",
+          "description": "Upload supporting documents (background checks, licenses, immunizations)."
+        },
+        "payroll": {
+          "title": "Payroll",
+          "description": "Set up your payroll account to receive payments."
+        },
+        "details": {
+          "title": "Details",
+          "description": "Provide your basic information."
+        },
+        "billing": {
+          "title": "Billing",
+          "description": "Add a payment method to authorize staffing placements."
+        }
+      },
+      "errors": {
+        "userNotFound": "We couldn't find your account. Please sign in and try again.",
+        "userNotAuthenticated": "Please sign in to continue.",
+        "userNotAuthorized": "Your account isn't authorized for this action.",
+        "emailNotVerified": "Please verify your email address.",
+        "phoneNotVerified": "Please verify your phone number.",
+        "persistFailed": "Could not save onboarding progress.",
+        "invalidWorkerData": "Please check your profile details and try again.",
+        "invalidClientData": "Please check your organization details and try again.",
+        "locationMissing": "Please set your location information.",
+        "profileMissing": "Please complete your profile.",
+        "photoMissing": "Please upload a profile photo.",
+        "workAuthorizationMissing": "Please upload your work authorization.",
+        "invalidSubmission": "Invalid submission.",
+        "availabilityCheck": "Check your availability.",
+        "billingSetupIncomplete": "Please complete billing setup.",
+        "somethingWentWrong": "Something went wrong."
+      },
+      "validation": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "dateOfBirthRequired": "Date of birth is required",
+        "invalidDate": "Invalid date",
+        "minAge18": "You must be at least 18 years old",
+        "genderRequired": "Please select male or female",
+        "professionRequired": "Please select a profession",
+        "professionInvalid": "Please select a valid profession",
+        "yearsMin": "Years must be 0 or more",
+        "yearsInt": "Must be a whole number",
+        "organizationNameRequired": "Organization name is required",
+        "organizationTypeRequired": "Organization type is required",
+        "workAuthorizationRequired": "Please select work authorization status",
+        "workAuthorizationInvalid": "Please select a valid work authorization",
+        "phoneRequired": "Phone number is required",
+        "phoneInvalid": "Enter a valid 10-digit Canadian number",
+        "codeLength": "Enter the 6-digit code",
+        "codeDigits": "Code must be 6 digits",
+        "timezoneRequired": "Choose a timezone",
+        "slotQuarterStart": "Use 15-minute times (e.g. 9:00, 9:15).",
+        "slotQuarterEnd": "Use 15-minute times (e.g. 5:00, 5:15), or 11:59 PM to end the day.",
+        "endAfterStart": "End time must be after start time",
+        "workingDayRequired": "Turn on at least one day and set working hours."
+      },
+      "forms": {
+        "workerProfile": {
+          "firstNameLabel": "First name",
+          "firstNamePlaceholder": "Jane",
+          "lastNameLabel": "Last name",
+          "lastNamePlaceholder": "Doe",
+          "dateOfBirthLabel": "Date of birth",
+          "dateOfBirthDescription": "You must be 18 or older. Used for compliance and placement eligibility.",
+          "pickDate": "Pick a date",
+          "genderLabel": "Gender at birth",
+          "genderDescription": "Select male or female as recorded for compliance and placement eligibility",
+          "genderSelect": "Select…",
+          "genderMale": "Male",
+          "genderFemale": "Female",
+          "professionLabel": "Profession",
+          "professionDescription": "Select your primary healthcare role",
+          "professionPlaceholder": "Select profession...",
+          "professionSearch": "Search profession...",
+          "yearsExpLabel": "Years of experience",
+          "yearsExpDescription": "How many years of experience do you have in this role?",
+          "yearsExpPlaceholder": "0",
+          "photoLabel": "Profile photo",
+          "photoDescription": "A clear photo of yourself — shown on your profile and in the app header."
+        },
+        "clientProfile": {
+          "nameLabel": "Organization name",
+          "nameDescription": "Your name or business name",
+          "namePlaceholder": "e.g. Sunnyvale Care Home",
+          "typeLabel": "Client type",
+          "typeDescription": "Select the type that best describes your organization",
+          "typePlaceholder": "Select type...",
+          "typeSearch": "Search type..."
+        },
+        "authorization": {
+          "typeLabel": "Work authorization type",
+          "typeDescription": "Select your legal status to work in Canada",
+          "typePlaceholder": "Select work authorization...",
+          "typeSearch": "Search...",
+          "uploadDescription": "Upload copy of your {type} document.",
+          "verifiedBadge": "Verified",
+          "verifiedNotice": "This information was reviewed and can't be changed here.",
+          "documentLabel": "Authorization document",
+          "documentOnFile": "Document on file.",
+          "none": "—",
+          "saving": "Saving…",
+          "removeFileFailed": "Failed to remove file from storage."
+        },
+        "compliance": {
+          "intro": "Upload any compliance documents you have on file. You can skip items you don't have yet and add them later from your dashboard.",
+          "addButton": "Add compliance",
+          "emptyState": "No documents uploaded yet. That's fine — you can continue and upload them later.",
+          "columnDocument": "Document",
+          "columnStatus": "Status",
+          "columnUploaded": "Uploaded",
+          "columnActions": "Actions",
+          "statusVerified": "Verified",
+          "statusPending": "Pending review",
+          "removeAria": "Remove {name}",
+          "dialogTitle": "Add compliance document",
+          "dialogDescription": "Pick a document type and upload a PDF or image. An admin will review it before it's marked verified.",
+          "removeDialogTitle": "Remove compliance document?",
+          "removeDialogBodyPrefix": "This deletes ",
+          "removeDialogBodySuffix": " and its uploaded file. You can re-upload it any time.",
+          "removeDialogDefaultName": "this document",
+          "cancelButton": "Cancel",
+          "removeButton": "Remove",
+          "picker": {
+            "selectType": "Select a compliance type...",
+            "allAdded": "All compliance types already added",
+            "helper": "Add one compliance document at a time. An admin will review it before it's marked verified.",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saveFailed": "Failed to save compliance."
+          }
+        },
+        "verification": {
+          "emailLabel": "Email",
+          "verifiedBadge": "Verified",
+          "sending": "Sending…",
+          "sendEmail": "Send link",
+          "resend": "Resend",
+          "resendIn": "Resend in {seconds}s",
+          "checkAgain": "Check again",
+          "emailCheckInbox": "Check your inbox and click the link — this page updates automatically.",
+          "emailSendFailed": "Couldn't send the email. Please try again.",
+          "phoneLabel": "Phone",
+          "phoneIntro": "We'll send a 6-digit SMS code to your Canadian number.",
+          "phonePlaceholder": "416 555 0123",
+          "sendCode": "Send code",
+          "otpSentPrefix": "Enter the code sent to ",
+          "verifying": "Verifying…",
+          "confirm": "Confirm",
+          "changeNumber": "Change number",
+          "resendCode": "Resend code",
+          "numberConfirmed": "Number confirmed",
+          "phoneSendFailed": "Couldn't send the code. Check the number and try again.",
+          "phoneInvalid": "Invalid phone",
+          "codeInvalid": "Invalid code",
+          "verifyFailed": "Verification failed. Please try again."
+        },
+        "address": {
+          "changeAddress": "Change address",
+          "updatingAddress": "Updating address",
+          "close": "Close",
+          "currentPrefix": "Current: ",
+          "placeholder": "Start typing a new address…",
+          "required": "Required",
+          "invalid": "Please enter a valid address",
+          "verifyFailed": "Could not verify address"
+        },
+        "payroll": {
+          "complete": "Complete",
+          "finish": "Finish",
+          "begin": "Begin",
+          "finishOnboarding": "Finish onboarding",
+          "somethingWentWrong": "Something went wrong"
+        },
+        "billing": {
+          "finish": "Finish",
+          "save": "Save",
+          "loadFailed": "Failed to load payment form.",
+          "loadFailedInline": "Failed to load payment form",
+          "paymentFailed": "Payment failed",
+          "paymentUnexpected": "An unexpected error occurred.",
+          "paymentSaved": "Payment method saved.",
+          "deleteFailed": "Failed to delete card",
+          "removeCard": "Remove card"
+        },
+        "availability": {
+          "timezoneLabel": "Timezone",
+          "autoConfirmLabel": "Auto-confirm shifts",
+          "autoConfirmDescription": "Skip the manual confirm step — shifts assigned to you are accepted automatically.",
+          "autoConfirmAria": "Auto-confirm shifts",
+          "dayAvailableAria": "{day} available",
+          "dayStartAria": "{day} start time",
+          "dayEndAria": "{day} end time",
+          "addHoursAria": "Add hours for this day",
+          "addSlotTooltip": "Add new time slot",
+          "removeSlotAria": "Remove this time range",
+          "removeSlotTooltip": "Remove this time range",
+          "copyTimesAria": "Copy times to other days",
+          "copyTimesTooltip": "Copy times to other days",
+          "copyTimesTo": "Copy times to",
+          "selectAll": "Select all",
+          "cancel": "Cancel",
+          "apply": "Apply",
+          "days": {
+            "0": "Sunday",
+            "1": "Monday",
+            "2": "Tuesday",
+            "3": "Wednesday",
+            "4": "Thursday",
+            "5": "Friday",
+            "6": "Saturday"
+          }
+        }
+      }
+    },
+    "review": {
+      "meta": {
+        "title": "Application under review | Muvmnt"
+      },
+      "title": "Profile under review",
+      "bodyPrefix": "Thank you for finishing every step. Your application is now with our team for verification. You'll hear from us by email or phone once we've finished reviewing your profile. Most reviews are completed within",
+      "bodyHighlight": "24 hours",
+      "bodySuffix": ", though it can occasionally take a little longer during busy periods.",
+      "nextTitle": "What you can do now",
+      "nextBody": "No further action is needed on this page. Check your inbox and messages for updates from Muvmnt — we'll let you know as soon as your account is ready."
+    }
+  },
+  "referral": {
+    "claim": {
+      "applying": "Applying your referral link…"
+    },
+    "dialog": {
+      "title": "Refer and earn",
+      "description": "Share your link and earn rewards when people join through you.",
+      "yourLink": "Your referral link",
+      "copy": "Copy",
+      "copied": "Copied",
+      "linkCopied": "Link copied",
+      "copyFailed": "Could not copy link",
+      "shareTitle": "Join me on MUVMNT",
+      "rewards": "Rewards",
+      "statsReferred": "Referred",
+      "statsCompleted": "Completed",
+      "statsEarned": "Earned",
+      "statsFreeHrs": "Free hrs",
+      "rewardsWorker": {
+        "line1": "You earn $10 when your referral completes their first shift",
+        "line2": "They get priority access to available shifts"
+      },
+      "rewardsClient": {
+        "line1": "You earn up to 3 hours of free shifts when your referral completes a request",
+        "line2": "They get a seamless onboarding experience"
+      }
+    }
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Send feedback",
+      "description": "Help us improve your experience.",
+      "categories": {
+        "rating": "Rating",
+        "bug": "Bug",
+        "feature": "Feature"
+      },
+      "placeholderBug": "Describe the issue you encountered…",
+      "placeholderFeature": "What feature would you like to see?",
+      "placeholderRating": "Tell us about your experience…",
+      "screenshotAlt": "Screenshot",
+      "attachScreenshot": "Attach screenshot",
+      "uploading": "Uploading…",
+      "sending": "Sending…",
+      "submit": "Submit",
+      "imageTooLarge": "Image must be under {maxMb} MB",
+      "uploadFailed": "Failed to upload image",
+      "messageRequired": "Please enter a message",
+      "thankYou": "Thank you for your feedback!"
+    },
+    "errors": {
+      "messageRequired": "Message is required",
+      "invalidCategory": "Invalid category",
+      "notAuthenticated": "Not authenticated",
+      "submitFailed": "Could not send feedback. Please try again."
+    }
+  },
+  "staffRequest": {
+    "newPage": {
+      "backTitle": "Your requests"
+    },
+    "validation": {
+      "startDateRequired": "Start date is required",
+      "invalidTimeFormat": "Invalid time (use HH:mm)",
+      "quarterStart": "Use 15-minute times (e.g. 9:00, 9:15).",
+      "quarterEnd": "Use 15-minute times (e.g. 5:00, 5:15), or 11:59 PM to end the day.",
+      "endAfterStart": "End time must be after start time",
+      "invalidDayDate": "Invalid date",
+      "daySlotsMin": "Add at least one time range for each day",
+      "positionsMin": "At least 1 position required",
+      "dailyWindowsMin": "Choose dates and set shift times for each day",
+      "endDateAfterStart": "End date must be on or after start date",
+      "eachDateOnce": "Each calendar date must appear only once.",
+      "setTimesForDay": "Set start and end time for {date}",
+      "outsideSelectedRange": "Remove or update times for {date} (outside selected range)",
+      "startTimeLeadHours": "Start time must be at least {hours, number} hours from now."
+    },
+    "dailyRows": {
+      "sectionTitle": "Times by day",
+      "addRangeAria": "Add time range for {date}",
+      "removeRangeAria": "Remove this time range",
+      "removeRangeTooltip": "Remove this time range",
+      "dayStartTimeAria": "{day} start time",
+      "dayEndTimeAria": "{day} end time"
+    },
+    "copyTimes": {
+      "triggerAria": "Copy times to other dates",
+      "title": "Copy times to",
+      "selectAll": "Select all",
+      "cancel": "Cancel",
+      "apply": "Apply"
+    },
+    "wizard": {
+      "step1Title": "Schedule request",
+      "step1Description": "Choose how many staff you need, your dates, and shift times.",
+      "step2Title": "Select tier",
+      "step2Description": "Select the tier that best fits your request.",
+      "step3Title": "Review coverage",
+      "step3Description": "Review the proposed coverage, then post your request.",
+      "ariaCreatingDraft": "Creating request and loading pricing",
+      "ariaLoadingCoverage": "Loading coverage preview",
+      "ariaPostingRequest": "Posting your request",
+      "staffCount": "Staff count",
+      "staffCountDescription": "How many personnel you need for the selected dates and shift times.",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "sameDay": "Same day",
+      "submitSchedule": "Submit",
+      "perHour": "/hr",
+      "noTiers": "No pricing tiers available.",
+      "viewCoverage": "View coverage",
+      "confirmRequest": "Confirm request",
+      "selectTierToContinue": "Select a pricing tier to continue.",
+      "backFailed": "Could not go back",
+      "confirmFailed": "Could not confirm request",
+      "noWorkersTier": "No active workers were found for this tier and region. Try another tier, adjust your dates or shift windows, or contact support if you believe this is a mistake.",
+      "noMatchTimes": "No workers could be matched to your requested times for the days shown below. Try different dates or shift windows.",
+      "partialCoverage": "Your request is only partially covered. The total below is an estimate for matched hours only, not for the full schedule you requested.",
+      "noScheduleDays": "No schedule days returned.",
+      "covered": "Covered",
+      "notCovered": "Not covered",
+      "noWorkerDay": "No worker assigned for this day.",
+      "yrsExp": "{years} yrs exp",
+      "yrsExpRange": "{min}–{max} yrs exp",
+      "yrsExpShort": "{years} yrs exp.",
+      "moreAssigned": "{count, plural, one {# more assigned} other {# more assigned}}",
+      "hourlyRate": "Hourly rate",
+      "total": "Total",
+      "fullScheduleEstimate": "Full schedule would be about {amount} if every window were covered."
     }
   }
+}

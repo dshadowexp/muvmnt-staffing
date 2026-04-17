@@ -4,6 +4,7 @@ import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PROFESSIONAL_ROLES } from "@/lib/constants";
 import type { ProfessionalRole } from "@/types";
 import {
@@ -60,6 +61,7 @@ export function WorkerProfileForm({
   const { register, setValue, watch, formState } = form;
   const { errors } = formState;
   const [dobOpen, setDobOpen] = useState(false);
+  const t = useTranslations("kyc.onboarding.forms.workerProfile");
 
   return (
     <>
@@ -68,22 +70,22 @@ export function WorkerProfileForm({
       <FieldGroup>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field data-invalid={!!errors.firstName}>
-            <FieldLabel htmlFor="worker-first-name">First name</FieldLabel>
+            <FieldLabel htmlFor="worker-first-name">{t("firstNameLabel")}</FieldLabel>
             <Input
               id="worker-first-name"
               type="text"
-              placeholder="Jane"
+              placeholder={t("firstNamePlaceholder")}
               {...register("firstName")}
             />
             <FieldError>{errors.firstName?.message}</FieldError>
           </Field>
 
           <Field data-invalid={!!errors.lastName}>
-            <FieldLabel htmlFor="worker-last-name">Last name</FieldLabel>
+            <FieldLabel htmlFor="worker-last-name">{t("lastNameLabel")}</FieldLabel>
             <Input
               id="worker-last-name"
               type="text"
-              placeholder="Doe"
+              placeholder={t("lastNamePlaceholder")}
               {...register("lastName")}
             />
             <FieldError>{errors.lastName?.message}</FieldError>
@@ -91,10 +93,8 @@ export function WorkerProfileForm({
         </div>
 
         <Field data-invalid={!!errors.dateOfBirth}>
-          <FieldLabel htmlFor="worker-date-of-birth">Date of birth</FieldLabel>
-          <FieldDescription>
-            You must be 18 or older. Used for compliance and placement eligibility.
-          </FieldDescription>
+          <FieldLabel htmlFor="worker-date-of-birth">{t("dateOfBirthLabel")}</FieldLabel>
+          <FieldDescription>{t("dateOfBirthDescription")}</FieldDescription>
           <Popover open={dobOpen} onOpenChange={setDobOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -108,7 +108,7 @@ export function WorkerProfileForm({
                 <CalendarIcon className="mr-2 size-4" />
                 {watch("dateOfBirth")
                   ? format(parseLocalDate(watch("dateOfBirth")!), "PPP")
-                  : "Pick a date"}
+                  : t("pickDate")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -150,11 +150,8 @@ export function WorkerProfileForm({
         </Field>
 
         <Field data-invalid={!!errors.gender}>
-          <FieldLabel htmlFor="worker-gender">Gender at birth</FieldLabel>
-          <FieldDescription>
-            Select male or female as recorded for compliance and placement
-            eligibility
-          </FieldDescription>
+          <FieldLabel htmlFor="worker-gender">{t("genderLabel")}</FieldLabel>
+          <FieldDescription>{t("genderDescription")}</FieldDescription>
           <Select
             value={watch("gender") ?? ""}
             onValueChange={(v) =>
@@ -162,12 +159,12 @@ export function WorkerProfileForm({
             }
           >
             <SelectTrigger id="worker-gender" className="w-full">
-              <SelectValue placeholder="Select…" />
+              <SelectValue placeholder={t("genderSelect")} />
             </SelectTrigger>
             <SelectContent>
               {WORKER_GENDERS.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {value === "male" ? "Male" : "Female"}
+                  {value === "male" ? t("genderMale") : t("genderFemale")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -176,10 +173,8 @@ export function WorkerProfileForm({
         </Field>
 
         <Field data-invalid={!!errors.profession}>
-          <FieldLabel>Profession</FieldLabel>
-          <FieldDescription>
-            Select your primary healthcare role
-          </FieldDescription>
+          <FieldLabel>{t("professionLabel")}</FieldLabel>
+          <FieldDescription>{t("professionDescription")}</FieldDescription>
           <MultiSelect
             single
             values={watch("profession") ? [watch("profession")] : []}
@@ -190,9 +185,9 @@ export function WorkerProfileForm({
             }
           >
             <MultiSelectTrigger className="w-full">
-              <MultiSelectValue placeholder="Select profession..." />
+              <MultiSelectValue placeholder={t("professionPlaceholder")} />
             </MultiSelectTrigger>
-            <MultiSelectContent search={{ placeholder: "Search profession..." }}>
+            <MultiSelectContent search={{ placeholder: t("professionSearch") }}>
               <MultiSelectGroup>
                 {(PROFESSIONAL_ROLES as ProfessionalRole[]).map((role) => (
                   <MultiSelectItem key={role} value={role}>
@@ -206,16 +201,14 @@ export function WorkerProfileForm({
         </Field>
 
         <Field data-invalid={!!errors.yearsExp}>
-          <FieldLabel htmlFor="worker-years-exp">Years of experience</FieldLabel>
-          <FieldDescription>
-            How many years of experience do you have in this role?
-          </FieldDescription>
+          <FieldLabel htmlFor="worker-years-exp">{t("yearsExpLabel")}</FieldLabel>
+          <FieldDescription>{t("yearsExpDescription")}</FieldDescription>
           <Input
             id="worker-years-exp"
             type="number"
             min={0}
             step={1}
-            placeholder="0"
+            placeholder={t("yearsExpPlaceholder")}
             {...register("yearsExp", {
               valueAsNumber: true,
             })}

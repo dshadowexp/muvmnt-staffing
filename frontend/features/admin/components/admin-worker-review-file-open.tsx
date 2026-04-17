@@ -17,8 +17,8 @@ type AuthRow = {
   created_at: string;
 };
 
-type CertRow = {
-  id: number;
+type ComplianceRow = {
+  id: string;
   name: string;
   file_url: string;
   is_verified: boolean;
@@ -129,12 +129,12 @@ export function AdminWorkerAuthorizationsFileOpen({
   );
 }
 
-export function AdminWorkerCertificationsFileOpen({
+export function AdminWorkerCompliancesFileOpen({
   workerId,
   items,
 }: {
   workerId: string;
-  items: CertRow[];
+  items: ComplianceRow[];
 }) {
   const [doc, setDoc] = React.useState<AdminFileReviewOpen | null>(null);
 
@@ -156,25 +156,31 @@ export function AdminWorkerCertificationsFileOpen({
               <Badge variant={c.is_verified ? "default" : "secondary"}>
                 {c.is_verified ? "Verified" : "Unverified"}
               </Badge>
-              <Button
-                type="button"
-                variant="link"
-                className="text-primary h-auto p-0 text-sm underline-offset-4 hover:underline"
-                onClick={() =>
-                  setDoc({
-                    fileUrl: c.file_url,
-                    headline: "Certification",
-                    subline: c.name,
-                    createdAt: c.created_at,
-                    workerId,
-                    isVerified: c.is_verified,
-                    verifyKind: "certification",
-                    recordId: c.id,
-                  })
-                }
-              >
-                View file
-              </Button>
+              {c.file_url ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="text-primary h-auto p-0 text-sm underline-offset-4 hover:underline"
+                  onClick={() =>
+                    setDoc({
+                      fileUrl: c.file_url as string,
+                      headline: "Compliance document",
+                      subline: c.name,
+                      createdAt: c.created_at,
+                      workerId,
+                      isVerified: c.is_verified,
+                      verifyKind: "compliance",
+                      recordId: c.id,
+                    })
+                  }
+                >
+                  View file
+                </Button>
+              ) : (
+                <span className="text-muted-foreground text-xs italic">
+                  No document uploaded
+                </span>
+              )}
             </div>
           </li>
         ))}

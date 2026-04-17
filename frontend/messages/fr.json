@@ -1,5 +1,876 @@
 {
-    "HomePage": {
-        "title": "Bonjour le monde!"
+  "site": {
+    "name": "Muvmnt",
+    "tagline": "Solutions de dotation en santé",
+    "phone": "1-437-979-7797",
+    "email": "info@muvmnt.ca",
+    "countries": "Canada, États-Unis, Royaume-Uni",
+    "copyright": "© {year} Muvmnt Staffing Inc. Tous droits réservés."
+  },
+
+  "meta": {
+    "description": "Muvmnt met en lien les établissements de santé canadiens avec des professionnels qualifiés et accrédités — rapidement. Dotation temporaire, soins à domicile et relève d'urgence partout au Canada.",
+    "openGraphDescription": "Solutions de dotation en santé rapides et fiables pour les établissements canadiens.",
+    "openGraphImageAlt": "Muvmnt Staffing Inc."
+  },
+
+  "common": {
+    "home": "Accueil",
+    "continue": "Continuer",
+    "back": "Retour",
+    "submit": "Envoyer",
+    "loading": "Chargement…",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "or": "OU",
+    "required": "*",
+    "toggleMenu": "Ouvrir le menu",
+    "switchLanguage": "Changer de langue",
+    "dashboard": "Tableau de bord",
+    "pickADate": "Choisir une date"
+  },
+
+  "nav": {
+    "links": [
+      { "label": "Fonctionnement", "href": "/#how" },
+      { "label": "Pourquoi nous", "href": "/#why" }
+    ],
+    "findWork": "Trouver un quart",
+    "requestStaff": "Demander du personnel",
+    "dashboard": "Tableau de bord",
+    "menu": "Menu"
+  },
+
+  "footer": {
+    "brandDescription": "Solutions de dotation en santé instantanées, propulsées par l'IA.",
+    "columns": {
+      "facilities": {
+        "title": "Pour les établissements",
+        "links": [
+          { "label": "Demander du personnel", "href": "/find-staff" },
+          { "label": "Fonctionnement", "href": "/#how" }
+        ]
+      },
+      "professionals": {
+        "title": "Pour les professionnels",
+        "links": [
+          { "label": "Trouver un quart", "href": "/find-work" }
+        ]
+      },
+      "company": {
+        "title": "Entreprise",
+        "links": [
+          { "label": "FAQ", "href": "/faq" }
+        ]
+      }
+    },
+    "legal": {
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation"
     }
+  },
+
+  "landing": {
+    "hero": {
+      "badge": "La dotation en santé, simplifiée",
+      "titleLead": "Demandez du",
+      "titleAccent": "personnel soignant",
+      "titleTail": "en quelques minutes.",
+      "subtitle": "Muvmnt connecte les équipes de santé à des professionnels accrédités et pré-qualifiés — rapidement. Dites-nous votre horaire, confirmez les jumelages, et obtenez une couverture instantanée.",
+      "ctaRequest": "Demander du personnel →",
+      "ctaProfessional": "Je suis un professionnel",
+      "stats": [
+        { "value": "500+", "label": "Établissements desservis" },
+        { "value": "98%", "label": "Taux de jumelage" },
+        { "value": "<2h", "label": "Délai moyen" }
+      ]
+    },
+    "trust": {
+      "label": "Des équipes de santé partout nous font confiance"
+    },
+    "how": {
+      "overline": "Fonctionnement",
+      "title": "Publier, jumeler, confirmer.",
+      "subtitle": "De la demande au placement en quelques heures, pas en quelques jours.",
+      "steps": [
+        { "num": "01", "title": "Publiez votre quart", "description": "Indiquez les dates et les heures. Ça prend moins de deux minutes." },
+        { "num": "02", "title": "Nous jumelons vite", "description": "Notre bassin de professionnels accrédités est prêt à couvrir les quarts jour et nuit." },
+        { "num": "03", "title": "Confirmez la couverture", "description": "Examinez les candidats proposés, choisissez l'offre qui convient à votre budget et verrouillez-la." },
+        { "num": "04", "title": "Quart sans anicroche", "description": "Le personnel pointe, vous approuvez les heures, nous gérons les paiements et le suivi." }
+      ],
+      "ctaRequest": "Demander du personnel →",
+      "ctaJoin": "Rejoindre comme professionnel"
+    },
+    "why": {
+      "overline": "Pourquoi Muvmnt",
+      "title": "Au rythme des soins.",
+      "subtitle": "Les soins ne peuvent pas attendre. Nous non plus. Muvmnt a été conçu pour la pression quotidienne des équipes canadiennes.",
+      "points": [
+        { "icon": "Zap", "title": "Couverture rapide", "description": "La plupart des demandes sont jumelées le jour même — incluant la relève d'urgence." },
+        { "icon": "BadgeCheck", "title": "Professionnels vérifiés", "description": "Chaque intervenant est accrédité, vérifié par références et en règle côté conformité." },
+        { "icon": "MapPin", "title": "Présence locale", "description": "Couverture active en Ontario, avec déploiement progressif dans d'autres provinces." },
+        { "icon": "MessageCircle", "title": "Soutien humain", "description": "Une équipe dédiée qui connaît votre établissement — pas de billets, pas de robots." }
+      ],
+      "statCards": [
+        { "title": "Plus de 500 établissements", "subtitle": "Font confiance à Muvmnt en Ontario" },
+        { "title": "98 % de jumelage", "subtitle": "Sur tous les types de quarts" },
+        { "title": "< 2 h de délai", "subtitle": "Pour la relève d'urgence" }
+      ]
+    },
+    "testimonials": {
+      "overline": "Témoignages",
+      "title": "Ce que disent les établissements.",
+      "items": [
+        { "stars": 5, "text": "Muvmnt a comblé trois quarts d'IA pendant un long congé férié. Sincèrement, ça nous a sauvé la mise.", "name": "Sandra K.", "role": "Directrice des soins — Toronto" },
+        { "stars": 5, "text": "Les PAB envoyés sont professionnels et chaleureux. Les résidents ont remarqué la différence.", "name": "James L.", "role": "Administrateur — Calgary" },
+        { "stars": 5, "text": "Inscription faite et du personnel vérifié sur le plancher en moins de 48 heures. Impressionnant.", "name": "Maria T.", "role": "Gestionnaire RH — Vancouver" }
+      ],
+      "ctaRequest": "Demander du personnel →",
+      "ctaFindWork": "Trouver un quart"
+    }
+  },
+
+  "findStaff": {
+    "meta": {
+      "title": "Demander du personnel de santé",
+      "description": "Obtenez du personnel de santé vérifié. Couverture le jour même disponible.",
+      "ogDescription": "Comblez vos quarts en soins infirmiers, PAB et santé connexe — de la relève le jour même à la couverture à long terme."
+    },
+    "breadcrumb": "Demander du personnel",
+    "badge": "Pour les établissements",
+    "titleLead": "Les demandes",
+    "titleAccent": "sont jumelées",
+    "titleTail": "en moins de deux minutes.",
+    "subtitle": "Dites-nous qui vous avez besoin. Nous vous connectons à des professionnels vérifiés et accrédités, et confirmons la couverture instantanément.",
+    "points": [
+      { "icon": "Timer", "label": "Placement le jour même" },
+      { "icon": "BadgeCheck", "label": "Professionnels accrédités" },
+      { "icon": "ShieldCheck", "label": "Conforme à la LPRPDE" }
+    ],
+    "rolesLabel": "Nous plaçons",
+    "roles": ["IA", "IAA", "PAB", "PSE", "Connexe", "Soutien"],
+    "card": {
+      "title": "Soumettre une demande",
+      "subtitle": "Obtenez des jumelages instantanément."
+    },
+    "form": {
+      "positions": "Combien de personnes?",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "endDatePlaceholder": "Même jour",
+      "help": "Vous pourrez finaliser les heures et exigences, passer en revue les candidats et confirmer la tarification.",
+      "submit": "Continuer",
+      "haveAccount": "Vous avez déjà un compte?",
+      "signIn": "Se connecter",
+      "validation": {
+        "positionsMin": "Au moins 1 personne",
+        "positionsMax": "Contactez-nous pour 50 et plus",
+        "startDateRequired": "La date de début est requise",
+        "endAfterStart": "La date de fin doit être au plus tôt la date de début",
+        "timeFormat": "Format HH:mm",
+        "endAfterStartTime": "L'heure de fin doit suivre l'heure de début"
+      }
+    },
+    "how": {
+      "steps": [
+        { "num": "01", "title": "Décrivez votre besoin", "description": "Dates, heures et nombre de personnes requises." },
+        { "num": "02", "title": "Nous jumelons vite", "description": "Consultez la couverture proposée et choisissez votre tarif." },
+        { "num": "03", "title": "Confirmez et c'est parti", "description": "Verrouillez le personnel. Les heures sont suivies et payées pour vous." }
+      ]
+    },
+    "urgent": {
+      "title": "Besoin urgent?",
+      "description": "La plupart des demandes du jour même sont jumelées en moins de trois heures."
+    }
+  },
+
+  "findWork": {
+    "meta": {
+      "title": "Trouver du travail en santé",
+      "description": "Rejoignez le réseau Muvmnt d'infirmières, de PAB et de professionnels de santé connexes. Créez un compte gratuit et obtenez des quarts qui correspondent à votre vie.",
+      "ogDescription": "Choisissez les quarts qui vous conviennent. Muvmnt jumèle des professionnels accrédités à des emplois en santé dans tout le Canada."
+    },
+    "breadcrumb": "Trouver un quart",
+    "badge": "Pour les professionnels de santé",
+    "titleLead": "Votre prochain",
+    "titleAccent": "quart",
+    "titleTail": "est à un clic.",
+    "subtitle": "Créez un compte Muvmnt gratuit et obtenez des quarts qui correspondent à vos compétences, à votre horaire et à vos milieux préférés — partout en Ontario et ailleurs.",
+    "ctaCreate": "Créer un compte gratuit →",
+    "ctaSignIn": "Vous avez déjà un compte? Connectez-vous",
+    "perksOverline": "Pourquoi Muvmnt",
+    "perksTitle": "Conçu pour votre vraie réalité de travail.",
+    "perks": [
+      { "icon": "Zap", "title": "Choisissez vos quarts", "description": "Jours, nuits, fins de semaine ou relève — ce qui convient à votre vie." },
+      { "icon": "CalendarClock", "title": "Jumelage rapide", "description": "Recevez une alerte dès qu'un quart qui vous convient s'ouvre près de chez vous." },
+      { "icon": "DollarSign", "title": "Rémunération juste et claire", "description": "Les taux sont affichés à l'avance. Heures suivies et payées chaque semaine." },
+      { "icon": "Headset", "title": "Soutien humain", "description": "Une vraie personne s'occupe de votre dossier — pas de robots, pas de silence." }
+    ],
+    "rolesOverline": "Postes que nous comblons",
+    "rolesTitle": "Infirmières, PAB, santé connexe et soutien.",
+    "seeFaq": "Voir la FAQ",
+    "roles": [
+      { "abbr": "IA", "full": "Infirmière autorisée" },
+      { "abbr": "IAA", "full": "Infirmière auxiliaire autorisée" },
+      { "abbr": "PAB", "full": "Préposée aux bénéficiaires" },
+      { "abbr": "PSE", "full": "Préposée au soutien éducatif" },
+      { "abbr": "Connexe", "full": "Santé connexe" },
+      { "abbr": "Soutien", "full": "Soutien aux soins" }
+    ]
+  },
+
+  "faq": {
+    "meta": {
+      "title": "FAQ",
+      "description": "Questions fréquentes sur Muvmnt — dotation en santé pour les établissements et les professionnels au Canada."
+    },
+    "breadcrumb": "FAQ",
+    "title": "Foire aux questions",
+    "subtitle": "Réponses rapides sur le fonctionnement de Muvmnt pour les équipes de santé et les professionnels.",
+    "items": [
+      { "id": "what-is-muvmnt", "question": "Qu'est-ce que Muvmnt?", "answer": "Muvmnt met en lien les établissements de santé canadiens avec des professionnels accrédités et pré-qualifiés pour la dotation temporaire, les soins à domicile et la relève. Nous misons sur un jumelage rapide et la conformité pour combler les quarts sans longs cycles d'embauche." },
+      { "id": "who-can-use", "question": "Qui peut utiliser Muvmnt?", "answer": "Les organisations et établissements de santé peuvent publier leurs besoins. Les professionnels accrédités (infirmières, PAB, santé connexe et plus) peuvent créer un profil et postuler aux opportunités qui correspondent à leurs compétences et à leur disponibilité." },
+      { "id": "how-matching", "question": "Comment fonctionne le jumelage?", "answer": "Les établissements décrivent le poste, les dates et les exigences. Nous faisons ressortir les candidats de notre bassin vérifié en fonction des accréditations, de l'expérience et de la disponibilité. Les professionnels peuvent aussi parcourir et postuler aux postes ouverts." },
+      { "id": "cost", "question": "La création d'un compte est-elle payante?", "answer": "Vous pouvez créer un compte et explorer la plateforme sans frais initiaux. Les tarifs pour les établissements et les options facultatives pour les professionnels sont présentés dans votre espace une fois connecté." },
+      { "id": "credentials", "question": "Comment les accréditations sont-elles vérifiées?", "answer": "Nous collectons et vérifions les licences professionnelles, certifications et autres exigences selon votre rôle et les règles provinciales. Les étapes sont affichées lors de l'intégration — vous saurez toujours ce qui est requis." },
+      { "id": "data-privacy", "question": "Comment mes données sont-elles protégées?", "answer": "Nous traitons les renseignements personnels selon la loi canadienne sur la protection des renseignements (notamment la LPRPDE lorsque applicable). Nous partageons seulement ce qui est nécessaire aux placements. Voir notre politique de confidentialité." },
+      { "id": "ontario", "question": "Opérez-vous hors de l'Ontario?", "answer": "Nous sommes aujourd'hui concentrés sur l'Ontario. Si vous êtes ailleurs au Canada, contactez-nous tout de même — nous vous aviserons lors de l'expansion." },
+      { "id": "support", "question": "Comment obtenir de l'aide?", "answer": "Utilisez les coordonnées au bas du site ou écrivez à info@muvmnt.ca. Pour les questions liées au compte, connectez-vous et utilisez le soutien intégré si disponible." }
+    ],
+    "cta": {
+      "title": "Prêt à commencer?",
+      "primary": "Demander du personnel",
+      "secondary": "Trouver un quart"
+    }
+  },
+
+  "auth": {
+    "legal": {
+      "prefix": "En continuant, vous acceptez la",
+      "privacy": "Politique de confidentialité",
+      "and": "et les",
+      "terms": "Conditions d'utilisation"
+    },
+    "google": "Continuer avec Google",
+    "or": "OU",
+    "signIn": {
+      "meta": {
+        "title": "Connexion",
+        "description": "Connectez-vous à votre compte Muvmnt. Accédez à vos demandes de personnel et à votre compte."
+      },
+      "overline": "Bon retour",
+      "title": "Connectez-vous à votre compte",
+      "subtitle": "Accédez à vos demandes de personnel et aux détails de votre compte.",
+      "emailLabel": "Adresse courriel",
+      "emailPlaceholder": "vous@organisation.ca",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "Votre mot de passe",
+      "forgotPassword": "Mot de passe oublié?",
+      "submit": "Se connecter →",
+      "noAccount": "Vous n'avez pas de compte?",
+      "createOne": "En créer un"
+    },
+    "signUp": {
+      "meta": {
+        "title": "Inscription",
+        "description": "Créez votre compte Muvmnt gratuit. Inscrivez-vous comme professionnel ou comme établissement."
+      },
+      "overline": "Commencez gratuitement",
+      "referralBanner": "Vous avez été référé! Inscrivez-vous pour commencer.",
+      "referralInvalidToast": "Ce lien de référence est invalide ou expiré.",
+      "roleLabel": "Je cherche",
+      "roleClient": "Du personnel",
+      "roleWorker": "Du travail",
+      "emailLabel": "Adresse courriel",
+      "emailPlaceholder": "vous@organisation.ca",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "Créez un mot de passe",
+      "submit": "Créer un compte →",
+      "haveAccount": "Vous avez déjà un compte?",
+      "signIn": "Se connecter"
+    },
+    "forgot": {
+      "meta": {
+        "title": "Réinitialiser le mot de passe",
+        "description": "Réinitialisez votre mot de passe. Entrez votre courriel pour recevoir un lien."
+      },
+      "overline": "Récupération de compte",
+      "title": "Réinitialisez votre mot de passe",
+      "subtitle": "Entrez l'adresse courriel utilisée lors de l'inscription et nous vous enverrons un lien.",
+      "emailLabel": "Adresse courriel",
+      "emailPlaceholder": "vous@organisation.ca",
+      "submit": "Envoyer le lien →",
+      "remembered": "Ça vous revient?",
+      "backToSignIn": "Retour à la connexion",
+      "noAccount": "Vous n'avez pas de compte?",
+      "signUp": "S'inscrire gratuitement",
+      "sentTitle": "Lien envoyé",
+      "sentSubtitle": "Suivez le lien dans votre courriel pour choisir un nouveau mot de passe.",
+      "sentMessage": "Nous avons envoyé un lien de réinitialisation à {email}. Consultez votre boîte — cela peut prendre une minute ou deux.",
+      "sentNotFound": "Si un compte existe pour {email}, un lien de réinitialisation a été envoyé. Consultez votre boîte.",
+      "backButton": "← Retour à la connexion",
+      "needHelp": "Besoin d'aide?",
+      "contactSupport": "Contacter le soutien"
+    },
+    "validation": {
+      "emailInvalid": "Veuillez entrer une adresse courriel valide.",
+      "passwordMin": "Le mot de passe doit avoir au moins 6 caractères.",
+      "passwordLength": "Utilisez 8 caractères ou plus pour un mot de passe plus robuste.",
+      "passwordUpper": "Incluez au moins une majuscule.",
+      "passwordNumber": "Incluez au moins un chiffre.",
+      "passwordSpecial": "Incluez au moins un caractère spécial."
+    },
+    "errors": {
+      "invalidCredentials": "Courriel ou mot de passe invalide.",
+      "userNotFound": "Aucun compte n'existe avec ce courriel.",
+      "emailInUse": "Un compte existe déjà avec ce courriel.",
+      "weakPassword": "Mot de passe trop faible.",
+      "tooManyRequests": "Trop de tentatives. Veuillez réessayer plus tard.",
+      "networkRequest": "Erreur réseau. Vérifiez votre connexion et réessayez.",
+      "generic": "Quelque chose s'est mal passé. Veuillez réessayer."
+    },
+    "password": {
+      "show": "Afficher le mot de passe",
+      "hide": "Masquer le mot de passe",
+      "minHint": "Minimum 6 caractères",
+      "strength": {
+        "weak": "Faible",
+        "fair": "Moyen",
+        "good": "Bon",
+        "strong": "Robuste"
+      }
+    }
+  },
+
+  "dashboard": {
+    "nav": {
+      "home": "Accueil",
+      "dashboardLabel": "Tableau de bord",
+      "shifts": "Quarts",
+      "availability": "Disponibilités",
+      "assessments": "Évaluations",
+      "compliance": "Conformité",
+      "payroll": "Paie",
+      "requests": "Demandes",
+      "account": "Compte",
+      "billing": "Facturation",
+      "lifecycle": "Cycle de vie",
+      "analytics": "Analytique",
+      "projects": "Projets",
+      "team": "Équipe",
+      "settings": "Paramètres",
+      "getHelp": "Obtenir de l'aide",
+      "search": "Rechercher",
+      "quickCreate": "Créer rapidement",
+      "inbox": "Boîte de réception",
+      "referAndEarn": "Parrainer et gagner",
+      "feedback": "Commentaires",
+      "loading": "Chargement…"
+    },
+    "accountMenu": {
+      "accountLabel": "Compte",
+      "profileLabel": "Profil",
+      "logout": "Se déconnecter",
+      "accountMenuAria": "Menu du compte",
+      "notifications": "Notifications",
+      "defaultName": "Compte"
+    },
+    "worker": {
+      "home": {
+        "welcome": "Bienvenue, {name}",
+        "subtitle": "Voici un aperçu de votre activité.",
+        "shiftsCompleted": "Quarts terminés",
+        "totalEarned": "Total gagné",
+        "pendingActionsTitle": "Actions en attente",
+        "pendingActionsSubtitle": "Quelques éléments à compléter avant de commencer à travailler.",
+        "todaysShifts": "Quarts d'aujourd'hui",
+        "noShifts": "Aucun quart prévu aujourd'hui.",
+        "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui.",
+        "professionInterview": {
+          "title": "Entrevue professionnelle",
+          "description": "Complétez l'entrevue pour que les clients puissent vous jumeler à des quarts."
+        },
+        "resumeInterview": {
+          "title": "Entrevue sur votre CV",
+          "description": "Présentez-nous votre expérience pour terminer l'intégration."
+        },
+        "workAuth": {
+          "title": "Autorisation de travail",
+          "description": "Votre document est en cours d'examen par notre équipe.",
+          "badge": "Validation"
+        }
+      },
+      "shifts": {
+        "title": "Quarts",
+        "subtitle": "Retrouvez vos quarts à venir et passés."
+      },
+      "availability": {
+        "title": "Disponibilités",
+        "subtitle": "Les moments où vous êtes disponible pour des quarts."
+      },
+      "payroll": {
+        "title": "Paie",
+        "subtitle": "Consultez votre solde Stripe Connect et gérez vos versements.",
+        "loadError": "Impossible de charger vos détails de paie. Vous pouvez quand même démarrer ou reprendre la configuration ci-dessous.",
+        "needSetup": "Configurez votre compte de paie pour voir votre solde et gérer vos versements.",
+        "transferHistory": "Historique des versements",
+        "transferHistorySubtitle": "Paiements reçus pour les quarts terminés.",
+        "tips": "Pourboires",
+        "tipsSubtitle": "Pourboires envoyés directement par les clients à votre compte Stripe."
+      },
+      "compliance": {
+        "document": "Document",
+        "status": "Statut",
+        "uploaded": "Téléversé",
+        "actions": "Actions"
+      },
+      "profile": {
+        "title": "Profil",
+        "subtitle": "Gérez votre profil de travailleur et votre autorisation de travail. Les certifications et évaluations se trouvent dans Évaluations."
+      }
+    },
+    "client": {
+      "home": {
+        "welcome": "Bienvenue",
+        "welcomeWithName": "Bienvenue, {name}",
+        "subtitle": "Voici un aperçu de votre activité.",
+        "shiftsCompleted": "Quarts terminés",
+        "totalTimeCovered": "Temps total couvert",
+        "makeRequest": "Créer une demande",
+        "makeRequestSubtitle": "Créez une nouvelle demande de personnel pour commencer.",
+        "newStaffRequest": "Nouvelle demande de personnel",
+        "todaysShifts": "Quarts d'aujourd'hui",
+        "noShifts": "Aucun quart prévu aujourd'hui.",
+        "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui."
+      },
+      "requests": {
+        "title": "Vos demandes",
+        "newRequest": "Nouvelle demande",
+        "staffRequestId": "Demande de personnel {id}",
+        "emptyPrefix": "Vous n'avez encore aucune demande de personnel confirmée. Créez-en une avec",
+        "emptyAction": "Nouvelle demande",
+        "emptySuffix": "."
+      },
+      "billing": {
+        "title": "Facturation",
+        "subtitle": "Modes de paiement et historique des paiements.",
+        "cardsTitle": "Cartes de crédit/débit",
+        "cardsDescription": "Gérez les cartes utilisées pour les paiements.",
+        "paymentHistory": "Historique des paiements",
+        "paymentHistorySubtitle": "Paiements complétés sur l'ensemble de vos demandes de personnel."
+      },
+      "account": {
+        "title": "Compte",
+        "subtitle": "Profil de l'organisation et adresse."
+      }
+    },
+    "admin": {
+      "home": {
+        "subtitle": "Aperçu de la plateforme — indicateurs clés, graphique d'activité et données.",
+        "recentWorkers": "Travailleurs récents",
+        "recentWorkersDescription": "Derniers profils inscrits",
+        "recentClients": "Clients récents",
+        "recentClientsDescription": "Organisations sur la plateforme",
+        "recentJobs": "Offres récentes",
+        "recentJobsDescription": "Demandes de personnel des clients"
+      },
+      "meta": {
+        "workers": "Travailleurs | Admin",
+        "clients": "Clients | Admin",
+        "jobs": "Offres d'emploi | Admin"
+      }
+    }
+  },
+
+  "kyc": {
+    "onboarding": {
+      "meta": {
+        "title": "Intégration | Muvmnt"
+      },
+      "progressFallback": "Intégration",
+      "continue": "Continuer",
+      "back": "Retour",
+      "steps": {
+        "verification": {
+          "title": "Vérification",
+          "description": "Confirmez votre courriel et votre numéro de téléphone pour sécuriser votre compte."
+        },
+        "personal-details": {
+          "title": "Profil",
+          "description": "Votre nom, vos coordonnées, votre emplacement et votre rôle professionnel."
+        },
+        "location": {
+          "title": "Emplacement",
+          "description": "Votre emplacement et votre adresse."
+        },
+        "authorization": {
+          "title": "Autorisation",
+          "description": "Choisissez votre type d'autorisation de travail et téléversez votre document."
+        },
+        "availability": {
+          "title": "Disponibilités",
+          "description": "Heures hebdomadaires et fuseau horaire."
+        },
+        "compliance": {
+          "title": "Conformité",
+          "description": "Téléversez vos documents (vérifications d'antécédents, licences, immunisations)."
+        },
+        "payroll": {
+          "title": "Paie",
+          "description": "Configurez votre compte de paie pour recevoir vos paiements."
+        },
+        "details": {
+          "title": "Détails",
+          "description": "Fournissez vos informations de base."
+        },
+        "billing": {
+          "title": "Facturation",
+          "description": "Ajoutez un mode de paiement pour autoriser les placements de personnel."
+        }
+      },
+      "errors": {
+        "userNotFound": "Nous n'avons pas trouvé votre compte. Veuillez vous connecter et réessayer.",
+        "userNotAuthenticated": "Veuillez vous connecter pour continuer.",
+        "userNotAuthorized": "Votre compte n'est pas autorisé pour cette action.",
+        "emailNotVerified": "Veuillez vérifier votre adresse courriel.",
+        "phoneNotVerified": "Veuillez vérifier votre numéro de téléphone.",
+        "persistFailed": "Impossible d'enregistrer la progression d'intégration.",
+        "invalidWorkerData": "Veuillez vérifier les informations de votre profil et réessayer.",
+        "invalidClientData": "Veuillez vérifier les informations de votre organisation et réessayer.",
+        "locationMissing": "Veuillez renseigner votre adresse.",
+        "profileMissing": "Veuillez compléter votre profil.",
+        "photoMissing": "Veuillez téléverser une photo de profil.",
+        "workAuthorizationMissing": "Veuillez téléverser votre autorisation de travail.",
+        "invalidSubmission": "Soumission invalide.",
+        "availabilityCheck": "Vérifiez vos disponibilités.",
+        "billingSetupIncomplete": "Veuillez compléter la configuration de facturation.",
+        "somethingWentWrong": "Une erreur s'est produite."
+      },
+      "validation": {
+        "firstNameRequired": "Le prénom est requis",
+        "lastNameRequired": "Le nom est requis",
+        "dateOfBirthRequired": "La date de naissance est requise",
+        "invalidDate": "Date invalide",
+        "minAge18": "Vous devez avoir au moins 18 ans",
+        "genderRequired": "Veuillez sélectionner masculin ou féminin",
+        "professionRequired": "Veuillez sélectionner une profession",
+        "professionInvalid": "Veuillez sélectionner une profession valide",
+        "yearsMin": "Le nombre d'années doit être 0 ou plus",
+        "yearsInt": "Doit être un nombre entier",
+        "organizationNameRequired": "Le nom de l'organisation est requis",
+        "organizationTypeRequired": "Le type d'organisation est requis",
+        "workAuthorizationRequired": "Veuillez sélectionner un statut d'autorisation de travail",
+        "workAuthorizationInvalid": "Veuillez sélectionner une autorisation de travail valide",
+        "phoneRequired": "Le numéro de téléphone est requis",
+        "phoneInvalid": "Saisissez un numéro canadien valide à 10 chiffres",
+        "codeLength": "Saisissez le code à 6 chiffres",
+        "codeDigits": "Le code doit comporter 6 chiffres",
+        "timezoneRequired": "Choisissez un fuseau horaire",
+        "slotQuarterStart": "Utilisez des tranches de 15 minutes (p. ex. 9:00, 9:15).",
+        "slotQuarterEnd": "Utilisez des tranches de 15 minutes (p. ex. 5:00, 5:15), ou 23:59 pour terminer la journée.",
+        "endAfterStart": "L'heure de fin doit être postérieure à l'heure de début",
+        "workingDayRequired": "Activez au moins une journée et précisez les heures travaillées."
+      },
+      "forms": {
+        "workerProfile": {
+          "firstNameLabel": "Prénom",
+          "firstNamePlaceholder": "Jeanne",
+          "lastNameLabel": "Nom",
+          "lastNamePlaceholder": "Tremblay",
+          "dateOfBirthLabel": "Date de naissance",
+          "dateOfBirthDescription": "Vous devez avoir 18 ans ou plus. Utilisée pour la conformité et l'admissibilité au placement.",
+          "pickDate": "Choisir une date",
+          "genderLabel": "Sexe à la naissance",
+          "genderDescription": "Sélectionnez masculin ou féminin tel qu'enregistré pour la conformité et l'admissibilité au placement",
+          "genderSelect": "Sélectionner…",
+          "genderMale": "Masculin",
+          "genderFemale": "Féminin",
+          "professionLabel": "Profession",
+          "professionDescription": "Sélectionnez votre rôle principal dans le secteur de la santé",
+          "professionPlaceholder": "Sélectionner une profession...",
+          "professionSearch": "Rechercher une profession...",
+          "yearsExpLabel": "Années d'expérience",
+          "yearsExpDescription": "Combien d'années d'expérience avez-vous dans ce rôle?",
+          "yearsExpPlaceholder": "0",
+          "photoLabel": "Photo de profil",
+          "photoDescription": "Une photo claire de vous — affichée sur votre profil et dans l'en-tête de l'application."
+        },
+        "clientProfile": {
+          "nameLabel": "Nom de l'organisation",
+          "nameDescription": "Votre nom ou raison sociale",
+          "namePlaceholder": "p. ex. Maison de soins Sunnyvale",
+          "typeLabel": "Type de client",
+          "typeDescription": "Sélectionnez le type qui décrit le mieux votre organisation",
+          "typePlaceholder": "Sélectionner un type...",
+          "typeSearch": "Rechercher un type..."
+        },
+        "authorization": {
+          "typeLabel": "Type d'autorisation de travail",
+          "typeDescription": "Sélectionnez votre statut légal pour travailler au Canada",
+          "typePlaceholder": "Sélectionner une autorisation de travail...",
+          "typeSearch": "Rechercher...",
+          "uploadDescription": "Téléversez une copie de votre document {type}.",
+          "verifiedBadge": "Vérifié",
+          "verifiedNotice": "Ces informations ont été vérifiées et ne peuvent pas être modifiées ici.",
+          "documentLabel": "Document d'autorisation",
+          "documentOnFile": "Document au dossier.",
+          "none": "—",
+          "saving": "Enregistrement…",
+          "removeFileFailed": "Échec de la suppression du fichier dans le stockage."
+        },
+        "compliance": {
+          "intro": "Téléversez les documents de conformité que vous possédez. Vous pouvez passer les éléments manquants et les ajouter plus tard depuis votre tableau de bord.",
+          "addButton": "Ajouter un document",
+          "emptyState": "Aucun document téléversé pour le moment. C'est correct — vous pouvez continuer et les ajouter plus tard.",
+          "columnDocument": "Document",
+          "columnStatus": "Statut",
+          "columnUploaded": "Téléversé",
+          "columnActions": "Actions",
+          "statusVerified": "Vérifié",
+          "statusPending": "En attente de révision",
+          "removeAria": "Retirer {name}",
+          "dialogTitle": "Ajouter un document de conformité",
+          "dialogDescription": "Choisissez un type de document et téléversez un PDF ou une image. Un administrateur le vérifiera avant de le marquer comme vérifié.",
+          "removeDialogTitle": "Retirer ce document de conformité?",
+          "removeDialogBodyPrefix": "Ceci supprime ",
+          "removeDialogBodySuffix": " et son fichier téléversé. Vous pourrez le re-téléverser à tout moment.",
+          "removeDialogDefaultName": "ce document",
+          "cancelButton": "Annuler",
+          "removeButton": "Retirer",
+          "picker": {
+            "selectType": "Sélectionner un type de conformité...",
+            "allAdded": "Tous les types de conformité ont déjà été ajoutés",
+            "helper": "Ajoutez un document de conformité à la fois. Un administrateur le vérifiera avant de le marquer comme vérifié.",
+            "cancel": "Annuler",
+            "save": "Enregistrer",
+            "saveFailed": "Échec de l'enregistrement du document."
+          }
+        },
+        "verification": {
+          "emailLabel": "Courriel",
+          "verifiedBadge": "Vérifié",
+          "sending": "Envoi…",
+          "sendEmail": "Envoyer le lien",
+          "resend": "Renvoyer",
+          "resendIn": "Renvoyer dans {seconds} s",
+          "checkAgain": "Vérifier à nouveau",
+          "emailCheckInbox": "Consultez votre boîte de réception et cliquez sur le lien — cette page se met à jour automatiquement.",
+          "emailSendFailed": "Impossible d'envoyer le courriel. Veuillez réessayer.",
+          "phoneLabel": "Téléphone",
+          "phoneIntro": "Nous enverrons un code de vérification à 6 chiffres par SMS à votre numéro canadien.",
+          "phonePlaceholder": "416 555 0123",
+          "sendCode": "Envoyer le code",
+          "otpSentPrefix": "Saisissez le code envoyé à ",
+          "verifying": "Vérification…",
+          "confirm": "Confirmer",
+          "changeNumber": "Changer de numéro",
+          "resendCode": "Renvoyer le code",
+          "numberConfirmed": "Numéro confirmé",
+          "phoneSendFailed": "Impossible d'envoyer le code. Vérifiez le numéro et réessayez.",
+          "phoneInvalid": "Téléphone invalide",
+          "codeInvalid": "Code invalide",
+          "verifyFailed": "Échec de la vérification. Veuillez réessayer."
+        },
+        "address": {
+          "changeAddress": "Modifier l'adresse",
+          "updatingAddress": "Mise à jour de l'adresse",
+          "close": "Fermer",
+          "currentPrefix": "Actuelle : ",
+          "placeholder": "Commencez à taper une nouvelle adresse…",
+          "required": "Obligatoire",
+          "invalid": "Veuillez saisir une adresse valide",
+          "verifyFailed": "Impossible de vérifier l'adresse"
+        },
+        "payroll": {
+          "complete": "Complet",
+          "finish": "Terminer",
+          "begin": "Commencer",
+          "finishOnboarding": "Terminer l'intégration",
+          "somethingWentWrong": "Une erreur s'est produite"
+        },
+        "billing": {
+          "finish": "Terminer",
+          "save": "Enregistrer",
+          "loadFailed": "Échec du chargement du formulaire de paiement.",
+          "loadFailedInline": "Échec du chargement du formulaire de paiement",
+          "paymentFailed": "Paiement refusé",
+          "paymentUnexpected": "Une erreur inattendue s'est produite.",
+          "paymentSaved": "Mode de paiement enregistré.",
+          "deleteFailed": "Échec de la suppression de la carte",
+          "removeCard": "Retirer la carte"
+        },
+        "availability": {
+          "timezoneLabel": "Fuseau horaire",
+          "autoConfirmLabel": "Confirmation automatique des quarts",
+          "autoConfirmDescription": "Évitez l'étape de confirmation manuelle — les quarts qui vous sont attribués sont acceptés automatiquement.",
+          "autoConfirmAria": "Confirmation automatique des quarts",
+          "dayAvailableAria": "{day} — disponible",
+          "dayStartAria": "{day} — heure de début",
+          "dayEndAria": "{day} — heure de fin",
+          "addHoursAria": "Ajouter des heures pour cette journée",
+          "addSlotTooltip": "Ajouter une nouvelle plage horaire",
+          "removeSlotAria": "Retirer cette plage horaire",
+          "removeSlotTooltip": "Retirer cette plage horaire",
+          "copyTimesAria": "Copier les heures vers d'autres jours",
+          "copyTimesTooltip": "Copier les heures vers d'autres jours",
+          "copyTimesTo": "Copier les heures vers",
+          "selectAll": "Tout sélectionner",
+          "cancel": "Annuler",
+          "apply": "Appliquer",
+          "days": {
+            "0": "Dimanche",
+            "1": "Lundi",
+            "2": "Mardi",
+            "3": "Mercredi",
+            "4": "Jeudi",
+            "5": "Vendredi",
+            "6": "Samedi"
+          }
+        }
+      }
+    },
+    "review": {
+      "meta": {
+        "title": "Demande en cours d'examen | Muvmnt"
+      },
+      "title": "Profil en cours d'examen",
+      "bodyPrefix": "Merci d'avoir complété chaque étape. Votre dossier est maintenant entre les mains de notre équipe pour vérification. Nous vous contacterons par courriel ou par téléphone dès que nous aurons terminé l'examen de votre profil. La plupart des dossiers sont traités en moins de",
+      "bodyHighlight": "24 heures",
+      "bodySuffix": ", mais cela peut prendre un peu plus longtemps en période d'affluence.",
+      "nextTitle": "Ce que vous pouvez faire maintenant",
+      "nextBody": "Aucune action supplémentaire n'est requise sur cette page. Consultez votre boîte de réception et vos messages pour les mises à jour de Muvmnt — nous vous informerons dès que votre compte sera prêt."
+    }
+  },
+  "referral": {
+    "claim": {
+      "applying": "Application de votre lien de parrainage…"
+    },
+    "dialog": {
+      "title": "Parrainez et gagnez",
+      "description": "Partagez votre lien et obtenez des récompenses lorsque des personnes s'inscrivent grâce à vous.",
+      "yourLink": "Votre lien de parrainage",
+      "copy": "Copier",
+      "copied": "Copié",
+      "linkCopied": "Lien copié",
+      "copyFailed": "Impossible de copier le lien",
+      "shareTitle": "Rejoignez-moi sur MUVMNT",
+      "rewards": "Récompenses",
+      "statsReferred": "Parrainés",
+      "statsCompleted": "Complétés",
+      "statsEarned": "Gagné",
+      "statsFreeHrs": "Heures gratuites",
+      "rewardsWorker": {
+        "line1": "Vous gagnez 10 $ lorsque votre filleul complète son premier quart de travail",
+        "line2": "Il obtient un accès prioritaire aux quarts disponibles"
+      },
+      "rewardsClient": {
+        "line1": "Vous gagnez jusqu'à 3 heures de quarts gratuits lorsque votre filleul complète une demande",
+        "line2": "Il bénéficie d'une expérience d'intégration fluide"
+      }
+    }
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Envoyer des commentaires",
+      "description": "Aidez-nous à améliorer votre expérience.",
+      "categories": {
+        "rating": "Évaluation",
+        "bug": "Bogue",
+        "feature": "Fonctionnalité"
+      },
+      "placeholderBug": "Décrivez le problème rencontré…",
+      "placeholderFeature": "Quelle fonctionnalité aimeriez-vous voir?",
+      "placeholderRating": "Parlez-nous de votre expérience…",
+      "screenshotAlt": "Capture d'écran",
+      "attachScreenshot": "Joindre une capture d'écran",
+      "uploading": "Téléversement…",
+      "sending": "Envoi…",
+      "submit": "Envoyer",
+      "imageTooLarge": "L'image doit faire moins de {maxMb} Mo",
+      "uploadFailed": "Échec du téléversement de l'image",
+      "messageRequired": "Veuillez saisir un message",
+      "thankYou": "Merci pour vos commentaires!"
+    },
+    "errors": {
+      "messageRequired": "Le message est obligatoire",
+      "invalidCategory": "Catégorie non valide",
+      "notAuthenticated": "Non authentifié",
+      "submitFailed": "Impossible d'envoyer les commentaires. Veuillez réessayer."
+    }
+  },
+  "staffRequest": {
+    "newPage": {
+      "backTitle": "Vos demandes"
+    },
+    "validation": {
+      "startDateRequired": "La date de début est obligatoire",
+      "invalidTimeFormat": "Heure non valide (utilisez HH:mm)",
+      "quarterStart": "Utilisez des intervalles de 15 minutes (p. ex. 9:00, 9:15).",
+      "quarterEnd": "Utilisez des intervalles de 15 minutes (p. ex. 17:00, 17:15), ou 23:59 pour finir la journée.",
+      "endAfterStart": "L'heure de fin doit être après l'heure de début",
+      "invalidDayDate": "Date non valide",
+      "daySlotsMin": "Ajoutez au moins une plage horaire pour chaque jour",
+      "positionsMin": "Au moins 1 poste est requis",
+      "dailyWindowsMin": "Choisissez les dates et définissez les heures de quart pour chaque jour",
+      "endDateAfterStart": "La date de fin doit être le même jour ou après la date de début",
+      "eachDateOnce": "Chaque date du calendrier ne doit apparaître qu'une seule fois.",
+      "setTimesForDay": "Définissez l'heure de début et de fin pour le {date}",
+      "outsideSelectedRange": "Supprimez ou mettez à jour les heures pour le {date} (hors de la plage sélectionnée)",
+      "startTimeLeadHours": "L'heure de début doit être au moins {hours, number} heures à partir de maintenant."
+    },
+    "dailyRows": {
+      "sectionTitle": "Heures par jour",
+      "addRangeAria": "Ajouter une plage horaire pour le {date}",
+      "removeRangeAria": "Supprimer cette plage horaire",
+      "removeRangeTooltip": "Supprimer cette plage horaire",
+      "dayStartTimeAria": "Heure de début — {day}",
+      "dayEndTimeAria": "Heure de fin — {day}"
+    },
+    "copyTimes": {
+      "triggerAria": "Copier les heures vers d'autres dates",
+      "title": "Copier les heures vers",
+      "selectAll": "Tout sélectionner",
+      "cancel": "Annuler",
+      "apply": "Appliquer"
+    },
+    "wizard": {
+      "step1Title": "Planifier la demande",
+      "step1Description": "Indiquez le nombre de membres du personnel, les dates et les heures de quart.",
+      "step2Title": "Choisir le palier",
+      "step2Description": "Sélectionnez le palier qui convient le mieux à votre demande.",
+      "step3Title": "Vérifier la couverture",
+      "step3Description": "Vérifiez la couverture proposée, puis publiez votre demande.",
+      "ariaCreatingDraft": "Création de la demande et chargement des tarifs",
+      "ariaLoadingCoverage": "Chargement de l'aperçu de la couverture",
+      "ariaPostingRequest": "Publication de votre demande",
+      "staffCount": "Nombre de membres du personnel",
+      "staffCountDescription": "Combien de personnes vous faut pour les dates et heures de quart sélectionnées.",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "sameDay": "Même jour",
+      "submitSchedule": "Soumettre",
+      "perHour": "/h",
+      "noTiers": "Aucun palier tarifaire disponible.",
+      "viewCoverage": "Voir la couverture",
+      "confirmRequest": "Confirmer la demande",
+      "selectTierToContinue": "Sélectionnez un palier tarifaire pour continuer.",
+      "backFailed": "Impossible de revenir en arrière",
+      "confirmFailed": "Impossible de confirmer la demande",
+      "noWorkersTier": "Aucun travailleur actif n'a été trouvé pour ce palier et cette région. Essayez un autre palier, modifiez vos dates ou plages horaires, ou communiquez avec le soutien si vous croyez qu'il s'agit d'une erreur.",
+      "noMatchTimes": "Aucun travailleur ne correspond aux heures demandées pour les jours ci-dessous. Essayez d'autres dates ou plages horaires.",
+      "partialCoverage": "Votre demande n'est que partiellement couverte. Le total ci-dessous est une estimation pour les heures assorties seulement, et non pour l'horaire complet demandé.",
+      "noScheduleDays": "Aucun jour d'horaire renvoyé.",
+      "covered": "Couvert",
+      "notCovered": "Non couvert",
+      "noWorkerDay": "Aucun travailleur assigné pour ce jour.",
+      "yrsExp": "{years} ans d'exp.",
+      "yrsExpRange": "{min}–{max} ans d'exp.",
+      "yrsExpShort": "{years} ans d'exp.",
+      "moreAssigned": "{count, plural, one {# autre assigné} other {# autres assignés}}",
+      "hourlyRate": "Taux horaire",
+      "total": "Total",
+      "fullScheduleEstimate": "L'horaire complet coûterait environ {amount} si chaque plage était couverte."
+    }
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
@@ -11,16 +12,16 @@ import { LoadingSwap } from "@/components/ui/loading-swap";
 interface ContinueButtonProps {
   id?: string;
   text?: string;
-  /** When using `onSubmit` + server action instead of `action={}`, pass `useTransition` pending. */
   pending?: boolean;
 }
 
-export function ContinueButton({ text = "Continue", pending: pendingProp }: ContinueButtonProps) {
-  const { back, isFirstStep, isLastStep, steps, currentStepIndex } = useOnboarding();
+export function ContinueButton({ text, pending: pendingProp }: ContinueButtonProps) {
+  const { back, isFirstStep, steps, currentStepIndex } = useOnboarding();
   const { pending: formActionPending } = useFormStatus();
   const pending = pendingProp ?? formActionPending;
   const { loading: authLoading } = useAuth();
   const router = useRouter();
+  const t = useTranslations("kyc.onboarding");
 
   const disabled = pending || authLoading;
 
@@ -46,13 +47,13 @@ export function ContinueButton({ text = "Continue", pending: pendingProp }: Cont
           className="gap-1.5"
         >
           <ChevronLeft className="size-4" />
-          Back
+          {t("back")}
         </Button>
       )}
       <Button type="submit" variant="default" disabled={disabled}>
-          <LoadingSwap isLoading={pending || authLoading}>
-            { text }
-          </LoadingSwap>
+        <LoadingSwap isLoading={pending || authLoading}>
+          {text ?? t("continue")}
+        </LoadingSwap>
       </Button>
     </div>
   );

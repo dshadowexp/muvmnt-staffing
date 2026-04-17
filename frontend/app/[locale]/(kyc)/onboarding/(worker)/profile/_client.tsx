@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
 import { useOnboarding } from "@/features/onboarding/onboarding-provider";
+import { useTranslatedStepError } from "@/features/onboarding/lib/use-translated-step-error";
 import { WorkerProfileForm } from "@/features/profile/components/worker-profile-form";
 import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import {
@@ -13,10 +15,10 @@ import {
 } from "@/components/ui/field";
 import { PhotoUpload } from "@/features/storage/components/photo-upload";
 import {
+  buildWorkerSchema,
   mapWorkerProfileToFormValues,
   WorkerProfileFormInput,
   WorkerProfileValues,
-  workerSchema,
   type WorkerGender,
 } from "@/features/profile/schemas/worker";
 import { ProfessionalRole } from "@/types";
@@ -37,9 +39,15 @@ export function ProfileClient({
   const [isPending, setIsPending] = useState(false);
   const [photoKey, setPhotoKey] = useState<string | null>(initialPhotoKey);
 
+  const tForm = useTranslations("kyc.onboarding.forms.workerProfile");
+  const tVal = useTranslations("kyc.onboarding.validation");
+  const resolveError = useTranslatedStepError();
+
   useEffect(() => {
     setPhotoKey(initialPhotoKey);
   }, [initialPhotoKey]);
+
+  const schema = useMemo(() => buildWorkerSchema(tVal), [tVal]);
 
   const form = useForm<WorkerProfileValues>({
     defaultValues: workerProfile
@@ -52,7 +60,7 @@ export function ProfileClient({
           profession: "" as ProfessionalRole,
           yearsExp: 0,
         },
-    resolver: zodResolver(workerSchema),
+    resolver: zodResolver(schema),
   });
 
   function handlePhotoUploaded(file: { key?: string }) {
@@ -79,13 +87,13 @@ export function ProfileClient({
           try {
             const result = await profileAction(data);
             if (!result.ok) {
-              toast.error(result.error);
+              toast.error(resolveError(result));
               return;
             }
             applyStepsFromServer(result.steps);
             router.push(result.redirectTo);
           } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Something went wrong");
+            toast.error(e instanceof Error ? e.message : resolveError({ ok: false, error: "Something went wrong", errorKey: "somethingWentWrong" }));
           } finally {
             setIsPending(false);
           }
@@ -94,10 +102,8 @@ export function ProfileClient({
     >
       <WorkerProfileForm form={form} />
       <Field>
-        <FieldLabel>Profile photo</FieldLabel>
-        <FieldDescription>
-          A clear photo of yourself — shown on your profile and in the app header.
-        </FieldDescription>
+        <FieldLabel>{tForm("photoLabel")}</FieldLabel>
+        <FieldDescription>{tForm("photoDescription")}</FieldDescription>
         <PhotoUpload
           context="avatars"
           initialFileKey={photoKey ?? undefined}

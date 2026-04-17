@@ -1,7 +1,9 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
+import { enCA, frCA } from "date-fns/locale";
 import { Plus, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TimeRangeQuarterHourRow } from "@/components/time-range-quarter-hour-row";
@@ -21,16 +23,21 @@ type StaffRequestDailyTimeRowsProps = {
   disabled?: boolean;
 };
 
-function formatDayHeading(ymd: string) {
-  return format(parseISO(`${ymd}T12:00:00`), "EEEE, MMM d, yyyy");
-}
-
 export function StaffRequestDailyTimeRows({
   windows,
   onChange,
   disabled = false,
 }: StaffRequestDailyTimeRowsProps) {
+  const t = useTranslations("staffRequest.dailyRows");
+  const locale = useLocale();
+  const dateLocale = locale.toLowerCase().startsWith("fr") ? frCA : enCA;
   const dates = windows.map((w) => w.date);
+
+  function formatDayHeading(ymd: string) {
+    return format(parseISO(`${ymd}T12:00:00`), "EEEE, MMM d, yyyy", {
+      locale: dateLocale,
+    });
+  }
 
   function emitWindows(next: StaffRequestDayWindow[]) {
     onChange(coerceStaffRequestWindowsForTodayLead(next));
@@ -40,7 +47,11 @@ export function StaffRequestDailyTimeRows({
     emitWindows(windows.map((w, i) => (i === dayIndex ? nextDay : w)));
   }
 
-  function patchSlot(dayIndex: number, slotIndex: number, patch: { startTime?: string; endTime?: string }) {
+  function patchSlot(
+    dayIndex: number,
+    slotIndex: number,
+    patch: { startTime?: string; endTime?: string },
+  ) {
     const day = windows[dayIndex]!;
     const slots = day.slots.map((s, i) => (i === slotIndex ? { ...s, ...patch } : s));
     patchDay(dayIndex, { ...day, slots });
@@ -75,18 +86,19 @@ export function StaffRequestDailyTimeRows({
   return (
     <div className="space-y-4 rounded-xl border border-border bg-card p-4">
       <div>
-        <Label className="text-base font-medium">Times by day</Label>
+        <Label className="text-base font-medium">{t("sectionTitle")}</Label>
       </div>
       <div className="space-y-4">
         {windows.map((w, dayIdx) => {
           const rowDate = parseISO(`${w.date}T12:00:00`);
+          const dayLabel = formatDayHeading(w.date);
           return (
             <div
               key={w.date}
               className="flex flex-col gap-3 border-b border-border pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-start"
             >
               <div className="w-full min-w-[160px] sm:w-[220px]">
-                <p className="text-sm font-medium">{formatDayHeading(w.date)}</p>
+                <p className="text-sm font-medium">{dayLabel}</p>
                 <p className="text-muted-foreground font-mono text-xs">{w.date}</p>
               </div>
               <div className="min-w-0 flex-1 space-y-2">
@@ -103,8 +115,8 @@ export function StaffRequestDailyTimeRows({
                       onChange={({ start, end }) =>
                         patchSlot(dayIdx, slotIdx, { startTime: start, endTime: end })
                       }
-                      startAriaLabel={`Start time ${w.date} slot ${slotIdx + 1}`}
-                      endAriaLabel={`End time ${w.date} slot ${slotIdx + 1}`}
+                      startAriaLabel={t("dayStartTimeAria", { day: dayLabel })}
+                      endAriaLabel={t("dayEndTimeAria", { day: dayLabel })}
                     />
                     <div className="ml-auto flex items-center gap-1">
                       {slotIdx === 0 ? (
@@ -116,7 +128,7 @@ export function StaffRequestDailyTimeRows({
                             className="size-9 shrink-0"
                             disabled={disabled}
                             onClick={() => addSlot(dayIdx)}
-                            aria-label={`Add time range for ${w.date}`}
+                            aria-label={t("addRangeAria", { date: w.date })}
                           >
                             <Plus className="size-4" />
                           </Button>
@@ -138,12 +150,12 @@ export function StaffRequestDailyTimeRows({
                               className="size-9 shrink-0 text-muted-foreground hover:text-destructive"
                               disabled={disabled}
                               onClick={() => removeSlot(dayIdx, slotIdx)}
-                              aria-label="Remove this time range"
+                              aria-label={t("removeRangeAria")}
                             >
                               <Trash2 className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Remove this time range</TooltipContent>
+                          <TooltipContent>{t("removeRangeTooltip")}</TooltipContent>
                         </Tooltip>
                       ) : null}
                     </div>

@@ -20,6 +20,8 @@ import { setCookie, deleteCookie } from "cookies-next";
 import { redirect } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { logout } from "@/services/firebase/auth";
+import { recordReferralAction } from "@/features/referrals/actions";
+import { deregisterPushTokenAction } from "@/features/notifications/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type AuthContextType = {
@@ -27,6 +29,7 @@ type AuthContextType = {
     authUser:           UserAuth | null;
     loading:            boolean;
     setPendingRole:     (role: UserRole | null) => void;
+    setPendingReferralCode: (code: string | null) => void;
 };
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -39,9 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [authUser, setAuthUser] = useState<UserAuth | null>(null);
     const [loading, setLoading] = useState(true);
     const pendingRoleRef = useRef<UserRole | null>(null);
+    const pendingReferralCodeRef = useRef<string | null>(null);
 
     const setPendingRole = useCallback((role: UserRole | null) => {
         pendingRoleRef.current = role;
+    }, []);
+
+    const setPendingReferralCode = useCallback((code: string | null) => {
+        pendingReferralCodeRef.current = code;
     }, []);
 
 
@@ -55,12 +63,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         );
 
         setAuthUser(authUser);
+        const hadReferral = pendingReferralCodeRef.current !== null;
         pendingRoleRef.current = null;
+        pendingReferralCodeRef.current = null;
         await setSession(authUser);
         await setCookie("__session", firebaseToken);
+
+        if (hadReferral) {
+            recordReferralAction().catch(console.error);
+        }
     }
 
     async function clearAuth() {
+        await deregisterPushTokenAction().catch(console.error);
         await deleteSession();
         await deleteCookie("__session");
         setFirebaseUser(null);
@@ -100,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthContext.Provider value={{
-            firebaseUser, authUser, loading, setPendingRole,
+            firebaseUser, authUser, loading, setPendingRole, setPendingReferralCode,
         }}>
             {children}
         </AuthContext.Provider>

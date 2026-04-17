@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/providers/auth-provider";
 import { sendPhoneOtp, verifyPhoneOtp } from "@/features/verification/dal/queries";
 import {
-  phoneSchema,
-  otpSchema,
+  buildPhoneSchema,
+  buildOtpSchema,
 } from "@/features/verification/schemas";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,10 @@ export function PhoneVerification() {
   const [verifying, setVerifying] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const t = useTranslations("kyc.onboarding.forms.verification");
+  const tVal = useTranslations("kyc.onboarding.validation");
+  const phoneSchema = useMemo(() => buildPhoneSchema(tVal), [tVal]);
+  const otpSchema = useMemo(() => buildOtpSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
     defaultValues: { phone: "", code: "" },
@@ -74,7 +79,9 @@ export function PhoneVerification() {
     clearErrors();
     const result = phoneSchema.safeParse(phone.trim());
     if (!result.success) {
-      setError("phone", { message: result.error.issues[0]?.message ?? "Invalid phone" });
+      setError("phone", {
+        message: result.error.issues[0]?.message ?? tVal("phoneInvalid"),
+      });
       return;
     }
 
@@ -86,7 +93,7 @@ export function PhoneVerification() {
       startCooldown();
     } catch (e) {
       setError("phone", {
-        message: e instanceof Error ? e.message : "Couldn't send the code. Check the number and try again.",
+        message: e instanceof Error ? e.message : t("phoneSendFailed"),
       });
     } finally {
       setSending(false);
@@ -97,7 +104,9 @@ export function PhoneVerification() {
     clearErrors();
     const result = otpSchema.safeParse(code);
     if (!result.success) {
-      setError("code", { message: result.error.issues[0]?.message ?? "Invalid code" });
+      setError("code", {
+        message: result.error.issues[0]?.message ?? tVal("codeLength"),
+      });
       return;
     }
 
@@ -109,11 +118,11 @@ export function PhoneVerification() {
         setVerifiedPhone(formatted);
         setStep("done");
       } else {
-        setError("code", { message: "Verification failed. Please try again." });
+        setError("code", { message: t("verifyFailed") });
       }
     } catch (e) {
       setError("code", {
-        message: e instanceof Error ? e.message : "Verification failed. Please try again.",
+        message: e instanceof Error ? e.message : t("verifyFailed"),
       });
     } finally {
       setVerifying(false);
@@ -127,12 +136,12 @@ export function PhoneVerification() {
     <section className="space-y-3" aria-labelledby="phone-verification-heading">
       <div className="flex items-center justify-between gap-2">
         <FieldLabel id="phone-verification-heading" className="font-semibold">
-          Phone
+          {t("phoneLabel")}
         </FieldLabel>
         {!authLoading && isVerified ? (
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
             <Check className="size-4" aria-hidden />
-            Verified
+            {t("verifiedBadge")}
           </span>
         ) : null}
       </div>
@@ -148,12 +157,12 @@ export function PhoneVerification() {
         </div>
       ) : isVerified ? (
         <p className="text-sm leading-relaxed text-muted-foreground">
-          {verifiedPhone ?? user?.phoneNumber ?? "Number confirmed"}
+          {verifiedPhone ?? user?.phoneNumber ?? t("numberConfirmed")}
         </p>
       ) : step === "input" ? (
         <div className="space-y-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            We&apos;ll send a 6-digit SMS code to your Canadian number.
+            {t("phoneIntro")}
           </p>
 
           <Field data-invalid={!!errors.phone} className="w-full max-w-full gap-2">
@@ -162,7 +171,7 @@ export function PhoneVerification() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="416 555 0123"
+                  placeholder={t("phonePlaceholder")}
                   {...register("phone", {
                     onChange: () => clearErrors("phone"),
                   })}
@@ -176,7 +185,7 @@ export function PhoneVerification() {
                 disabled={sending || !phone.trim()}
               >
                 <LoadingSwap isLoading={sending}>
-                  <span>{sending ? "Sending…" : "Send code"}</span>
+                  <span>{sending ? t("sending") : t("sendCode")}</span>
                 </LoadingSwap>
               </Button>
             </div>
@@ -186,7 +195,7 @@ export function PhoneVerification() {
       ) : (
         <div className="space-y-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Enter the code sent to{" "}
+            {t("otpSentPrefix")}
             <span className="font-medium text-foreground">{phone}</span>
           </p>
 
@@ -214,18 +223,18 @@ export function PhoneVerification() {
               disabled={verifying || code.length < 6}
             >
               <LoadingSwap isLoading={verifying}>
-                <span>{verifying ? "Verifying…" : "Confirm"}</span>
+                <span>{verifying ? t("verifying") : t("confirm")}</span>
               </LoadingSwap>
             </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Button variant="ghost" size="sm" type="button" onClick={reset}>
-              Change number
+              {t("changeNumber")}
             </Button>
             {cooldown > 0 ? (
               <span className="text-sm text-muted-foreground">
-                Resend in {cooldown}s
+                {t("resendIn", { seconds: cooldown })}
               </span>
             ) : (
               <Button
@@ -235,7 +244,7 @@ export function PhoneVerification() {
                 onClick={handleSend}
                 disabled={sending}
               >
-                Resend code
+                {t("resendCode")}
               </Button>
             )}
           </div>

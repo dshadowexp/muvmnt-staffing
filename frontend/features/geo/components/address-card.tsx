@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { MapPin, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { AddressInput } from "@/features/geo/components/address-input";
 import { getPlaceDetails } from "@/features/geo/dal/queries";
@@ -31,7 +32,7 @@ interface AddressCardProps {
 export function AddressCard({
   value,
   onChange,
-  label = "Address",
+  label,
   required,
   error,
 }: AddressCardProps) {
@@ -39,6 +40,7 @@ export function AddressCard({
   const [searchValue, setSearchValue] = useState(value?.address ?? "");
   const [localAddress, setLocalAddress] = useState<AddressLocation | null>(null);
   const [resolving, setResolving] = useState(false);
+  const t = useTranslations("kyc.onboarding.forms.address");
 
   /**
    * Prefer `localAddress` over `value` when both exist: after a new selection, `onChange`
@@ -103,7 +105,7 @@ export function AddressCard({
       setLocalAddress(location);
       onChange?.(location);
     } catch {
-      toast.error("Could not verify address");
+      toast.error(t("verifyFailed"));
       if (value) {
         setLocalAddress(null);
         setEditing(false);
@@ -135,10 +137,12 @@ export function AddressCard({
 
   return (
     <Field data-invalid={!!error} className="w-full">
-      <FieldLabel>
-        {label}
-        {required && <span className="ml-0.5 text-destructive">*</span>}
-      </FieldLabel>
+      {label && (
+        <FieldLabel>
+          {label}
+          {required && <span className="ml-0.5 text-destructive">*</span>}
+        </FieldLabel>
+      )}
 
       {displayed && !editing ? (
         <Card
@@ -174,7 +178,7 @@ export function AddressCard({
               {resolving ? (
                 <Spinner
                   className="size-4 text-muted-foreground"
-                  aria-label="Updating address"
+                  aria-label={t("updatingAddress")}
                 />
               ) : (
                 <Button
@@ -182,8 +186,8 @@ export function AddressCard({
                   variant="ghost"
                   size="icon-sm"
                   onClick={handleEdit}
-                  title="Change address"
-                  aria-label="Change address"
+                  title={t("changeAddress")}
+                  aria-label={t("changeAddress")}
                 >
                   <Pencil className="size-3.5" />
                 </Button>
@@ -195,14 +199,15 @@ export function AddressCard({
         <div className="space-y-3">
           {displayed && (
             <p className="text-sm text-muted-foreground">
-              Current: <span className="text-foreground">{displayed.address}</span>
+              {t("currentPrefix")}
+              <span className="text-foreground">{displayed.address}</span>
             </p>
           )}
           <AddressInput
             value={searchValue}
             onChange={setSearchValue}
             onSelect={handleSelect}
-            placeholder="Start typing a new address…"
+            placeholder={t("placeholder")}
             error={error}
             suffix={
               showClose ? (
@@ -211,8 +216,8 @@ export function AddressCard({
                   variant="ghost"
                   size="icon-sm"
                   onClick={handleClose}
-                  title="Close"
-                  aria-label="Close"
+                  title={t("close")}
+                  aria-label={t("close")}
                 >
                   <X className="size-3.5" />
                 </Button>
@@ -224,7 +229,7 @@ export function AddressCard({
 
       {error && (
         <FieldError>
-          {required ? "Required" : "Please enter a valid address"}
+          {required ? t("required") : t("invalid")}
         </FieldError>
       )}
     </Field>

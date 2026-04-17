@@ -48,6 +48,26 @@ export async function listInterviewsForUser(
   return data ?? [];
 }
 
+export async function getInterviewBySubjectForUser(
+  subject: string,
+  userId: string,
+): Promise<InterviewRow | null> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("interviews")
+    .select("*")
+    .eq("subject", subject)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    throw new Error(error.message);
+  }
+  return data ?? null;
+}
+
 /** Lists interviews for the signed-in user (any role). */
 export async function getInterviewsForCurrentUser(): Promise<InterviewRow[]> {
   const session = await getSession();

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { PaymentMethodCardType } from "../types";
 import { PaymentMethodCard } from "./payment-method-card";
 import { deletePaymentMethod } from "../dal/mutations";
@@ -13,6 +14,7 @@ type Props = {
 
 export function PaymentMethodList({ initialCards, onDelete }: Props) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const t = useTranslations("kyc.onboarding.forms.billing");
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -20,8 +22,8 @@ export function PaymentMethodList({ initialCards, onDelete }: Props) {
       const { error } = await deletePaymentMethod(id);
       if (error) throw new Error(error);
       onDelete(id);
-    } catch (e) {
-      toast.error("Failed to delete card");
+    } catch {
+      toast.error(t("deleteFailed"));
     } finally {
       setDeletingId(null);
     }

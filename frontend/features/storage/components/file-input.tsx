@@ -1,19 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Check, Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getPresignedUrl } from "@/features/storage/dal/queries";
 import { deleteFile } from "@/features/storage/dal/mutations";
-import {
-  Field,
-  FieldError,
-} from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { StorageFolder } from "@/services/s3/api";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface UploadedFile {
   id: string;
@@ -23,7 +18,6 @@ interface UploadedFile {
   key?: string;
   isDeleting: boolean;
   error: boolean;
-  objectUrl?: string;
 }
 
 interface FileInputProps {
@@ -32,14 +26,16 @@ interface FileInputProps {
   maxMb?: number;
   required?: boolean;
   initialFileKey?: string;
+  /** Default true: upload immediately after file selection. */
+  uploadToCloud?: boolean;
   onUploaded?: (file: UploadedFile) => void;
+  /** Called when a local file is selected/cleared in deferred mode. */
+  onSelectedFile?: (file: File | null) => void;
   onFileChange?: (hasFile: boolean) => void;
   error?: string;
 }
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Extract display filename from S3 key: {folder}/{ownerId}/{timestamp}-{filename} */
+/** Extract display filename from S3 key: {folder}/{ownerId}/{timestamp}-{filename}. */
 function getFilenameFromKey(key: string): string {
   const lastPart = key.split("/").pop() ?? key;
   const match = lastPart.match(/^\d+-(.+)$/);
@@ -52,7 +48,48 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────────
+type UploadToStorageParams = {
+  file: File;
+  context: StorageFolder;
+  onProgress?: (percent: number, key: string) => void;
+};
+
+/**
+ * Upload a file to S3 via presigned URL and return object key.
+ * Shared by immediate-upload mode and deferred-upload flows.
+ */
+export async function uploadFileToStorage({
+  file,
+  context,
+  onProgress,
+}: UploadToStorageParams): Promise<{ key: string }> {
+  const { url, key } = await getPresignedUrl({
+    filename: file.name,
+    contentType: file.type || "application/octet-stream",
+    context,
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable) return;
+      const percent = Math.round((event.loaded / event.total) * 100);
+      onProgress?.(percent, key);
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200 || xhr.status === 204) resolve();
+      else reject(new Error(`Upload failed with status: ${xhr.status}`));
+    };
+    xhr.onerror = () => reject(new Error("Upload failed"));
+    xhr.open("PUT", url);
+    xhr.setRequestHeader("Content-Type", file.type);
+    xhr.send(file);
+  });
+
+  return { key };
+}
 
 export function FileInput({
   context,
@@ -60,41 +97,60 @@ export function FileInput({
   maxMb = 10,
   required,
   initialFileKey,
+  uploadToCloud = true,
   onUploaded,
+  onSelectedFile,
   onFileChange,
   error: externalError,
 }: FileInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<UploadedFile | null>(null);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const [removingExisting, setRemovingExisting] = useState(false);
 
   const uploading = file?.uploading ?? false;
   const isDeleting = file?.isDeleting ?? false;
   const hasExisting = !!initialFileKey && !file;
-  const done = !!(file && !file.uploading && !file.error && file.key) || hasExisting;
+  const done =
+    !!(file && !file.uploading && !file.error && (file.key || !uploadToCloud)) ||
+    hasExisting;
   const hasError = file?.error ?? false;
   const displayError = externalError ?? error;
 
-  async function removeFile(fileId: string) {
+  async function removeSelectedFile(fileId: string) {
     if (!file) return;
-    if (file.objectUrl) URL.revokeObjectURL(file.objectUrl);
-
     setFile((prev) =>
-      prev?.id === fileId ? { ...prev, isDeleting: true } : prev
+      prev?.id === fileId ? { ...prev, isDeleting: true } : prev,
     );
 
-    try {
-      await deleteFile(file.key!);
+    // Deferred mode: local file only, nothing to delete remotely.
+    if (!uploadToCloud || !file.key) {
       setFile(null);
-      queueMicrotask(() => onFileChange?.(false));
+      queueMicrotask(() => {
+        onSelectedFile?.(null);
+        onFileChange?.(false);
+      });
+      return;
+    }
+
+    try {
+      await deleteFile(file.key);
+      setFile(null);
+      queueMicrotask(() => {
+        onSelectedFile?.(null);
+        onFileChange?.(false);
+      });
       toast.success("File removed successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error(error instanceof Error ? error.message : "Failed to remove file from storage.");
+    } catch (uploadError) {
+      console.error(uploadError);
+      toast.error(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Failed to remove file from storage.",
+      );
       setFile((prev) =>
-        prev?.id === fileId ? { ...prev, isDeleting: false, error: true } : prev
-      ); 
+        prev?.id === fileId ? { ...prev, isDeleting: false, error: true } : prev,
+      );
     }
   }
 
@@ -112,74 +168,73 @@ export function FileInput({
     }
   }
 
-  async function uploadFile(f: File) {
+  async function uploadFileNow(f: File) {
     try {
-      const { url, key } = await getPresignedUrl({
-        filename: f.name,
-        contentType: f.type || "application/octet-stream",
+      const { key } = await uploadFileToStorage({
+        file: f,
         context,
+        onProgress: (percent, progressKey) => {
+          setFile((prev) =>
+            prev?.file === f
+              ? { ...prev, progress: percent, key: progressKey }
+              : prev,
+          );
+        },
       });
 
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const percent = Math.round((event.loaded / event.total) * 100);
-            setFile((prev) =>
-              prev?.file === f ? { ...prev, progress: percent, key } : prev
-            );
-          }
+      setFile((prev) => {
+        if (prev?.file !== f) return prev;
+        const completed = {
+          ...prev,
+          progress: 100,
+          uploading: false,
+          error: false,
+          key,
         };
-
-        xhr.onload = () => {
-          if (xhr.status === 200 || xhr.status === 204) {
-            setFile((prev) => {
-              if (prev?.file === f) {
-                const completed = { ...prev, progress: 100, uploading: false, error: false, key };
-                queueMicrotask(() => {
-                  onFileChange?.(true);
-                  onUploaded?.(completed);
-                });
-                return completed;
-              }
-              return prev;
-            });
-            if (!onUploaded) {
-              toast.success("File uploaded successfully");
-            }
-            resolve();
-          } else {
-            reject(new Error(`Upload failed with status: ${xhr.status}`));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error("Upload failed"));
-        xhr.open("PUT", url);
-        xhr.setRequestHeader("Content-Type", f.type);
-        xhr.send(f);
+        queueMicrotask(() => {
+          onFileChange?.(true);
+          onUploaded?.(completed);
+        });
+        return completed;
       });
+
+      if (!onUploaded) {
+        toast.success("File uploaded successfully");
+      }
     } catch {
       toast.error("Failed to get presigned URL");
       setFile((prev) =>
-        prev?.file === f ? { ...prev, uploading: false, progress: 0, error: true } : prev
+        prev?.file === f
+          ? { ...prev, uploading: false, progress: 0, error: true }
+          : prev,
       );
     }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const newFile: UploadedFile = {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    const deferred = !uploadToCloud;
+    const nextFile: UploadedFile = {
       id: crypto.randomUUID(),
-      file: f,
-      uploading: true,
-      progress: 0,
+      file: selected,
+      uploading: !deferred,
+      progress: deferred ? 100 : 0,
       isDeleting: false,
       error: false,
     };
-    setFile(newFile);
-    uploadFile(f);
+    setFile(nextFile);
+
+    if (deferred) {
+      queueMicrotask(() => {
+        onSelectedFile?.(selected);
+        onFileChange?.(true);
+      });
+    } else {
+      uploadFileNow(selected);
+    }
+
     e.target.value = "";
   }
 
@@ -200,7 +255,7 @@ export function FileInput({
           "border-input bg-input/30",
           !file && !hasExisting && "cursor-pointer hover:border-primary/50",
           done && "border-primary/25 bg-primary/5",
-          hasError && "border-destructive/50"
+          hasError && "border-destructive/50",
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -210,11 +265,11 @@ export function FileInput({
           <span
             className={cn(
               "truncate text-sm",
-              file || hasExisting ? "text-foreground" : "text-muted-foreground"
+              file || hasExisting ? "text-foreground" : "text-muted-foreground",
             )}
           >
             {isDeleting || removingExisting
-              ? "Removing…"
+              ? "Removing..."
               : file
                 ? `${file.file.name} · ${formatBytes(file.file.size)}`
                 : hasExisting && initialFileKey
@@ -224,7 +279,7 @@ export function FileInput({
           {done && !removingExisting && (
             <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary">
               <Check className="size-3.5" strokeWidth={2.5} />
-              Uploaded
+              {uploadToCloud ? "Uploaded" : "Selected"}
             </span>
           )}
         </div>
@@ -243,7 +298,7 @@ export function FileInput({
               size="icon-sm"
               onClick={(e) => {
                 e.stopPropagation();
-                removeFile(file.id);
+                removeSelectedFile(file.id);
               }}
               title="Remove file"
               aria-label="Remove file"
@@ -267,7 +322,7 @@ export function FileInput({
             </Button>
           )}
           {!file && !hasExisting && (
-            <Upload className="size-4 shrink-0 text-muted-foreground pointer-events-none" />
+            <Upload className="pointer-events-none size-4 shrink-0 text-muted-foreground" />
           )}
         </div>
       </div>
@@ -281,6 +336,9 @@ export function FileInput({
         </div>
       )}
 
+      {required && !done && (
+        <FieldError>File is required.</FieldError>
+      )}
       {displayError && <FieldError>{displayError}</FieldError>}
 
       <input

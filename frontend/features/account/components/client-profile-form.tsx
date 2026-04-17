@@ -1,6 +1,7 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { REQUESTER_TYPES } from "@/lib/constants";
 import {
     ClientProfileValues,
@@ -29,29 +30,26 @@ interface ClientProfileFormProps {
 export function ClientProfileForm({ form }: ClientProfileFormProps) {
   const { register, setValue, watch, formState } = form;
   const { errors } = formState;
+  const t = useTranslations("kyc.onboarding.forms.clientProfile");
 
   return (
     <>
       <FieldGroup>
         <Field data-invalid={!!errors.name}>
-          <FieldLabel htmlFor="client-name">Organization name</FieldLabel>
-          <FieldDescription>
-            Your name or business name
-          </FieldDescription>
+          <FieldLabel htmlFor="client-name">{t("nameLabel")}</FieldLabel>
+          <FieldDescription>{t("nameDescription")}</FieldDescription>
           <Input
             id="client-name"
             type="text"
-            placeholder="e.g. Sunnyvale Care Home"
+            placeholder={t("namePlaceholder")}
             {...register("name")}
           />
           <FieldError>{errors.name?.message}</FieldError>
         </Field>
 
         <Field data-invalid={!!errors.type}>
-          <FieldLabel>Client type</FieldLabel>
-          <FieldDescription>
-            Select the type that best describes your organization
-          </FieldDescription>
+          <FieldLabel>{t("typeLabel")}</FieldLabel>
+          <FieldDescription>{t("typeDescription")}</FieldDescription>
           <input type="hidden" name="type" value={watch("type") ?? ""} />
           <MultiSelect
             single
@@ -61,9 +59,9 @@ export function ClientProfileForm({ form }: ClientProfileFormProps) {
             }
           >
             <MultiSelectTrigger className="w-full">
-              <MultiSelectValue placeholder="Select type..." />
+              <MultiSelectValue placeholder={t("typePlaceholder")} />
             </MultiSelectTrigger>
-            <MultiSelectContent search={{ placeholder: "Search type..." }}>
+            <MultiSelectContent search={{ placeholder: t("typeSearch") }}>
               <MultiSelectGroup>
                 {REQUESTER_TYPES.map((type) => (
                   <MultiSelectItem key={type} value={type}>

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/get-session";
 import { saveWorkerAvailabilityBundle } from "./dal/mutations";
 import { availabilityOnboardingPayloadSchema } from "./schema";
@@ -43,6 +44,9 @@ export async function updateWorkerAvailabilityAppAction(
   if (saved.error) {
     return { ok: false, error: saved.message };
   }
+
+  revalidatePath("/worker/availability");
+  revalidatePath("/worker/availability/edit");
 
   return { ok: true };
 }

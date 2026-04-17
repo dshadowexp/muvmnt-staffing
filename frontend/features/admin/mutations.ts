@@ -55,20 +55,20 @@ export async function updateAdminUserAccountActive(
   return { ok: true };
 }
 
-export async function verifyAdminCertification(
-  certificationId: number,
+export async function verifyAdminCompliance(
+  complianceId: string,
   workerId: string,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   await requireAdminSession();
   const supabase = await createAdminClient();
 
   const { error } = await supabase
-    .from("certifications")
+    .from("compliances")
     .update({
       is_verified: true,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", certificationId);
+    .eq("id", complianceId);
 
   if (error) return { ok: false, message: error.message };
 

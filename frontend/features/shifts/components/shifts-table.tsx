@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatJobHourlyRateLine } from "@/lib/formatters";
+import { formatCurrency, formatJobHourlyRateLine } from "@/lib/formatters";
 import type { ShiftWithStaffRequestAndWorker } from "@/features/shifts/dal/queries";
 import type { ShiftTableRow } from "@/features/shifts/types/shift-table-row";
 import { STAFF_REQUEST_DISPLAY_TITLE } from "@/features/requests/constants";
@@ -27,6 +27,10 @@ import { formatShiftLocationLine } from "@/features/shifts/types/shift-location"
 import { ShiftStatusBadge } from "./shift-status-badge";
 import { WorkerShiftTableStatusCell } from "./worker-shift-table-status-cell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  useTablePagination,
+  TablePagination,
+} from "@/components/table-pagination";
 import { cn } from "@/lib/utils";
 
 function workerDisplayName(
@@ -57,7 +61,7 @@ function workerAvatarSrc(row: ShiftTableRow): string | undefined {
 }
 
 export function ShiftsTable({
-  rows,
+  rows: allRows,
   variant,
 }: {
   rows: ShiftTableRow[];
@@ -71,7 +75,10 @@ export function ShiftsTable({
   const showHoursColumn = variant === "client-all";
   const isClientRequestVariant = variant === "client-request";
 
-  if (rows.length === 0) {
+  const pagination = useTablePagination(allRows);
+  const rows = pagination.rows;
+
+  if (allRows.length === 0) {
     return (
       <p className="text-muted-foreground px-4 py-10 text-center text-sm">
         No shifts yet.
@@ -80,6 +87,7 @@ export function ShiftsTable({
   }
 
   return (
+    <>
     <Table>
       <TableHeader>
         <TableRow>
@@ -88,16 +96,16 @@ export function ShiftsTable({
               <TableHead>Location</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Duration</TableHead>
-              <TableHead>Rate</TableHead>
-              <TableHead>Earning</TableHead>
+              <TableHead>{`Rate (/hr)`}</TableHead>
+              <TableHead>{`Earnings`}</TableHead>
               <TableHead>Status</TableHead>
             </>
           ) : (
             <>
               {showRequestColumn ? <TableHead>Request</TableHead> : null}
               {showWorker ? <TableHead>Worker</TableHead> : null}
-              <TableHead>Expected start</TableHead>
-              <TableHead>Expected end</TableHead>
+              <TableHead>From</TableHead>
+              <TableHead>To</TableHead>
               {showHoursColumn ? (
                 <TableHead>Hours</TableHead>
               ) : null}
@@ -171,10 +179,7 @@ export function ShiftsTable({
                   {durationLabel}
                 </TableCell>
                 <TableCell className="tabular-nums">
-                  {formatJobHourlyRateLine(rate, "CAD", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatJobHourlyRateLine(rate)}
                 </TableCell>
                 <TableCell className="font-medium tabular-nums">
                   {payLabel}
@@ -214,7 +219,7 @@ export function ShiftsTable({
               onClick={
                 isClientRequestVariant
                   ? () => {
-                      router.push(`/client/shifts/${row.id}`);
+                      router.push(`/client/requests/${row.request_id}/shifts/${row.id}`);
                     }
                   : undefined
               }
@@ -223,7 +228,7 @@ export function ShiftsTable({
                   ? (e: KeyboardEvent<HTMLTableRowElement>) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        router.push(`/client/shifts/${row.id}`);
+                        router.push(`/client/requests/${row.request_id}/shifts/${row.id}`);
                       }
                     }
                   : undefined
@@ -233,7 +238,7 @@ export function ShiftsTable({
                 showRequestLink ? (
                   <TableCell className="max-w-[220px] font-medium">
                     <Link
-                      href={`/client/shifts/${row.id}`}
+                      href={`/client/requests/${row.request_id}/shifts/${row.id}`}
                       className="text-primary hover:underline"
                     >
                       {requestLabel}
@@ -297,5 +302,16 @@ export function ShiftsTable({
         })}
       </TableBody>
     </Table>
+    {pagination.pageCount > 1 && (
+      <TablePagination
+        totalRows={pagination.totalRows}
+        pageIndex={pagination.pageIndex}
+        pageSize={pagination.pageSize}
+        pageCount={pagination.pageCount}
+        onPageChange={pagination.setPageIndex}
+        onPageSizeChange={pagination.setPageSize}
+      />
+    )}
+    </>
   );
 }

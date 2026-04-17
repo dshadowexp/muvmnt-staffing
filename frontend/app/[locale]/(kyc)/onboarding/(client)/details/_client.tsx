@@ -1,30 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
 import { useOnboarding } from "@/features/onboarding/onboarding-provider";
-import { ClientProfileForm } from "@/features/profile/components/client-profile-form";
+import { useTranslatedStepError } from "@/features/onboarding/lib/use-translated-step-error";
 import {
+  buildClientSchema,
   ClientProfileFormInput,
   ClientProfileValues,
-  clientSchema,
   mapClientProfileToFormValues,
 } from "@/features/account/schemas/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { detailsAction } from "./_action";
 import { useRouter } from "@/i18n/navigation";
+import { ClientProfileForm } from "@/features/account/components/client-profile-form";
 
 export function OrganizationClient({ clientProfile }: { clientProfile: ClientProfileFormInput | null }) {
   const router = useRouter();
   const { applyStepsFromServer } = useOnboarding();
   const [isPending, setIsPending] = useState(false);
+  const tVal = useTranslations("kyc.onboarding.validation");
+  const resolveError = useTranslatedStepError();
+  const schema = useMemo(() => buildClientSchema(tVal), [tVal]);
+
   const form = useForm<ClientProfileValues>({
     defaultValues: clientProfile
       ? mapClientProfileToFormValues(clientProfile)
       : { name: "", type: "" },
-    resolver: zodResolver(clientSchema),
+    resolver: zodResolver(schema),
   });
 
   return (
@@ -36,13 +42,17 @@ export function OrganizationClient({ clientProfile }: { clientProfile: ClientPro
           try {
             const result = await detailsAction(data);
             if (!result.ok) {
-              toast.error(result.error);
+              toast.error(resolveError(result));
               return;
             }
             applyStepsFromServer(result.steps);
             router.push(result.redirectTo);
           } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Something went wrong");
+            toast.error(
+              e instanceof Error
+                ? e.message
+                : resolveError({ ok: false, error: "Something went wrong", errorKey: "somethingWentWrong" }),
+            );
           } finally {
             setIsPending(false);
           }

@@ -11,6 +11,7 @@ export default async function WorkerAvailabilityPage() {
         data ?? {
           timezone: "America/Toronto",
           week: defaultWeekSchedule(),
+          autoConfirm: false,
         }
       }
     />

@@ -1,8 +1,17 @@
 import { AdminJobsTable } from "@/features/admin/components/admin-data-tables";
 import { getAdminJobsList } from "@/features/admin/dal/queries";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Job postings | Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard.admin.meta" });
+  return { title: t("jobs") };
+}
 
 export default async function AdminJobsPage() {
   const jobs = await getAdminJobsList();

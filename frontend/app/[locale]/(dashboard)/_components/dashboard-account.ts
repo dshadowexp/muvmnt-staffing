@@ -1,4 +1,4 @@
-/** Account link + label for the signed-in role (sidebar + header menus). */
+/** Account link + label key for the signed-in role (sidebar + header menus). */
 export function dashboardAccountHrefForRole(
   role: string | null | undefined,
 ): string {
@@ -14,9 +14,12 @@ export function dashboardAccountHrefForRole(
   }
 }
 
-export function dashboardAccountLabelForRole(
+/**
+ * Returns a translation key (under the `dashboard.accountMenu` namespace) for
+ * the account link label; client components localize it.
+ */
+export function dashboardAccountLabelKeyForRole(
   role: string | null | undefined,
-): string {
-  if (role?.toLowerCase() === "worker") return "Profile";
-  return "Account";
+): "profileLabel" | "accountLabel" {
+  return role?.toLowerCase() === "worker" ? "profileLabel" : "accountLabel";
 }

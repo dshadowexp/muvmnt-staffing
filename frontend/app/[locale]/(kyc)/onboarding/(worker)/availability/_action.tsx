@@ -3,6 +3,10 @@
 import { saveWorkerAvailabilityBundle } from "@/features/availability/dal/mutations";
 import { availabilityOnboardingPayloadSchema } from "@/features/availability/schema";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
+import {
+  onboardingStepError,
+  onboardingStepRawError,
+} from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 
 export async function availabilityOnboardingAction(
@@ -11,38 +15,45 @@ export async function availabilityOnboardingAction(
 ): Promise<OnboardingStepFormState> {
   const raw = formData.get("payload");
   if (typeof raw !== "string") {
-    return { ok: false, error: "Invalid submission" };
+    return onboardingStepError("invalidSubmission");
   }
 
   let parsedJson: unknown;
   try {
     parsedJson = JSON.parse(raw) as unknown;
   } catch {
-    return { ok: false, error: "Invalid submission" };
+    return onboardingStepError("invalidSubmission");
   }
 
   const parsed = availabilityOnboardingPayloadSchema.safeParse(parsedJson);
   if (!parsed.success) {
-    const msg = parsed.error.issues[0]?.message ?? "Check your availability";
-    return { ok: false, error: msg };
+    // Schema messages are translation keys under `kyc.onboarding.validation`.
+    const issue = parsed.error.issues[0];
+    if (issue?.message) {
+      return {
+        ok: false,
+        error: issue.message,
+        errorKey: `validation.${issue.message}`,
+      };
+    }
+    return onboardingStepError("availabilityCheck");
   }
 
   const saved = await saveWorkerAvailabilityBundle(parsed.data);
   if (saved.error) {
-    return { ok: false, error: saved.message };
+    return onboardingStepRawError(saved.message);
   }
 
   const persist = await completeOnboardingStep("availability");
   if (persist.error) {
-    return {
-      ok: false,
-      error: persist.message ?? "Could not save onboarding progress",
-    };
+    return persist.message
+      ? onboardingStepRawError(persist.message)
+      : onboardingStepError("persistFailed");
   }
 
   return {
     ok: true,
-    redirectTo: "/onboarding/payroll",
+    redirectTo: "/onboarding/compliance",
     steps: persist.steps,
   };
 }

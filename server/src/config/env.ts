@@ -67,11 +67,7 @@ export const config = {
     port: parsed.data.PORT,
     host: parsed.data.HOST,
     appUrl: parsed.data.APP_URL ?? `http://localhost:${parsed.data.PORT}`,
-    webAppUrl:
-      parsed.data.WEB_APP_URL?.trim()
-      || parsed.data.ALLOWED_ORIGINS.split(',')[0]?.trim()
-      || parsed.data.APP_URL?.trim()
-      || `http://localhost:${parsed.data.PORT}`,
+    webAppUrl: parsed.data.WEB_APP_URL?.trim() ?? `http://localhost:3000`,
     corsOrigin: '*',
     allowedOrigins: parsed.data.ALLOWED_ORIGINS.split(','),
     logLevel: 'info',

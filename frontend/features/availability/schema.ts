@@ -7,6 +7,10 @@ function quarterMinute(t: string): number {
   return Number.isFinite(m) ? m : NaN;
 }
 
+/**
+ * Validation messages are translation keys under `kyc.onboarding.validation`
+ * so client consumers can localize them. English fallbacks live in the JSON.
+ */
 const slotSchema = z
   .object({
     start: timeHm,
@@ -17,7 +21,7 @@ const slotSchema = z
     if (!q.includes(quarterMinute(s.start))) {
       ctx.addIssue({
         code: "custom",
-        message: "Use 15-minute times (e.g. 9:00, 9:15).",
+        message: "slotQuarterStart",
         path: ["start"],
       });
     }
@@ -26,7 +30,7 @@ const slotSchema = z
     if (!endOk) {
       ctx.addIssue({
         code: "custom",
-        message: "Use 15-minute times (e.g. 5:00, 5:15), or 11:59 PM to end the day.",
+        message: "slotQuarterEnd",
         path: ["end"],
       });
     }
@@ -35,7 +39,7 @@ const slotSchema = z
     if (sh * 60 + sm >= eh * 60 + em) {
       ctx.addIssue({
         code: "custom",
-        message: "End time must be after start time",
+        message: "endAfterStart",
         path: ["end"],
       });
     }
@@ -48,8 +52,9 @@ const daySchema = z.object({
 
 export const availabilityOnboardingPayloadSchema = z
   .object({
-    timezone: z.string().min(1, "Choose a timezone"),
+    timezone: z.string().min(1, "timezoneRequired"),
     week: z.record(z.string(), daySchema),
+    autoConfirm: z.boolean().optional().default(false),
   })
   .superRefine((data, ctx) => {
     const hasWorking = Object.values(data.week).some(
@@ -58,7 +63,7 @@ export const availabilityOnboardingPayloadSchema = z
     if (!hasWorking) {
       ctx.addIssue({
         code: "custom",
-        message: "Turn on at least one day and set working hours.",
+        message: "workingDayRequired",
         path: ["week"],
       });
     }

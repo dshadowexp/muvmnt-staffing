@@ -6,6 +6,7 @@ import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboa
 import { SubmitEventHandler, useState } from "react";
 import { useActionState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { payrollAction } from "./_action";
 import { setupPayrollAction } from "@/features/payroll/actions";
 import { Check } from "lucide-react";
@@ -24,6 +25,7 @@ export function PayrollClient({
   const [state, formAction] = useActionState(payrollAction, undefined);
   useOnboardingFormNavigate(state);
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("kyc.onboarding.forms.payroll");
 
   const isStripeComplete =
     initialPayroll != null && initialPayroll.completed && initialPayroll.enabled;
@@ -37,25 +39,26 @@ export function PayrollClient({
       await setupPayrollAction();
     } catch (error) {
       unstable_rethrow(error);
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
-    } finally {
-      // setLoading(false);
+      toast.error(error instanceof Error ? error.message : t("somethingWentWrong"));
     }
-  }
+  };
 
   return (
     <>
       {isStripeComplete ? (
         <form action={formAction} className="space-y-6">
           <div className="inline-flex items-center gap-2 text-sm font-medium text-primary">
-              <Check className="size-4" />
-              Complete
+            <Check className="size-4" />
+            {t("complete")}
           </div>
-          <ContinueButton text={"Finish"} />
+          <ContinueButton text={t("finish")} />
         </form>
       ) : (
         <form onSubmit={handleSetup} className="space-y-6">
-          <ContinueButton text={showFinishOnboarding ? "Finish onboarding" : "Begin"} pending={loading}/>
+          <ContinueButton
+            text={showFinishOnboarding ? t("finishOnboarding") : t("begin")}
+            pending={loading}
+          />
         </form>
       )}
     </>

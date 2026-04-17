@@ -7,6 +7,7 @@ import {
     ADMIN_PREFIXES,
     WORKER_PREFIXES,
     CLIENT_PREFIXES,
+    AUTH_PREFIXES
 } from './lib/constants';
 import { UserAuth } from './types/auth';
 
@@ -54,6 +55,20 @@ function isRoleRouteAllowed(pathname: string, role: string): boolean {
     return allowedPaths.some((p) => pathHasPrefix(pathname, p));
 }
 
+function isAuthRoute(pathname: string): boolean {
+    return AUTH_PREFIXES.some((p) => pathHasPrefix(pathname, p));
+}
+
+function safeRedirectParam(raw: string | null): string | null {
+    if (!raw) return null;
+    // only allow same-origin, absolute path redirects
+    if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+    // don't bounce them back to an auth route
+    const stripped = stripLocaleFromPathname(raw.split('?')[0] ?? raw);
+    if (isAuthRoute(stripped)) return null;
+    return raw;
+}
+
 export async function proxy(req: NextRequest) {
     const { pathname, search } = req.nextUrl;
 
@@ -62,12 +77,19 @@ export async function proxy(req: NextRequest) {
     }
 
     const pathForRules = stripLocaleFromPathname(pathname);
+    const session = getSessionFromRequest(req);
+
+    if (session && isAuthRoute(pathForRules)) {
+        const redirectParam = safeRedirectParam(
+            req.nextUrl.searchParams.get('redirect'),
+        );
+        const target = redirectParam ?? `/${session.role}`;
+        return NextResponse.redirect(new URL(target, req.url));
+    }
 
     if (isPublicRoute(pathForRules)) {
         return intlMiddleware(req);
     }
-
-    const session = getSessionFromRequest(req);
 
     if (!session) {
         const signinUrl = new URL('/sign-in', req.url);

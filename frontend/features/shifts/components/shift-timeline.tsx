@@ -26,7 +26,7 @@ export function ShiftTimeline({
 
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-medium">Events</h2>
+      <h2 className="mb-4 text-lg font-semibold">Events</h2>
       <ul className="divide-y divide-border rounded-lg border border-border text-sm">
         {events.map((e) => (
           <li

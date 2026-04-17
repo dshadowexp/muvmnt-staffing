@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Hospital, Loader2, Stethoscope } from "lucide-react";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { z } from "zod";
+import { Check, GiftIcon, Hospital, Stethoscope } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
@@ -28,28 +31,50 @@ import {
   OrDivider,
   AuthLegalNote,
 } from "@/features/auth/components/auth-primitives";
-import {
-  signUpSchema,
-  type SignUpInput,
-} from "@/features/auth/schemas";
-import { getAuthErrorMessage, signUpWithEmail } from "@/services/firebase/auth";
+import { getAuthErrorKey, signUpWithEmail } from "@/services/firebase/auth";
 import type { UserRole } from "@/types/auth";
 
-const ROLES: { value: UserRole; icon: LucideIcon; label: string }[] = [
-  { value: "client", icon: Hospital, label: "Staffing" },
-  { value: "worker", icon: Stethoscope, label: "Work" },
-];
-
 export function SignUpForm() {
-  const { loading: authLoading, setPendingRole } = useAuth();
+  const { loading: authLoading, setPendingRole, setPendingReferralCode } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = useAuthRedirect();
   const [role, setRole] = useState<UserRole | null>(null);
+  const referralCode = searchParams.get("ref");
+  const t = useTranslations("auth.signUp");
+  const tValidation = useTranslations("auth.validation");
+  const tErrors = useTranslations("auth.errors");
 
-  const form = useForm<SignUpInput>({
+  const roles = useMemo<{ value: UserRole; icon: LucideIcon; label: string }[]>(
+    () => [
+      { value: "client", icon: Hospital, label: t("roleClient") },
+      { value: "worker", icon: Stethoscope, label: t("roleWorker") },
+    ],
+    [t],
+  );
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        email: z.email(tValidation("emailInvalid")),
+        password: z
+          .string()
+          .min(6, tValidation("passwordMin"))
+          .refine((p) => p.length >= 8, tValidation("passwordLength"))
+          .refine((p) => /[A-Z]/.test(p), tValidation("passwordUpper"))
+          .refine((p) => /[0-9]/.test(p), tValidation("passwordNumber"))
+          .refine(
+            (p) => /[^A-Za-z0-9]/.test(p),
+            tValidation("passwordSpecial"),
+          ),
+      }),
+    [tValidation],
+  );
+  type SignUpValues = z.infer<typeof schema>;
+
+  const form = useForm<SignUpValues>({
     defaultValues: { email: "", password: "" },
-    resolver: zodResolver(signUpSchema) as Resolver<SignUpInput>,
+    resolver: zodResolver(schema) as Resolver<SignUpValues>,
   });
 
   const {
@@ -70,6 +95,19 @@ export function SignUpForm() {
     }
   }, [searchParams, setPendingRole]);
 
+  useEffect(() => {
+    if (referralCode) {
+      setPendingReferralCode(referralCode);
+    }
+  }, [referralCode, setPendingReferralCode]);
+
+  useEffect(() => {
+    const refError = searchParams.get("ref_error");
+    if (refError === "invalid" || refError === "not_found") {
+      toast.error(t("referralInvalidToast"));
+    }
+  }, [searchParams, t]);
+
   const handleRoleSelect = (r: UserRole) => {
     setRole(r);
     setPendingRole(r);
@@ -81,12 +119,13 @@ export function SignUpForm() {
     );
   };
 
-  async function handleSubmit(data: SignUpInput) {
+  async function handleSubmit(data: SignUpValues) {
     try {
       await signUpWithEmail(data.email.trim(), data.password);
       router.push(redirectTo as Parameters<typeof router.push>[0]);
     } catch (err) {
-      form.setError("root", { message: getAuthErrorMessage(err) });
+      const key = getAuthErrorKey(err);
+      form.setError("root", { message: key ? tErrors(key) : "" });
     }
   }
 
@@ -94,19 +133,26 @@ export function SignUpForm() {
     <>
       <div className="mb-7 w-full max-w-[440px] text-center">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-primary">
-          Get started free
+          {t("overline")}
         </p>
       </div>
+
+      {referralCode && (
+        <div className="mb-4 flex w-full max-w-[440px] items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+          <GiftIcon className="size-4 shrink-0 text-primary" />
+          <p className="text-sm text-primary">{t("referralBanner")}</p>
+        </div>
+      )}
 
       <Card className="w-full max-w-[440px] overflow-hidden rounded-2xl shadow-lg">
         <CardContent className="px-9 pb-8 pt-7">
           <FieldGroup>
             <Field>
               <FieldLabel>
-                I am looking for <span className="text-destructive">*</span>
+                {t("roleLabel")} <span className="text-destructive">*</span>
               </FieldLabel>
               <div className="flex gap-2">
-                {ROLES.map((r) => {
+                {roles.map((r) => {
                   const active = role === r.value;
                   return (
                     <Button
@@ -155,12 +201,12 @@ export function SignUpForm() {
                   <ErrorBanner message={errors.root?.message ?? ""} />
                   <Field data-invalid={!!errors.email}>
                     <FieldLabel htmlFor="signup-email">
-                      Email Address <span className="text-destructive">*</span>
+                      {t("emailLabel")} <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="you@organization.ca"
+                      placeholder={t("emailPlaceholder")}
                       autoComplete="email"
                       disabled={isLoading}
                       aria-invalid={!!errors.email || undefined}
@@ -170,11 +216,11 @@ export function SignUpForm() {
                   </Field>
                   <Field data-invalid={!!errors.password}>
                     <FieldLabel htmlFor="signup-password">
-                      Password <span className="text-destructive">*</span>
+                      {t("passwordLabel")} <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Password
                       id="signup-password"
-                      placeholder="Create a password"
+                      placeholder={t("passwordPlaceholder")}
                       autoComplete="new-password"
                       disabled={isLoading}
                       aria-invalid={!!errors.password || undefined}
@@ -191,7 +237,7 @@ export function SignUpForm() {
                     className="mt-0.5 w-full"
                   >
                     <LoadingSwap isLoading={isSubmitting}>
-                      <span>Create Account →</span>
+                      <span>{t("submit")}</span>
                     </LoadingSwap>
                   </Button>
                 </form>
@@ -200,25 +246,17 @@ export function SignUpForm() {
             )}
 
             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
-              Already have an account?{" "}
+              {t("haveAccount")}{" "}
               <Link
                 href="/sign-in"
                 className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
               >
-                Sign in
+                {t("signIn")}
               </Link>
             </p>
           </FieldGroup>
         </CardContent>
       </Card>
     </>
-  );
-}
-
-function PageSkeleton() {
-  return (
-    <Card className="flex w-full max-w-[440px] items-center justify-center rounded-2xl px-9 py-16">
-      <Loader2 className="size-7 animate-spin text-primary" />
-    </Card>
   );
 }

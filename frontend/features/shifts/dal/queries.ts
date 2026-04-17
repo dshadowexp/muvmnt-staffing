@@ -46,6 +46,67 @@ const clientSelect = `id, name`;
 
 const shiftDetailSelect = `*, staff_requests ( ${staffRequestSelect} ), workers ( ${workerSelect} ), clients ( ${clientSelect} )`;
 
+/** Number of shifts with status `completed` (or `done` / `paid`) for a worker. */
+export async function countCompletedShiftsForWorker(
+  workerId: string,
+): Promise<number> {
+  const supabase = await createAdminClient();
+  const { count, error } = await supabase
+    .from("shifts")
+    .select("id", { count: "exact", head: true })
+    .eq("worker_id", workerId)
+    .eq("status", "completed");
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
+/**
+ * Lifetime earnings for a worker from the `transfers` table.
+ * Joins `transfers.shift_id` → `shifts.worker_id`.
+ */
+export async function totalEarningsForWorker(
+  workerId: string,
+): Promise<{ amountCents: number; currency: string }> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("transfers")
+    .select("amount_cents, currency, shifts!inner ( worker_id )")
+    .eq("shifts.worker_id", workerId)
+    .eq("status", "succeeded");
+  if (error) throw new Error(error.message);
+  let total = 0;
+  let currency = "CAD";
+  for (const row of data ?? []) {
+    total += row.amount_cents ?? 0;
+    if (row.currency) currency = row.currency;
+  }
+  return { amountCents: total, currency };
+}
+
+/**
+ * Shifts for a worker on a specific calendar day (in the shift schedule timezone).
+ * `dayStart` and `dayEnd` are ISO-8601 UTC timestamps bounding the day.
+ */
+export async function listShiftsForWorkerOnDay(
+  workerId: string,
+  dayStartUtc: string,
+  dayEndUtc: string,
+): Promise<ShiftWithStaffRequestAndWorker[]> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("shifts")
+    .select(
+      `*, staff_requests ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
+    )
+    .eq("worker_id", workerId)
+    .gte("start_time", dayStartUtc)
+    .lt("start_time", dayEndUtc)
+    .not("status", "in", '("cancelled","canceled","declined")')
+    .order("start_time", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as ShiftWithStaffRequestAndWorker[];
+}
+
 /**
  * Shifts assigned to a worker profile (`workers.id`).
  */
@@ -59,7 +120,7 @@ export async function listShiftsForWorker(
       `*, staff_requests ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
     .eq("worker_id", workerId)
-    .order("created_at", { ascending: false });
+    .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
   return (data ?? []) as ShiftWithStaffRequestAndWorker[];
@@ -122,7 +183,7 @@ export async function listShiftsForStaffRequest(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
     .eq("request_id", requestId)
-    .order("created_at", { ascending: false });
+    .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as ShiftWithStaffRequestAndWorker[];
@@ -149,7 +210,7 @@ export async function listShiftsForClientRequest(
     )
     .eq("request_id", requestId)
     .eq("staff_requests.client_id", clientUserId)
-    .order("created_at", { ascending: false });
+    .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as ShiftWithStaffRequestAndWorker[];
@@ -159,6 +220,107 @@ export async function listShiftsForClientRequest(
       row.staff_requests != null &&
       row.staff_requests.id === requestId,
   );
+}
+
+/**
+ * Stats for completed shifts belonging to a client user:
+ * total count and total covered hours (from checkin/checkout or start/end).
+ */
+export async function completedShiftStatsForClient(
+  clientUserId: string,
+): Promise<{ count: number; totalMinutes: number }> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("shifts")
+    .select(
+      "checkin_time, checkout_time, start_time, end_time, staff_requests!inner ( client_id )",
+    )
+    .eq("staff_requests.client_id", clientUserId)
+    .eq("status", "completed");
+  if (error) throw new Error(error.message);
+
+  let totalMinutes = 0;
+  for (const row of data ?? []) {
+    const start = row.checkin_time ?? row.start_time;
+    const end = row.checkout_time ?? row.end_time;
+    if (start && end) {
+      const diff = new Date(end).getTime() - new Date(start).getTime();
+      if (diff > 0) totalMinutes += diff / 60_000;
+    }
+  }
+  return { count: (data ?? []).length, totalMinutes };
+}
+
+/**
+ * Today's shifts across staff requests owned by the client user.
+ * `dayStartUtc` / `dayEndUtc` bound the day in the shift schedule timezone.
+ */
+export async function listTodayShiftsForClientUser(
+  clientUserId: string,
+  dayStartUtc: string,
+  dayEndUtc: string,
+): Promise<ShiftWithStaffRequestAndWorker[]> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("shifts")
+    .select(
+      `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
+    )
+    .eq("staff_requests.client_id", clientUserId)
+    .gte("start_time", dayStartUtc)
+    .lt("start_time", dayEndUtc)
+    .not("status", "in", '("cancelled","canceled","declined")')
+    .order("start_time", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as ShiftWithStaffRequestAndWorker[];
+}
+
+export type ShiftReviewStatus = {
+  rating: { rating: number; comment: string | null } | null;
+  tip: { amountCents: number; currency: string } | null;
+};
+
+/**
+ * Whether this client has already rated and/or tipped a given completed shift.
+ * Used to drive the post-completion "Rate / Tip" UI (idempotent per client).
+ */
+export async function getShiftReviewStatusForClient(
+  shiftId: string,
+  clientUserId: string,
+): Promise<ShiftReviewStatus> {
+  const supabase = await createAdminClient();
+
+  const [ratingRes, tipRes] = await Promise.all([
+    supabase
+      .from("shift_ratings")
+      .select("rating, comment")
+      .eq("shift_id", shiftId)
+      .eq("client_user_id", clientUserId)
+      .maybeSingle(),
+    supabase
+      .from("shift_tips")
+      .select("amount_cents, currency")
+      .eq("shift_id", shiftId)
+      .eq("client_user_id", clientUserId)
+      .maybeSingle(),
+  ]);
+
+  if (ratingRes.error && ratingRes.error.code !== "PGRST116") {
+    throw new Error(ratingRes.error.message);
+  }
+  if (tipRes.error && tipRes.error.code !== "PGRST116") {
+    throw new Error(tipRes.error.message);
+  }
+
+  return {
+    rating: ratingRes.data
+      ? { rating: ratingRes.data.rating, comment: ratingRes.data.comment ?? null }
+      : null,
+    tip: tipRes.data
+      ? { amountCents: tipRes.data.amount_cents, currency: tipRes.data.currency }
+      : null,
+  };
 }
 
 /**
@@ -174,7 +336,7 @@ export async function listShiftsForClientUser(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
     .eq("staff_requests.client_id", clientUserId)
-    .order("created_at", { ascending: false });
+    .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
   return (data ?? []) as ShiftWithStaffRequestAndWorker[];

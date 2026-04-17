@@ -4,6 +4,7 @@ import { ContinueButton } from "@/features/onboarding/components/continue-button
 import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboarding-form-navigate";
 import { SubmitEventHandler, useActionState, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { billingAction } from "./_action";
 import { CardSummary } from "@/features/billing/dal/queries";
 import { PaymentMethodList } from "@/features/billing/components/payment-method-list";
@@ -25,6 +26,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [billingState, action] = useActionState(billingAction, undefined);
     useOnboardingFormNavigate(billingState);
+    const t = useTranslations("kyc.onboarding.forms.billing");
     const appearance = resolvedTheme === "dark" ? DARK_APPEARANCE : LIGHT_APPEARANCE;
 
     useEffect(() => {
@@ -43,7 +45,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
                 setClientSecret(data?.clientSecret ?? null);
             } catch (error) {
                 if (!cancelled) {
-                    toast.error(error instanceof Error ? error.message : "Failed to load payment form");
+                    toast.error(error instanceof Error ? error.message : t("loadFailedInline"));
                 }
             } finally {
                 if (!cancelled) {
@@ -56,7 +58,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [t]);
 
     if (loading) {
         return (
@@ -67,7 +69,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
     if (!clientSecret) {
         return (
             <div className="py-5 text-sm text-destructive">
-                Failed to load payment form.
+                {t("loadFailed")}
             </div>
         );
     }
@@ -80,7 +82,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
                         initialCards={cards}
                         onDelete={(id) => setCards((prev) => prev.filter((c) => c.id !== id))}
                     />
-                    <ContinueButton text="Finish" />
+                    <ContinueButton text={t("finish")} />
                 </form>
             ) : (
                 <Elements
@@ -100,6 +102,7 @@ function PaymentForm() {
     const elements = useElements();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = useTranslations("kyc.onboarding.forms.billing");
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault();
@@ -124,9 +127,9 @@ function PaymentForm() {
 
         if (error) {
             if (error.type === "card_error" || error.type === "validation_error") {
-                toast.error(error.message ?? "Payment failed");
+                toast.error(error.message ?? t("paymentFailed"));
             } else {
-                toast.error("An unexpected error occurred.");
+                toast.error(t("paymentUnexpected"));
             }
             setIsSubmitting(false);
             return;
@@ -137,7 +140,7 @@ function PaymentForm() {
             if (res.error) {
                 toast.error(res.error);
             } else {
-                toast.success("Payment method saved.");
+                toast.success(t("paymentSaved"));
                 router.refresh();
             }
         }
@@ -147,7 +150,7 @@ function PaymentForm() {
     return (
         <form id="payment-form" onSubmit={handleSubmit} className="space-y-6">
             <PaymentElement id="payment-element" options={{ layout: "accordion" }} />
-            {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <ContinueButton text="Save" />}
+            {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <ContinueButton text={t("save")} />}
         </form>
     );
 }

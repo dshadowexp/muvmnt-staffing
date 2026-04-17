@@ -57,12 +57,13 @@ export async function enqueueShiftAssignmentEmails(params: {
     const whenLine = formatShiftScheduleLine(row.start_time, row.end_time);
     const address = addressFromLocation(row.location);
     const rateLine = formatShiftRateLine(row.hourly_rate);
+    const shiftUrl = `${config.webAppUrl.replace(/\/$/, '')}/worker/shifts/${row.id}`;
 
     try {
       await getSendNotificationsQueue().enqueue({
         idempotencyKey: `shift-assigned-email-${row.id}`,
         userId:         w.user_id,
-        channels:       ['email'],
+        channels:       ['email', 'push'],
         subject:        'New shift assigned — confirm or decline',
         template:       'shift-assigned',
         data: {
@@ -76,6 +77,7 @@ export async function enqueueShiftAssignmentEmails(params: {
           declineUrl,
           privacyUrl,
           unsubscribeUrl,
+          link: shiftUrl,
         },
       });
     } catch (e) {

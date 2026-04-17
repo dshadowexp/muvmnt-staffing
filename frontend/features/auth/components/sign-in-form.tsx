@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { z } from "zod";
 import { useAuth } from "@/providers/auth-provider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,23 +23,32 @@ import {
   ErrorBanner,
   OrDivider,
 } from "@/features/auth/components/auth-primitives";
-import {
-  signInSchema,
-  type SignInInput,
-} from "@/features/auth/schemas";
-import { getAuthErrorMessage, loginWithEmail } from "@/services/firebase/auth";
+import { getAuthErrorKey, loginWithEmail } from "@/services/firebase/auth";
 import { useRouter } from "@/i18n/navigation";
-import { useAuthRedirect } from "../../../hooks/use-auth-redirect";
+import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 
 export function SignInForm() {
   const router = useRouter();
   const { loading } = useAuth();
   const redirectTo = useAuthRedirect();
   const [error, setError] = useState("");
+  const t = useTranslations("auth.signIn");
+  const tValidation = useTranslations("auth.validation");
+  const tErrors = useTranslations("auth.errors");
 
-  const form = useForm<SignInInput>({
+  const schema = useMemo(
+    () =>
+      z.object({
+        email: z.email(tValidation("emailInvalid")),
+        password: z.string().min(6, tValidation("passwordMin")),
+      }),
+    [tValidation],
+  );
+  type SignInValues = z.infer<typeof schema>;
+
+  const form = useForm<SignInValues>({
     defaultValues: { email: "", password: "" },
-    resolver: zodResolver(signInSchema) as Resolver<SignInInput>,
+    resolver: zodResolver(schema) as Resolver<SignInValues>,
   });
 
   const {
@@ -48,13 +58,14 @@ export function SignInForm() {
 
   const isLoading = loading || isSubmitting;
 
-  async function handleSubmit(data: SignInInput) {
+  async function handleSubmit(data: SignInValues) {
     setError("");
     try {
       await loginWithEmail(data.email.trim(), data.password);
       router.push(redirectTo as Parameters<typeof router.push>[0]);
     } catch (err) {
-      setError(getAuthErrorMessage(err));
+      const key = getAuthErrorKey(err);
+      setError(key ? tErrors(key) : "");
     }
   }
 
@@ -62,17 +73,17 @@ export function SignInForm() {
     <>
       <div className="mb-7 w-full max-w-[440px] text-center">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-primary">
-          Welcome back
+          {t("overline")}
         </p>
       </div>
 
       <Card className="w-full max-w-[440px] overflow-hidden rounded-2xl shadow-lg">
         <CardHeader className="border-b border-border px-9 pb-6 pt-8">
           <h1 className="mb-1.5 font-[var(--font-display)] text-[1.45rem] font-extrabold leading-[1.15] tracking-tight text-foreground">
-            Sign in to your account
+            {t("title")}
           </h1>
           <p className="text-[0.845rem] font-light leading-[1.65] text-muted-foreground">
-            Access your staffing requests and account details.
+            {t("subtitle")}
           </p>
         </CardHeader>
 
@@ -90,12 +101,12 @@ export function SignInForm() {
 
               <Field data-invalid={!!errors.email}>
                 <FieldLabel htmlFor="signin-email">
-                  Email Address <span className="text-destructive">*</span>
+                  {t("emailLabel")} <span className="text-destructive">*</span>
                 </FieldLabel>
                 <Input
                   id="signin-email"
                   type="email"
-                  placeholder="you@organization.ca"
+                  placeholder={t("emailPlaceholder")}
                   autoComplete="email"
                   disabled={isLoading}
                   aria-invalid={!!errors.email || undefined}
@@ -107,18 +118,18 @@ export function SignInForm() {
               <Field data-invalid={!!errors.password}>
                 <div className="flex items-center justify-between">
                   <FieldLabel htmlFor="signin-password">
-                    Password <span className="text-destructive">*</span>
+                    {t("passwordLabel")} <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Link
                     href="/forgot-password"
                     className="text-[0.775rem] font-medium text-primary no-underline transition-colors hover:text-primary/80"
                   >
-                    Forgot password?
+                    {t("forgotPassword")}
                   </Link>
                 </div>
                 <Password
                   id="signin-password"
-                  placeholder="Your password"
+                  placeholder={t("passwordPlaceholder")}
                   autoComplete="current-password"
                   disabled={isLoading}
                   aria-invalid={!!errors.password || undefined}
@@ -134,18 +145,18 @@ export function SignInForm() {
                 className="mt-0.5 w-full"
               >
                 <LoadingSwap isLoading={isSubmitting}>
-                  <span>Sign In →</span>
+                  <span>{t("submit")}</span>
                 </LoadingSwap>
               </Button>
             </form>
 
             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
-              Don&apos;t have an account?{" "}
+              {t("noAccount")}{" "}
               <Link
                 href="/sign-up"
                 className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
               >
-                Create one
+                {t("createOne")}
               </Link>
             </p>
           </FieldGroup>

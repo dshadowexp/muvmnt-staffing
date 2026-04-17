@@ -1,6 +1,10 @@
 "use server";
 
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
+import {
+  onboardingStepError,
+  onboardingStepRawError,
+} from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 
@@ -9,15 +13,17 @@ export const verifyDetailsAction = async (
   _formData: FormData,
 ): Promise<OnboardingStepFormState> => {
   const { authUser, user } = await getCurrentUser({ allData: true });
-  if (!authUser) return { ok: false, error: "User not authenticated" };
-  if (!user) return { ok: false, error: "User not found" };
+  if (!authUser) return onboardingStepError("userNotAuthenticated");
+  if (!user) return onboardingStepError("userNotFound");
 
-  if (!user.is_email_verified) return { ok: false, error: "Please verify your email address" };
-  if (!user.is_phone_verified) return { ok: false, error: "Please verify your phone number" };
+  if (!user.is_email_verified) return onboardingStepError("emailNotVerified");
+  if (!user.is_phone_verified) return onboardingStepError("phoneNotVerified");
 
   const persist = await completeOnboardingStep("verification");
   if (persist.error) {
-    return { ok: false, error: persist.message ?? "Could not save onboarding progress" };
+    return persist.message
+      ? onboardingStepRawError(persist.message)
+      : onboardingStepError("persistFailed");
   }
 
   const redirectTo =

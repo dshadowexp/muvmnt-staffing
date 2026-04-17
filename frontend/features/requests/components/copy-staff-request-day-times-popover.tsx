@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { format, parseISO } from "date-fns";
+import { enCA, frCA } from "date-fns/locale";
 import { Copy } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,6 +27,9 @@ export function CopyStaffRequestDayTimesPopover({
   disabled,
   onApply,
 }: CopyStaffRequestDayTimesPopoverProps) {
+  const t = useTranslations("staffRequest.copyTimes");
+  const locale = useLocale();
+  const dateLocale = locale.toLowerCase().startsWith("fr") ? frCA : enCA;
   const [open, setOpen] = useState(false);
   const [targets, setTargets] = useState<Set<string>>(() => new Set());
 
@@ -31,6 +37,10 @@ export function CopyStaffRequestDayTimesPopover({
     () => allDates.filter((d) => d !== sourceDate),
     [allDates, sourceDate],
   );
+
+  function formatYmd(ymd: string) {
+    return format(parseISO(`${ymd}T12:00:00`), "EEE MMM d", { locale: dateLocale });
+  }
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -69,7 +79,7 @@ export function CopyStaffRequestDayTimesPopover({
           size="icon"
           className="size-9 shrink-0"
           disabled={!canOpen}
-          aria-label="Copy times to other dates"
+          aria-label={t("triggerAria")}
         >
           <Copy className="size-4" />
         </Button>
@@ -77,7 +87,7 @@ export function CopyStaffRequestDayTimesPopover({
       <PopoverContent align="end" className="w-80 gap-0 p-0">
         <div className="border-border border-b px-4 py-3">
           <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Copy times to
+            {t("title")}
           </p>
         </div>
         <div className="max-h-[min(60vh,320px)] overflow-y-auto px-2 py-2">
@@ -86,7 +96,7 @@ export function CopyStaffRequestDayTimesPopover({
               checked={allSelected}
               onCheckedChange={() => toggleSelectAll()}
             />
-            <span className="text-sm font-medium">Select all</span>
+            <span className="text-sm font-medium">{t("selectAll")}</span>
           </label>
           <div className="border-border my-1 border-t" />
           {selectable.map((ymd) => (
@@ -98,7 +108,7 @@ export function CopyStaffRequestDayTimesPopover({
                 checked={targets.has(ymd)}
                 onCheckedChange={() => toggleDay(ymd)}
               />
-              <span className="text-sm">{ymd}</span>
+              <span className="text-sm">{formatYmd(ymd)}</span>
             </label>
           ))}
         </div>
@@ -110,10 +120,10 @@ export function CopyStaffRequestDayTimesPopover({
             className="text-muted-foreground"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="button" size="sm" className="rounded-full px-5" onClick={apply}>
-            Apply
+            {t("apply")}
           </Button>
         </div>
       </PopoverContent>

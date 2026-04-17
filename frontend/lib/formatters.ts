@@ -7,30 +7,30 @@ export function formatDateTime(date: Date) {
     return DATE_TIME_FORMATTER.format(date);
 }
 
-export function formatCurrency(amount: number, currency = "USD") {
+export function formatCurrency(amount: number, currency = "USD", fractionDigits = 2) {
     return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
     }).format(amount);
 }
 
 /** Hourly rate before pricing is accepted (null or ≤0). For badges: includes `/hr` when set. */
 export function formatJobHourlyRateLine(
   amount: number | null | undefined,
-  currency = "USD",
+  currency = "CAD",
   opts?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
 ) {
   if (amount == null || amount <= 0) return "Pending";
-  const min = opts?.minimumFractionDigits ?? 0;
-  const max = opts?.maximumFractionDigits ?? 0;
+  const min = opts?.minimumFractionDigits ?? 2;
+  const max = opts?.maximumFractionDigits ?? 2;
   return `${new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     minimumFractionDigits: min,
     maximumFractionDigits: max,
-  }).format(amount)}/hr`;
+  }).format(amount)}`;
 }
 
 /** Format time string (e.g. "09:00" or "09:00:00") to "9:00 AM" */

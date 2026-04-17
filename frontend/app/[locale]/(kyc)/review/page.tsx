@@ -1,7 +1,20 @@
 import { ClipboardCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { Metadata } from "next";
 
-export default function WorkerOnboardingReviewPage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "kyc.review.meta" });
+  return { title: t("title") };
+}
+
+export default async function WorkerOnboardingReviewPage() {
+  const t = await getTranslations("kyc.review");
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 rounded-lg border bg-muted/30 px-4 py-5 sm:flex-row sm:items-start">
@@ -9,21 +22,20 @@ export default function WorkerOnboardingReviewPage() {
           <ClipboardCheck className="size-6" strokeWidth={2} />
         </div>
         <div className="min-w-0 space-y-2 text-sm">
-          <p className="font-medium text-foreground">Profile under review</p>
+          <p className="font-medium text-foreground">{t("title")}</p>
           <p className="text-muted-foreground">
-            Thank you for finishing every step. Your application is now with our team for
-            verification. You&apos;ll hear from us by email or phone once we&apos;ve finished
-            reviewing your profile.  Most reviews are completed within{" "}
-            <span className="font-medium text-foreground">24 hours</span>, though it can
-            occasionally take a little longer during busy periods.
+            {t("bodyPrefix")}{" "}
+            <span className="font-medium text-foreground">
+              {t("bodyHighlight")}
+            </span>
+            {t("bodySuffix")}
           </p>
         </div>
       </div>
       <Alert>
-        <AlertTitle>What you can do now</AlertTitle>
+        <AlertTitle>{t("nextTitle")}</AlertTitle>
         <AlertDescription className="text-muted-foreground">
-          No further action is needed on this page. Check your inbox and messages for updates
-          from Muvmnt—we&apos;ll let you know as soon as your account is ready.
+          {t("nextBody")}
         </AlertDescription>
       </Alert>
     </div>

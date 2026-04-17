@@ -3,6 +3,10 @@
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { enqueueWorkerOnboardingSubmittedNotification } from "@/features/notifications/server/enqueue-worker-onboarding-submitted";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
+import {
+  onboardingStepError,
+  onboardingStepRawError,
+} from "@/features/onboarding/lib/step-error";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { payrollAccountMeetsOnboardingRequirements } from "@/features/payroll/dal/queries";
 
@@ -11,18 +15,20 @@ export const payrollAction = async (
   _formData: FormData,
 ): Promise<OnboardingStepFormState> => {
   const { user } = await getCurrentUser({ allData: true });
-  if (!user) return { ok: false, error: "User not found" };
+  if (!user) return onboardingStepError("userNotFound");
 
   const payrollOk = await payrollAccountMeetsOnboardingRequirements(user.id);
   if (!payrollOk.ok) {
-    return { ok: false, error: payrollOk.message };
+    return onboardingStepRawError(payrollOk.message);
   }
 
   const persist = await completeOnboardingStep("payroll", {
     markOnboardingCompleted: true,
   });
   if (persist.error) {
-    return { ok: false, error: persist.message ?? "Could not save onboarding progress" };
+    return persist.message
+      ? onboardingStepRawError(persist.message)
+      : onboardingStepError("persistFailed");
   }
 
   try {
@@ -32,5 +38,4 @@ export const payrollAction = async (
   }
 
   return { ok: true, redirectTo: "/review", steps: persist.steps };
-  // return { ok: true, redirectTo: "/onboarding/payroll", steps: persist.steps };
 };

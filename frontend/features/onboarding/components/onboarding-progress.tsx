@@ -1,13 +1,26 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useOnboarding } from "../onboarding-provider";
 import { Check } from "lucide-react";
+
+function useStepTitleLookup() {
+  const t = useTranslations("kyc.onboarding.steps");
+  return (stepId: string, fallback: string) => {
+    try {
+      return t(`${stepId}.title`);
+    } catch {
+      return fallback;
+    }
+  };
+}
 
 // ─── Desktop: vertical progress with number + title horizontally ──────────────
 
 function VerticalProgress() {
   const { steps, currentStepIndex, stepCompletion } = useOnboarding();
+  const titleFor = useStepTitleLookup();
 
   if (steps.length === 0) return null;
 
@@ -42,7 +55,7 @@ function VerticalProgress() {
                   (isActive || isComplete) ? "text-foreground" : "text-muted-foreground"
                 )}
               >
-                {step.title}
+                {titleFor(step.id, step.title)}
               </span>
             </div>
             {!isLast && (
@@ -64,13 +77,15 @@ function VerticalProgress() {
 
 function MobileDashes() {
   const { steps, currentStepIndex, step, stepCompletion } = useOnboarding();
+  const titleFor = useStepTitleLookup();
+  const tKyc = useTranslations("kyc.onboarding");
 
   if (steps.length === 0) return null;
 
   return (
     <div className="md:hidden space-y-2">
       <p className="text-sm font-medium text-muted-foreground">
-        {step?.title ?? "Onboarding"}
+        {step ? titleFor(step.id, step.title) : tKyc("progressFallback")}
       </p>
       <div className="flex gap-1.5">
         {steps.map((s, i) => {

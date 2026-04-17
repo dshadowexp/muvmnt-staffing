@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { format, isSameDay } from "date-fns";
 import { formatJobHourlyRateLine } from "@/lib/formatters";
@@ -19,12 +20,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function RequestsPage() {
+export default async function RequestsPage() {
+  const t = await getTranslations("dashboard.client.requests");
   return (
     <div className="w-full space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
-          Your requests
+          {t("title")}
         </h1>
         <Link
           href="/client/requests/new"
@@ -32,7 +34,7 @@ export default function RequestsPage() {
           className="text-muted-foreground hover:text-foreground inline-flex w-fit shrink-0 items-center gap-2 rounded-lg border border-dashed border-border bg-muted/15 px-3 py-2 text-sm font-medium transition-colors hover:border-primary/40 hover:bg-muted/30"
         >
           <PlusIcon className="size-4 shrink-0" aria-hidden />
-          New request
+          {t("newRequest")}
         </Link>
       </div>
 
@@ -74,7 +76,7 @@ function formatStaffRequestDateRange(startDate: string, endDate: string | null):
   const start = new Date(startDate);
   const startLabel = format(start, "MMM d, yyyy");
   if (endDate == null || endDate === "") {
-    return `${startLabel} (ongoing)`;
+    return `${startLabel}`;
   }
   const end = new Date(endDate);
   if (isSameDay(start, end)) {
@@ -84,11 +86,15 @@ function formatStaffRequestDateRange(startDate: string, endDate: string | null):
 }
 
 async function StaffRequests() {
+  const [infos, t] = await Promise.all([
+    getJobInfos(),
+    getTranslations("dashboard.client.requests"),
+  ]);
   const {
     data: staffRequests,
     error: staffRequestsError,
     message: staffRequestsMessage,
-  } = await getJobInfos();
+  } = infos;
   if (staffRequestsError) {
     return (
       <p className="text-muted-foreground text-sm">{staffRequestsMessage}</p>
@@ -98,8 +104,9 @@ async function StaffRequests() {
   if (staffRequests == null || staffRequests.length === 0) {
     return (
       <p className="text-muted-foreground text-sm">
-        You have no confirmed staff requests yet. Create one with{" "}
-        <span className="font-medium text-foreground">New request</span>.
+        {t("emptyPrefix")}{" "}
+        <span className="font-medium text-foreground">{t("emptyAction")}</span>
+        {t("emptySuffix")}
       </p>
     );
   }
@@ -117,7 +124,9 @@ async function StaffRequests() {
               <div className="flex items-center justify-between h-full">
                 <div className="space-y-4 h-full">
                   <CardHeader>
-                    <CardTitle className="text-md">{`Staff request ${staffRequest.id.substring(0, 8)}`}</CardTitle>
+                    <CardTitle className="text-md">
+                      {t("staffRequestId", { id: staffRequest.id.substring(0, 8) })}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="text-muted-foreground flex items-center gap-1.5 text-sm">
                     <CalendarIcon className="size-3.5 shrink-0" aria-hidden />

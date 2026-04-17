@@ -140,7 +140,6 @@ export function formatShiftWorkerTableDuration(
   end: string | null,
 ): string {
   const hours = shiftHoursBetween(start, end);
-  const hoursPart = hours != null && hours > 0 ? ` (${hours.toFixed(1)}h)` : "";
 
   if (start == null || start === "") return "—";
 
@@ -149,18 +148,18 @@ export function formatShiftWorkerTableDuration(
     if (end != null && end !== "") {
       const e = parseShiftInstant(end);
       if (e) {
-        return `${formatShiftInstantInZone(s, "h:mm a")} – ${formatShiftInstantInZone(e, "h:mm a")}${hoursPart}`;
+        return `${formatShiftInstantInZone(s, "h:mm a")} – ${formatShiftInstantInZone(e, "h:mm a")}`;
       }
     }
-    return `${formatShiftInstantInZone(s, "h:mm a")}${hoursPart}`;
+    return `${formatShiftInstantInZone(s, "h:mm a")}`;
   }
 
   if (isLikelyWallClockTimeOnly(start)) {
     const startT = formatTime(start);
     if (end != null && end !== "") {
-      return `${startT} – ${formatTime(end)}${hoursPart}`;
+      return `${startT} – ${formatTime(end)}`;
     }
-    return `${startT}${hoursPart}`;
+    return `${startT}`;
   }
 
   return "—";

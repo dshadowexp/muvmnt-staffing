@@ -4,7 +4,6 @@ import { useRouter } from "@/i18n/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import {
-  cancelWorkerShiftAction,
   checkInWorkerShiftAction,
   checkOutWorkerShiftAction,
   confirmWorkerShiftAction,
@@ -67,23 +66,6 @@ export function WorkerShiftActions({
               }
               toast.success("Shift updated");
               router.push("/worker/shifts");
-              router.refresh();
-            });
-          }}
-        />
-        <ShiftActionCard
-          title="Cancel shift"
-          description="Remove yourself from this shift before accepting. This cannot be undone."
-          disabled={isPending}
-          onClick={() => {
-            if (!window.confirm("Cancel this shift?")) return;
-            startTransition(async () => {
-              const res = await cancelWorkerShiftAction(shiftId);
-              if (res.error) {
-                toast.error(res.error);
-                return;
-              }
-              toast.success("Shift cancelled");
               router.refresh();
             });
           }}

@@ -84,40 +84,34 @@ export type Database = {
           },
         ]
       }
-      certifications: {
+      certification_quiz_cache: {
         Row: {
+          certification_id: string
           created_at: string
-          file_url: string
+          file_sha256: string
           id: string
-          is_verified: boolean
-          name: string
-          updated_at: string
-          user_id: string
+          questions: Json
         }
         Insert: {
+          certification_id: string
           created_at?: string
-          file_url: string
+          file_sha256: string
           id?: string
-          is_verified?: boolean
-          name: string
-          updated_at?: string
-          user_id: string
+          questions: Json
         }
         Update: {
+          certification_id?: string
           created_at?: string
-          file_url?: string
+          file_sha256?: string
           id?: string
-          is_verified?: boolean
-          name?: string
-          updated_at?: string
-          user_id?: string
+          questions?: Json
         }
         Relationships: [
           {
-            foreignKeyName: "certifications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "certification_quiz_cache_certification_id_fkey"
+            columns: ["certification_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "compliances"
             referencedColumns: ["id"]
           },
         ]
@@ -157,11 +151,83 @@ export type Database = {
           },
         ]
       }
-      interviews: {
+      compliances: {
         Row: {
           created_at: string
+          file_url: string | null
+          id: string
+          is_verified: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_verified?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_verified?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedbacks: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          rating: number | null
+          role: string
+          screenshot_key: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          message: string
+          rating?: number | null
+          role: string
+          screenshot_key?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          rating?: number | null
+          role?: string
+          screenshot_key?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interviews: {
+        Row: {
+          completed_at: string | null
+          created_at: string
           duration: string | null
-          feedback: string | null
+          feedback: Json | null
           hume_chat_id: string | null
           id: string
           subject: string
@@ -170,9 +236,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
           duration?: string | null
-          feedback?: string | null
+          feedback?: Json | null
           hume_chat_id?: string | null
           id?: string
           subject: string
@@ -181,9 +248,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
           duration?: string | null
-          feedback?: string | null
+          feedback?: Json | null
           hume_chat_id?: string | null
           id?: string
           subject?: string
@@ -374,6 +442,242 @@ export type Database = {
           },
         ]
       }
+      quizes: {
+        Row: {
+          answers: Json | null
+          completed_at: string | null
+          created_at: string
+          generation: Json | null
+          id: string
+          passed: boolean | null
+          questions: Json
+          score: number | null
+          skill_id: string
+          total_questions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          generation?: Json | null
+          id?: string
+          passed?: boolean | null
+          questions: Json
+          score?: number | null
+          skill_id: string
+          total_questions: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          generation?: Json | null
+          id?: string
+          passed?: boolean | null
+          questions?: Json
+          score?: number | null
+          skill_id?: string
+          total_questions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quizes_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quizes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          free_hours: number | null
+          id: string
+          referred_id: string
+          referrer_id: string
+          referrer_role: string
+          reward_cents: number | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          free_hours?: number | null
+          id?: string
+          referred_id: string
+          referrer_id: string
+          referrer_role: string
+          reward_cents?: number | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          free_hours?: number | null
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          referrer_role?: string
+          reward_cents?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
+      shift_ratings: {
+        Row: {
+          client_user_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          shift_id: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          client_user_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          shift_id: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          client_user_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          shift_id?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_ratings_client_user_id_fkey"
+            columns: ["client_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_ratings_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_ratings_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_tips: {
+        Row: {
+          amount_cents: number
+          client_user_id: string
+          created_at: string
+          currency: string
+          id: string
+          shift_id: string
+          status: string
+          stripe_destination_account_id: string
+          stripe_payment_intent_id: string
+          worker_id: string
+        }
+        Insert: {
+          amount_cents: number
+          client_user_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          shift_id: string
+          status?: string
+          stripe_destination_account_id: string
+          stripe_payment_intent_id: string
+          worker_id: string
+        }
+        Update: {
+          amount_cents?: number
+          client_user_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          shift_id?: string
+          status?: string
+          stripe_destination_account_id?: string
+          stripe_payment_intent_id?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_tips_client_user_id_fkey"
+            columns: ["client_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_tips_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_tips_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shifts: {
         Row: {
           checkin_time: string | null
@@ -382,12 +686,12 @@ export type Database = {
           complete_time: string | null
           confirm_time: string | null
           created_at: string
-          end_time: string | null
+          end_time: string
           hourly_rate: number | null
           id: string
           location: Json | null
           request_id: string
-          start_time: string | null
+          start_time: string
           status: string | null
           updated_at: string
           worker_id: string
@@ -399,12 +703,12 @@ export type Database = {
           complete_time?: string | null
           confirm_time?: string | null
           created_at?: string
-          end_time?: string | null
+          end_time: string
           hourly_rate?: number | null
           id?: string
           location?: Json | null
           request_id: string
-          start_time?: string | null
+          start_time: string
           status?: string | null
           updated_at?: string
           worker_id: string
@@ -416,12 +720,12 @@ export type Database = {
           complete_time?: string | null
           confirm_time?: string | null
           created_at?: string
-          end_time?: string | null
+          end_time?: string
           hourly_rate?: number | null
           id?: string
           location?: Json | null
           request_id?: string
-          start_time?: string | null
+          start_time?: string
           status?: string | null
           updated_at?: string
           worker_id?: string
@@ -446,6 +750,41 @@ export type Database = {
             columns: ["worker_id"]
             isOneToOne: false
             referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skills: {
+        Row: {
+          assessed: boolean
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessed?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessed?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -632,6 +971,7 @@ export type Database = {
       }
       workers: {
         Row: {
+          auto_confirm: boolean
           availability_timezone: string | null
           created_at: string
           date_of_birth: string
@@ -646,6 +986,7 @@ export type Database = {
           years_exp: number
         }
         Insert: {
+          auto_confirm?: boolean
           availability_timezone?: string | null
           created_at?: string
           date_of_birth: string
@@ -660,6 +1001,7 @@ export type Database = {
           years_exp: number
         }
         Update: {
+          auto_confirm?: boolean
           availability_timezone?: string | null
           created_at?: string
           date_of_birth?: string

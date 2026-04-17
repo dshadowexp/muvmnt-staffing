@@ -106,3 +106,70 @@ export async function completeClientShiftAction(
 ): Promise<{ error: string | null }> {
   return clientShiftApi(shiftId, "/complete", "POST");
 }
+
+async function clientShiftApiWithBody<TBody, TReply>(
+  shiftId: string,
+  pathSuffix: string,
+  body: TBody,
+): Promise<{ error: string | null; data: TReply | null }> {
+  const session = await getSession();
+  if (!session?.token) {
+    return { error: "You must be signed in.", data: null };
+  }
+  if (session.role !== "client") {
+    return { error: "Only clients can review shifts.", data: null };
+  }
+
+  const url = `${env.NEXT_PUBLIC_API_URL}/v1/shifts/${encodeURIComponent(shiftId)}${pathSuffix}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const payload = (await res.json().catch(() => null)) as
+    | (TReply & { message?: string })
+    | { message?: string }
+    | null;
+  if (!res.ok) {
+    const message = payload?.message ?? `Request failed (${res.status})`;
+    return { error: message, data: null };
+  }
+  return { error: null, data: (payload as TReply) ?? null };
+}
+
+/** Client rates a completed shift (1–5 stars, optional comment). */
+export async function rateClientShiftAction(
+  shiftId: string,
+  input: { rating: number; comment?: string },
+): Promise<{ error: string | null }> {
+  const res = await clientShiftApiWithBody<typeof input, { ok: true }>(
+    shiftId,
+    "/rating",
+    input,
+  );
+  return { error: res.error };
+}
+
+/**
+ * Client tips a completed shift. The server charges the client's saved card and
+ * routes the funds directly to the worker's Stripe Connect account.
+ */
+export async function tipClientShiftAction(
+  shiftId: string,
+  input: { amountCents: number },
+): Promise<{ error: string | null; amountCents?: number; currency?: string }> {
+  const res = await clientShiftApiWithBody<
+    typeof input,
+    { ok: true; paymentIntentId: string; amountCents: number; currency: string }
+  >(shiftId, "/tip", input);
+  if (res.error || !res.data) return { error: res.error };
+  return {
+    error: null,
+    amountCents: res.data.amountCents,
+    currency: res.data.currency,
+  };
+}

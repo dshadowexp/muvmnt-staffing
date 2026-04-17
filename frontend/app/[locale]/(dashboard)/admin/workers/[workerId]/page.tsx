@@ -12,7 +12,7 @@ import { AdminWorkerAccountActiveEditor } from "@/features/admin/components/admi
 import { AdminWorkerStatusEditor } from "@/features/admin/components/admin-worker-status-editor";
 import {
   AdminWorkerAuthorizationsFileOpen,
-  AdminWorkerCertificationsFileOpen,
+  AdminWorkerCompliancesFileOpen,
   AdminWorkerProfilePhotoOpen,
 } from "@/features/admin/components/admin-worker-review-file-open";
 import { Link } from "@/i18n/navigation";
@@ -54,7 +54,7 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
   const data = await getAdminWorkerReview(workerId);
   if (!data) notFound();
 
-  const { worker, user, certifications, authorizations, payroll } = data;
+  const { worker, user, compliances, authorizations, payroll } = data;
 
   return (
     <div className="flex w-full max-w-6xl flex-col gap-6">
@@ -165,16 +165,22 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
 
       <Card size="sm">
         <CardHeader>
-          <CardTitle>Certifications</CardTitle>
-          <CardDescription>Credentials on file</CardDescription>
+          <CardTitle>Compliance documents</CardTitle>
+          <CardDescription>Uploaded compliance credentials</CardDescription>
         </CardHeader>
         <CardContent>
-          {certifications.length === 0 ? (
+          {compliances.length === 0 ? (
             <p className="text-muted-foreground text-sm">None on file.</p>
           ) : (
-            <AdminWorkerCertificationsFileOpen
+            <AdminWorkerCompliancesFileOpen
               workerId={worker.id}
-              items={certifications}
+              items={compliances.map((c) => ({
+                id: c.id,
+                name: c.name,
+                file_url: c.file_url ?? "",
+                is_verified: c.is_verified,
+                created_at: c.created_at,
+              }))}
             />
           )}
         </CardContent>

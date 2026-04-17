@@ -1,8 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   dashboardAccountHrefForRole,
-  dashboardAccountLabelForRole,
+  dashboardAccountLabelKeyForRole,
 } from "@/app/[locale]/(dashboard)/_components/dashboard-account";
 import {
   UserAccountDropdownMenuItems,
@@ -45,14 +46,15 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
   const { authUser, firebaseUser, loading } = useAuth();
+  const tAccount = useTranslations("dashboard.accountMenu");
   const role = authUser?.role ?? null;
   const accountHref = dashboardAccountHrefForRole(role);
-  const accountLabel = dashboardAccountLabelForRole(role);
+  const accountLabel = tAccount(dashboardAccountLabelKeyForRole(role));
 
   const menuUser: UserAccountMenuUser =
     menuUserProp ??
     ({
-      name: firebaseUser?.displayName?.trim() || "Account",
+      name: firebaseUser?.displayName?.trim() || tAccount("defaultName"),
       email: firebaseUser?.email ?? "",
       avatar: firebaseUser?.photoURL ?? "",
     } satisfies UserAccountMenuUser);
@@ -76,12 +78,12 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label="Notifications"
+                aria-label={tAccount("notifications")}
               >
                 <BellIcon className="size-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">Notifications</TooltipContent>
+            <TooltipContent side="bottom">{tAccount("notifications")}</TooltipContent>
           </Tooltip>
           <LanguageSwitcher variant="ghost" />
           <ThemeToggle />
@@ -96,7 +98,7 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
                 variant="ghost"
                 size="icon"
                 className="size-9 shrink-0 rounded-full p-0"
-                aria-label="Account menu"
+                aria-label={tAccount("accountMenuAria")}
                 disabled={loading && !menuUserProp}
               >
                 <Avatar className="size-8 rounded-full">

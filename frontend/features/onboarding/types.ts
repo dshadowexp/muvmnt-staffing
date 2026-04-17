@@ -14,9 +14,20 @@ export type CompleteOnboardingStepResult =
   | { error: true; message?: string }
   | { error: false; steps: OnboardingStepsJson };
 
-/** `useActionState` result for onboarding “Continue” server actions. */
+/**
+ * `useActionState` result for onboarding “Continue” server actions.
+ *
+ * `errorKey` is a stable key under `kyc.onboarding.errors` that clients translate.
+ * `error` stays populated as an English fallback if translation is unavailable.
+ * `errorValues` provides ICU interpolation values for the translated message.
+ */
 export type OnboardingStepFormState =
-  | { ok: false; error: string }
+  | {
+      ok: false;
+      error: string;
+      errorKey?: string;
+      errorValues?: Record<string, string | number>;
+    }
   | { ok: true; redirectTo: string; steps: OnboardingStepsJson };
 
 export function parseOnboardingSteps(raw: unknown): OnboardingStepsJson {

@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/app/[locale]/(dashboard)/_components/app-sidebar";
+import { PushTokenRegistrar } from "@/app/[locale]/(dashboard)/_components/push-token-registrar";
 import { SiteHeader } from "@/app/[locale]/(dashboard)/_components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -13,6 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             style={shellStyle}
             className="h-svh min-h-0 overflow-hidden"
         >
+            <PushTokenRegistrar />
             <AppSidebar variant="inset" />
             <SidebarInset className="min-h-0 flex-1 overflow-hidden">
                 <SiteHeader />

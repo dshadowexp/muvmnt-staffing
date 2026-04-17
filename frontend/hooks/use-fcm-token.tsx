@@ -15,17 +15,13 @@ async function getNotificationPermission() {
 
     if (Notification.permission === 'granted') {
         return await fetchToken()
-    }
-
-    if (Notification.permission === 'denied') {
+    } else {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             return await fetchToken();
         }
-        console.log("The user has blocked notifications");
     }
-
-    console.log("The user has not granted permission to receive notifications");
+    
     return null;
 }
 
@@ -85,11 +81,11 @@ export const useFcmToken = () => {
                 const link = payload.fcmOptions?.link || payload.data?.link;
                 if (!link) {
                     toast.info(
-                        `{payload.notification?.title}: ${payload.notification?.body}`,
+                        `${payload.notification?.title}: ${payload.notification?.body}`,
                     )
                 } else {
                     toast.info(
-                        `{payload.notification?.title}: ${payload.notification?.body}`,
+                        `${payload.notification?.title}: ${payload.notification?.body}`,
                         {
                             action: {
                                 label: "Visit",

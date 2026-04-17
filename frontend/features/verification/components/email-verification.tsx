@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sendEmailVerification } from "firebase/auth";
+import { useTranslations } from "next-intl";
 import { auth } from "@/services/firebase/client";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export function EmailVerification() {
   const [cooldown, setCooldown] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const t = useTranslations("kyc.onboarding.forms.verification");
 
   const startPolling = useCallback(() => {
     if (pollRef.current) return;
@@ -57,11 +59,11 @@ export function EmailVerification() {
       startCooldown();
       startPolling();
     } catch {
-      setError("Couldn't send the email. Please try again.");
+      setError(t("emailSendFailed"));
     } finally {
       setSending(false);
     }
-  }, [startCooldown, startPolling]);
+  }, [startCooldown, startPolling, t]);
 
   useEffect(() => {
     return () => {
@@ -77,12 +79,12 @@ export function EmailVerification() {
     <section className="space-y-3" aria-labelledby="email-verification-heading">
       <div className="flex items-center justify-between gap-2">
         <FieldLabel id="email-verification-heading" className="font-semibold">
-          Email
+          {t("emailLabel")}
         </FieldLabel>
         {!authLoading && user?.emailVerified ? (
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
             <Check className="size-4" aria-hidden />
-            Verified
+            {t("verifiedBadge")}
           </span>
         ) : null}
       </div>
@@ -113,8 +115,7 @@ export function EmailVerification() {
 
                 {sent ? (
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    Check your inbox and click the link — this page updates
-                    automatically.
+                    {t("emailCheckInbox")}
                   </p>
                 ) : null}
               </div>
@@ -128,19 +129,19 @@ export function EmailVerification() {
                   <LoadingSwap isLoading={sending}>
                     <span>
                       {sending
-                        ? "Sending…"
+                        ? t("sending")
                         : sent
                           ? cooldown > 0
-                            ? `Resend in ${cooldown}s`
-                            : "Resend"
-                          : "Send link"}
+                            ? t("resendIn", { seconds: cooldown })
+                            : t("resend")
+                          : t("sendEmail")}
                     </span>
                   </LoadingSwap>
                 </Button>
 
                 {sent && !user?.emailVerified ? (
                   <Button variant="ghost" size="sm" type="button" onClick={startPolling}>
-                    Check again
+                    {t("checkAgain")}
                   </Button>
                 ) : null}
               </div>

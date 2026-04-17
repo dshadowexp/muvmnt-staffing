@@ -2,6 +2,7 @@
 
 import type { MouseEvent } from "react";
 import { CreditCard, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -31,6 +32,7 @@ export function PaymentMethodCard({
     onDelete: () => Promise<void>;
     deleting?: boolean;
 }) {
+    const t = useTranslations("kyc.onboarding.forms.billing");
     const exp = `${String(card.expMonth).padStart(2, "0")}/${String(card.expYear).slice(-2)}`;
 
     const handleDelete = async (e: MouseEvent<HTMLButtonElement>) => {
@@ -39,7 +41,7 @@ export function PaymentMethodCard({
         try {
             await onDelete();
         } catch {
-        toast.error("Failed to delete card");
+            toast.error(t("deleteFailed"));
         }
     };
 
@@ -64,8 +66,8 @@ export function PaymentMethodCard({
                     className="shrink-0 text-muted-foreground hover:text-destructive"
                     disabled={deleting}
                     onClick={handleDelete}
-                    title="Remove card"
-                    aria-label="Remove card"
+                    title={t("removeCard")}
+                    aria-label={t("removeCard")}
                 >
                     {deleting ? <Spinner className="size-3.5" /> : <Trash2 className="size-3.5" />}
                 </Button>

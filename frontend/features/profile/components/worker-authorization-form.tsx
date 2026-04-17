@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { WORK_AUTHORIZATION_TYPES } from "@/lib/constants";
 import type { WorkAuthorization } from "@/types";
-import { authorizationSchema, type AuthorizationFormValues } from "@/features/profile/schemas/authorization";
+import {
+  buildAuthorizationSchema,
+  type AuthorizationFormValues,
+} from "@/features/profile/schemas/authorization";
 import {
   upsertWorkAuthorizationAction,
   deleteWorkAuthorizationAction,
@@ -47,12 +51,15 @@ export function WorkerAuthorizationForm({
     initialWorkAuthorization?.file_url ?? null
   );
   const [saving, setSaving] = useState(false);
+  const t = useTranslations("kyc.onboarding.forms.authorization");
+  const tVal = useTranslations("kyc.onboarding.validation");
+  const schema = useMemo(() => buildAuthorizationSchema(tVal), [tVal]);
 
   const form = useForm<AuthorizationFormValues>({
     defaultValues: {
       workAuthorization: (initialWorkAuthorization?.type ?? "") as WorkAuthorization,
     },
-    resolver: zodResolver(authorizationSchema),
+    resolver: zodResolver(schema),
   });
 
   const { setValue, watch } = form;
@@ -119,7 +126,7 @@ export function WorkerAuthorizationForm({
       try {
         await deleteFile(keyToDelete);
       } catch {
-        toast.error("Failed to remove file from storage.");
+        toast.error(t("removeFileFailed"));
       }
 
       const { error, message } = await deleteWorkAuthorizationAction();
@@ -131,21 +138,21 @@ export function WorkerAuthorizationForm({
     return (
       <FieldGroup>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge>Verified</Badge>
+          <Badge>{t("verifiedBadge")}</Badge>
           <span className="text-muted-foreground text-sm">
-            This information was reviewed and can&apos;t be changed here.
+            {t("verifiedNotice")}
           </span>
         </div>
         <Field>
-          <FieldLabel>Work authorization type</FieldLabel>
+          <FieldLabel>{t("typeLabel")}</FieldLabel>
           <p className="text-sm">
-            {initialWorkAuthorization?.type ?? "—"}
+            {initialWorkAuthorization?.type ?? t("none")}
           </p>
         </Field>
         <Field>
-          <FieldLabel>Authorization document</FieldLabel>
+          <FieldLabel>{t("documentLabel")}</FieldLabel>
           <p className="text-sm">
-            {fileKey ? "Document on file." : "—"}
+            {fileKey ? t("documentOnFile") : t("none")}
           </p>
         </Field>
       </FieldGroup>
@@ -156,19 +163,17 @@ export function WorkerAuthorizationForm({
     <>
       <FieldGroup>
         <Field data-invalid={!!form.formState.errors.workAuthorization}>
-          <FieldLabel>Work authorization type</FieldLabel>
-          <FieldDescription>
-            Select your legal status to work in Canada
-          </FieldDescription>
+          <FieldLabel>{t("typeLabel")}</FieldLabel>
+          <FieldDescription>{t("typeDescription")}</FieldDescription>
           <MultiSelect
             single
             values={workAuthorization ? [workAuthorization] : []}
             onValuesChange={handleTypeChange}
           >
             <MultiSelectTrigger className="w-full">
-              <MultiSelectValue placeholder="Select work authorization..." />
+              <MultiSelectValue placeholder={t("typePlaceholder")} />
             </MultiSelectTrigger>
-            <MultiSelectContent search={{ placeholder: "Search..." }}>
+            <MultiSelectContent search={{ placeholder: t("typeSearch") }}>
               <MultiSelectGroup>
                 {(WORK_AUTHORIZATION_TYPES as WorkAuthorization[]).map((auth) => (
                   <MultiSelectItem key={auth} value={auth}>
@@ -184,7 +189,7 @@ export function WorkerAuthorizationForm({
         {hasType && (
           <Field>
             <FieldDescription>
-              Upload copy of your {workAuthorization} document.
+              {t("uploadDescription", { type: workAuthorization })}
             </FieldDescription>
             <FileInput
               context="compliance"
@@ -201,7 +206,7 @@ export function WorkerAuthorizationForm({
           <LoadingSwap isLoading>
             <span />
           </LoadingSwap>
-          Saving...
+          {t("saving")}
         </div>
       )}
     </>

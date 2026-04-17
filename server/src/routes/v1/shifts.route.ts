@@ -2,9 +2,15 @@ import { FastifyInstance, FastifyRequest } from 'fastify';
 import { ErrorReply } from '../../schemas';
 import { ShiftIdParams } from '../../schemas/shifts.schema';
 import {
+  RateShiftBody,
+  TipShiftBody,
+  TipShiftReply,
+} from '../../schemas/shift-review.schema';
+import {
   OkReply,
 } from '../../schemas/staff-requests.schema';
 import { completeClientShift } from '../../services/shifts/client-shift-actions.service';
+import { rateClientShift, tipClientShift } from '../../services/shifts/shift-review.service';
 import {
   cancelWorkerShift,
   checkInWorkerShift,
@@ -211,6 +217,98 @@ export default async function shiftsRoutes(app: FastifyInstance): Promise<void> 
         });
       }
       return reply.code(200).send({ ok: true as const });
+    },
+  );
+
+  app.post(
+    '/:shiftId/rating',
+    {
+      onRequest: [app.authenticate, app.requireRole(['client'])],
+      schema: {
+        summary: 'Client rates worker on a completed shift (upsert)',
+        tags:    ['Shifts'],
+        params:  ShiftIdParams,
+        body:    RateShiftBody,
+        response: { 200: OkReply, 400: ErrorReply, 401: ErrorReply, 403: ErrorReply },
+      },
+    },
+    async (request: FastifyRequest<{ Params: { shiftId: string }; Body: unknown }>, reply) => {
+      const params = ShiftIdParams.safeParse(request.params);
+      if (!params.success) {
+        return reply.code(400).send({
+          statusCode: 400,
+          error:      'Bad Request',
+          message:    params.error.issues[0]?.message ?? 'Invalid shift id',
+        });
+      }
+
+      const body = RateShiftBody.safeParse(request.body);
+      if (!body.success) {
+        return reply.code(400).send({
+          statusCode: 400,
+          error:      'Bad Request',
+          message:    body.error.issues[0]?.message ?? 'Invalid rating',
+        });
+      }
+
+      const result = await rateClientShift(request.user.sub, params.data.shiftId, body.data);
+      if (!result.ok) {
+        return reply.code(400).send({
+          statusCode: 400,
+          error:      'Bad Request',
+          message:    result.message,
+        });
+      }
+      return reply.code(200).send({ ok: true as const });
+    },
+  );
+
+  app.post(
+    '/:shiftId/tip',
+    {
+      onRequest: [app.authenticate, app.requireRole(['client'])],
+      schema: {
+        summary:
+          'Client tips worker on a completed shift — charges saved card and routes funds directly to the worker’s Connect account',
+        tags:    ['Shifts'],
+        params:  ShiftIdParams,
+        body:    TipShiftBody,
+        response: { 200: TipShiftReply, 400: ErrorReply, 401: ErrorReply, 403: ErrorReply },
+      },
+    },
+    async (request: FastifyRequest<{ Params: { shiftId: string }; Body: unknown }>, reply) => {
+      const params = ShiftIdParams.safeParse(request.params);
+      if (!params.success) {
+        return reply.code(400).send({
+          statusCode: 400,
+          error:      'Bad Request',
+          message:    params.error.issues[0]?.message ?? 'Invalid shift id',
+        });
+      }
+
+      const body = TipShiftBody.safeParse(request.body);
+      if (!body.success) {
+        return reply.code(400).send({
+          statusCode: 400,
+          error:      'Bad Request',
+          message:    body.error.issues[0]?.message ?? 'Invalid tip amount',
+        });
+      }
+
+      const result = await tipClientShift(request.user.sub, params.data.shiftId, body.data);
+      if (!result.ok) {
+        return reply.code(400).send({
+          statusCode: 400,
+          error:      'Bad Request',
+          message:    result.message,
+        });
+      }
+      return reply.code(200).send({
+        ok:              true as const,
+        paymentIntentId: result.paymentIntentId,
+        amountCents:     result.amountCents,
+        currency:        result.currency,
+      });
     },
   );
 

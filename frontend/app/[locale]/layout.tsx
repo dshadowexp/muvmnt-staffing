@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit } from "next/font/google"
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { getTranslations } from "next-intl/server";
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { SITE_NAME } from "@/lib/constants";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/providers/auth-provider";
@@ -16,48 +17,59 @@ const outfitSans = Outfit({
   subsets: ["latin"],
 })
 
-export const metadata: Metadata = {
-  title: {
-    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
-    template: `%s | ${SITE_NAME}`,
-  },
-  description:
-    "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief across Canada.",
-  keywords: [
-    "healthcare staffing Canada",
-    "nursing agency Ontario",
-    "PSW placement",
-    "temp healthcare staff",
-    "RN RPN staffing agency",
-    "home care staffing",
-  ],
-  openGraph: {
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
-    description: "Fast, reliable healthcare staffing solutions for Canadian facilities.",
-    type: "website",
-    siteName: SITE_NAME,
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Muvmnt Staffing Inc.",
-      },
-    ],
-  },
-  robots: {
-    index: true,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-snippet': -1,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "site" });
+  const tMeta = await getTranslations({ locale, namespace: "meta" });
+
+  const title = `${t("name")} — ${t("tagline")}`;
+
+  return {
+    title: {
+      default: title,
+      template: `%s | ${SITE_NAME}`,
     },
-  },
-};
+    description: tMeta("description"),
+    keywords: [
+      "healthcare staffing Canada",
+      "nursing agency Ontario",
+      "PSW placement",
+      "temp healthcare staff",
+      "RN RPN staffing agency",
+      "home care staffing",
+    ],
+    openGraph: {
+      title,
+      description: tMeta("openGraphDescription"),
+      type: "website",
+      siteName: SITE_NAME,
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: tMeta("openGraphImageAlt"),
+        },
+      ],
+    },
+    robots: {
+      index: true,
+      follow: false,
+      nocache: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-snippet": -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+      },
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({locale}));

@@ -83,7 +83,6 @@ export async function processShiftPayoutJob(shiftId: string): Promise<void> {
   }
 
   const amountCents = Math.max(1, Math.round(hours * hourly * 100));
-  const currency = config.stripe.currency.toLowerCase();
 
   const { data: worker, error: wErr } = await supabase
     .from('workers')
@@ -107,16 +106,56 @@ export async function processShiftPayoutJob(shiftId: string): Promise<void> {
     return;
   }
 
-  logger.info({ shiftId, amountCents, currency, payroll }, 'shift.payout: creating Stripe transfer');
+  const { data: payment, error: payErr } = await supabase
+    .from('payments')
+    .select('stripe_payment_id')
+    .eq('request_id', row.request_id)
+    .eq('status', 'succeeded')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (payErr) {
+    logger.error({ shiftId, err: payErr }, 'shift.payout: failed to look up payment');
+    throw new Error(payErr.message);
+  }
+
+  if (payment == null) {
+    logger.error({ shiftId, requestId: row.request_id }, 'shift.payout: no payment found for request');
+    return;
+  }
+
+  let sourceChargeId: string | undefined;
+  let sourceChargeCurrency: string | undefined;
+  if (payment?.stripe_payment_id) {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(payment.stripe_payment_id);
+      const charge = typeof pi.latest_charge === 'string'
+        ? pi.latest_charge
+        : pi.latest_charge?.id;
+      if (charge) {
+        sourceChargeId = charge;
+        sourceChargeCurrency = pi.currency;
+        logger.info({ shiftId, sourceChargeId }, 'shift.payout: resolved source charge');
+      }
+    } catch (err) {
+      logger.warn({ shiftId, err }, 'shift.payout: could not resolve source charge, proceeding without');
+    }
+  } else {
+    logger.warn({ shiftId, requestId: row.request_id }, 'shift.payout: no payment found for request');
+  }
+
+  const currency = sourceChargeCurrency ?? config.stripe.currency.toLowerCase();
 
   let stripeTransferId: string;
   try {
     const transfer = await stripe.transfers.create(
       {
         amount:      amountCents,
-        currency,
+        currency:    currency,
         destination: payroll.stripe_account_id,
         transfer_group: row.request_id,
+        ...(sourceChargeId ? { source_transaction: sourceChargeId } : {}),
         metadata:    { shift_id: shiftId, worker_id: row.worker_id },
       },
       // { idempotencyKey: `shift-payout-transfer-${shiftId}` },

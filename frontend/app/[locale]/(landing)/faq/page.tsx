@@ -1,20 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
-import { SITE_NAME } from "@/lib/constants";
 import { FaqAccordion } from "./_components/faq-accordion";
-import { FAQ_ITEMS } from "./faq-data";
 
-export const metadata: Metadata = {
-  title: "FAQ",
-  description: `Common questions about ${SITE_NAME} — healthcare staffing for facilities and professionals in Canada.`,
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "faq.meta" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
-export default function FaqPage() {
+type FaqItem = { id: string; question: string; answer: string };
+
+export default async function FaqPage() {
+  const t = await getTranslations("faq");
+  const tCommon = await getTranslations("common");
+  const items = t.raw("items") as FaqItem[];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQ_ITEMS.map((item) => ({
+    mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: {
@@ -41,42 +54,34 @@ export default function FaqPage() {
               href="/"
               className="text-white/40 no-underline transition-colors hover:text-white/60"
             >
-              Home
+              {tCommon("home")}
             </Link>
             <span>/</span>
-            <span className="text-primary">FAQ</span>
+            <span className="text-primary">{t("breadcrumb")}</span>
           </div>
 
           <h1 className="font-[var(--font-display)] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            Frequently asked questions
+            {t("title")}
           </h1>
           <p className="mt-4 max-w-2xl text-base font-light leading-relaxed text-white/65">
-            Quick answers about how {SITE_NAME} works for healthcare teams and
-            professionals. Can&apos;t find what you need?{" "}
-            <a
-              href={`mailto:info@muvmnt.ca`}
-              className="font-medium text-primary no-underline hover:underline"
-            >
-              Contact us
-            </a>
-            .
+            {t("subtitle")}
           </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-3xl px-6 py-14 lg:px-8">
-        <FaqAccordion items={FAQ_ITEMS} />
+        <FaqAccordion items={items} />
 
         <div className="mt-14 rounded-2xl border bg-muted/30 px-6 py-8 text-center">
           <p className="mb-4 text-sm font-medium text-foreground">
-            Ready to get started?
+            {t("cta.title")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button asChild>
-              <Link href="/sign-up">Create free account</Link>
+              <Link href="/find-staff">{t("cta.primary")}</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/find-work">Find work</Link>
+              <Link href="/find-work">{t("cta.secondary")}</Link>
             </Button>
           </div>
         </div>

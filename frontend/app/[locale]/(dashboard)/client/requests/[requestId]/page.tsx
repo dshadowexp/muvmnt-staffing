@@ -38,11 +38,6 @@ import { notFound } from "next/navigation";
 
 const options = [
   {
-    label: "Extend Request",
-    description: "Extend the request for the same staff again.",
-    href: "extend",
-  },
-  {
     label: "Generate Report",
     description: "Generate a report for this staff request.",
     href: "report",

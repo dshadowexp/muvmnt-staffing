@@ -9,6 +9,7 @@ import {
 export type WorkerAvailabilityInitial = {
   timezone: string;
   week: WeekAvailabilityState;
+  autoConfirm: boolean;
 };
 
 export async function getWorkerAvailabilityInitial(): Promise<WorkerAvailabilityInitial | null> {
@@ -27,7 +28,7 @@ export async function getWorkerAvailabilityInitial(): Promise<WorkerAvailability
         .order("day_of_week", { ascending: true }),
       supabase
         .from("workers")
-        .select("availability_timezone")
+        .select("availability_timezone, auto_confirm")
         .eq("user_id", userId)
         .maybeSingle(),
     ]);
@@ -43,5 +44,5 @@ export async function getWorkerAvailabilityInitial(): Promise<WorkerAvailability
   const timezone =
     worker?.availability_timezone?.trim() || "America/Toronto";
 
-  return { timezone, week };
+  return { timezone, week, autoConfirm: worker?.auto_confirm ?? false };
 }

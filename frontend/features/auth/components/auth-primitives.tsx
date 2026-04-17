@@ -1,5 +1,8 @@
+"use client";
+
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 /* ── Error banner ── */
 
@@ -32,11 +35,12 @@ export function SuccessBanner({ message }: { message: string }) {
 /* ── OR divider ── */
 
 export function OrDivider() {
+  const t = useTranslations("common");
   return (
     <div className="flex items-center gap-3">
       <div className="h-px flex-1 bg-border" />
       <span className="text-[0.72rem] font-light tracking-wide text-muted-foreground">
-        OR
+        {t("or")}
       </span>
       <div className="h-px flex-1 bg-border" />
     </div>
@@ -46,15 +50,16 @@ export function OrDivider() {
 /* ── Legal note ── */
 
 export function AuthLegalNote() {
+  const t = useTranslations("auth.legal");
   return (
     <p className="text-center text-[0.72rem] font-light leading-[1.65] text-muted-foreground">
-      By continuing, you agree to Muvmnt&apos;s{" "}
+      {t("prefix")}{" "}
       <Link href="/privacy" className="text-primary no-underline hover:underline">
-        Privacy Policy
+        {t("privacy")}
       </Link>{" "}
-      and{" "}
+      {t("and")}{" "}
       <Link href="/terms" className="text-primary no-underline hover:underline">
-        Terms of Use
+        {t("terms")}
       </Link>
       .
     </p>

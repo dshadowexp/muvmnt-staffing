@@ -1,7 +1,6 @@
 import {
   HeroSection,
   TrustBar,
-  ServicesSection,
   HowItWorksSection,
   WhyUsSection,
   TestimonialsSection,
@@ -12,7 +11,6 @@ export default function HomePage() {
     <>
       <HeroSection />
       <TrustBar />
-      <ServicesSection />
       <HowItWorksSection />
       <WhyUsSection />
       <TestimonialsSection />

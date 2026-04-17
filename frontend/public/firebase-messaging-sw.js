@@ -2,13 +2,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js
 importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+    apiKey: "AIzaSyDSX5uaF_WxSbYGgGpBpFBfHA8l4AQDJSE",
+    authDomain: "muvmnt-staffing.firebaseapp.com",
+    projectId: "muvmnt-staffing",
+    storageBucket: "muvmnt-staffing.firebasestorage.app",
+    messagingSenderId: "708398926380",
+    appId: "1:708398926380:web:4452b531b501a1783a5f89",
+    measurementId: "G-1H25MV66NQ",
 });
 
 const messaging = firebase.messaging();

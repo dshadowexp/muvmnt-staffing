@@ -89,8 +89,8 @@ export type AdminWorkerReview = {
     | "is_phone_verified"
     | "is_active"
   > | null;
-  certifications: Pick<
-    Tables<"certifications">,
+  compliances: Pick<
+    Tables<"compliances">,
     "id" | "name" | "file_url" | "is_verified" | "created_at"
   >[];
   authorizations: Pick<
@@ -122,9 +122,9 @@ export const getAdminWorkerReview = cache(
 
     const uid = worker.user_id;
 
-    const [certsRes, authsRes, payrollRes, userRes] = await Promise.all([
+    const [compliancesRes, authsRes, payrollRes, userRes] = await Promise.all([
       supabase
-        .from("certifications")
+        .from("compliances")
         .select("id, name, file_url, is_verified, created_at")
         .eq("user_id", uid)
         .order("created_at", { ascending: true }),
@@ -152,7 +152,7 @@ export const getAdminWorkerReview = cache(
     return {
       worker,
       user: userRes.data ?? null,
-      certifications: certsRes.data ?? [],
+      compliances: compliancesRes.data ?? [],
       authorizations: authsRes.data ?? [],
       payroll: payrollRes.data ?? null,
     };

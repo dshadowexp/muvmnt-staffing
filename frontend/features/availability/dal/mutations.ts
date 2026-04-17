@@ -49,6 +49,7 @@ export async function saveWorkerAvailabilityBundle(
     .from("workers")
     .update({
       availability_timezone: payload.timezone,
+      auto_confirm: payload.autoConfirm,
     })
     .eq("user_id", userId);
 

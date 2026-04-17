@@ -6,7 +6,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import type { FaqItem } from "../faq-data";
+
+export type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+};
 
 export function FaqAccordion({ items }: { items: FaqItem[] }) {
   return (

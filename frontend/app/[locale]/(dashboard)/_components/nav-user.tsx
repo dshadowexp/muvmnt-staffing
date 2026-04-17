@@ -30,7 +30,7 @@ function initialsFromName(name: string) {
 export function NavUser({
   user,
   accountHref,
-  accountLabel = "Account",
+  accountLabel,
 }: {
   user: UserAccountMenuUser
   accountHref: string

@@ -1,8 +1,9 @@
 "use client";
 
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { getAuthErrorMessage, loginWithGoogle } from "@/services/firebase/auth";
+import { getAuthErrorKey, loginWithGoogle } from "@/services/firebase/auth";
 import { useAuth } from "@/providers/auth-provider";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 
@@ -19,15 +20,17 @@ function GoogleIcon() {
 
 export function GoogleButton() {
     const { loading } = useAuth();
-    
+    const t = useTranslations("auth");
+    const tErrors = useTranslations("auth.errors");
+
     const handleGoogle = async () => {
         if (loading) return;
         try {
             await loginWithGoogle();
         } catch (err) {
-            const msg = getAuthErrorMessage(err);
-            if (msg) toast.error(msg);
-        } 
+            const key = getAuthErrorKey(err);
+            if (key) toast.error(tErrors(key));
+        }
     };
 
     return (
@@ -40,7 +43,7 @@ export function GoogleButton() {
         >
             <GoogleIcon />
             <LoadingSwap isLoading={loading}>
-                <span>Continue with Google</span>
+                <span>{t("google")}</span>
             </LoadingSwap>
         </Button>
     );

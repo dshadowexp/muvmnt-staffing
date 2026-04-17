@@ -70,10 +70,10 @@ export async function generateInterviewFeedback(interviewId: string) {
   
     const feedback = await generateAiInterviewFeedback({
       humeChatId: interview.hume_chat_id,
-      jobInfo: {
+      interviewInfo: {
         title: interview.subject,
+        profession: interview.subject,
         description: interview.subject_ref,
-        experienceLevel: "General",
       },
       userName: user.email ?? "",
     });

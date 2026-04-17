@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { NAV_LINKS } from "@/lib/constants";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -11,15 +11,23 @@ import { Logo } from "@/components/logo";
 import { Spinner } from "@/components/ui/spinner";
 
 async function NavbarAuthButtons() {
-  const session = await getSession();
-  return session ? (
-    <Button size="sm" asChild>
-      <Link href="/app">Dashboard</Link>
-    </Button>
-  ) : (
-    <Button variant="outline" size="sm" asChild>
-      <Link href="/find-work">Find Work</Link>
-    </Button>
+  const [session, t] = await Promise.all([getSession(), getTranslations("nav")]);
+  if (session) {
+    return (
+      <Button size="sm" asChild>
+        <Link href="/app">{t("dashboard")}</Link>
+      </Button>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" size="sm" asChild>
+        <Link href="/find-work">{t("findWork")}</Link>
+      </Button>
+      <Button size="sm" asChild>
+        <Link href="/find-staff">{t("requestStaff")}</Link>
+      </Button>
+    </div>
   );
 }
 
@@ -28,15 +36,18 @@ async function NavbarMobileMenu() {
   return <MenuToggle isLoggedIn={!!session} />;
 }
 
-export default function Navbar() {
+export default async function Navbar() {
+  const t = await getTranslations("nav");
+  const navLinks = t.raw("links") as Array<{ label: string; href: string }>;
+
   return (
     <nav className="fixed inset-x-0 top-0 z-50 flex h-[72px] items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur-sm lg:px-12">
       <Logo />
 
       <div className="hidden items-center gap-9 lg:flex">
-        {NAV_LINKS.map(({ label, href }) => (
+        {navLinks.map(({ label, href }) => (
           <Link
-            key={label}
+            key={href}
             href={href}
             className="text-sm font-medium tracking-wide text-muted-foreground no-underline transition-colors hover:text-primary"
           >
@@ -48,7 +59,7 @@ export default function Navbar() {
 
         <Suspense
           fallback={
-            <div className="flex h-9 min-w-[7rem] items-center justify-center">
+            <div className="flex h-9 min-w-[10rem] items-center justify-center">
               <Spinner />
             </div>
           }

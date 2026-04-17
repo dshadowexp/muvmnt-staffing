@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { SITE_NAME } from "@/lib/constants";
 import { Logo } from "@/components/logo";
 import { AuthRedirectGate } from "@/features/auth/components/auth-redirect-gate";
@@ -11,19 +12,20 @@ export const metadata: Metadata = {
   },
 };
 
-const TESTIMONIAL = {
-  quote:
-    "Muvmnt filled three last-minute RN positions over a holiday weekend. I don't know what we would have done without them.",
-  name: "Sandra K.",
-  role: "Director of Care, LTC Facility — Toronto",
-};
-
-const FOOTER_LINKS = [
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms of Use", href: "/terms" },
-];
-
 export default async function AuthLayout({ children }: { children: React.ReactNode; }) {
+  const tT = await getTranslations("landing.testimonials");
+  const tF = await getTranslations("footer.legal");
+  const testimonials = tT.raw("items") as Array<{
+    text: string;
+    name: string;
+    role: string;
+  }>;
+  const TESTIMONIAL = testimonials[0] ?? { text: "", name: "", role: "" };
+  const FOOTER_LINKS = [
+    { label: tF("privacy"), href: "/privacy" },
+    { label: tF("terms"), href: "/terms" },
+  ];
+
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden w-[45%] shrink-0 flex-col overflow-hidden bg-[var(--charcoal)] p-12 lg:flex">
@@ -36,7 +38,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
             <div className="rounded-xl border border-[rgba(13,148,136,0.2)] bg-white/[0.04] p-6">
               <p className="mb-4 text-sm font-light italic leading-7 text-white/70">
-                &ldquo;{TESTIMONIAL.quote}&rdquo;
+                &ldquo;{TESTIMONIAL.text}&rdquo;
               </p>
               <div className="flex items-center gap-2.5">
                 <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-primary font-[var(--font-display)] text-[0.85rem] font-extrabold text-primary-foreground">

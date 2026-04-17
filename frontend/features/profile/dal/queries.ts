@@ -57,14 +57,34 @@ export async function getWorkerProfile() {
   return data;
 }
 
-export async function getCertifications() {
+/** Skills a worker has claimed (quiz-assessed). */
+export async function getSkills() {
   const session = await getSession();
   if (!session) return redirect("/sign-in");
 
   const { userId } = session;
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("certifications")
+    .from("skills")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data ?? [];
+}
+
+/** Compliance documents (admin-verified, with file_url / is_verified). */
+export async function getCompliances() {
+  const session = await getSession();
+  if (!session) return redirect("/sign-in");
+
+  const { userId } = session;
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("compliances")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });

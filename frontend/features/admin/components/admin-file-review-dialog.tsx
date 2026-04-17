@@ -2,7 +2,7 @@
 
 import {
   getAdminPresignedDownloadUrl,
-  verifyAdminCertification,
+  verifyAdminCompliance,
   verifyAdminWorkAuthorization,
 } from "@/features/admin/mutations";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +33,8 @@ export type AdminFileReviewOpen =
   | (ReviewBase & { verifyKind: null })
   | (ReviewBase & {
       isVerified: boolean;
-      verifyKind: "certification";
-      recordId: number;
+      verifyKind: "compliance";
+      recordId: string;
     })
   | (ReviewBase & {
       isVerified: boolean;
@@ -46,7 +46,7 @@ function isVerifiable(
   d: AdminFileReviewOpen,
 ): d is Extract<
   AdminFileReviewOpen,
-  { verifyKind: "certification" | "authorization" }
+  { verifyKind: "compliance" | "authorization" }
 > {
   return d.verifyKind !== null;
 }
@@ -203,8 +203,8 @@ export function AdminFileReviewDialog({
     if (!isVerifiable(openDoc)) return;
     setPending(true);
     const res =
-      openDoc.verifyKind === "certification"
-        ? await verifyAdminCertification(openDoc.recordId, openDoc.workerId)
+      openDoc.verifyKind === "compliance"
+        ? await verifyAdminCompliance(openDoc.recordId, openDoc.workerId)
         : await verifyAdminWorkAuthorization(openDoc.recordId, openDoc.workerId);
     setPending(false);
     if (!res.ok) {

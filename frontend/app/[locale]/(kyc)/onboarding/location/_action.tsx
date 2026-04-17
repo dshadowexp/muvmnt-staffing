@@ -1,6 +1,10 @@
 "use server";
 
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
+import {
+  onboardingStepError,
+  onboardingStepRawError,
+} from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { getAddressLocation } from "@/features/geo/dal/queries";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
@@ -10,14 +14,16 @@ export const locationAction = async (
   _formData: FormData,
 ): Promise<OnboardingStepFormState> => {
   const { user } = await getCurrentUser({ allData: true });
-  if (!user) return { ok: false, error: "User not found" };
+  if (!user) return onboardingStepError("userNotFound");
 
   const location = await getAddressLocation();
-  if (!location) return { ok: false, error: "Please set location information" };
+  if (!location) return onboardingStepError("locationMissing");
 
   const persist = await completeOnboardingStep("location");
   if (persist.error) {
-    return { ok: false, error: persist.message ?? "Could not save onboarding progress" };
+    return persist.message
+      ? onboardingStepRawError(persist.message)
+      : onboardingStepError("persistFailed");
   }
 
   const redirectTo =

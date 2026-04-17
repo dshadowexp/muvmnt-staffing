@@ -1,30 +1,37 @@
-import { WorkerAccountProfile } from "@/features/profile/components/worker-account-profile";
-import { getWorkAuthorization, getWorkerProfile } from "@/features/profile/dal/queries";
-import { getAddressLocation } from "@/features/geo/dal/queries";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { WorkerAccountProfile } from "@/features/profile/components/worker-account-profile";
+import {
+  getWorkAuthorization,
+  getWorkerProfile,
+} from "@/features/profile/dal/queries";
+import { getAddressLocation } from "@/features/geo/dal/queries";
 
 export default async function WorkerProfilePage() {
-  const [worker, workAuthorization] = await Promise.all([
-    getWorkerProfile(),
-    getWorkAuthorization(),
-  ]);
+  const worker = await getWorkerProfile();
   if (!worker) redirect("/onboarding/profile");
 
-  let location: Awaited<ReturnType<typeof getAddressLocation>> | undefined;
-  try {
-    location = await getAddressLocation();
-  } catch {
-    location = undefined;
-  }
+  const t = await getTranslations("dashboard.worker.profile");
+
+  const locationPromise = getAddressLocation().then((l) => l ?? null);
+  locationPromise.catch(() => undefined);
+
+  const workAuthPromise = getWorkAuthorization().then((wa) =>
+    wa
+      ? {
+          type: wa.type,
+          file_url: wa.file_url,
+          is_verified: wa.is_verified === true,
+        }
+      : null,
+  );
+  workAuthPromise.catch(() => undefined);
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Manage your worker profile and work authorization. Certifications and
-          assessments live under Assessments.
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground mt-1 text-sm">{t("subtitle")}</p>
       </div>
       <WorkerAccountProfile
         worker={{
@@ -35,16 +42,8 @@ export default async function WorkerProfilePage() {
           profession: worker.profession,
           years_exp: worker.years_exp,
         }}
-        location={location ?? null}
-        workAuthorization={
-          workAuthorization
-            ? {
-                type: workAuthorization.type,
-                file_url: workAuthorization.file_url,
-                is_verified: workAuthorization.is_verified === true,
-              }
-            : null
-        }
+        locationPromise={locationPromise}
+        workAuthPromise={workAuthPromise}
       />
     </div>
   );

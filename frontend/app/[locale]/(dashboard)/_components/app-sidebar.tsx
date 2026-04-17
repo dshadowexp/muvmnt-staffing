@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/logo";
 import { NavMain } from "@/app/[locale]/(dashboard)/_components/nav-main";
 import { NavSecondary } from "@/app/[locale]/(dashboard)/_components/nav-secondary";
@@ -24,24 +25,23 @@ import {
   GiftIcon,
   LayoutDashboardIcon,
   ListIcon,
+  MessageSquareIcon,
   SearchIcon,
   Settings2Icon,
+  ShieldCheckIcon,
   UserIcon,
   UsersIcon,
   WalletIcon,
   CheckIcon,
   ListChecksIcon,
 } from "lucide-react";
-import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/providers/auth-provider";
+import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
+import { ReferralDialog } from "@/features/referrals/components/referral-dialog";
 import {
   dashboardAccountHrefForRole,
-  dashboardAccountLabelForRole,
+  dashboardAccountLabelKeyForRole,
 } from "@/app/[locale]/(dashboard)/_components/dashboard-account";
-import {
-  resolveActiveNavHref,
-  sidebarNavItemClassName,
-} from "./sidebar-nav-active";
 
 export type AppSidebarAdminUser = {
   name: string;
@@ -62,123 +62,52 @@ function homeHrefForRole(role: string | null | undefined): string {
   }
 }
 
-function mainNavItems(role: string | null | undefined): {
-  title: string;
-  url: string;
-  icon: React.ReactNode;
-}[] {
+type NavItem = { title: string; url: string; icon: React.ReactNode };
+
+function useMainNavItems(role: string | null | undefined): NavItem[] {
+  const t = useTranslations("dashboard.nav");
   const r = role?.toLowerCase() ?? "";
 
   if (r === "worker") {
     return [
-      {
-        title: "Home",
-        url: "/worker",
-        icon: <LayoutDashboardIcon className="size-4" />,
-      },
-      {
-        title: "Shifts",
-        url: "/worker/shifts",
-        icon: <CalendarDays className="size-4" />,
-      },
-      {
-        title: "Availability",
-        url: "/worker/availability",
-        icon: <CalendarClock className="size-4" />,
-      },
-      {
-        title: "Assessments",
-        url: "/worker/assessments",
-        icon: <CheckIcon className="size-4" />,
-      },
-      {
-        title: "Payroll",
-        url: "/worker/payroll",
-        icon: <WalletIcon className="size-4" />,
-      },
+      { title: t("home"), url: "/worker", icon: <LayoutDashboardIcon className="size-4" /> },
+      { title: t("shifts"), url: "/worker/shifts", icon: <CalendarDays className="size-4" /> },
+      { title: t("availability"), url: "/worker/availability", icon: <CalendarClock className="size-4" /> },
+      { title: t("assessments"), url: "/worker/assessments", icon: <CheckIcon className="size-4" /> },
+      { title: t("compliance"), url: "/worker/compliance", icon: <ShieldCheckIcon className="size-4" /> },
+      { title: t("payroll"), url: "/worker/payroll", icon: <WalletIcon className="size-4" /> },
     ];
   }
 
   if (r === "client") {
     return [
-      {
-        title: "Home",
-        url: "/client",
-        icon: <LayoutDashboardIcon className="size-4" />,
-      },
-      {
-        title: "Requests",
-        url: "/client/requests",
-        icon: <ListChecksIcon className="size-4" />,
-      },
-      {
-        title: "Account",
-        url: "/client/account",
-        icon: <UserIcon className="size-4" />,
-      },
-      {
-        title: "Billing",
-        url: "/client/billing",
-        icon: <CreditCardIcon className="size-4" />,
-      },
+      { title: t("home"), url: "/client", icon: <LayoutDashboardIcon className="size-4" /> },
+      { title: t("requests"), url: "/client/requests", icon: <ListChecksIcon className="size-4" /> },
+      { title: t("account"), url: "/client/account", icon: <UserIcon className="size-4" /> },
+      { title: t("billing"), url: "/client/billing", icon: <CreditCardIcon className="size-4" /> },
     ];
   }
 
   if (r === "admin") {
     return [
-      {
-        title: "Dashboard",
-        url: "/admin",
-        icon: <LayoutDashboardIcon className="size-4" />,
-      },
-      {
-        title: "Lifecycle",
-        url: "/admin/workers",
-        icon: <ListIcon className="size-4" />,
-      },
-      {
-        title: "Analytics",
-        url: "/admin/clients",
-        icon: <ChartBarIcon className="size-4" />,
-      },
-      {
-        title: "Projects",
-        url: "/admin/requests",
-        icon: <FolderIcon className="size-4" />,
-      },
-      {
-        title: "Team",
-        url: "/admin/workers",
-        icon: <UsersIcon className="size-4" />,
-      },
+      { title: t("dashboardLabel"), url: "/admin", icon: <LayoutDashboardIcon className="size-4" /> },
+      { title: t("lifecycle"), url: "/admin/workers", icon: <ListIcon className="size-4" /> },
+      { title: t("analytics"), url: "/admin/clients", icon: <ChartBarIcon className="size-4" /> },
+      { title: t("projects"), url: "/admin/requests", icon: <FolderIcon className="size-4" /> },
+      { title: t("team"), url: "/admin/workers", icon: <UsersIcon className="size-4" /> },
     ];
   }
 
   return [];
 }
 
-function secondaryNavItems(role: string | null | undefined): {
-  title: string;
-  url: string;
-  icon: React.ReactNode;
-}[] {
+function useSecondaryNavItems(role: string | null | undefined): NavItem[] {
+  const t = useTranslations("dashboard.nav");
   if (role?.toLowerCase() !== "admin") return [];
   return [
-    {
-      title: "Settings",
-      url: "#",
-      icon: <Settings2Icon className="size-4" />,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: <CircleHelpIcon className="size-4" />,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: <SearchIcon className="size-4" />,
-    },
+    { title: t("settings"), url: "#", icon: <Settings2Icon className="size-4" /> },
+    { title: t("getHelp"), url: "#", icon: <CircleHelpIcon className="size-4" /> },
+    { title: t("search"), url: "#", icon: <SearchIcon className="size-4" /> },
   ];
 }
 
@@ -187,23 +116,18 @@ export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar> & { admin?: { user: AppSidebarAdminUser } }) {
   const { authUser, firebaseUser, loading } = useAuth();
-  const pathname = usePathname();
+  const tNav = useTranslations("dashboard.nav");
+  const tAccount = useTranslations("dashboard.accountMenu");
 
   const role = admin ? "admin" : authUser?.role ?? null;
-  const navMain = mainNavItems(role);
-  const navSecondary = secondaryNavItems(role);
+  const navMain = useMainNavItems(role);
+  const navSecondary = useSecondaryNavItems(role);
   const homeHref = homeHrefForRole(role);
   const accountHref = dashboardAccountHrefForRole(role);
-  const accountLabel = dashboardAccountLabelForRole(role);
-  const referHref =
-    role?.toLowerCase() === "client"
-      ? "/client/referrals"
-      : role?.toLowerCase() === "worker"
-        ? "/worker/referrals"
-        : null;
-  const referActive =
-    referHref != null &&
-    resolveActiveNavHref(pathname, [referHref]) === referHref;
+  const accountLabel = tAccount(dashboardAccountLabelKeyForRole(role));
+  const isClientOrWorker = role?.toLowerCase() === "client" || role?.toLowerCase() === "worker";
+  const [referralOpen, setReferralOpen] = React.useState(false);
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
 
   const user =
     admin != null
@@ -213,7 +137,7 @@ export function AppSidebar({
           avatar: admin.user.avatar ?? "",
         }
       : {
-          name: firebaseUser?.displayName?.trim() || "Account",
+          name: firebaseUser?.displayName?.trim() || tAccount("defaultName"),
           email: firebaseUser?.email ?? "",
           avatar: firebaseUser?.photoURL ?? "",
         };
@@ -235,7 +159,9 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         {loading && !admin ? (
-          <div className="text-muted-foreground px-2 py-4 text-sm">Loading…</div>
+          <div className="text-muted-foreground px-2 py-4 text-sm">
+            {tNav("loading")}
+          </div>
         ) : (
           <NavMain items={navMain} showQuickActions={false} />
         )}
@@ -244,23 +170,24 @@ export function AppSidebar({
         ) : null}
       </SidebarContent>
       <SidebarFooter className="gap-2">
-        {referHref ? (
+        {isClientOrWorker ? (
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                asChild
-                isActive={referActive}
-                tooltip="Refer and earn"
-                className={sidebarNavItemClassName(referActive)}
+                tooltip={tNav("referAndEarn")}
+                onClick={() => setReferralOpen(true)}
               >
-                <Link
-                  href={referHref}
-                  aria-current={referActive ? "page" : undefined}
-                  prefetch={true}
-                >
-                  <GiftIcon className="size-4" />
-                  <span>Refer and earn</span>
-                </Link>
+                <GiftIcon className="size-4" />
+                <span>{tNav("referAndEarn")}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={tNav("feedback")}
+                onClick={() => setFeedbackOpen(true)}
+              >
+                <MessageSquareIcon className="size-4" />
+                <span>{tNav("feedback")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -271,6 +198,16 @@ export function AppSidebar({
           accountLabel={accountLabel}
         />
       </SidebarFooter>
+      {isClientOrWorker && (
+        <>
+          <ReferralDialog
+            open={referralOpen}
+            onOpenChange={setReferralOpen}
+            role={role!.toLowerCase() as "worker" | "client"}
+          />
+          <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+        </>
+      )}
     </Sidebar>
   );
 }

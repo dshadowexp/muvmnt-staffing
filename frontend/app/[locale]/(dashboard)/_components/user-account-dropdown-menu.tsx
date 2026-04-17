@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Avatar,
   AvatarFallback,
@@ -31,12 +32,14 @@ function initialsFromName(name: string) {
 export function UserAccountDropdownMenuItems({
   user,
   accountHref,
-  accountLabel = "Account",
+  accountLabel,
 }: {
   user: UserAccountMenuUser;
   accountHref: string;
   accountLabel?: string;
 }) {
+  const t = useTranslations("dashboard.accountMenu");
+  const resolvedAccountLabel = accountLabel ?? t("accountLabel");
   const initials = initialsFromName(user.name);
 
   return (
@@ -61,14 +64,14 @@ export function UserAccountDropdownMenuItems({
       <DropdownMenuItem asChild>
         <Link href={accountHref} className="cursor-pointer">
           <UserIcon className="size-4" />
-          {accountLabel}
+          {resolvedAccountLabel}
         </Link>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <LogoutButton asChild>
         <DropdownMenuItem className="cursor-pointer">
           <LogOutIcon className="size-4" />
-          Log out
+          {t("logout")}
         </DropdownMenuItem>
       </LogoutButton>
     </>

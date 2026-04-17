@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
 import { getOnboardingStepsJson } from "@/features/onboarding/dal/queries";
 import { OnboardingProvider } from "@/features/onboarding/onboarding-provider";
@@ -7,7 +8,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { OnboardingDetails } from "@/features/onboarding/components/onboarding-details";
 import { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Onboarding | Muvmnt" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "kyc.onboarding.meta" });
+  return { title: t("title") };
+}
 
 export default async function OnboardingStepsLayout({
   children,

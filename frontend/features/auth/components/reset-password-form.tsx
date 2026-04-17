@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { z } from "zod";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,19 +20,28 @@ import {
     ErrorBanner,
     SuccessBanner,
 } from "@/features/auth/components/auth-primitives";
-import {
-    forgotPasswordSchema,
-    type ForgotPasswordInput,
-} from "@/features/auth/schemas";
-import { getAuthErrorMessage, resetPassword } from "@/services/firebase/auth";
+import { getAuthErrorKey, resetPassword } from "@/services/firebase/auth";
+import { SITE_EMAIL } from "@/lib/constants";
 
 export function ResetPasswordForm() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const t = useTranslations("auth.forgot");
+    const tValidation = useTranslations("auth.validation");
+    const tErrors = useTranslations("auth.errors");
 
-    const form = useForm<ForgotPasswordInput>({
+    const schema = useMemo(
+        () =>
+            z.object({
+                email: z.email(tValidation("emailInvalid")),
+            }),
+        [tValidation],
+    );
+    type ForgotValues = z.infer<typeof schema>;
+
+    const form = useForm<ForgotValues>({
         defaultValues: { email: "" },
-        resolver: zodResolver(forgotPasswordSchema) as Resolver<ForgotPasswordInput>,
+        resolver: zodResolver(schema) as Resolver<ForgotValues>,
     });
 
     const {
@@ -38,7 +49,7 @@ export function ResetPasswordForm() {
         formState: { errors, isSubmitting },
     } = form;
 
-    async function handleSubmit(data: ForgotPasswordInput) {
+    async function handleSubmit(data: ForgotValues) {
         setError("");
         setSuccess("");
 
@@ -46,17 +57,14 @@ export function ResetPasswordForm() {
 
         try {
             await resetPassword(email);
-            setSuccess(
-                `We've sent a password reset link to ${email}. Check your inbox — it may take a minute or two to arrive.`
-            );
+            setSuccess(t("sentMessage", { email }));
         } catch (err: unknown) {
             const code = (err as { code?: string })?.code ?? "";
             if (code === "auth/user-not-found") {
-                setSuccess(
-                    `If an account exists for ${email}, a reset link has been sent. Check your inbox.`
-                );
+                setSuccess(t("sentNotFound", { email }));
             } else {
-                setError(getAuthErrorMessage(err));
+                const key = getAuthErrorKey(err);
+                setError(key ? tErrors(key) : "");
             }
         }
     }
@@ -67,7 +75,7 @@ export function ResetPasswordForm() {
         <>
             <div className="mb-7 w-full max-w-[440px] text-center">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-primary">
-                    Account recovery
+                    {t("overline")}
                 </p>
             </div>
 
@@ -76,11 +84,10 @@ export function ResetPasswordForm() {
                 <>
                     <CardHeader className="border-b border-border px-9 pb-6 pt-8">
                         <h2 className="mb-1.5 font-[var(--font-display)] text-[1.45rem] font-extrabold leading-[1.15] tracking-tight text-foreground">
-                            Reset your password
+                            {t("title")}
                         </h2>
                         <p className="text-[0.845rem] font-light leading-[1.65] text-muted-foreground">
-                            Enter the email address you used to sign up and we&apos;ll send
-                            you a reset link.
+                            {t("subtitle")}
                         </p>
                     </CardHeader>
 
@@ -94,12 +101,12 @@ export function ResetPasswordForm() {
 
                             <Field data-invalid={!!errors.email}>
                                 <FieldLabel htmlFor="reset-email">
-                                Email Address <span className="text-destructive">*</span>
+                                {t("emailLabel")} <span className="text-destructive">*</span>
                                 </FieldLabel>
                                 <Input
                                 id="reset-email"
                                 type="email"
-                                placeholder="you@organization.ca"
+                                placeholder={t("emailPlaceholder")}
                                 autoComplete="email"
                                 disabled={isSubmitting}
                                 aria-invalid={!!errors.email || undefined}
@@ -115,17 +122,17 @@ export function ResetPasswordForm() {
                                 className="mt-0.5 w-full"
                             >
                                 <LoadingSwap isLoading={isSubmitting}>
-                                    <span>Send Reset Link →</span>
+                                    <span>{t("submit")}</span>
                                 </LoadingSwap>
                             </Button>
 
                             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
-                                Remembered it?{" "}
+                                {t("remembered")}{" "}
                                 <Link
                                 href="/sign-in"
                                 className="font-semibold text-primary no-underline hover:text-primary/80"
                                 >
-                                Back to sign in
+                                {t("backToSignIn")}
                                 </Link>
                             </p>
                             </FieldGroup>
@@ -136,10 +143,10 @@ export function ResetPasswordForm() {
                 <>
                     <CardHeader className="border-b border-border px-9 pb-6 pt-8">
                     <h2 className="mb-1.5 font-[var(--font-display)] text-[1.45rem] font-extrabold leading-[1.15] tracking-tight text-foreground">
-                        Reset link sent
+                        {t("sentTitle")}
                     </h2>
                     <p className="text-[0.845rem] font-light leading-[1.65] text-muted-foreground">
-                        Follow the link in your email to choose a new password.
+                        {t("sentSubtitle")}
                     </p>
                     </CardHeader>
 
@@ -148,16 +155,16 @@ export function ResetPasswordForm() {
                         <SuccessBanner message={success} />
 
                         <Button asChild size="lg" className="w-full">
-                        <Link href="/sign-in">← Back to Sign In</Link>
+                        <Link href="/sign-in">{t("backButton")}</Link>
                         </Button>
 
                         <p className="text-center text-[0.78rem] font-light leading-[1.6] text-muted-foreground">
-                        Need help?{" "}
+                        {t("needHelp")}{" "}
                         <a
-                            href="mailto:info@muvmnt.ca"
+                            href={`mailto:${SITE_EMAIL}`}
                             className="font-medium text-primary no-underline hover:text-primary/80"
                         >
-                            Contact support
+                            {t("contactSupport")}
                         </a>
                         </p>
                     </FieldGroup>
@@ -168,12 +175,12 @@ export function ResetPasswordForm() {
 
             {!sent && (
                 <p className="mt-5 text-center text-[0.78rem] font-light text-muted-foreground">
-                Don&apos;t have an account?{" "}
+                {t("noAccount")}{" "}
                 <Link
                     href="/sign-up"
                     className="font-semibold text-primary no-underline hover:text-primary/80"
                 >
-                    Sign up for free
+                    {t("signUp")}
                 </Link>
                 </p>
             )}

@@ -5,15 +5,14 @@ import type {
 } from "@/types";
 
 // ── Site ─────────────────────────────────────────────────────────────────────
-export const SITE_NAME     = "Muvmnt";
-export const SITE_TAGLINE  = "Healthcare Staffing Solutions";
-export const SITE_PHONE    = "1-437-979-7797";
-export const SITE_EMAIL    = "info@muvmnt.ca";
-export const SITE_PROVINCES = "Ontario";
+// Brand / contact data. Localized copy lives in messages/{locale}.json.
+export const SITE_NAME  = "Muvmnt";
+export const SITE_PHONE = "1-437-979-7797";
+export const SITE_EMAIL = "info@muvmnt.ca";
 export const PUBLIC_PATHS: string[] = [
   "/",
+  "/find-staff",
   "/find-work",
-  "/careers",
   "/faq",
   "/sign-in",
   "/sign-up",
@@ -25,19 +24,28 @@ export const NON_ORG_PREFIXES: string[] = [
   "/sign-in",
   "/sign-up",
   "/forgot-password",
+  "/find-staff",
   "/find-work",
-  "/find-talent",
   "/privacy",
   "/terms",
+  "/refer",
 ];
 
 /** Authenticated route prefixes (locale stripped by proxy). Use absolute paths. */
 export const ADMIN_PREFIXES: string[] = ["/admin"];
 
+export const AUTH_PREFIXES: string[] = [
+  "/sign-in",
+  "/sign-up",
+  "/forgot-password",
+];
+
 export const WORKER_PREFIXES: string[] = [
   "/worker",
   "/onboarding",
   "/review",
+  "/interviews",
+  "/quizes",
 ];
 
 export const CLIENT_PREFIXES: string[] = [
@@ -45,14 +53,6 @@ export const CLIENT_PREFIXES: string[] = [
   "/onboarding",
   "/review",
 ];
-
-// ── Navigation ────────────────────────────────────────────────────────────────
-export const NAV_LINKS = [
-  { label: "Services",    href: "/#services" },
-  { label: "How It Works", href: "/#how" },
-  { label: "Why Us",      href: "/#why" },
-  // { label: "Contact",     href: "/#contact" },
-] as const;
 
 // ── Professional (Find Work) ──────────────────────────────────────────────────
 export const WORK_AUTHORIZATION_TYPES: WorkAuthorization[] = [
@@ -63,18 +63,102 @@ export const WORK_AUTHORIZATION_TYPES: WorkAuthorization[] = [
   "Study Permit (with work authorization)",
 ];
 
-export const CERTIFICATION_NAMES = [
-  "CPR",
-  "First Aid",
-  "PSW Certificate",
-  "Medication Administration",
-  "Covid-19 Vaccination",
-  "G2 Driver's License",
-  "N95 Mask Fit Test",
-  "WES"
+/**
+ * Canonical catalogue of skills a worker can claim. Each entry has a concise
+ * description surfaced in the "Add skill" flow and used when generating quiz
+ * questions. Skills have no uploaded document — compliance documents (with
+ * `file_url` / `is_verified`) live in the `compliances` table.
+ */
+export const SKILL_CATALOG = [
+  {
+    name: "Medication Administration",
+    description:
+      "Safe medication handling: the five rights, documentation, and routes of administration within scope of practice.",
+  },
 ] as const;
 
-export type CertificationName = (typeof CERTIFICATION_NAMES)[number];
+export const SKILL_NAMES = SKILL_CATALOG.map(
+  (c) => c.name,
+) as readonly (typeof SKILL_CATALOG)[number]["name"][];
+
+export type SkillName = (typeof SKILL_CATALOG)[number]["name"];
+
+export function getSkillDescription(name: string): string | undefined {
+  return SKILL_CATALOG.find((c) => c.name === name)?.description;
+}
+
+export const COMPLIANCE_CATALOG = [
+  {
+    name: "CPR",
+    description:
+      "Cardiopulmonary resuscitation — chest compressions, rescue breathing, and AED use during cardiac emergencies.",
+  },
+  {
+    name: "First Aid",
+    description:
+      "Responding to injuries, bleeding, burns, and sudden illness until advanced medical help arrives.",
+  },
+  {
+    name: "N95 Mask Fit Test",
+    description:
+      "Respirator fit test confirming an airtight seal on an N95 for aerosol-generating procedures.",
+  },
+  {
+    name: "Covid-19 Vaccination",
+    description:
+      "Proof of COVID-19 vaccination required by many healthcare settings for infection prevention.",
+  },
+  {
+    name: "Criminal Record Check",
+    description:
+      "Recent police background check confirming no disqualifying offences.",
+  },
+  {
+    name: "Vulnerable Sector Check",
+    description:
+      "Enhanced screening required to work with children, seniors, or vulnerable adults.",
+  },
+  {
+    name: "TB Test",
+    description:
+      "Two-step tuberculosis skin test or equivalent medical clearance.",
+  },
+  {
+    name: "Immunization Record",
+    description:
+      "Proof of up-to-date immunizations (MMR, Tdap, varicella, hepatitis B, influenza).",
+  },
+  {
+    name: "WES",
+    description:
+      "World Education Services credential evaluation mapping international qualifications to Canadian equivalents.",
+  },
+  {
+    name: "Driver's License",
+    description:
+      "Valid provincial driver's license for roles that involve travel or client transport.",
+  },
+  {
+    name: "Diploma / Degree",
+    description:
+      "Highest education credential relevant to the role (e.g. BScN, PSW certificate).",
+  },
+  {
+    name: "SIN Document",
+    description:
+      "Social Insurance Number confirmation letter or card for payroll eligibility.",
+  },
+] as const;
+
+export const COMPLIANCE_NAMES = COMPLIANCE_CATALOG.map(
+  (c) => c.name,
+) as readonly (typeof COMPLIANCE_CATALOG)[number]["name"][];
+
+export type ComplianceName = (typeof COMPLIANCE_CATALOG)[number]["name"];
+
+export function getComplianceDescription(name: string): string | undefined {
+  return COMPLIANCE_CATALOG.find((c) => c.name === name)?.description;
+}
 
 export const PROFESSIONAL_ROLES: ProfessionalRole[] = [
   "RN",
@@ -178,50 +262,8 @@ export const URGENCY_OPTIONS: RequestUrgency[] = [
   "Planning ahead",
 ];
 
-// ── Landing page data ─────────────────────────────────────────────────────────
-export const HERO_STATS = [
-  { value: "500+", label: "Facilities Served" },
-  { value: "98%",  label: "Fill Rate" },
-  { value: "<2h",  label: "Avg Response" },
-] as const;
-
-export const SERVICES = [
-  {
-    icon: "Hospital" as const,
-    title: "Temporary & Relief Staffing",
-    description:
-      "Rapid deployment of qualified healthcare professionals to cover sick leave, maternity/paternity leave, and unexpected absences — 24/7, province-wide.",
-    tags: ["Same-Day Placement", "RN · RPN · PSW", "Long-Term Care", "Hospitals", "Clinics"],
-  },
-  {
-    icon: "House" as const,
-    title: "Home Care Staffing",
-    description:
-      "Compassionate, pre-screened personal support workers and healthcare aides placed directly in client homes to deliver consistent, high-quality care.",
-    tags: ["PSW Placement", "Elderly Care", "Post-Surgical", "Ongoing Support"],
-  },
-] as const;
-
-export const HOW_STEPS = [
-  { num: "01", title: "Submit Your Request",  description: "Tell us your staffing needs, shift requirements, and preferred qualifications through our streamlined intake process." },
-  { num: "02", title: "We Match & Screen",    description: "Our team rapidly identifies best-fit candidates from our pre-vetted pool of credentialed healthcare professionals." },
-  { num: "03", title: "Confirm & Deploy",     description: "Review your matched professionals and confirm placement. We handle all onboarding logistics." },
-  { num: "04", title: "Ongoing Support",      description: "We follow up to ensure satisfaction and maintain a continuous pipeline for your future staffing needs." },
-] as const;
-
-export const WHY_POINTS = [
-  { icon: "Zap" as const, title: "Rapid Deployment", description: "We fill positions faster than anyone in the industry — including same-day emergency coverage." },
-  { icon: "BadgeCheck" as const, title: "Rigorously Vetted Talent", description: "Every professional is credentialed, reference-checked, and thoroughly screened before joining our roster." },
-  { icon: "MapPin" as const, title: "Province-Wide Coverage", description: "Active placements across Ontario — from Toronto to Ottawa, the GTA, and beyond." },
-  { icon: "MessageCircle" as const, title: "Dedicated Account Support", description: "A single point of contact who knows your facility, your standards, and your culture." },
-] as const;
-
-export const TESTIMONIALS = [
-  { stars: 5, text: "Muvmnt filled three last-minute RN positions over the holiday weekend. I don't know what we would have done without them.", name: "Sandra K.",  role: "Director of Care, LTC Facility — Toronto" },
-  { stars: 5, text: "The PSWs they send are always professional and prepared. Our residents have commented on the consistency and warmth of care.",  name: "James L.",  role: "Administrator, Retirement Community — Calgary" },
-  { stars: 5, text: "Onboarding was seamless. Within 48 hours we had vetted, experienced staff on the floor. Genuinely impressive.",                  name: "Maria T.",  role: "HR Manager, Community Health Centre — Vancouver" },
-] as const;
-
+// ── Landing — unlocalized structural data ────────────────────────────────────
+// Brand/org names render as-is in both locales.
 export const TRUST_LOGOS = [
   "Ontario LTC Association",
   "OLTCA",

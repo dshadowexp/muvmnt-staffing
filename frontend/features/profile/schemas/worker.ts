@@ -27,32 +27,49 @@ export function isWorkerMinimumAge(dateStr: string, years: number = 18): boolean
   return birth <= getLatestAllowedWorkerBirthDate(years);
 }
 
-export const workerSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  dateOfBirth: z
-    .string()
-    .min(1, "Date of birth is required")
-    .refine((val) => !Number.isNaN(Date.parse(val)), "Invalid date")
-    .refine(
-      (val) => isWorkerMinimumAge(val),
-      "You must be at least 18 years old",
-    ),
-  gender: z.enum(WORKER_GENDERS, {
-    message: "Please select male or female",
-  }),
-  profession: z
-    .string()
-    .min(1, "Please select a profession")
-    .refine(
-      (val) => PROFESSIONAL_ROLES.includes(val as ProfessionalRole),
-      "Please select a valid profession"
-    ),
-  yearsExp: z
-    .number()
-    .min(0, "Years must be 0 or more")
-    .int("Must be a whole number"),
-});
+/** Keys under `kyc.onboarding.validation`. Translator must map them to locale strings. */
+type WorkerValidationKey =
+  | "firstNameRequired"
+  | "lastNameRequired"
+  | "dateOfBirthRequired"
+  | "invalidDate"
+  | "minAge18"
+  | "genderRequired"
+  | "professionRequired"
+  | "professionInvalid"
+  | "yearsMin"
+  | "yearsInt";
+
+/**
+ * Build a localized worker schema. Pass a translator scoped to
+ * `kyc.onboarding.validation`; omit for the server-side default (English keys).
+ */
+export function buildWorkerSchema(t?: (key: WorkerValidationKey) => string) {
+  const msg = (key: WorkerValidationKey) => (t ? t(key) : key);
+  return z.object({
+    firstName: z.string().min(1, msg("firstNameRequired")),
+    lastName: z.string().min(1, msg("lastNameRequired")),
+    dateOfBirth: z
+      .string()
+      .min(1, msg("dateOfBirthRequired"))
+      .refine((val) => !Number.isNaN(Date.parse(val)), msg("invalidDate"))
+      .refine((val) => isWorkerMinimumAge(val), msg("minAge18")),
+    gender: z.enum(WORKER_GENDERS, { message: msg("genderRequired") }),
+    profession: z
+      .string()
+      .min(1, msg("professionRequired"))
+      .refine(
+        (val) => PROFESSIONAL_ROLES.includes(val as ProfessionalRole),
+        msg("professionInvalid"),
+      ),
+    yearsExp: z
+      .number()
+      .min(0, msg("yearsMin"))
+      .int(msg("yearsInt")),
+  });
+}
+
+export const workerSchema = buildWorkerSchema();
 
 export type WorkerProfileValues = z.infer<typeof workerSchema>;
 

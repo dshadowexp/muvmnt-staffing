@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
-import { SITE_NAME } from "@/lib/constants";
 
-export const metadata: Metadata = {
-  title: `Reset Password | ${SITE_NAME}`,
-  description: "Reset your password. Enter your email to receive a reset link.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "auth.forgot.meta" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default function ForgotPasswordPage() {
   return <ResetPasswordForm />;

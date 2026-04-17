@@ -6,6 +6,7 @@ import { generateAiInterviewFeedback } from "@/services/ai/interviews";
 import { canCreateInterview } from "./permission";
 import {
   getInterviewByIdForUser,
+  getInterviewBySubjectForUser,
   type InterviewRow,
 } from "./dal/queries";
 import {
@@ -13,43 +14,51 @@ import {
   updateInterviewByOwner,
   type InterviewUpdate,
 } from "./dal/mutations";
-import { STAFF_REQUEST_DISPLAY_TITLE } from "@/features/requests/constants";
+import {
+  isAssessmentInterviewLocked,
+  normalizeFeedbackJsonString,
+} from "@/features/interviews/lib/interview-feedback-json";
 
 export type GetInterviewResult =
   | { error: true; message: string; data: null }
   | { error: false; data: InterviewRow };
 
-function jobInfoFromStaffRequest(row: {
-  notes: string | null;
-  requirements: string[];
-}): { title: string; description: string; experienceLevel: string } {
-  const descriptionParts = [
-    row.notes?.trim(),
-    ...(row.requirements?.length ? row.requirements : []),
-  ].filter(Boolean);
-  return {
-    title: STAFF_REQUEST_DISPLAY_TITLE,
-    description:
-      descriptionParts.length > 0
-        ? descriptionParts.join("\n\n")
-        : "No additional description provided.",
-    experienceLevel: "As listed in the job requirements",
-  };
-}
+const RETRY_SUBJECTS = new Set(["profession", "resume"]);
 
-function jobInfoFromInterviewSubject(interview: InterviewRow): {
-  title: string;
-  description: string;
-  experienceLevel: string;
-} {
-  return {
-    title: interview.subject.replace(/_/g, " "),
-    description:
-      interview.subject_ref.trim().length > 0
-        ? interview.subject_ref
-        : "General interview practice session.",
-    experienceLevel: "General",
-  };
+export async function createAssessmentInterview({
+  subject,
+  subjectRef,
+}: {
+  subject: string;
+  subjectRef: string;
+}): Promise<{ error: true; message: string } | { error: false; id: string }> {
+  const session = await getSession();
+  if (!session) {
+    return { error: true, message: "Not authenticated" };
+  }
+
+  if (RETRY_SUBJECTS.has(subject)) {
+    const existing = await getInterviewBySubjectForUser(
+      subject,
+      session.userId,
+    );
+    if (existing && isAssessmentInterviewLocked(existing)) {
+      return { error: false, id: existing.id };
+    }
+  }
+
+  try {
+    const row = await insertInterview({
+      user_id: session.userId,
+      subject,
+      subject_ref: subjectRef,
+    });
+    return { error: false, id: row.id };
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Failed to create interview";
+    return { error: true, message };
+  }
 }
 
 export async function createInterview({
@@ -84,7 +93,8 @@ export async function updateInterview(
   data: {
     humeChatId?: string;
     duration?: string;
-    feedback?: string;
+    feedback?: InterviewUpdate["feedback"];
+    completedAt?: string | null;
   },
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
@@ -96,6 +106,7 @@ export async function updateInterview(
   if (data.humeChatId !== undefined) patch.hume_chat_id = data.humeChatId;
   if (data.duration !== undefined) patch.duration = data.duration;
   if (data.feedback !== undefined) patch.feedback = data.feedback;
+  if (data.completedAt !== undefined) patch.completed_at = data.completedAt;
 
   if (Object.keys(patch).length === 0) {
     return { error: false };
@@ -135,29 +146,9 @@ export async function generateInterviewFeedback(
 
   const supabase = await createAdminClient();
 
-  let jobInfo: { title: string; description: string; experienceLevel: string };
-  if (interview.subject === "staff_request") {
-    const { data: staffRequest, error: srErr } = await supabase
-      .from("staff_requests")
-      .select("notes, requirements")
-      .eq("id", interview.subject_ref)
-      .maybeSingle();
-
-    if (srErr) {
-      return { error: true, message: srErr.message };
-    }
-    if (staffRequest == null) {
-      jobInfo = jobInfoFromInterviewSubject(interview);
-    } else {
-      jobInfo = jobInfoFromStaffRequest(staffRequest);
-    }
-  } else {
-    jobInfo = jobInfoFromInterviewSubject(interview);
-  }
-
   const { data: worker, error: wErr } = await supabase
     .from("workers")
-    .select("first_name, last_name")
+    .select("first_name, last_name, years_exp, profession")
     .eq("user_id", session.userId)
     .maybeSingle();
 
@@ -173,7 +164,11 @@ export async function generateInterviewFeedback(
   try {
     const feedback = await generateAiInterviewFeedback({
       humeChatId: interview.hume_chat_id,
-      jobInfo,
+      interviewInfo: {
+        title: interview.subject.replace(/_/g, " "),
+        profession: worker?.profession ?? "General",
+        description: interview.subject_ref.trim().length > 0 ? interview.subject_ref : "General interview practice session.",
+      },
       userName: userName.length > 0 ? userName : "Candidate",
     });
 
@@ -181,8 +176,15 @@ export async function generateInterviewFeedback(
       return { error: true, message: "Failed to generate feedback" };
     }
 
+    let feedbackJson: unknown;
+    try {
+      feedbackJson = JSON.parse(normalizeFeedbackJsonString(feedback));
+    } catch {
+      return { error: true, message: "Invalid feedback format from model" };
+    }
+
     const updated = await updateInterviewByOwner(interviewId, session.userId, {
-      feedback,
+      feedback: feedbackJson as InterviewUpdate["feedback"],
     });
     if (updated == null) {
       return { error: true, message: "Interview not found" };

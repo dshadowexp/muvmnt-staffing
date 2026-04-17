@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { SectionCards } from "@/app/[locale]/(dashboard)/_components/section-cards";
 import { Separator } from "@/components/ui/separator";
@@ -10,23 +11,19 @@ import {
 import { getAdminDashboardSnapshot } from "@/features/admin/dal/queries";
 
 export default async function AdminDashboardPage() {
-  const d = await getAdminDashboardSnapshot();
+  const [d, t] = await Promise.all([
+    getAdminDashboardSnapshot(),
+    getTranslations("dashboard.admin.home"),
+  ]);
 
   return (
     <>
       <p className="text-muted-foreground w-full max-w-6xl text-sm">
-        Platform overview — key metrics, activity chart, and records.
+        {t("subtitle")}
       </p>
 
       <div className="w-full max-w-6xl">
-        <SectionCards
-          // metrics={{
-          //   users: d.usersCount,
-          //   workers: d.workerCount,
-          //   clients: d.clientCount,
-          //   jobPostings: d.jobCount,
-          // }}
-        />
+        <SectionCards />
       </div>
 
       <div className="w-full max-w-6xl">
@@ -37,8 +34,8 @@ export default async function AdminDashboardPage() {
 
       <div className="flex w-full max-w-6xl flex-col gap-4">
         <AdminSectionHeader
-          title="Recent workers"
-          description="Latest registered profiles"
+          title={t("recentWorkers")}
+          description={t("recentWorkersDescription")}
           href="/admin/workers"
         />
         <AdminWorkersTable workers={d.workers.slice(0, 8)} />
@@ -48,8 +45,8 @@ export default async function AdminDashboardPage() {
 
       <div className="flex w-full max-w-6xl flex-col gap-4">
         <AdminSectionHeader
-          title="Recent clients"
-          description="Organizations on the platform"
+          title={t("recentClients")}
+          description={t("recentClientsDescription")}
           href="/admin/clients"
         />
         <AdminClientsTable clients={d.clients.slice(0, 8)} />
@@ -59,8 +56,8 @@ export default async function AdminDashboardPage() {
 
       <div className="flex w-full max-w-6xl flex-col gap-4">
         <AdminSectionHeader
-          title="Recent job postings"
-          description="Staff requests from clients"
+          title={t("recentJobs")}
+          description={t("recentJobsDescription")}
           href="/admin/jobs"
         />
         <AdminJobsTable jobs={d.jobs.slice(0, 8)} />
