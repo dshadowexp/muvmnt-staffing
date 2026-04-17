@@ -3,9 +3,14 @@
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parseISO } from "date-fns";
+import { enCA, frCA } from "date-fns/locale";
 import { ArrowLeft, CalendarIcon, MapPin } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { staffRequestScheduleSchema, type StaffRequestScheduleValues } from "../schema";
+import {
+  buildStaffRequestScheduleSchema,
+  type StaffRequestScheduleValues,
+} from "../schema";
 import { STAFF_REQUEST_PROFESSION_PLACEHOLDER } from "../constants";
 import type {
   DaySchedule,
@@ -58,36 +63,12 @@ import { coerceStaffRequestWindowsForTodayLead } from "../lib/coerce-staff-reque
 
 const STEP1_FORM_ID = "staff-request-wizard-step1";
 
-const WIZARD_STEP_HEADING: Record<
-  1 | 2 | 3,
-  { title: string; description: string }
-> = {
-  1: {
-    title: "Schedule request",
-    description:
-      "Choose how many staff you need, your dates, and shift times.",
-  },
-  2: {
-    title: "Select tier",
-    description:
-      "Select the tier that best fits your request.",
-  },
-  3: {
-    title: "Review coverage",
-    description: "Review the proposed coverage, then post your request.",
-  },
-};
-
 const step1Defaults: StaffRequestScheduleValues = {
   startDate: undefined as unknown as Date,
   endDate: null,
   positions: 1,
   dailyWindows: [],
 };
-
-function formatScheduleDayLabel(ymd: string) {
-  return format(parseISO(`${ymd}T12:00:00`), "EEEE, MMM d, yyyy");
-}
 
 /** Preserve first-seen order; group workers who share the same coverage window. */
 function assignmentsGroupedByTimeWindow(assignments: WorkerAssignment[]): WorkerAssignment[][] {
@@ -114,12 +95,12 @@ function formatMoney(cents: number, currency: string) {
 }
 
 /** Shown over the schedule form while the draft is created and pricing tiers load. */
-function WizardScheduleSubmitSkeleton() {
+function WizardScheduleSubmitSkeleton({ ariaLabel }: { ariaLabel: string }) {
   return (
     <div
       className="flex min-w-0 flex-col gap-6"
       aria-busy="true"
-      aria-label="Creating request and loading pricing"
+      aria-label={ariaLabel}
     >
       <div className="space-y-2">
         <Skeleton className="h-4 w-28" />
@@ -146,12 +127,12 @@ function WizardScheduleSubmitSkeleton() {
 }
 
 /** Shown on the tier step while match runs (layout matches tier cards). */
-function WizardPricingTiersBusySkeleton() {
+function WizardPricingTiersBusySkeleton({ ariaLabel }: { ariaLabel: string }) {
   return (
     <div
       className="flex w-full flex-col gap-3"
       aria-busy="true"
-      aria-label="Loading coverage preview"
+      aria-label={ariaLabel}
     >
       {Array.from({ length: 3 }).map((_, i) => (
         <div
@@ -169,12 +150,12 @@ function WizardPricingTiersBusySkeleton() {
 }
 
 /** Shown while confirming and posting the request. */
-function WizardConfirmPostSkeleton() {
+function WizardConfirmPostSkeleton({ ariaLabel }: { ariaLabel: string }) {
   return (
     <div
       className="flex flex-col gap-6"
       aria-busy="true"
-      aria-label="Posting your request"
+      aria-label={ariaLabel}
     >
       <Skeleton className="h-5 w-48" />
       <div className="flex justify-between gap-4 pt-2">
@@ -186,6 +167,23 @@ function WizardConfirmPostSkeleton() {
 }
 
 export function StaffRequestWizard() {
+  const t = useTranslations("staffRequest.wizard");
+  const tVal = useTranslations("staffRequest.validation");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const dateLocale = locale.toLowerCase().startsWith("fr") ? frCA : enCA;
+
+  function formatScheduleDayLabel(ymd: string) {
+    return format(parseISO(`${ymd}T12:00:00`), "EEEE, MMM d, yyyy", {
+      locale: dateLocale,
+    });
+  }
+
+  const scheduleSchema = useMemo(
+    () => buildStaffRequestScheduleSchema(tVal),
+    [tVal],
+  );
+
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [scheduleForm, setScheduleForm] = useState<StaffRequestScheduleValues | null>(
     null,
@@ -203,7 +201,7 @@ export function StaffRequestWizard() {
 
   const step1Form = useForm<StaffRequestScheduleValues>({
     resolver: zodResolver(
-      staffRequestScheduleSchema,
+      scheduleSchema,
     ) as Resolver<StaffRequestScheduleValues>,
     defaultValues: step1Defaults,
   });
@@ -246,7 +244,7 @@ export function StaffRequestWizard() {
     if (jobId) {
       const abandoned = await abandonStaffRequestDraftAction(jobId);
       if (abandoned.error) {
-        toast.error(abandoned.message ?? "Could not go back");
+        toast.error(abandoned.message ?? t("backFailed"));
         return;
       }
     }
@@ -262,7 +260,7 @@ export function StaffRequestWizard() {
 
   async function handleTierContinue() {
     if (!jobId || !selectedTierId || selectedPricingRate == null) {
-      toast.error("Select a pricing tier to continue.");
+      toast.error(t("selectTierToContinue"));
       return;
     }
 
@@ -300,7 +298,7 @@ export function StaffRequestWizard() {
         notes: "",
       });
       if (result && "error" in result && result.error) {
-        toast.error(result.message ?? "Could not confirm request");
+        toast.error(result.message ?? t("confirmFailed"));
         setConfirmSubmitting(false);
       }
     } catch {
@@ -388,20 +386,37 @@ export function StaffRequestWizard() {
   const canConfirmCoverage = hasAssignedCoverage && coverageHours > 0;
 
   let loadingSkeleton: ReactNode = null;
-  if (step1Busy) loadingSkeleton = <WizardScheduleSubmitSkeleton />;
-  else if (step2Busy) loadingSkeleton = <WizardPricingTiersBusySkeleton />;
-  else if (step === 3 && confirmSubmitting) {
-    loadingSkeleton = <WizardConfirmPostSkeleton />;
+  if (step1Busy) {
+    loadingSkeleton = (
+      <WizardScheduleSubmitSkeleton ariaLabel={t("ariaCreatingDraft")} />
+    );
+  } else if (step2Busy) {
+    loadingSkeleton = (
+      <WizardPricingTiersBusySkeleton ariaLabel={t("ariaLoadingCoverage")} />
+    );
+  } else if (step === 3 && confirmSubmitting) {
+    loadingSkeleton = (
+      <WizardConfirmPostSkeleton ariaLabel={t("ariaPostingRequest")} />
+    );
   }
+
+  const stepTitle =
+    step === 1 ? t("step1Title") : step === 2 ? t("step2Title") : t("step3Title");
+  const stepDescription =
+    step === 1
+      ? t("step1Description")
+      : step === 2
+        ? t("step2Description")
+        : t("step3Description");
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          {WIZARD_STEP_HEADING[step].title}
+          {stepTitle}
         </h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          {WIZARD_STEP_HEADING[step].description}
+          {stepDescription}
         </p>
       </div>
 
@@ -428,11 +443,8 @@ export function StaffRequestWizard() {
                 className="min-w-0 space-y-6 border-0 p-0 disabled:pointer-events-none disabled:opacity-[0.65]"
               >
             <Field data-invalid={!!step1Form.formState.errors.positions}>
-              <FieldLabel htmlFor="wiz-positions">Staff count</FieldLabel>
-              <FieldDescription>
-                How many personnel you need for the selected dates and shift times.
-
-              </FieldDescription>
+              <FieldLabel htmlFor="wiz-positions">{t("staffCount")}</FieldLabel>
+              <FieldDescription>{t("staffCountDescription")}</FieldDescription>
               <Input
                 id="wiz-positions"
                 type="number"
@@ -446,7 +458,7 @@ export function StaffRequestWizard() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Field data-invalid={!!step1Form.formState.errors.startDate}>
-                <FieldLabel>Start date</FieldLabel>
+                <FieldLabel>{t("startDate")}</FieldLabel>
                 <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -459,8 +471,8 @@ export function StaffRequestWizard() {
                     >
                       <CalendarIcon className="mr-2 size-4" />
                       {startDateVal
-                        ? format(startDateVal, "PPP")
-                        : "Pick a date"}
+                        ? format(startDateVal, "PPP", { locale: dateLocale })
+                        : tCommon("pickADate")}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -481,7 +493,7 @@ export function StaffRequestWizard() {
               </Field>
 
               <Field data-invalid={!!step1Form.formState.errors.endDate}>
-                <FieldLabel>End date</FieldLabel>
+                <FieldLabel>{t("endDate")}</FieldLabel>
                 <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -494,8 +506,8 @@ export function StaffRequestWizard() {
                     >
                       <CalendarIcon className="mr-2 size-4" />
                       {endDateVal
-                        ? format(endDateVal, "PPP")
-                        : "Same day"}
+                        ? format(endDateVal, "PPP", { locale: dateLocale })
+                        : t("sameDay")}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -551,7 +563,7 @@ export function StaffRequestWizard() {
                 isLoading={step1Form.formState.isSubmitting || matchLoading}
               >
                 <span className="inline-flex items-center gap-2">
-                  Submit
+                  {t("submitSchedule")}
                   <MapPin className="size-4 opacity-80" />
                 </span>
               </LoadingSwap>
@@ -563,7 +575,7 @@ export function StaffRequestWizard() {
       {step === 2 ? (
         <div className="flex flex-col gap-6">
           {step2Busy ? (
-            <WizardPricingTiersBusySkeleton />
+            <WizardPricingTiersBusySkeleton ariaLabel={t("ariaLoadingCoverage")} />
           ) : pricingTiers && pricingTiers.length > 0 ? (
             <>
               <div className="flex w-full flex-col gap-3">
@@ -606,7 +618,7 @@ export function StaffRequestWizard() {
                           <>
                             {formatMoney(rateCents, currency)}
                             <span className="text-muted-foreground ml-1 text-base font-semibold">
-                              /hr
+                              {t("perHour")}
                             </span>
                           </>
                         ) : (
@@ -619,7 +631,7 @@ export function StaffRequestWizard() {
               </div>
             </>
           ) : (
-            <p className="text-muted-foreground text-sm">No pricing tiers available.</p>
+            <p className="text-muted-foreground text-sm">{t("noTiers")}</p>
           )}
 
           <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
@@ -632,7 +644,7 @@ export function StaffRequestWizard() {
               onClick={() => void handleBackFromTierStep()}
             >
               <ArrowLeft className="size-4" />
-              Back
+              {tCommon("back")}
             </Button>
             <Button
               type="button"
@@ -641,7 +653,7 @@ export function StaffRequestWizard() {
               onClick={() => void handleTierContinue()}
             >
               <LoadingSwap isLoading={step2Busy}>
-                <span>View coverage</span>
+                <span>{t("viewCoverage")}</span>
               </LoadingSwap>
             </Button>
           </div>
@@ -669,30 +681,26 @@ export function StaffRequestWizard() {
                   role="status"
                   className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-50"
                 >
-                  No active workers were found for this tier and region. Try another tier,
-                  adjust your dates or shift windows, or contact support if you believe this is
-                  a mistake.
+                  {t("noWorkersTier")}
                 </div>
               ) : !hasAssignedCoverage ? (
                 <div
                   role="status"
                   className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-50"
                 >
-                  No workers could be matched to your requested times for the days shown below.
-                  Try different dates or shift windows.
+                  {t("noMatchTimes")}
                 </div>
               ) : !fullyCovered ? (
                 <div
                   role="status"
                   className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-4 py-3 text-sm text-sky-950 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-50"
                 >
-                  Your request is only partially covered. The total below is an estimate for
-                  matched hours only, not for the full schedule you requested.
+                  {t("partialCoverage")}
                 </div>
               ) : null}
 
               {matchSchedule.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No schedule days returned.</p>
+                <p className="text-muted-foreground text-sm">{t("noScheduleDays")}</p>
               ) : (
                 <ul className="space-y-4">
                   {matchSchedule.map((day) => (
@@ -710,12 +718,12 @@ export function StaffRequestWizard() {
                               : "bg-muted text-muted-foreground",
                           )}
                         >
-                          {day.covered ? "Covered" : "Not covered"}
+                          {day.covered ? t("covered") : t("notCovered")}
                         </span>
                       </div>
                       {day.assignments.length === 0 ? (
                         <p className="text-muted-foreground mt-3 text-sm">
-                          No worker assigned for this day.
+                          {t("noWorkerDay")}
                         </p>
                       ) : (
                         <ul className="mt-3 space-y-3">
@@ -728,8 +736,8 @@ export function StaffRequestWizard() {
                             const yMax = Math.max(...years);
                             const yearsLabel =
                               yMin === yMax
-                                ? `${yMin} yrs exp`
-                                : `${yMin}–${yMax} yrs exp`;
+                                ? t("yrsExp", { years: yMin })
+                                : t("yrsExpRange", { min: yMin, max: yMax });
                             const names = group.map((g) => g.displayName).join(", ");
                             const rowKey = `${day.date}-${windowKey}-${group.map((g) => g.userId).join("-")}`;
 
@@ -748,7 +756,7 @@ export function StaffRequestWizard() {
                                   <div className="min-w-0 flex-1">
                                     <p className="text-sm font-medium">{a.displayName}</p>
                                     <p className="text-muted-foreground text-xs">
-                                      {a.yearsExp} yrs exp
+                                      {t("yrsExp", { years: a.yearsExp })}
                                     </p>
                                   </div>
                                   <span className="text-muted-foreground shrink-0 text-right text-sm tabular-nums">
@@ -782,7 +790,7 @@ export function StaffRequestWizard() {
                                       <TooltipContent side="top" className="max-w-xs">
                                         <p className="font-medium leading-tight">{a.displayName}</p>
                                         <p className="text-muted-foreground text-xs">
-                                          {a.yearsExp} yrs exp.
+                                          {t("yrsExpShort", { years: a.yearsExp })}
                                         </p>
                                       </TooltipContent>
                                     </Tooltip>
@@ -792,7 +800,7 @@ export function StaffRequestWizard() {
                                       <TooltipTrigger asChild>
                                         <AvatarGroupCount
                                           className="cursor-default"
-                                          aria-label={`${overflow} more assigned`}
+                                          aria-label={t("moreAssigned", { count: overflow })}
                                         >
                                           +{overflow}
                                         </AvatarGroupCount>
@@ -804,7 +812,7 @@ export function StaffRequestWizard() {
                                               <span className="font-medium">{a.displayName}</span>
                                               <span className="text-muted-foreground text-xs">
                                                 {" "}
-                                                · {a.yearsExp} yrs exp
+                                                · {t("yrsExp", { years: a.yearsExp })}
                                               </span>
                                             </li>
                                           ))}
@@ -842,12 +850,12 @@ export function StaffRequestWizard() {
           >
             <div className="grid gap-6 sm:grid-cols-2 sm:items-end sm:gap-8">
               <div>
-                <p className="text-muted-foreground text-sm font-medium">Hourly rate</p>
+                <p className="text-muted-foreground text-sm font-medium">{t("hourlyRate")}</p>
                 {selectedPricingRate != null && Number.isFinite(selectedPricingRate) ? (
                   <p className="text-foreground mt-2 text-lg tracking-tight tabular-nums sm:text-xl">
                     {formatMoney(Math.round(selectedPricingRate * 100), currency)}
                     <span className="text-muted-foreground ml-1 text-base font-semibold sm:text-lg">
-                      /hr
+                      {t("perHour")}
                     </span>
                   </p>
                 ) : (
@@ -855,7 +863,7 @@ export function StaffRequestWizard() {
                 )}
               </div>
               <div className="sm:text-right">
-                <p className="text-muted-foreground text-sm font-medium">Total</p>
+                <p className="text-muted-foreground text-sm font-medium">{t("total")}</p>
                 {confirmEstimateCents != null ? (
                   <div className="mt-2 space-y-1">
                     <p className="text-foreground text-xl font-bold tracking-tight tabular-nums sm:text-2xl">
@@ -865,8 +873,9 @@ export function StaffRequestWizard() {
                     fullRequestEstimateCents != null &&
                     fullRequestEstimateCents !== confirmEstimateCents ? (
                       <p className="text-muted-foreground text-xs tabular-nums sm:text-sm">
-                        Full schedule would be about {formatMoney(fullRequestEstimateCents, currency)}{" "}
-                        if every window were covered.
+                        {t("fullScheduleEstimate", {
+                          amount: formatMoney(fullRequestEstimateCents, currency),
+                        })}
                       </p>
                     ) : null}
                   </div>
@@ -887,7 +896,7 @@ export function StaffRequestWizard() {
               onClick={() => setStep(2)}
             >
               <ArrowLeft className="size-4" />
-              Back
+              {tCommon("back")}
             </Button>
             <Button
               type="button"
@@ -896,7 +905,7 @@ export function StaffRequestWizard() {
               onClick={() => void handleConfirmPost()}
             >
               <LoadingSwap isLoading={confirmSubmitting}>
-                <span>Confirm request</span>
+                <span>{t("confirmRequest")}</span>
               </LoadingSwap>
             </Button>
           </div>
