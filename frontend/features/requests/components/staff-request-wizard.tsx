@@ -180,7 +180,7 @@ export function StaffRequestWizard() {
   }
 
   const scheduleSchema = useMemo(
-    () => buildStaffRequestScheduleSchema(tVal),
+    () => buildStaffRequestScheduleSchema(tVal).staffRequestScheduleSchema,
     [tVal],
   );
 
