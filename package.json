@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack",
     "second:dev": "npx concurrently --kill-others --names \"next,trigger\" --prefix-colors \"yellow,blue\" \"next dev --turbopack\" \"npm run trigger:dev\"",
     "build": "next build",
-    "start": "npx concurrently --kill-others --names \"next,trigger\" --prefix-colors \"yellow,blue\" \"next start\" \"npm run trigger:dev\"",
+    "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
