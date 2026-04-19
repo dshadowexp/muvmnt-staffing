@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense, use, useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { InterviewFeedbackPanel } from "@/features/interviews/components/interview-feedback-panel";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +53,7 @@ export type AssessmentSkillRow = {
   } | null;
 };
 
-export type CompletedInterview = {
+export type StartedInterview = {
   id: string;
   subject: "profession" | "resume";
   feedback: unknown;
@@ -62,8 +63,8 @@ export type CompletedInterview = {
 
 type Props = {
   profession: string;
-  professionInterviewPromise: Promise<CompletedInterview | null>;
-  resumeInterviewPromise: Promise<CompletedInterview | null>;
+  professionInterviewPromise: Promise<StartedInterview | null>;
+  resumeInterviewPromise: Promise<StartedInterview | null>;
   skillsPromise: Promise<AssessmentSkillRow[]>;
 };
 
@@ -152,21 +153,21 @@ export function WorkerAssessmentsHub({
         </div>
 
         <div className="grid gap-4 p-1 sm:grid-cols-2 xl:grid-cols-3">
-          <React.Suspense fallback={<InterviewCardSkeleton variant="start" />}>
+          <Suspense fallback={<InterviewCardSkeleton variant="start" />}>
             <InterviewSlot
               type="profession"
               profession={profession}
               promise={professionInterviewPromise}
             />
-          </React.Suspense>
+          </Suspense>
 
-          <React.Suspense fallback={<InterviewCardSkeleton variant="start" />}>
+          <Suspense fallback={<InterviewCardSkeleton variant="start" />}>
             <InterviewSlot type="resume" promise={resumeInterviewPromise} />
-          </React.Suspense>
+          </Suspense>
 
-          <React.Suspense fallback={<SkillsGridSkeleton />}>
+          <Suspense fallback={<SkillsGridSkeleton />}>
             <SkillsGridSlot promise={skillsPromise} setAddOpen={setAddOpen} />
-          </React.Suspense>
+          </Suspense>
         </div>
       </div>
 
@@ -207,25 +208,18 @@ function InterviewSlot({
 }: {
   type: "profession" | "resume";
   profession?: string;
-  promise: Promise<CompletedInterview | null>;
+  promise: Promise<StartedInterview | null>;
 }) {
   const router = useRouter();
-  const interview = React.use(promise);
+  const interview = use(promise);
   const [feedbackOpen, setFeedbackOpen] = React.useState(false);
-  const [feedback, setFeedback] = React.useState<CompletedInterview | null>(
-    interview,
-  );
-
-  React.useEffect(() => {
-    setFeedback(interview);
-  }, [interview]);
 
   const label =
     type === "profession"
       ? `${profession ?? ""} Professional Interview`.trim()
       : "Resume Interview";
 
-  if (!feedback) {
+  if (interview?.completedAt == null) {
     const href =
       type === "profession" ? "/interviews/profession" : "/interviews/resume";
     const title =
@@ -272,8 +266,8 @@ function InterviewSlot({
         <CompletedInterviewCard
           title={title}
           description={description}
-          duration={feedback.duration}
-          hasFeedback={feedback.feedback != null}
+          duration={interview.duration}
+          hasFeedback={interview.feedback != null}
         />
       </button>
 
@@ -288,19 +282,19 @@ function InterviewSlot({
           <DialogHeader>
             <DialogTitle>{label}</DialogTitle>
             <DialogDescription>
-              {feedback.duration && (
+              {interview.duration && (
                 <span className="flex items-center gap-1.5">
                   <ClockIcon className="size-3.5" />
-                  Duration: {feedback.duration}
+                  Duration: {interview.duration}
                 </span>
               )}
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <FeedbackBody
-              interview={feedback}
+              interview={interview}
               onFeedbackGenerated={(fb) => {
-                setFeedback((prev) => (prev ? { ...prev, feedback: fb } : prev));
+                // setFeedback((prev) => (prev ? { ...prev, feedback: fb } : prev));
                 router.refresh();
               }}
             />
@@ -642,7 +636,7 @@ function FeedbackBody({
   interview,
   onFeedbackGenerated,
 }: {
-  interview: CompletedInterview;
+  interview: StartedInterview;
   onFeedbackGenerated: (feedback: unknown) => void;
 }) {
   const [loading, setLoading] = React.useState(!interview.feedback);

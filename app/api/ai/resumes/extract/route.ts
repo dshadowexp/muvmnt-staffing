@@ -1,7 +1,7 @@
-import { extractResumeKeyPoints } from "@/services/ai/resume-extract";
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getPostHogClient } from "@/lib/posthog-server";
+import { streamResumeKeyPoints } from "@/services/ai/resumes/resume-extract";
 
 const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = [
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   }
 
   const buffer = await file.arrayBuffer();
-  const summary = await extractResumeKeyPoints(buffer, file.type);
+  const summary = await streamResumeKeyPoints(buffer, file.type);
 
   const posthog = getPostHogClient();
   posthog?.capture({
@@ -54,5 +54,5 @@ export async function POST(req: Request) {
   });
   await posthog?.shutdown();
 
-  return NextResponse.json({ summary });
+  return summary.toTextStreamResponse();
 }

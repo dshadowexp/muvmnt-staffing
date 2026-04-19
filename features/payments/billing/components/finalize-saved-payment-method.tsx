@@ -1,7 +1,8 @@
 "use client";
 
 import { syncDefaultPaymentMethodAfterSetupIntent } from "@/features/payments/billing/dal/mutations";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 

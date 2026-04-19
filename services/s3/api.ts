@@ -14,7 +14,7 @@ import { s3Client } from './client';
   
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type StorageFolder = 'avatars' | 'compliance' | 'receipts' | 'shifts' | 'feedback'
+export type StorageFolder = 'avatars' | 'compliance' | 'receipts' | 'shifts' | 'feedback' | 'resumes'
 
 export interface UploadParams {
     folder:      StorageFolder

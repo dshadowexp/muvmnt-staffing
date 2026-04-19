@@ -8,7 +8,6 @@ import { useActionState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { payrollAction } from "./_action";
-import { useOnboardingSkip } from "@/features/onboarding/hooks/use-onboarding-skip";
 import { setupPayrollAction } from "@/features/payments/payroll/actions";
 import { Check } from "lucide-react";
 
@@ -25,7 +24,6 @@ export function PayrollClient({
 }) {
   const [state, formAction] = useActionState(payrollAction, undefined);
   useOnboardingFormNavigate(state);
-  const { skipForm, skipSlot, skipPending } = useOnboardingSkip();
   const [loading, setLoading] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.payroll");
 
@@ -47,7 +45,6 @@ export function PayrollClient({
 
   return (
     <>
-      {skipForm}
       {isStripeComplete ? (
         <form action={formAction} className="space-y-6">
           <div className="inline-flex items-center gap-2 text-sm font-medium text-primary">
@@ -56,8 +53,6 @@ export function PayrollClient({
           </div>
           <ContinueButton
             text={t("finish")}
-            skipSlot={skipSlot}
-            skipPending={skipPending}
           />
         </form>
       ) : (
@@ -65,8 +60,6 @@ export function PayrollClient({
           <ContinueButton
             text={showFinishOnboarding ? t("finishOnboarding") : t("begin")}
             pending={loading}
-            skipSlot={skipSlot}
-            skipPending={skipPending}
           />
         </form>
       )}

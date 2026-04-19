@@ -3,6 +3,7 @@ import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
 import { getInterviewByIdForUser } from "./queries";
 import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
+import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 
 export type InterviewInsert = Database["public"]["Tables"]["interviews"]["Insert"];
 export type InterviewUpdate = Database["public"]["Tables"]["interviews"]["Update"];
@@ -68,12 +69,14 @@ export async function generateInterviewFeedback(interviewId: string) {
       }
     }
   
+    const subjectRef = parseInterviewSubjectRef(interview.subject_ref);
+
     const feedback = await generateAiInterviewFeedback({
       humeChatId: interview.hume_chat_id,
       interviewInfo: {
         title: interview.subject,
         profession: interview.subject,
-        description: interview.subject_ref,
+        description: subjectRef.body,
       },
       userName: user.email ?? "",
     });

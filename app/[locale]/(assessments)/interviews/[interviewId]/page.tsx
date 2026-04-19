@@ -25,6 +25,7 @@ import {
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 export default async function InterviewReviewPage({
   params,
@@ -32,6 +33,7 @@ export default async function InterviewReviewPage({
   params: Promise<{ interviewId: string }>;
 }) {
   const { interviewId } = await params;
+  const t = await getTranslations("assessments.interview.review");
 
   const interview = getInterviewForCurrentUser(interviewId).then((row) => {
     if (row == null) return notFound();
@@ -43,14 +45,14 @@ export default async function InterviewReviewPage({
       <Button variant="ghost" size="sm" className="gap-1 px-0" asChild>
         <Link href="/worker/assessments">
           <ArrowLeftIcon className="size-4" />
-          Back to assessments
+          {t("back")}
         </Link>
       </Button>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Interview:{" "}
+            {t("heading")}{" "}
             <SuspendedItem
               item={interview}
               fallback={<Skeleton className="inline-block h-7 w-48" />}
@@ -78,10 +80,10 @@ export default async function InterviewReviewPage({
               return (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>View Feedback</Button>
+                    <Button>{t("viewFeedback")}</Button>
                   </DialogTrigger>
                   <DialogContent className="flex max-h-[calc(100%-2rem)] flex-col overflow-y-auto md:max-w-3xl lg:max-w-4xl">
-                    <DialogTitle>Feedback</DialogTitle>
+                    <DialogTitle>{t("feedbackDialogTitle")}</DialogTitle>
                     <InterviewFeedbackPanel
                       feedback={i.feedback}
                       completedAt={i.completed_at}
@@ -106,7 +108,7 @@ export default async function InterviewReviewPage({
                   size="sm"
                   onClick={generateInterviewFeedback.bind(null, i.id)}
                 >
-                  Generate Feedback
+                  {t("generateFeedback")}
                 </Button>
               );
             }
@@ -134,12 +136,13 @@ async function Messages({
 }) {
   const session = await getSession();
   if (!session) return redirect("/sign-in");
+  const t = await getTranslations("assessments.interview.review");
   const { hume_chat_id } = await interview;
-  
+
   if (hume_chat_id == null) {
     return (
       <p className="text-sm text-muted-foreground">
-        No transcript available for this interview.
+        {t("transcriptEmpty")}
       </p>
     );
   }

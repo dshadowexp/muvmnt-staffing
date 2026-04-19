@@ -418,7 +418,7 @@
         "workAuth": {
           "title": "Autorisation de travail",
           "description": "Votre document est en cours d'examen par notre équipe.",
-          "badge": "Validation"
+          "badge": "En cours d'examen"
         }
       },
       "shifts": {
@@ -662,6 +662,9 @@
           "verifiedNotice": "Ces informations ont été vérifiées et ne peuvent pas être modifiées ici.",
           "documentLabel": "Document d'autorisation",
           "documentOnFile": "Document au dossier.",
+          "verificationLabel": "Vérification",
+          "verificationStatusVerified": "Vérifié",
+          "verificationStatusPending": "En attente de révision",
           "none": "—",
           "saving": "Enregistrement…",
           "removeFileFailed": "Échec de la suppression du fichier dans le stockage."
@@ -794,6 +797,92 @@
       "nextBody": "Aucune action supplémentaire n'est requise sur cette page. Consultez votre boîte de réception et vos messages pour les mises à jour de Muvmnt — nous vous informerons dès que votre compte sera prêt."
     }
   },
+
+  "assessments": {
+    "quiz": {
+      "preparingTitle": "Préparation de votre évaluation…",
+      "preparingHint": "Les premières questions se chargent rapidement ; les autres se chargent en arrière-plan au besoin.",
+      "scoring": "Notation de votre quiz…",
+      "selectAllThatApply": "Sélectionnez toutes les réponses qui s'appliquent",
+      "totalLabel": "Total : {time}",
+      "clockUnknown": "—:—",
+      "streamingLabel": "Chargement des questions",
+      "streamRetry": "Réessayer",
+      "loadingNextQuestion": "Chargement de la question suivante…",
+      "waitingForFinal": "En attente des dernières questions…",
+      "submitQuiz": "Soumettre le quiz",
+      "nextQuestion": "Question suivante",
+      "results": {
+        "passedTitle": "Félicitations !",
+        "failedTitle": "Pas tout à fait",
+        "passedDescription": "Vous avez réussi l'évaluation {skill}.",
+        "failedDescription": "Il vous faut 70 % pour réussir. Vous pouvez repasser l'évaluation.",
+        "correctSummary": "{correct} sur {total} correctes",
+        "passedBadge": "RÉUSSI",
+        "failedBadge": "ÉCHOUÉ",
+        "retake": "Recommencer",
+        "back": "Retour aux évaluations"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des questions"
+      }
+    },
+    "interview": {
+      "candidateFallback": "Candidat",
+      "setup": {
+        "durationNotice": "Cet entretien dure 10 minutes. Activez les deux appareils avant de commencer.",
+        "cameraOff": "Caméra désactivée",
+        "cameraLabel": "Caméra",
+        "cameraDenied": "Accès à la caméra refusé.",
+        "microphoneLabel": "Microphone",
+        "microphoneDenied": "Accès au microphone refusé.",
+        "micCheckHint": "Dites quelque chose pour terminer le test du micro.",
+        "micCheckListening": "Écoute…",
+        "micCheckPassed": "Microphone prêt",
+        "starting": "Démarrage…",
+        "start": "Commencer l'entretien"
+      },
+      "controls": {
+        "mute": "Couper le son",
+        "unmute": "Réactiver le son",
+        "enableCamera": "Activer la caméra",
+        "disableCamera": "Désactiver la caméra",
+        "endCall": "Terminer l'appel",
+        "timeLeft": "{time} restantes",
+        "cameraDenied": "Accès à la caméra refusé. Veuillez activer la caméra pour continuer."
+      },
+      "completed": {
+        "title": "Entretien terminé",
+        "generating": "Génération de votre rétroaction — cela peut prendre un instant…"
+      },
+      "profession": {
+        "title": "Entretien professionnel — {profession}",
+        "description": "Un entretien vocal de 10 minutes mené par l'IA, adapté à votre rôle de {profession}. Vous serez interrogé(e) sur vos connaissances cliniques, votre expérience et vos compétences professionnelles.",
+        "fallbackProfession": "Professionnel de la santé"
+      },
+      "resume": {
+        "uploadTitle": "Entretien basé sur le CV",
+        "uploadDescription": "Téléversez votre CV pour commencer. Nous mènerons un entretien comportemental de 10 minutes basé sur votre CV.",
+        "fileLabel": "CV",
+        "fileHint": "PDF, Word ou texte brut — 10 Mo maximum.",
+        "scanning": "Analyse du CV…",
+        "scanProceed": "Analyser et passer à l'entretien",
+        "scanFailed": "Échec de l'analyse du CV",
+        "genericError": "Une erreur est survenue",
+        "interviewTitle": "Entretien comportemental basé sur le CV",
+        "interviewDescription": "Un entretien comportemental de 10 minutes mené par l'IA basé sur votre CV. Vous serez interrogé(e) sur des situations et expériences en utilisant la méthode STAR."
+      },
+      "review": {
+        "back": "Retour aux évaluations",
+        "heading": "Entretien :",
+        "transcriptEmpty": "Aucune transcription disponible pour cet entretien.",
+        "viewFeedback": "Voir la rétroaction",
+        "generateFeedback": "Générer la rétroaction",
+        "feedbackDialogTitle": "Rétroaction"
+      }
+    }
+  },
+
   "referral": {
     "claim": {
       "applying": "Application de votre lien de parrainage…"

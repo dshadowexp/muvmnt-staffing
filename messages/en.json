@@ -418,7 +418,7 @@
         "workAuth": {
           "title": "Work authorization",
           "description": "Your document is being reviewed by our team.",
-          "badge": "Validating"
+          "badge": "Pending"
         }
       },
       "shifts": {
@@ -662,6 +662,9 @@
           "verifiedNotice": "This information was reviewed and can't be changed here.",
           "documentLabel": "Authorization document",
           "documentOnFile": "Document on file.",
+          "verificationLabel": "Verification",
+          "verificationStatusVerified": "Verified",
+          "verificationStatusPending": "Pending review",
           "none": "—",
           "saving": "Saving…",
           "removeFileFailed": "Failed to remove file from storage."
@@ -794,6 +797,92 @@
       "nextBody": "No further action is needed on this page. Check your inbox and messages for updates from Muvmnt — we'll let you know as soon as your account is ready."
     }
   },
+
+  "assessments": {
+    "quiz": {
+      "preparingTitle": "Preparing your assessment…",
+      "preparingHint": "First questions load quickly; the rest load in the background when needed.",
+      "scoring": "Scoring your quiz…",
+      "selectAllThatApply": "Select all that apply",
+      "totalLabel": "Total: {time}",
+      "clockUnknown": "—:—",
+      "streamingLabel": "Streaming questions",
+      "streamRetry": "Retry",
+      "loadingNextQuestion": "Loading next question…",
+      "waitingForFinal": "Waiting for final questions…",
+      "submitQuiz": "Submit quiz",
+      "nextQuestion": "Next question",
+      "results": {
+        "passedTitle": "Congratulations!",
+        "failedTitle": "Not quite there",
+        "passedDescription": "You passed the {skill} assessment.",
+        "failedDescription": "You need 70% to pass. You can retake the assessment.",
+        "correctSummary": "{correct} of {total} correct",
+        "passedBadge": "PASSED",
+        "failedBadge": "FAILED",
+        "retake": "Retake",
+        "back": "Back to assessments"
+      },
+      "errors": {
+        "loadFailed": "Failed to load questions"
+      }
+    },
+    "interview": {
+      "candidateFallback": "Candidate",
+      "setup": {
+        "durationNotice": "This interview is 10 minutes. Enable both devices before starting.",
+        "cameraOff": "Camera off",
+        "cameraLabel": "Camera",
+        "cameraDenied": "Camera access denied.",
+        "microphoneLabel": "Microphone",
+        "microphoneDenied": "Microphone access denied.",
+        "micCheckHint": "Say something to complete the mic check.",
+        "micCheckListening": "Listening…",
+        "micCheckPassed": "Microphone ready",
+        "starting": "Starting…",
+        "start": "Start interview"
+      },
+      "controls": {
+        "mute": "Mute",
+        "unmute": "Unmute",
+        "enableCamera": "Enable camera",
+        "disableCamera": "Disable camera",
+        "endCall": "End call",
+        "timeLeft": "{time} left",
+        "cameraDenied": "Camera access denied. Please enable camera to proceed."
+      },
+      "completed": {
+        "title": "Interview complete",
+        "generating": "Generating your feedback — this may take a moment…"
+      },
+      "profession": {
+        "title": "{profession} Professional Interview",
+        "description": "A 10-minute AI-led voice interview tailored to your role as a {profession}. You will be asked questions about your clinical knowledge, experience, and professional competencies.",
+        "fallbackProfession": "Healthcare Professional"
+      },
+      "resume": {
+        "uploadTitle": "Resume Interview",
+        "uploadDescription": "Upload your resume to begin. We will conduct a 10-minute behavioural interview based on your resume.",
+        "fileLabel": "Resume",
+        "fileHint": "PDF, Word, or plain text — max 10 MB.",
+        "scanning": "Scanning resume…",
+        "scanProceed": "Scan & proceed to interview",
+        "scanFailed": "Failed to scan resume",
+        "genericError": "Something went wrong",
+        "interviewTitle": "Resume Behavioural Interview",
+        "interviewDescription": "A 10-minute AI-led behavioural interview based on your resume. You will be asked situational and experience-based questions using the STAR method."
+      },
+      "review": {
+        "back": "Back to assessments",
+        "heading": "Interview:",
+        "transcriptEmpty": "No transcript available for this interview.",
+        "viewFeedback": "View Feedback",
+        "generateFeedback": "Generate Feedback",
+        "feedbackDialogTitle": "Feedback"
+      }
+    }
+  },
+
   "referral": {
     "claim": {
       "applying": "Applying your referral link…"

@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { prepareQuizForSkillPage } from "@/features/quizes/lib/prepare-quiz-attempt";
 import { QuizClient } from "./_quiz-client";
@@ -12,19 +13,15 @@ export default async function QuizPage({
   params: Promise<{ skillId: string }>;
 }) {
   const { skillId } = await params;
+  const t = await getTranslations("assessments.quiz");
 
   return (
     <Suspense
       fallback={
         <div className="flex min-h-svh flex-col items-center justify-center gap-4">
           <Loader2Icon className="size-16 animate-spin" />
-          <p className="text-muted-foreground">
-            Preparing your assessment…
-          </p>
-          <p className="text-xs text-muted-foreground">
-            First questions load quickly; the rest load in the background when
-            needed.
-          </p>
+          <p className="text-muted-foreground">{t("preparingTitle")}</p>
+          <p className="text-xs text-muted-foreground">{t("preparingHint")}</p>
         </div>
       }
     >

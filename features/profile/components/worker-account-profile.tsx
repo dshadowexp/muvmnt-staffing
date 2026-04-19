@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, use } from "react";
+import { Suspense, use, useState } from "react";
+import { Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { AddressCard } from "@/features/geo/components/address-card";
 import type { AddressLocation } from "@/features/geo/types";
@@ -13,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type WorkerRow = {
@@ -127,13 +129,32 @@ function WorkAuthCardSlot({
   workAuthPromise: Promise<WorkAuthData>;
 }) {
   const workAuth = use(workAuthPromise);
+  const verified = workAuth?.is_verified === true;
+  const [isEditing, setIsEditing] = useState(false);
+
   return (
     <Card size="sm">
       <CardHeader>
-        <CardTitle>Work authorization</CardTitle>
-        <CardDescription>
-          Right-to-work document. Verified submissions are read-only.
-        </CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle>Work authorization</CardTitle>
+            <CardDescription>
+              Right-to-work document. Verified submissions are read-only.
+            </CardDescription>
+          </div>
+          {!verified && !isEditing ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => setIsEditing(true)}
+              aria-label="Edit work authorization"
+            >
+              <Pencil className="size-3.5" aria-hidden />
+            </Button>
+          ) : null}
+        </div>
       </CardHeader>
       <CardContent>
         <WorkerAuthorizationForm
@@ -142,7 +163,10 @@ function WorkAuthCardSlot({
               ? { type: workAuth.type, file_url: workAuth.file_url }
               : null
           }
-          workAuthorizationVerified={workAuth?.is_verified === true}
+          workAuthorizationVerified={verified}
+          profileEditMode={!verified}
+          isEditing={isEditing}
+          onCancelEdit={() => setIsEditing(false)}
         />
       </CardContent>
     </Card>

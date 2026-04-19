@@ -6,7 +6,7 @@ import {
   createSetupIntent,
   syncDefaultPaymentMethodAfterSetupIntent,
 } from "@/features/payments/billing/dal/mutations";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import getStripeBrowser, {
   DARK_APPEARANCE,
   LIGHT_APPEARANCE,

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -68,6 +69,7 @@ export function QuizClient({
   initialAnswers,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("assessments.quiz");
   const [questions, setQuestions] = useState<QuizQuestion[]>(initialQuestions);
   const [streamError, setStreamError] = useState<string | null>(null);
   const [streaming, setStreaming] = useState(deferredQuestionLoad);
@@ -121,12 +123,12 @@ export function QuizClient({
       }).catch((e) => {
         if (signal?.aborted) return;
         setStreamError(
-          e instanceof Error ? e.message : "Failed to load questions",
+          e instanceof Error ? e.message : t("errors.loadFailed"),
         );
         setStreaming(false);
       });
     },
-    [quizId],
+    [quizId, t],
   );
 
   useEffect(() => {
@@ -262,7 +264,7 @@ export function QuizClient({
       <div className="flex min-h-svh items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2Icon className="size-12 animate-spin" />
-          <p className="text-muted-foreground">Scoring your quiz…</p>
+          <p className="text-muted-foreground">{t("scoring")}</p>
         </div>
       </div>
     );
@@ -285,12 +287,14 @@ export function QuizClient({
               )}
             </div>
             <CardTitle className="text-2xl">
-              {result.passed ? "Congratulations!" : "Not quite there"}
+              {result.passed
+                ? t("results.passedTitle")
+                : t("results.failedTitle")}
             </CardTitle>
             <CardDescription>
               {result.passed
-                ? `You passed the ${skillName} assessment.`
-                : `You need 70% to pass. You can retake the assessment.`}
+                ? t("results.passedDescription", { skill: skillName })
+                : t("results.failedDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -298,24 +302,28 @@ export function QuizClient({
               {result.score}%
             </div>
             <p className="text-sm text-muted-foreground">
-              {Math.round((result.score / 100) * result.total)} of{" "}
-              {result.total} correct
+              {t("results.correctSummary", {
+                correct: Math.round((result.score / 100) * result.total),
+                total: result.total,
+              })}
             </p>
             <Badge
               variant={result.passed ? "default" : "destructive"}
               className="text-sm"
             >
-              {result.passed ? "PASSED" : "FAILED"}
+              {result.passed
+                ? t("results.passedBadge")
+                : t("results.failedBadge")}
             </Badge>
           </CardContent>
           <CardFooter className="flex justify-center gap-3">
             <Button variant="outline" asChild>
-              <Link href="/worker/assessments">Back to assessments</Link>
+              <Link href="/worker/assessments">{t("results.back")}</Link>
             </Button>
             {!result.passed && (
               <Button onClick={() => router.refresh()}>
                 <RotateCcwIcon className="size-4" />
-                Retake
+                {t("results.retake")}
               </Button>
             )}
           </CardFooter>
@@ -337,7 +345,7 @@ export function QuizClient({
           </Badge>
           {isMultiSelect && !waitingForCurrent && (
             <Badge variant="outline" className="text-xs">
-              Select all that apply
+              {t("selectAllThatApply")}
             </Badge>
           )}
         </div>
@@ -349,7 +357,7 @@ export function QuizClient({
             )}
           >
             <ClockIcon className="size-3.5" />
-            {waitingForCurrent ? "—:—" : formatTime(questionTimeLeft)}
+            {waitingForCurrent ? t("clockUnknown") : formatTime(questionTimeLeft)}
           </div>
           <div
             className={cn(
@@ -357,7 +365,7 @@ export function QuizClient({
               totalTimeLow && "text-destructive font-medium",
             )}
           >
-            Total: {formatTime(totalTimeLeft)}
+            {t("totalLabel", { time: formatTime(totalTimeLeft) })}
           </div>
         </div>
       </div>
@@ -376,13 +384,13 @@ export function QuizClient({
               className="underline underline-offset-2"
               onClick={() => consumeStream()}
             >
-              Retry
+              {t("streamRetry")}
             </button>
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2 text-muted-foreground">
             <Loader2Icon className="size-3.5 animate-spin" />
-            Streaming questions{" "}
+            {t("streamingLabel")}{" "}
             {questions.length > 0 && (
               <span className="tabular-nums">
                 ({questions.length}/{expectedQuestionCount})
@@ -413,7 +421,7 @@ export function QuizClient({
             <CardFooter className="justify-end">
               <Button disabled>
                 <Loader2Icon className="size-4 animate-spin" />
-                Loading next question…
+                {t("loadingNextQuestion")}
               </Button>
             </CardFooter>
           </Card>
@@ -478,9 +486,9 @@ export function QuizClient({
             >
               {isLastOverall
                 ? mustWaitToFinish
-                  ? "Waiting for final questions…"
-                  : "Submit quiz"
-                : "Next question"}
+                  ? t("waitingForFinal")
+                  : t("submitQuiz")
+                : t("nextQuestion")}
               <ArrowRightIcon className="size-4" />
             </Button>
           </CardFooter>

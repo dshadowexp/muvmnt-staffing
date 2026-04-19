@@ -2,13 +2,17 @@
 
 import { useVoice, VoiceReadyState } from "@humeai/voice-react";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { errorToast } from "@/components/error-toast";
 import { env } from "@/data/env/client";
 import {
+  CheckCircle2Icon,
   Loader2Icon,
   MicIcon,
   MicOffIcon,
@@ -24,6 +28,7 @@ import {
   updateInterview,
   generateInterviewFeedback,
 } from "@/features/interviews/actions";
+import type { InterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import {
   Card,
   CardContent,
@@ -52,7 +57,12 @@ function formatCountdown(seconds: number): string {
 type InterviewShellProps = {
   accessToken: string;
   subject: string;
-  subjectRef: string;
+  subjectRef: InterviewSubjectRef;
+  /**
+   * Pre-created interview row id. When provided, the shell skips the
+   * `createAssessmentInterview` call on start and reuses the existing row.
+   */
+  interviewId?: string;
   sessionVariables: Record<string, string>;
   user: { name: string; imageUrl: string };
   title: string;
@@ -60,32 +70,44 @@ type InterviewShellProps = {
   returnPath: string;
 };
 
-// ── Mic level meter (pre-interview test) ─────────────────────────────────────
+// ── Mic check (pre-interview) ────────────────────────────────────────────────
 
-function useMicLevel(enabled: boolean) {
+const MIC_THRESHOLD = 0.12;
+const MIC_SUSTAIN_MS = 700;
+
+/**
+ * Opens the mic, exposes a normalized level (0-1) and a `passed` flag once the
+ * user has spoken above {@link MIC_THRESHOLD} for {@link MIC_SUSTAIN_MS}
+ * cumulatively. Releases the mic stream as soon as the check passes.
+ */
+function useMicCheck(enabled: boolean) {
   const [level, setLevel] = useState(0);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const animRef = useRef<number>(0);
+  const [passed, setPassed] = useState(false);
 
   useEffect(() => {
     if (!enabled) {
       setLevel(0);
-      return;
+      setPassed(false);
     }
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled || passed) return;
 
     let cancelled = false;
+    let stream: MediaStream | null = null;
+    let ctx: AudioContext | null = null;
+    let raf = 0;
+    let aboveSinceMs: number | null = null;
 
     (async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
-        streamRef.current = stream;
-        const ctx = new AudioContext();
-        ctxRef.current = ctx;
+        ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
@@ -95,9 +117,20 @@ function useMicLevel(enabled: boolean) {
         const tick = () => {
           if (cancelled) return;
           analyser.getByteFrequencyData(buf);
-          const avg = buf.reduce((a, b) => a + b, 0) / buf.length;
-          setLevel(avg / 255);
-          animRef.current = requestAnimationFrame(tick);
+          const avg = buf.reduce((a, b) => a + b, 0) / buf.length / 255;
+          setLevel(avg);
+
+          const now = performance.now();
+          if (avg >= MIC_THRESHOLD) {
+            if (aboveSinceMs == null) aboveSinceMs = now;
+            else if (now - aboveSinceMs >= MIC_SUSTAIN_MS) {
+              setPassed(true);
+              return;
+            }
+          } else {
+            aboveSinceMs = null;
+          }
+          raf = requestAnimationFrame(tick);
         };
         tick();
       } catch {
@@ -107,19 +140,104 @@ function useMicLevel(enabled: boolean) {
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(animRef.current);
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-      ctxRef.current?.close();
-      ctxRef.current = null;
-      setLevel(0);
+      cancelAnimationFrame(raf);
+      stream?.getTracks().forEach((track) => track.stop());
+      ctx?.close().catch(() => {});
     };
-  }, [enabled]);
+  }, [enabled, passed]);
 
-  return level;
+  return { level, passed };
 }
 
 // ── Device setup card ────────────────────────────────────────────────────────
+
+type DeviceRowProps = {
+  icon: React.ReactNode;
+  label: string;
+  checked: boolean;
+  onCheckedChange: (next: boolean) => void;
+  switchId: string;
+  error?: string | null;
+  children?: React.ReactNode;
+};
+
+function DeviceRow({
+  icon,
+  label,
+  checked,
+  onCheckedChange,
+  switchId,
+  error,
+  children,
+}: DeviceRowProps) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between rounded-lg border px-4 py-3">
+        <div className="flex items-center gap-3">
+          {icon}
+          <Label htmlFor={switchId} className="cursor-pointer">
+            {label}
+          </Label>
+        </div>
+        <Switch
+          id={switchId}
+          checked={checked}
+          onCheckedChange={onCheckedChange}
+        />
+      </div>
+      {error && (
+        <p className="flex items-center gap-2 px-1 text-xs text-destructive">
+          <AlertTriangleIcon className="size-3.5 shrink-0" />
+          {error}
+        </p>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function MicCheckMeter({
+  level,
+  passed,
+  hint,
+  listening,
+  passedLabel,
+}: {
+  level: number;
+  passed: boolean;
+  hint: string;
+  listening: string;
+  passedLabel: string;
+}) {
+  if (passed) {
+    return (
+      <p className="flex items-center gap-2 px-1 text-xs text-emerald-600">
+        <CheckCircle2Icon className="size-3.5 shrink-0" />
+        {passedLabel}
+      </p>
+    );
+  }
+
+  const fill = Math.min(1, level / MIC_THRESHOLD) * 100;
+  const isListening = level > 0.02;
+
+  return (
+    <div className="space-y-1.5 px-1">
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        aria-hidden
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-75"
+          style={{ width: `${fill}%` }}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {isListening ? listening : hint}
+      </p>
+    </div>
+  );
+}
 
 function DeviceSetupCard({
   title,
@@ -130,6 +248,7 @@ function DeviceSetupCard({
   description: string;
   onStart: () => void;
 }) {
+  const t = useTranslations("assessments.interview.setup");
   const [micOn, setMicOn] = useState(false);
   const [camOn, setCamOn] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
@@ -139,12 +258,12 @@ function DeviceSetupCard({
   const previewRef = useRef<HTMLVideoElement>(null);
   const camStreamRef = useRef<MediaStream | null>(null);
 
-  const micLevel = useMicLevel(micOn);
+  const { level: micLevel, passed: micPassed } = useMicCheck(micOn);
 
-  // Camera toggle
+  // Camera lifecycle — drives a preview stream while `camOn` is true.
   useEffect(() => {
     if (!camOn) {
-      camStreamRef.current?.getTracks().forEach((t) => t.stop());
+      camStreamRef.current?.getTracks().forEach((track) => track.stop());
       camStreamRef.current = null;
       if (previewRef.current) previewRef.current.srcObject = null;
       return;
@@ -159,187 +278,148 @@ function DeviceSetupCard({
           audio: false,
         });
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
         camStreamRef.current = stream;
         if (previewRef.current) previewRef.current.srcObject = stream;
         setCamError(null);
       } catch {
-        setCamError("Camera access denied.");
+        setCamError(t("cameraDenied"));
         setCamOn(false);
       }
     })();
 
     return () => {
       cancelled = true;
-      camStreamRef.current?.getTracks().forEach((t) => t.stop());
+      camStreamRef.current?.getTracks().forEach((track) => track.stop());
       camStreamRef.current = null;
     };
-  }, [camOn]);
+  }, [camOn, t]);
 
-  // Mic permission check on toggle
   const handleMicToggle = async (on: boolean) => {
-    if (on) {
-      try {
-        const test = await navigator.mediaDevices.getUserMedia({ audio: true });
-        test.getTracks().forEach((t) => t.stop());
-        setMicError(null);
-        setMicOn(true);
-      } catch {
-        setMicError("Microphone access denied.");
-      }
-    } else {
+    if (!on) {
       setMicOn(false);
+      return;
+    }
+    try {
+      const test = await navigator.mediaDevices.getUserMedia({ audio: true });
+      test.getTracks().forEach((track) => track.stop());
+      setMicError(null);
+      setMicOn(true);
+    } catch {
+      setMicError(t("microphoneDenied"));
     }
   };
 
-  const canStart = micOn && camOn;
+  const canStart = camOn && micOn && micPassed;
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle className="text-xl">{title}</CardTitle>
-          <CardDescription className="text-balance">
-            {description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          <p className="text-xs text-muted-foreground">
-              This interview is 10 minutes. Enable both devices before starting.
-          </p>
-          {/* Camera preview */}
-          <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
-            {camOn ? (
-              <video
-                ref={previewRef}
-                autoPlay
-                playsInline
-                muted
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                <VideoOffIcon className="size-10 opacity-40" />
-                <span className="text-xs">Camera off</span>
-              </div>
-            )}
-          </div>
+    <div className="flex min-h-svh flex-col p-4">
+      <div className="flex justify-end gap-2">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+      <div className="flex flex-1 items-center justify-center">
+        <Card className="w-full max-w-lg">
+          <CardHeader>
+            <CardTitle className="text-xl">{title}</CardTitle>
+            <CardDescription className="text-balance">
+              {description}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-5">
+            <p className="text-xs text-muted-foreground">
+              {t("durationNotice")}
+            </p>
 
-          {/* Toggles */}
-          <div className="space-y-4">
-            {/* Camera switch */}
-            <div className="flex items-center justify-between rounded-lg border px-4 py-3">
-              <div className="flex items-center gap-3">
-                {camOn ? (
-                  <VideoIcon className="size-5 text-emerald-500" />
-                ) : (
-                  <VideoOffIcon className="size-5 text-muted-foreground" />
-                )}
-                <Label htmlFor="cam-switch" className="cursor-pointer">
-                  Camera
-                </Label>
-              </div>
-              <Switch
-                id="cam-switch"
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+              {camOn ? (
+                <video
+                  ref={previewRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <VideoOffIcon className="size-10 opacity-40" />
+                  <span className="text-xs">{t("cameraOff")}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <DeviceRow
+                switchId="cam-switch"
+                label={t("cameraLabel")}
                 checked={camOn}
                 onCheckedChange={setCamOn}
+                error={camError}
+                icon={
+                  camOn ? (
+                    <VideoIcon className="size-5 text-emerald-500" />
+                  ) : (
+                    <VideoOffIcon className="size-5 text-muted-foreground" />
+                  )
+                }
               />
-            </div>
-            {camError && (
-              <p className="flex items-center gap-2 px-1 text-sm text-destructive">
-                <AlertTriangleIcon className="size-4 shrink-0" />
-                {camError}
-              </p>
-            )}
 
-            {/* Microphone switch */}
-            {/* Mic level meter */}
-            {micOn && (
-              <div className="space-y-1.5 px-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    Audio level
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {micLevel > 0.02 ? "Receiving audio" : "Speak to test…"}
-                  </span>
-                </div>
-                <div className="flex h-3 gap-[3px] rounded">
-                  {Array.from({ length: 20 }).map((_, i) => {
-                    const threshold = (i + 1) / 20;
-                    const active = micLevel >= threshold;
-                    return (
-                      <div
-                        key={i}
-                        className={cn(
-                          "flex-1 rounded-sm transition-colors duration-75",
-                          active
-                            ? i < 14
-                              ? "bg-emerald-500"
-                              : i < 17
-                                ? "bg-amber-500"
-                                : "bg-red-500"
-                            : "bg-muted",
-                        )}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {micError && (
-              <p className="flex items-center gap-2 px-1 text-sm text-destructive">
-                <AlertTriangleIcon className="size-4 shrink-0" />
-                {micError}
-              </p>
-            )}
-            
-            <div className="flex items-center justify-between rounded-lg border px-4 py-3">
-              <div className="flex items-center gap-3">
-                {micOn ? (
-                  <MicIcon className="size-5 text-emerald-500" />
-                ) : (
-                  <MicOffIcon className="size-5 text-muted-foreground" />
-                )}
-                <Label htmlFor="mic-switch" className="cursor-pointer">
-                  Microphone
-                </Label>
-              </div>
-              <Switch
-                id="mic-switch"
+              <DeviceRow
+                switchId="mic-switch"
+                label={t("microphoneLabel")}
                 checked={micOn}
                 onCheckedChange={handleMicToggle}
-              />
+                error={micError}
+                icon={
+                  micOn ? (
+                    <MicIcon
+                      className={cn(
+                        "size-5",
+                        micPassed ? "text-emerald-500" : "text-primary",
+                      )}
+                    />
+                  ) : (
+                    <MicOffIcon className="size-5 text-muted-foreground" />
+                  )
+                }
+              >
+                {micOn && (
+                  <MicCheckMeter
+                    level={micLevel}
+                    passed={micPassed}
+                    hint={t("micCheckHint")}
+                    listening={t("micCheckListening")}
+                    passedLabel={t("micCheckPassed")}
+                  />
+                )}
+              </DeviceRow>
             </div>
 
-            
-          </div>
-
-          <Button
-            size="lg"
-            disabled={!canStart || starting}
-            onClick={() => {
-              setStarting(true);
-              // Stop the preview streams — the interview will open its own
-              camStreamRef.current?.getTracks().forEach((t) => t.stop());
-              camStreamRef.current = null;
-              onStart();
-            }}
-            className="w-full"
-          >
-            {starting ? (
-              <>
-                <Loader2Icon className="size-4 animate-spin" />
-                Starting…
-              </>
-            ) : (
-              "Start interview"
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+            <Button
+              size="lg"
+              disabled={!canStart || starting}
+              onClick={() => {
+                setStarting(true);
+                camStreamRef.current?.getTracks().forEach((track) => track.stop());
+                camStreamRef.current = null;
+                onStart();
+              }}
+              className="w-full"
+            >
+              {starting ? (
+                <>
+                  <Loader2Icon className="size-4 animate-spin" />
+                  {t("starting")}
+                </>
+              ) : (
+                t("start")
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -350,17 +430,21 @@ export function InterviewShell({
   accessToken,
   subject,
   subjectRef,
+  interviewId: initialInterviewId,
   sessionVariables,
   user,
   title,
   description,
   returnPath,
 }: InterviewShellProps) {
+  const t = useTranslations("assessments.interview");
   const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp } =
     useVoice();
-  const [interviewId, setInterviewId] = useState<string | null>(null);
+  const [interviewId, setInterviewId] = useState<string | null>(
+    initialInterviewId ?? null,
+  );
   const [cameraEnabled, setCameraEnabled] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [, setCameraError] = useState<string | null>(null);
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
@@ -393,12 +477,12 @@ export function InterviewShell({
       setCameraEnabled(true);
       setCameraError(null);
     } catch {
-      setCameraError("Camera access denied. Please enable camera to proceed.");
+      setCameraError(t("controls.cameraDenied"));
     }
-  }, []);
+  }, [t]);
 
   const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     setCameraEnabled(false);
   }, []);
@@ -467,11 +551,16 @@ export function InterviewShell({
 
   const handleStart = async () => {
     await startCamera();
-    const res = await createAssessmentInterview({ subject, subjectRef });
-    if (res.error) {
-      return errorToast(res.message);
+
+    let activeInterviewId = interviewId;
+    if (activeInterviewId == null) {
+      const res = await createAssessmentInterview({ subject, subjectRef });
+      if (res.error) {
+        return errorToast(res.message);
+      }
+      activeInterviewId = res.id;
+      setInterviewId(activeInterviewId);
     }
-    setInterviewId(res.id);
 
     connect({
       auth: { type: "accessToken", value: accessToken },
@@ -499,9 +588,9 @@ export function InterviewShell({
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4">
         <Loader2Icon className="size-16 animate-spin" />
-        <p className="text-lg font-medium">Interview complete</p>
+        <p className="text-lg font-medium">{t("completed.title")}</p>
         <p className="text-sm text-muted-foreground">
-          Generating your feedback — this may take a moment…
+          {t("completed.generating")}
         </p>
       </div>
     );
@@ -570,6 +659,7 @@ function Controls({
   remaining: number;
   onToggleCamera: () => void;
 }) {
+  const t = useTranslations("assessments.interview.controls");
   const { disconnect, isMuted, mute, unmute, micFft } = useVoice();
   const timeLow = remaining <= 60;
 
@@ -585,7 +675,9 @@ function Controls({
         ) : (
           <MicIcon />
         )}
-        <span className="sr-only">{isMuted ? "Unmute" : "Mute"}</span>
+        <span className="sr-only">
+          {isMuted ? t("unmute") : t("mute")}
+        </span>
       </Button>
 
       <Button variant="ghost" size="icon" onClick={onToggleCamera}>
@@ -595,7 +687,7 @@ function Controls({
           <VideoOffIcon className="text-destructive" />
         )}
         <span className="sr-only">
-          {cameraEnabled ? "Disable camera" : "Enable camera"}
+          {cameraEnabled ? t("disableCamera") : t("enableCamera")}
         </span>
       </Button>
 
@@ -611,12 +703,12 @@ function Controls({
             : "text-muted-foreground",
         )}
       >
-        {formatCountdown(remaining)} left
+        {t("timeLeft", { time: formatCountdown(remaining) })}
       </div>
 
       <Button variant="ghost" size="icon" onClick={disconnect}>
         <PhoneOffIcon className="text-destructive" />
-        <span className="sr-only">End call</span>
+        <span className="sr-only">{t("endCall")}</span>
       </Button>
     </div>
   );

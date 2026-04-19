@@ -14,9 +14,7 @@ interface ContinueButtonProps {
   id?: string;
   text?: string;
   pending?: boolean;
-  /** Optional skip control (a `<Button type="submit" form="…">` from `useOnboardingSkip`; render `skipForm` as a sibling). */
   skipSlot?: ReactNode;
-  /** When the skip server action is in flight — disables Continue alongside `pending`. */
   skipPending?: boolean;
 }
 
@@ -55,6 +53,7 @@ export function ContinueButton({
           size="sm"
           onClick={handleBack}
           className="gap-1.5"
+          disabled={disabled}
         >
           <ChevronLeft className="size-4" />
           {t("back")}

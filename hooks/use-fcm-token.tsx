@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchToken } from "@/services/firebase/messaging";
 import { onMessage, Unsubscribe } from "firebase/messaging";
 import { messaging } from "@/services/firebase/messaging";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 
 async function getNotificationPermission() {

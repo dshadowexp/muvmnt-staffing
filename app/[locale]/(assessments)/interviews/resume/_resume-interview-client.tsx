@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { VoiceProvider } from "@humeai/voice-react";
+import { useTranslations } from "next-intl";
 import { InterviewShell } from "../_components/interview-shell";
 import { ResumeUpload } from "./_resume-upload";
+import type { InterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
+import type { InterviewRow } from "@/features/interviews/dal/queries";
 
 type Props = {
   accessToken: string;
@@ -11,6 +14,12 @@ type Props = {
   userImage: string;
   profession: string;
   years_exp: string;
+  existingInterview: InterviewRow | null;
+};
+
+type ReadyState = {
+  interviewId: string;
+  ref: InterviewSubjectRef;
 };
 
 export function ResumeInterviewClient({
@@ -19,11 +28,18 @@ export function ResumeInterviewClient({
   userImage,
   profession,
   years_exp,
+  existingInterview,
 }: Props) {
-  const [resumeSummary, setResumeSummary] = useState<string | null>(null);
+  const t = useTranslations("assessments.interview.resume");
+  const [ready, setReady] = useState<ReadyState | null>(null);
 
-  if (!resumeSummary) {
-    return <ResumeUpload onResumeReady={setResumeSummary} />;
+  if (!ready) {
+    return (
+      <ResumeUpload
+        existingInterview={existingInterview}
+        onResumeReady={setReady}
+      />
+    );
   }
 
   return (
@@ -31,12 +47,17 @@ export function ResumeInterviewClient({
       <InterviewShell
         accessToken={accessToken}
         subject="resume"
-        subjectRef={resumeSummary.slice(0, 2000)}
-        title="Resume Behavioural Interview"
-        description="A 10-minute AI-led behavioural interview based on your resume. You will be asked situational and experience-based questions using the STAR method."
+        interviewId={ready.interviewId}
+        subjectRef={{
+          key: ready.ref.key,
+          body: ready.ref.body.slice(0, 4000),
+          limit: ready.ref.limit,
+        }}
+        title={t("interviewTitle")}
+        description={t("interviewDescription")}
         sessionVariables={{
           candidate_name: userName,
-          resume_text: resumeSummary,
+          resume_text: ready.ref.body,
           profession: profession,
           years_of_experience: years_exp,
         }}

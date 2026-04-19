@@ -17,6 +17,11 @@ import {
   isAssessmentInterviewLocked,
   normalizeFeedbackJsonString,
 } from "@/features/interviews/lib/interview-feedback-json";
+import {
+  parseInterviewSubjectRef,
+  RESUME_UPLOAD_LIMIT,
+  type InterviewSubjectRef,
+} from "@/features/interviews/lib/interview-subject-ref";
 
 export type GetInterviewResult =
   | { error: true; message: string; data: null }
@@ -29,7 +34,7 @@ export async function createAssessmentInterview({
   subjectRef,
 }: {
   subject: string;
-  subjectRef: string;
+  subjectRef: InterviewSubjectRef;
 }): Promise<{ error: true; message: string } | { error: false; id: string }> {
   const session = await getSession();
   if (!session) {
@@ -50,7 +55,11 @@ export async function createAssessmentInterview({
     const row = await insertInterview({
       user_id: session.userId,
       subject,
-      subject_ref: subjectRef,
+      subject_ref: {
+        key: subjectRef.key,
+        body: subjectRef.body,
+        limit: subjectRef.limit,
+      },
     });
     return { error: false, id: row.id };
   } catch (e) {
@@ -96,6 +105,160 @@ export async function updateInterview(
   }
 }
 
+export async function updateInterviewSubjectRefBody(
+  id: string,
+  body: string,
+): Promise<{ error: true; message: string } | { error: false }> {
+  const session = await getSession();
+  if (!session) {
+    return { error: true, message: "Not authenticated" };
+  }
+
+  const interview = await getInterviewByIdForUser(id, session.userId);
+  if (interview == null) {
+    return { error: true, message: "Interview not found" };
+  }
+
+  const existing = parseInterviewSubjectRef(interview.subject_ref);
+
+  try {
+    const row = await updateInterviewByOwner(id, session.userId, {
+      subject_ref: { key: existing.key, body, limit: existing.limit },
+    });
+    if (row == null) {
+      return { error: true, message: "Interview not found" };
+    }
+    return { error: false };
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Failed to update interview";
+    return { error: true, message };
+  }
+}
+
+/**
+ * Records a (re)upload of the interview's underlying file. Increments
+ * `subject_ref.limit`, swaps the storage `key`, and clears the cached `body`
+ * so the new summary can stream in. Refuses to bump past the configured cap.
+ */
+export async function bumpInterviewSubjectRefUpload(
+  id: string,
+  newKey: string,
+): Promise<
+  | { error: true; message: string; reason?: "limit_reached" }
+  | { error: false; limit: number }
+> {
+  const session = await getSession();
+  if (!session) {
+    return { error: true, message: "Not authenticated" };
+  }
+
+  const interview = await getInterviewByIdForUser(id, session.userId);
+  if (interview == null) {
+    return { error: true, message: "Interview not found" };
+  }
+
+  const existing = parseInterviewSubjectRef(interview.subject_ref);
+  if (existing.limit >= RESUME_UPLOAD_LIMIT) {
+    return {
+      error: true,
+      message: "Maximum number of resume changes reached",
+      reason: "limit_reached",
+    };
+  }
+
+  const nextLimit = existing.limit + 1;
+
+  try {
+    const row = await updateInterviewByOwner(id, session.userId, {
+      subject_ref: { key: newKey, body: "", limit: nextLimit },
+    });
+    if (row == null) {
+      return { error: true, message: "Interview not found" };
+    }
+    return { error: false, limit: nextLimit };
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Failed to update interview";
+    return { error: true, message };
+  }
+}
+
+/**
+ * Clears the `key` and `body` from an interview's `subject_ref` while
+ * preserving the row and its `limit` counter, so the user can re-upload
+ * (and the limit keeps climbing). Refuses once the cap has been hit.
+ */
+export async function clearInterviewSubjectRefFile(
+  id: string,
+): Promise<
+  | { error: true; message: string; reason?: "limit_reached" }
+  | { error: false; limit: number }
+> {
+  const session = await getSession();
+  if (!session) {
+    return { error: true, message: "Not authenticated" };
+  }
+
+  const interview = await getInterviewByIdForUser(id, session.userId);
+  if (interview == null) {
+    return { error: true, message: "Interview not found" };
+  }
+
+  const existing = parseInterviewSubjectRef(interview.subject_ref);
+  if (existing.limit >= RESUME_UPLOAD_LIMIT) {
+    return {
+      error: true,
+      message: "Maximum number of resume changes reached",
+      reason: "limit_reached",
+    };
+  }
+
+  try {
+    const row = await updateInterviewByOwner(id, session.userId, {
+      subject_ref: { key: "", body: "", limit: existing.limit },
+    });
+    if (row == null) {
+      return { error: true, message: "Interview not found" };
+    }
+    return { error: false, limit: existing.limit };
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Failed to update interview";
+    return { error: true, message };
+  }
+}
+
+export async function deleteAssessmentInterview(
+  id: string,
+): Promise<{ error: true; message: string } | { error: false }> {
+  const session = await getSession();
+  if (!session) {
+    return { error: true, message: "Not authenticated" };
+  }
+
+  const interview = await getInterviewByIdForUser(id, session.userId);
+  if (interview == null) {
+    return { error: false };
+  }
+
+  if (isAssessmentInterviewLocked(interview)) {
+    return { error: true, message: "Interview cannot be deleted" };
+  }
+
+  const supabase = await createAdminClient();
+  const { error } = await supabase
+    .from("interviews")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", session.userId);
+
+  if (error) {
+    return { error: true, message: error.message };
+  }
+  return { error: false };
+}
+
 export async function generateInterviewFeedback(
   interviewId: string,
 ): Promise<{ error: true; message: string } | { error: false }> {
@@ -133,13 +296,19 @@ export async function generateInterviewFeedback(
       ? `${worker.first_name ?? ""} ${worker.last_name ?? ""}`.trim()
       : "Candidate";
 
+  const subjectRef = parseInterviewSubjectRef(interview.subject_ref);
+  const description =
+    subjectRef.body.trim().length > 0
+      ? subjectRef.body
+      : "General interview practice session.";
+
   try {
     const feedback = await generateAiInterviewFeedback({
       humeChatId: interview.hume_chat_id,
       interviewInfo: {
         title: interview.subject.replace(/_/g, " "),
         profession: worker?.profession ?? "General",
-        description: interview.subject_ref.trim().length > 0 ? interview.subject_ref : "General interview practice session.",
+        description,
       },
       userName: userName.length > 0 ? userName : "Candidate",
     });

@@ -231,7 +231,7 @@ export type Database = {
           hume_chat_id: string | null
           id: string
           subject: string
-          subject_ref: string
+          subject_ref: Json | null
           updated_at: string
           user_id: string
         }
@@ -243,7 +243,7 @@ export type Database = {
           hume_chat_id?: string | null
           id?: string
           subject: string
-          subject_ref: string
+          subject_ref?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -255,7 +255,7 @@ export type Database = {
           hume_chat_id?: string | null
           id?: string
           subject?: string
-          subject_ref?: string
+          subject_ref?: Json | null
           updated_at?: string
           user_id?: string
         }

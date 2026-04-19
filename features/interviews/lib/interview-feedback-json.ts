@@ -70,6 +70,7 @@ export function isAssessmentInterviewLocked(
     "feedback" | "completed_at"
   >,
 ): boolean {
+  if (row.completed_at == null) return false;
   const parsed = parseInterviewFeedback(row.feedback);
   if (parsed == null) return true;
   if (parsed.decision === "PASS") return true;

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import {
   WorkerAssessmentsHub,
   type AssessmentSkillRow,
-  type CompletedInterview,
+  type StartedInterview,
 } from "./_client";
 
 export default async function WorkerAssessmentsPage() {
@@ -19,7 +19,7 @@ export default async function WorkerAssessmentsPage() {
 
   const userId = session.userId;
 
-  const professionInterviewPromise: Promise<CompletedInterview | null> =
+  const professionInterviewPromise: Promise<StartedInterview | null> =
     getInterviewBySubjectForUser("profession", userId).then((i) =>
       i
         ? {
@@ -33,7 +33,7 @@ export default async function WorkerAssessmentsPage() {
     );
   professionInterviewPromise.catch(() => undefined);
 
-  const resumeInterviewPromise: Promise<CompletedInterview | null> =
+  const resumeInterviewPromise: Promise<StartedInterview | null> =
     getInterviewBySubjectForUser("resume", userId).then((i) =>
       i
         ? {
