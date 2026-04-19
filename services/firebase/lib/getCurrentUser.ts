@@ -14,7 +14,6 @@ export async function getCurrentUser({ allData = false } = {}) {
 
 async function getUser(authId: string) {
     // "use cache"
-    // cacheTag(getUserIdTag(authId));
 
     const supabase = await createAdminClient();
     const { data, error } = await supabase
