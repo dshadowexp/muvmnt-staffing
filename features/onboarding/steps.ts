@@ -85,7 +85,6 @@ const workerSteps: MultistepFormStep[] = [
         locked:      true,
         freezesWhen: [],
         icon:        CreditCard,
-        skippable:   true,
     },
 ]
 

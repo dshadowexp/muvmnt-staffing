@@ -12,6 +12,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "trigger:dev": "npx trigger.dev@latest dev",
+    "trigger:deploy": "npx trigger.dev@latest deploy",
     "gen-types": "supabase gen types typescript --project-id gyjvlazhyqoqlfldlcfn --schema public > ./services/supabase/types/database.ts"
   },
   "dependencies": {
