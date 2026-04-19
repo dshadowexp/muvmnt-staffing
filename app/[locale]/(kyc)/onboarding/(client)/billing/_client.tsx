@@ -1,0 +1,175 @@
+"use client";
+
+import { ContinueButton } from "@/features/onboarding/components/continue-button";
+import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboarding-form-navigate";
+import type { ReactNode } from "react";
+import { SubmitEventHandler, useActionState, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { billingAction } from "./_action";
+import { useOnboardingSkip } from "@/features/onboarding/hooks/use-onboarding-skip";
+import { CardSummary } from "@/features/payments/billing/dal/queries";
+import { PaymentMethodList } from "@/features/payments/billing/components/payment-method-list";
+import { useTheme } from "next-themes";
+import getStripeBrowser, { DARK_APPEARANCE, LIGHT_APPEARANCE } from "@/services/stripe/client";
+import {
+  createSetupIntent,
+  syncDefaultPaymentMethodAfterSetupIntent,
+} from "@/features/payments/billing/dal/mutations";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods?: CardSummary[] }) {
+    const [cards, setCards] = useState<CardSummary[]>(initialPaymentMethods ?? []);
+    const stripePromise = useMemo(() => getStripeBrowser(), []);
+    const { resolvedTheme } = useTheme();
+    const [loading, setLoading] = useState(true);
+    const [clientSecret, setClientSecret] = useState<string | null>(null);
+    const [billingState, action] = useActionState(billingAction, undefined);
+    useOnboardingFormNavigate(billingState);
+    const { skipForm, skipSlot, skipPending } = useOnboardingSkip();
+    const t = useTranslations("kyc.onboarding.forms.billing");
+    const appearance = resolvedTheme === "dark" ? DARK_APPEARANCE : LIGHT_APPEARANCE;
+
+    useEffect(() => {
+        setCards(initialPaymentMethods ?? []);
+    }, [initialPaymentMethods]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function init() {
+            try {
+                setLoading(true);
+                const { error, data } = await createSetupIntent();
+                if (cancelled) return;
+                if (error) throw new Error(error);
+                setClientSecret(data?.clientSecret ?? null);
+            } catch (error) {
+                if (!cancelled) {
+                    toast.error(error instanceof Error ? error.message : t("loadFailedInline"));
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void init();
+        return () => {
+            cancelled = true;
+        };
+    }, [t]);
+
+    if (loading) {
+        return (
+            <Loader2 className="size-4 animate-spin" />
+        );
+    }
+
+    if (!clientSecret) {
+        return (
+            <div className="py-5 text-sm text-destructive">
+                {t("loadFailed")}
+            </div>
+        );
+    }
+
+    return (
+        <>
+            {skipForm}
+            {cards.length > 0 ? (
+                <form action={action} className="space-y-6">
+                    <PaymentMethodList
+                        initialCards={cards}
+                        onDelete={(id) => setCards((prev) => prev.filter((c) => c.id !== id))}
+                    />
+                    <ContinueButton
+                        text={t("finish")}
+                        skipSlot={skipSlot}
+                        skipPending={skipPending}
+                    />
+                </form>
+            ) : (
+                <Elements
+                    key={resolvedTheme ?? "light"}
+                    stripe={stripePromise}
+                    options={{ appearance, clientSecret, currency: "cad", loader: "auto" }}
+                >
+                    <PaymentForm skipSlot={skipSlot} skipPending={skipPending} />
+                </Elements>
+            )}
+        </>
+    );
+}
+
+function PaymentForm({
+    skipSlot,
+    skipPending,
+}: {
+    skipSlot: ReactNode;
+    skipPending: boolean;
+}) {
+    const stripe = useStripe();
+    const elements = useElements();
+    const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = useTranslations("kyc.onboarding.forms.billing");
+
+    const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        if (!stripe || !elements) {
+            setIsSubmitting(false);
+            return;
+        }
+
+        const returnUrl =
+            typeof window !== "undefined"
+                ? `${window.location.origin}${window.location.pathname}`
+                : "";
+
+        const { error, setupIntent } = await stripe.confirmSetup({
+            elements,
+            confirmParams: {
+                return_url: returnUrl,
+            },
+            redirect: "if_required",
+        });
+
+        if (error) {
+            if (error.type === "card_error" || error.type === "validation_error") {
+                toast.error(error.message ?? t("paymentFailed"));
+            } else {
+                toast.error(t("paymentUnexpected"));
+            }
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (setupIntent?.status === "succeeded" && setupIntent.id) {
+            const res = await syncDefaultPaymentMethodAfterSetupIntent(setupIntent.id);
+            if (res.error) {
+                toast.error(res.error);
+            } else {
+                toast.success(t("paymentSaved"));
+                router.refresh();
+            }
+        }
+        setIsSubmitting(false);
+    };
+
+    return (
+        <form id="payment-form" onSubmit={handleSubmit} className="space-y-6">
+            <PaymentElement id="payment-element" options={{ layout: "accordion" }} />
+            <ContinueButton
+                text={t("save")}
+                skipSlot={skipSlot}
+                skipPending={skipPending}
+                pending={isSubmitting}
+            />
+        </form>
+    );
+}

@@ -1,0 +1,31 @@
+import {
+  getOnboardingCompletionStatus,
+  getOnboardingStepsJson,
+} from "@/features/onboarding/dal/queries";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+import { getSession } from "@/lib/session";
+import type { UserRole } from "@/types/auth";
+
+import { getOnboardingResumeRoute } from "@/features/onboarding/lib/resume-route";
+
+export default async function OnboardingPage() {
+  const locale = await getLocale();
+  const session = await getSession();
+
+  if (!session) return redirect({ href: "/sign-in", locale });
+
+  const [steps, { is_completed }] = await Promise.all([
+    getOnboardingStepsJson(session.userId),
+    getOnboardingCompletionStatus(session.userId),
+  ]);
+
+  if (is_completed) {
+    return redirect({
+      href: session.isActive ? `/${session.role}` : "/review",
+      locale,
+    });
+  }
+
+  return redirect({ href: getOnboardingResumeRoute(session.role as UserRole, steps), locale });
+}
