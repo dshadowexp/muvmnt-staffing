@@ -3,9 +3,9 @@ import { CircleDashedIcon } from "lucide-react";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
-import { prepareQuizForSkillPage } from "@/features/quizes/lib/prepare-quiz-attempt";
-import { QuizClient } from "./_quiz-client";
-import type { QuizQuestion } from "@/services/ai/quizes";
+import { getSkillById } from "@/features/profile/dal/queries";
+import { QuizClientPage } from "@/features/quizes/components/quiz-page";
+import { getSkillDescription } from "@/lib/constants";
 
 export default async function QuizPage({
   params,
@@ -33,23 +33,17 @@ export default async function QuizPage({
 async function SuspendedContent({ skillId }: { skillId: string }) {
   const session = await getSession();
   if (!session) redirect("/sign-in");
-  if (session.role !== "worker") redirect("/worker");
+  if (session.role !== "worker") redirect("/dashboard");
 
-  const prepared = await prepareQuizForSkillPage({
-    skillId,
-    userId: session.userId,
-  });
-
-  if (!prepared) return notFound();
+  const skill = await getSkillById(skillId, session.userId);
+  if (!skill) return notFound();
 
   return (
-    <QuizClient
-      quizId={prepared.quizId}
-      questions={prepared.initialQuestions as QuizQuestion[]}
-      skillName={prepared.skillName}
-      deferredQuestionLoad={prepared.deferredQuestionLoad}
-      expectedQuestionCount={prepared.expectedQuestionCount}
-      initialAnswers={prepared.initialAnswers}
+    <QuizClientPage
+      userId={session.userId}
+      skillId={skill.id}
+      skillName={skill.name}
+      skillDescription={getSkillDescription(skill.name) ?? ""}
     />
   );
 }

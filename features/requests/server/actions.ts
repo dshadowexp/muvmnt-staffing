@@ -155,7 +155,7 @@ export async function confirmStaffRequestAction(requestId: string) {
     const row = await getStaffRequestRow(requestId, session.userId);
     if (!row.ok) return { error: true as const, message: row.message };
     if (row.row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-        redirect(`/client/requests/${requestId}`);
+        redirect(`/dashboard/requests/${requestId}`);
     }
 
     const cache = row.row.coverage_data as CoverageDataCache | null;
@@ -200,8 +200,8 @@ export async function confirmStaffRequestAction(requestId: string) {
     const stripe = getStripeServer();
     const totalCents = totalFromCache(cache, row.row.pricing_rate);
 
-    const successUrl = `${env.NEXT_PUBLIC_APP_URL}/client/requests/${requestId}?checkout=success`;
-    const cancelUrl = `${env.NEXT_PUBLIC_APP_URL}/client/requests/${requestId}/coverage?checkout=cancelled`;
+    const successUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}?checkout=success`;
+    const cancelUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}/coverage?checkout=cancelled`;
 
     const checkout = await stripe.checkout.sessions.create({
         mode: "payment",

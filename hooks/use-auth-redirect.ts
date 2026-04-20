@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation";
  */
 const PRESERVED_AUTH_PARAM_KEYS = ["redirect", "as", "ref"] as const;
 
-const DEFAULT_REDIRECT = "/app";
+const DEFAULT_REDIRECT = "/dashboard";
 
 export type UseAuthRedirect = {
     /** Safe post-auth redirect target. `/app` when missing or invalid. */

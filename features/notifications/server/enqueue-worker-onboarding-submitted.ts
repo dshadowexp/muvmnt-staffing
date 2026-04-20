@@ -33,7 +33,7 @@ export async function enqueueWorkerOnboardingSubmittedNotification(): Promise<vo
     await enqueueNotification({
         userId: session.userId.trim(),
         channels: ["email"],
-        subject: "Your Muvmnt application is under review",
+        subject: "Your ReadyKare application is under review",
         template: "worker-onboarding-submitted",
         data: {
             firstName,

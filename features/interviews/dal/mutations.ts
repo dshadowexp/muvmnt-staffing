@@ -1,4 +1,4 @@
-import { generateAiInterviewFeedback } from "@/services/ai/interviews/interviews";
+import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
 import { getInterviewByIdForUser } from "./queries";
@@ -71,8 +71,9 @@ export async function generateInterviewFeedback(interviewId: string) {
   
     const subjectRef = parseInterviewSubjectRef(interview.subject_ref);
 
-    const feedback = await generateAiInterviewFeedback({
+    const feedback = await streamAiInterviewFeedback({
       humeChatId: interview.hume_chat_id,
+      humeGroupChatId: interview.chat_group_id,
       interviewInfo: {
         title: interview.subject,
         profession: interview.subject,
@@ -85,6 +86,6 @@ export async function generateInterviewFeedback(interviewId: string) {
       return { error: true, message: "Failed to generate feedback" };
     }
   
-    await updateInterviewByOwner(interviewId, user.id, { feedback });
+    // await updateInterviewByOwner(interviewId, user.id, { feedback });
     return { error: false };
   }

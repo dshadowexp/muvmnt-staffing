@@ -34,10 +34,10 @@ export default async function InterviewReviewPage({
   // Fetch messages lazily — the promise is streamed to the client and
   // resolved inside the "View messages" dialog under a Suspense boundary.
   const messagesPromise = interview.hume_chat_id
-    ? fetchChatMessages(interview.hume_chat_id).then(condenseChatMessages)
+    ? fetchChatMessages(interview.hume_chat_id, interview.chat_group_id).then(condenseChatMessages)
     : Promise.resolve([]);
 
-  const backHref = session.role === "worker" ? "/worker/assessments" : "/";
+  const backHref = session.role === "worker" ? "/dashboard/assessments" : "/";
 
   // Format dates on the server so the client renders identical text on both
   // SSR and hydration (avoids Intl locale/timezone mismatches).

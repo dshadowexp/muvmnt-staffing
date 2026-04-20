@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
+import { encodeLatLngToCellId } from "@/services/h3/client";
 import type { AddressLocation } from "@/features/geo/types";
 
 export async function upsertLocationAction(location: AddressLocation) {
@@ -41,6 +42,7 @@ export async function upsertLocationAction(location: AddressLocation) {
     if (error) {
       return { error: true, message: error.message };
     }
+    await syncWorkerCellId(userId, location.lat, location.lng);
     return { error: false, message: "Address updated successfully" };
   }
 
@@ -49,5 +51,31 @@ export async function upsertLocationAction(location: AddressLocation) {
   if (error) {
     return { error: true, message: error.message };
   }
+  await syncWorkerCellId(userId, location.lat, location.lng);
   return { error: false, message: "Address saved successfully" };
+}
+
+/**
+ * Keeps `workers.cell_id` in sync with the user's latest location so the
+ * matcher (which scans workers by H3 cell) sees the new region immediately.
+ * No-op for non-worker users.
+ */
+async function syncWorkerCellId(
+  userId: string,
+  lat: number,
+  lng: number,
+): Promise<void> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+  const supabase = await createAdminClient();
+  const { data: worker } = await supabase
+    .from("workers")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!worker) return;
+
+  const cellId = encodeLatLngToCellId(lat, lng);
+  await supabase.from("workers").update({ cell_id: cellId }).eq("id", worker.id);
 }

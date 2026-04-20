@@ -173,21 +173,10 @@ export async function buildCandidatePool(params: {
     await params.progress?.({ kind: "ring", ringCellCount: ring.length });
     if (ring.length === 0) return fail(0);
 
-    const { data: gridRows } = await supabase
-        .from("workers_cell_grid")
-        .select("worker_id")
-        .in("cell_id", ring);
-
-    const workerIds = new Set((gridRows ?? []).map((r) => r.worker_id));
-    if (workerIds.size === 0) {
-        await params.progress?.({ kind: "workers", workerCount: 0 });
-        return fail(ring.length);
-    }
-
     const { data: workerRows } = await supabase
         .from("workers")
         .select("id, user_id, first_name, last_name, photo_url, years_exp, status, profession")
-        .in("id", Array.from(workerIds));
+        .in("cell_id", ring);
 
     await params.progress?.({ kind: "workers", workerCount: workerRows?.length ?? 0 });
     if (!workerRows?.length) return fail(ring.length);

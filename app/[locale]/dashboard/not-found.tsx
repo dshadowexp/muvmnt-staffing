@@ -11,9 +11,7 @@ import {
 import { getSession } from "@/lib/get-session";
 
 function dashboardHomeHref(role: string | undefined): string {
-    if (role === "admin") return "/admin";
-    if (role === "client") return "/client";
-    if (role === "worker") return "/worker";
+    if (role) return "/dashboard";
     return "/";
 }
 

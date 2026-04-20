@@ -46,7 +46,7 @@ export async function claimReferralCode(
 
   if (!normalized) {
     if (session) {
-      redirect({ href: `/${session.role}?ref_error=invalid`, locale });
+      redirect({ href: `/dashboard?ref_error=invalid`, locale });
     }
     redirect({ href: "/sign-up?ref_error=invalid", locale });
     return;
@@ -61,7 +61,7 @@ export async function claimReferralCode(
 
   if (error || !referralCode) {
     const href = session
-      ? `/${session.role}?ref_error=not_found`
+      ? `/dashboard?ref_error=not_found`
       : "/sign-up?ref_error=not_found";
     redirect({ href, locale });
     return;
@@ -72,7 +72,7 @@ export async function claimReferralCode(
       session.userId === referralCode.user_id
         ? "ref_error=self"
         : "ref_notice=already_member";
-    redirect({ href: `/${session.role}?${query}`, locale });
+    redirect({ href: `/dashboard?${query}`, locale });
     return;
   }
 

@@ -20,8 +20,6 @@ export async function enqueueWelcomeFollowupNotification(input: {
 }): Promise<void> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
     const role = (input.role ?? "client") as UserRole;
-    const dashboardPath =
-        role === "worker" ? "/worker" : role === "admin" ? "/admin" : "/client";
 
     await enqueueNotification({
         userId: input.userId,
@@ -32,7 +30,7 @@ export async function enqueueWelcomeFollowupNotification(input: {
         data: {
             firstName: null,
             isWorker: role === "worker",
-            dashboardUrl: `${baseUrl}${dashboardPath}`,
+            dashboardUrl: `${baseUrl}/dashboard`,
             previewText: "A few quick next steps",
             unsubscribeUrl: `${baseUrl}/`,
             privacyUrl: `${baseUrl}/`,

@@ -7,17 +7,20 @@ import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboa
 import { EmailVerification } from "@/features/verification/components/email-verification";
 import { PhoneVerification } from "@/features/verification/components/phone-verification";
 import { verifyDetailsAction } from "./_action";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 
 export function VerificationClient() {
-  const [state, formAction] = useActionState(verifyDetailsAction, undefined);
-  useOnboardingFormNavigate(state);
+    const [state, formAction] = useActionState(verifyDetailsAction, undefined);
+    useOnboardingFormNavigate(state);
 
-  return (
-        <form action={formAction} className="space-y-6">
+    return (
+        <div className="space-y-6">
             <EmailVerification />
             <Separator className="my-6" />
             <PhoneVerification />
-            <ContinueButton />
-        </form>
+            <form action={formAction}>
+                <ContinueButton />
+            </form>
+        </div>
     );
 }

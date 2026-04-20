@@ -10,7 +10,7 @@ import {
 } from "@/features/profile/schemas/compliance";
 
 const COMPLIANCE_PATHS = [
-  "/worker/compliance",
+  "/dashboard/compliance",
   "/onboarding/compliance",
 ] as const;
 

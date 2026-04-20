@@ -2,7 +2,7 @@
 
 import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
-import { generateAiInterviewFeedback } from "@/services/ai/interviews/interviews";
+import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import {
   getInterviewByIdForUser,
   getInterviewBySubjectForUser,
@@ -305,8 +305,9 @@ export async function generateInterviewFeedback(
       : "General interview practice session.";
 
   try {
-    const feedback = await generateAiInterviewFeedback({
+    const feedback = await streamAiInterviewFeedback({
       humeChatId: interview.hume_chat_id,
+      humeGroupChatId: interview.chat_group_id,
       interviewInfo: {
         title: interview.subject.replace(/_/g, " "),
         profession: worker?.profession ?? "General",
@@ -315,13 +316,13 @@ export async function generateInterviewFeedback(
       userName: userName.length > 0 ? userName : "Candidate",
     });
 
-    if (feedback == null || feedback.trim() === "") {
+    if (feedback == null) { //|| feedback.trim() === "")
       return { error: true, message: "Failed to generate feedback" };
     }
 
     let feedbackJson: unknown;
     try {
-      feedbackJson = JSON.parse(normalizeFeedbackJsonString(feedback));
+      // feedbackJson = JSON.parse(normalizeFeedbackJsonString(feedback));
     } catch {
       return { error: true, message: "Invalid feedback format from model" };
     }

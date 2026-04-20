@@ -17,8 +17,9 @@ type FormattedMessage = {
 
 async function loadFormattedMessages(
   humeChatId: string,
+  humeGroupChatId: string | null,
 ): Promise<FormattedMessage[]> {
-  const messages = await fetchChatMessages(humeChatId);
+  const messages = await fetchChatMessages(humeChatId, humeGroupChatId);
 
   const result: FormattedMessage[] = [];
   for (const message of messages) {
@@ -162,16 +163,18 @@ Ensure only candidates who are safe, competent, and reliable PASS. All others mu
  */
 export async function streamAiInterviewFeedback({
   humeChatId,
+  humeGroupChatId,
   interviewInfo,
   userName,
   onFinish,
 }: {
   humeChatId: string;
   interviewInfo: InterviewInfo;
+  humeGroupChatId: string | null;
   userName: string;
   onFinish?: Parameters<typeof streamText>[0]["onFinish"];
 }) {
-  const formattedMessages = await loadFormattedMessages(humeChatId);
+  const formattedMessages = await loadFormattedMessages(humeChatId, humeGroupChatId);
 
   return streamText({
     model: google("gemini-2.5-flash"),
@@ -185,23 +188,25 @@ export async function streamAiInterviewFeedback({
 /**
  * Non-streaming variant kept for existing server-action callers. Returns the
  * raw text produced by the model, ready to be normalized and parsed.
- */
-export async function generateAiInterviewFeedback({
-  humeChatId,
-  interviewInfo,
-  userName,
-}: {
-  humeChatId: string;
-  interviewInfo: InterviewInfo;
-  userName: string;
-}) {
-  const formattedMessages = await loadFormattedMessages(humeChatId);
+//  */
+// export async function generateAiInterviewFeedback({
+//   humeChatId,
+//   humeGroupChatId,
+//   interviewInfo,
+//   userName,
+// }: {
+//   humeChatId: string;
+//   humeGroupChatId: string | null;
+//   interviewInfo: InterviewInfo;
+//   userName: string;
+// }) {
+//   const formattedMessages = await loadFormattedMessages(humeChatId, humeGroupChatId);
 
-  const { text } = await generateText({
-    model: google("gemini-2.5-flash"),
-    system: buildFeedbackSystemPrompt({ userName, interviewInfo }),
-    prompt: JSON.stringify(formattedMessages),
-  });
+//   const { text } = await generateText({
+//     model: google("gemini-2.5-flash"),
+//     system: buildFeedbackSystemPrompt({ userName, interviewInfo }),
+//     prompt: JSON.stringify(formattedMessages),
+//   });
 
-  return text;
-}
+//   return text;
+// }

@@ -19,7 +19,7 @@ import {
   syncDefaultPaymentMethodAfterSetupIntent,
 } from "@/features/payments/billing/dal/mutations";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Loader2 } from "lucide-react";
+import { CircleDashed } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods?: CardSummary[] }) {
@@ -67,7 +67,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
 
     if (loading) {
         return (
-            <Loader2 className="size-4 animate-spin" />
+            <CircleDashed className="size-4 animate-spin" />
         );
     }
 

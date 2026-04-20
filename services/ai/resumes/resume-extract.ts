@@ -1,4 +1,4 @@
-import { streamText, Output, streamObject } from "ai";
+import { streamText, Output } from "ai";
 import { google } from "../models/google";
 import { aiSummarySchema } from "./schema";
 

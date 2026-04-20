@@ -6,20 +6,30 @@ type PhoneValidationKey =
   | "codeLength"
   | "codeDigits";
 
-/** Build a localized phone schema (Canadian). `t` maps to `kyc.onboarding.validation`. */
-export function buildPhoneSchema(t?: (key: PhoneValidationKey) => string) {
+export type PhoneCountry = "CA" | "US" | "UK";
+
+/** Valid national-number digit lengths per supported country. */
+const COUNTRY_DIGIT_RULES: Record<PhoneCountry, (digits: string) => boolean> = {
+  CA: (d) => d.length === 10 || (d.length === 11 && d.startsWith("1")),
+  US: (d) => d.length === 10 || (d.length === 11 && d.startsWith("1")),
+  UK: (d) => {
+    const stripped = d.replace(/^0+/, "");
+    return stripped.length === 10 || d.length === 10;
+  },
+};
+
+/** Build a localized phone schema. `t` maps to `kyc.onboarding.validation`. */
+export function buildPhoneSchema(
+  t?: (key: PhoneValidationKey) => string,
+  country: PhoneCountry = "CA",
+) {
   const msg = (key: PhoneValidationKey) => (t ? t(key) : key);
+  const isValid = COUNTRY_DIGIT_RULES[country];
   return z
     .string()
     .min(1, msg("phoneRequired"))
     .refine(
-      (v) => {
-        const digits = v.replace(/\D/g, "");
-        return (
-          digits.length === 10 ||
-          (digits.length === 11 && digits.startsWith("1"))
-        );
-      },
+      (v) => isValid(v.replace(/\D/g, "")),
       { message: msg("phoneInvalid") },
     );
 }

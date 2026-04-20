@@ -1,17 +1,17 @@
 {
   "site": {
-    "name": "Muvmnt",
+    "name": "ReadyKare",
     "tagline": "Healthcare Staffing Solutions",
     "phone": "1-437-979-7797",
-    "email": "info@muvmnt.ca",
+    "email": "info@readykare.com",
     "countries": "Canada, USA, UK",
-    "copyright": "© {year} Muvmnt Staffing Inc. All rights reserved."
+    "copyright": "© {year} ReadyKare Staffing Inc. All rights reserved."
   },
 
   "meta": {
-    "description": "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief across Canada.",
+    "description": "ReadyKare connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief across Canada.",
     "openGraphDescription": "Fast, reliable healthcare staffing solutions for Canadian facilities.",
-    "openGraphImageAlt": "Muvmnt Staffing Inc."
+    "openGraphImageAlt": "ReadyKare Staffing Inc."
   },
 
   "common": {
@@ -100,7 +100,7 @@
       "titleLead": "Request",
       "titleAccent": "care staff",
       "titleTail": "in minutes.",
-      "subtitle": "Muvmnt connects healthcare teams with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
+      "subtitle": "ReadyKare connects healthcare teams with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
@@ -126,9 +126,9 @@
       "ctaJoin": "Join as a professional"
     },
     "why": {
-      "overline": "Why Muvmnt",
+      "overline": "Why ReadyKare",
       "title": "We move at the speed of care.",
-      "subtitle": "Healthcare can't wait. Neither can we. Muvmnt was built for the pressures Canadian teams face every day.",
+      "subtitle": "Healthcare can't wait. Neither can we. ReadyKare was built for the pressures Canadian teams face every day.",
       "points": [
         { "icon": "Zap", "title": "Fast coverage", "description": "Most requests are matched the same day — including emergency relief." },
         { "icon": "BadgeCheck", "title": "Vetted professionals", "description": "Every worker is credentialed, reference-checked, and compliance-verified." },
@@ -136,7 +136,7 @@
         { "icon": "MessageCircle", "title": "Real support", "description": "A dedicated team that knows your facility — no tickets, no chatbots." }
       ],
       "statCards": [
-        { "title": "500+ facilities", "subtitle": "Trust Muvmnt across Ontario" },
+        { "title": "500+ facilities", "subtitle": "Trust ReadyKare across Ontario" },
         { "title": "98% fill rate", "subtitle": "Across all shift types" },
         { "title": "<2h response", "subtitle": "For emergency coverage" }
       ]
@@ -145,7 +145,7 @@
       "overline": "Testimonials",
       "title": "What facilities say.",
       "items": [
-        { "stars": 5, "text": "Muvmnt filled three RN shifts over a holiday weekend. Honestly a lifesaver.", "name": "Sandra K.", "role": "Director of Care — Toronto" },
+        { "stars": 5, "text": "ReadyKare filled three RN shifts over a holiday weekend. Honestly a lifesaver.", "name": "Sandra K.", "role": "Director of Care — Toronto" },
         { "stars": 5, "text": "The PSWs they send are professional and warm. Residents have noticed the difference.", "name": "James L.", "role": "Administrator — Calgary" },
         { "stars": 5, "text": "Signed up and had vetted staff on the floor within 48 hours. Impressive.", "name": "Maria T.", "role": "HR Manager — Vancouver" }
       ],
@@ -209,18 +209,18 @@
   "findWork": {
     "meta": {
       "title": "Find healthcare work",
-      "description": "Join Muvmnt's network of nurses, PSWs, and allied health professionals. Create a free account and get matched to shifts that fit your life.",
-      "ogDescription": "Pick the shifts that fit your life. Muvmnt matches credentialed professionals to local healthcare jobs across Canada."
+      "description": "Join ReadyKare's network of nurses, PSWs, and allied health professionals. Create a free account and get matched to shifts that fit your life.",
+      "ogDescription": "Pick the shifts that fit your life. ReadyKare matches credentialed professionals to local healthcare jobs across Canada."
     },
     "breadcrumb": "Find work",
     "badge": "For healthcare professionals",
     "titleLead": "Your next",
     "titleAccent": "shift",
     "titleTail": "is one click away.",
-    "subtitle": "Create a free Muvmnt account and get matched with shifts that fit your skills, schedule, and preferred settings — across Ontario and beyond.",
+    "subtitle": "Create a free ReadyKare account and get matched with shifts that fit your skills, schedule, and preferred settings — across Ontario and beyond.",
     "ctaCreate": "Create free account →",
     "ctaSignIn": "Already have an account? Sign in",
-    "perksOverline": "Why Muvmnt",
+    "perksOverline": "Why ReadyKare",
     "perksTitle": "Built for the way you actually work.",
     "perks": [
       { "icon": "Zap", "title": "Pick your shifts", "description": "Choose days, nights, weekends, or relief work — whatever fits your life." },
@@ -244,20 +244,20 @@
   "faq": {
     "meta": {
       "title": "FAQ",
-      "description": "Common questions about Muvmnt — healthcare staffing for facilities and professionals in Canada."
+      "description": "Common questions about ReadyKare — healthcare staffing for facilities and professionals in Canada."
     },
     "breadcrumb": "FAQ",
     "title": "Frequently asked questions",
-    "subtitle": "Quick answers about how Muvmnt works for healthcare teams and professionals.",
+    "subtitle": "Quick answers about how ReadyKare works for healthcare teams and professionals.",
     "items": [
-      { "id": "what-is-muvmnt", "question": "What is Muvmnt?", "answer": "Muvmnt connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles." },
-      { "id": "who-can-use", "question": "Who can use Muvmnt?", "answer": "Healthcare organizations and facilities can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability." },
+      { "id": "what-is-readykare", "question": "What is ReadyKare?", "answer": "ReadyKare connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles." },
+      { "id": "who-can-use", "question": "Who can use ReadyKare?", "answer": "Healthcare organizations and facilities can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability." },
       { "id": "how-matching", "question": "How does matching work?", "answer": "Facilities describe the role, dates, and requirements. We surface candidates from our vetted pool based on credentials, experience, and availability. Workers can also browse and apply to open roles that fit their preferences." },
       { "id": "cost", "question": "Is there a cost to create an account?", "answer": "You can create an account and explore the platform at no upfront cost. Pricing for facilities and optional upgrades for professionals are described in our pricing section when you sign in." },
       { "id": "credentials", "question": "How are credentials verified?", "answer": "We collect and verify professional licenses, certifications, and other requirements according to your role and provincial rules. Exact steps are shown during onboarding so you always know what's needed." },
       { "id": "data-privacy", "question": "How is my data protected?", "answer": "We handle personal information in line with Canadian privacy law (including PIPEDA where applicable). We only share what's necessary for placements, and you can read more in our Privacy Policy." },
       { "id": "ontario", "question": "Do you operate outside Ontario?", "answer": "We're focused on Ontario healthcare staffing today. If you're elsewhere in Canada, you can still reach out — we'll let you know when coverage expands." },
-      { "id": "support", "question": "How do I get help?", "answer": "Use the contact options in the footer or email us at info@muvmnt.ca. For account-specific issues, sign in and use in-app support where available." }
+      { "id": "support", "question": "How do I get help?", "answer": "Use the contact options in the footer or email us at info@readykare.ca. For account-specific issues, sign in and use in-app support where available." }
     ],
     "cta": {
       "title": "Ready to get started?",
@@ -268,7 +268,7 @@
 
   "auth": {
     "legal": {
-      "prefix": "By continuing, you agree to Muvmnt's",
+      "prefix": "By continuing, you agree to ReadyKare's",
       "privacy": "Privacy Policy",
       "and": "and",
       "terms": "Terms of Use"
@@ -278,7 +278,7 @@
     "signIn": {
       "meta": {
         "title": "Sign In",
-        "description": "Sign in to your Muvmnt account. Access your staffing requests and account details."
+        "description": "Sign in to your ReadyKare account. Access your staffing requests and account details."
       },
       "overline": "Welcome back",
       "title": "Sign in to your account",
@@ -295,7 +295,7 @@
     "signUp": {
       "meta": {
         "title": "Sign Up",
-        "description": "Create your free Muvmnt account. Join as a healthcare worker or staffing facility."
+        "description": "Create your free ReadyKare account. Join as a healthcare worker or staffing facility."
       },
       "overline": "Get started free",
       "referralBanner": "You've been referred! Sign up to get started.",
@@ -605,7 +605,7 @@
         "toastFailed": "Could not send invites. Please try again."
       },
       "meta": {
-        "home": "Admin | Muvmnt",
+        "home": "Admin | ReadyKare",
         "workers": "Workers | Admin",
         "clients": "Clients | Admin",
         "requests": "Requests | Admin",
@@ -658,7 +658,7 @@
   "kyc": {
     "onboarding": {
       "meta": {
-        "title": "Onboarding | Muvmnt"
+        "title": "Onboarding | ReadyKare"
       },
       "progressFallback": "Onboarding",
       "continue": "Continue",
@@ -944,14 +944,14 @@
     },
     "review": {
       "meta": {
-        "title": "Application under review | Muvmnt"
+        "title": "Application under review | ReadyKare"
       },
       "title": "Profile under review",
       "bodyPrefix": "Thank you for finishing every step. Your application is now with our team for verification. You'll hear from us by email or phone once we've finished reviewing your profile. Most reviews are completed within",
       "bodyHighlight": "24 hours",
       "bodySuffix": ", though it can occasionally take a little longer during busy periods.",
       "nextTitle": "What you can do now",
-      "nextBody": "No further action is needed on this page. Check your inbox and messages for updates from Muvmnt — we'll let you know as soon as your account is ready."
+      "nextBody": "No further action is needed on this page. Check your inbox and messages for updates from ReadyKare — we'll let you know as soon as your account is ready."
     }
   },
 
@@ -1088,7 +1088,7 @@
       "copied": "Copied",
       "linkCopied": "Link copied",
       "copyFailed": "Could not copy link",
-      "shareTitle": "Join me on MUVMNT",
+      "shareTitle": "Join me on ReadyKare",
       "rewards": "Rewards",
       "statsReferred": "Referred",
       "statsCompleted": "Completed",

@@ -44,9 +44,9 @@ export function NavbarUserMenu({
   const isClient = role?.toLowerCase() === "client";
 
   const currentLabel = appCurrentPageLabel(pathname, isClient);
-  const onProfile = pathname.startsWith(`/${role}/profile`);
-  const onAvailability = pathname.startsWith(`/${role}/availability`);
-  const onPayroll = pathname.startsWith(`/${role}/payroll`);
+  const onProfile = pathname.startsWith(`/dashboard/profile`);
+  const onAvailability = pathname.startsWith(`/dashboard/availability`);
+  const onPayroll = pathname.startsWith(`/dashboard/payroll`);
 
   return (
     <DropdownMenu>
@@ -68,7 +68,7 @@ export function NavbarUserMenu({
           aria-current={onProfile ? "page" : undefined}
           className={cn(onProfile && "bg-accent/50")}
           onSelect={() => {
-            router.push(`/${role}/profile`);
+            router.push(`/dashboard/profile`);
           }}
         >
           <User className="mr-2" />
@@ -81,7 +81,7 @@ export function NavbarUserMenu({
               aria-current={onAvailability ? "page" : undefined}
               className={cn(onAvailability && "bg-accent/50")}
               onSelect={() => {
-                router.push(`/${role}/availability`);
+                router.push(`/dashboard/availability`);
               }}
             >
               <CalendarClock className="mr-2" />
@@ -94,7 +94,7 @@ export function NavbarUserMenu({
               aria-current={onPayroll ? "page" : undefined}
               className={cn(onPayroll && "bg-accent/50")}
               onSelect={() => {
-                router.push(`/${role}/payroll`);
+                router.push(`/dashboard/payroll`);
               }}
             >
               <Wallet className="mr-2" />

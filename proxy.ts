@@ -4,9 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
     NON_ORG_PREFIXES,
     PUBLIC_PATHS,
-    ADMIN_PREFIXES,
-    WORKER_PREFIXES,
-    CLIENT_PREFIXES,
     AUTH_PREFIXES,
     INACTIVE_PREFIXES
 } from './lib/constants';
@@ -29,12 +26,6 @@ function pathHasPrefix(pathname: string, prefix: string): boolean {
     return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-const ROLE_ROUTES: Record<string, string[]> = {
-    admin: ADMIN_PREFIXES,
-    worker: WORKER_PREFIXES,
-    client: CLIENT_PREFIXES,
-};
-
 function getSessionFromRequest(req: NextRequest): UserAuth | null {
     const session = req.cookies.get("session")?.value;
     if (!session) return null;
@@ -49,11 +40,6 @@ function isPublicRoute(pathnameWithoutLocale: string): boolean {
     const exactMatch = PUBLIC_PATHS.includes(pathnameWithoutLocale);
     const prefixMatch = NON_ORG_PREFIXES.some((p) => pathnameWithoutLocale.startsWith(p));
     return exactMatch || prefixMatch;
-}
-
-function isRoleRouteAllowed(pathname: string, role: string): boolean {
-    const allowedPaths = ROLE_ROUTES[role] ?? [];
-    return allowedPaths.some((p) => pathHasPrefix(pathname, p));
 }
 
 function isAuthRoute(pathname: string): boolean {
@@ -88,7 +74,7 @@ export async function proxy(req: NextRequest) {
         const redirectParam = safeRedirectParam(
             req.nextUrl.searchParams.get('redirect'),
         );
-        const target = redirectParam ?? `/${session.role}`;
+        const target = redirectParam ?? `/dashboard`;
         return NextResponse.redirect(new URL(target, req.url));
     }
 
@@ -104,11 +90,6 @@ export async function proxy(req: NextRequest) {
 
     if (!session.isActive && !isInactiveRoute(pathForRules)) {
         return NextResponse.redirect(new URL('/review', req.url));
-    }
-
-    const role = session.role;
-    if (!isRoleRouteAllowed(pathForRules, role)) {
-        return NextResponse.redirect(new URL(`/${role}`, req.url));
     }
 
     return intlMiddleware(req);

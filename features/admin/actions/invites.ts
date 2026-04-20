@@ -108,7 +108,7 @@ export async function sendClientInviteAction(input: {
     recipients: [{ email: input.email, name: input.name }],
     as: "client",
     template: "invite-client",
-    subject: "You're invited to join MUVMNT",
+    subject: "You're invited to join ReadyKare",
   });
 }
 
@@ -124,6 +124,6 @@ export async function sendWorkerInvitesAction(input: {
     recipients: input.emails.map((email) => ({ email })),
     as: "worker",
     template: "invite-worker",
-    subject: "You're invited to join MUVMNT",
+    subject: "You're invited to join ReadyKare",
   });
 }

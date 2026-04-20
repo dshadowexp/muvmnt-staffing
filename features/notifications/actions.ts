@@ -15,7 +15,7 @@ export async function deregisterPushTokenAction() {
 
  
 // webpush.setVapidDetails(
-//   '<mailto:support@muvmnt.com>',
+//   '<mailto:support@readykare.ca>',
 //   clientEnv.NEXT_PUBLIC_WEBPUSH_VAPID_PUBLIC_KEY,
 //   serverEnv.WEB_PUSH_VAPID_PRIVATE_KEY
 // )

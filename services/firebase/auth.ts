@@ -2,7 +2,8 @@ import {
     AuthError, GoogleAuthProvider, 
     sendPasswordResetEmail, signInWithEmailAndPassword, 
     signInWithPopup, signOut as firebaseSignOut,
-    createUserWithEmailAndPassword, 
+    createUserWithEmailAndPassword,
+    signInAnonymously, 
 } from "firebase/auth";
 import { auth } from "./client";
 
@@ -67,6 +68,10 @@ export async function loginWithGoogle() {
         prompt: "select_account",
     });
     await signInWithPopup(auth, provider);
+}
+
+export async function signInAsAnonymously() {
+    await signInAnonymously(auth);
 }
 
 export async function logout() {

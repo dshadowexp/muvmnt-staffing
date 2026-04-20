@@ -1,6 +1,6 @@
+import { ReferralView } from "@/features/referrals/components/referral-view";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { ReferralsPage } from "@/features/referrals/components/referrals-page";
 
 export async function generateMetadata({
   params,
@@ -13,5 +13,5 @@ export async function generateMetadata({
 }
 
 export default function AdminReferralsRoute() {
-  return <ReferralsPage role="admin" />;
+  return <ReferralView role="admin" />;
 }

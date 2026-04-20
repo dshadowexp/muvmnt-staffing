@@ -64,7 +64,7 @@ export function ResumeInterviewClient({
           years_of_experience: years_exp,
         }}
         user={{ name: userName, imageUrl: userImage }}
-        returnPath="/worker/assessments"
+        returnPath="/dashboard/assessments"
       />
     </VoiceProvider>
   );

@@ -49,7 +49,7 @@ export function MenuToggle({ isLoggedIn, role }: MenuToggleProps) {
 
             {isLoggedIn && role ? (
               <Button asChild className="w-full justify-center">
-                <Link href={`/${role}`} onClick={() => setOpen(false)}>
+                <Link href={`/dashboard`} onClick={() => setOpen(false)}>
                   {t("dashboard")}
                 </Link>
               </Button>

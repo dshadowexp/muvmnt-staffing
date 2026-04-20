@@ -54,3 +54,41 @@ export async function verifyPhoneOtp(
 
     return { status: verificationCheck.status };
 }
+
+/**
+ * Reconciles the Supabase user row when Firebase already has a verified
+ * phone number (e.g. a returning user whose DB row hasn't caught up).
+ */
+export async function syncPhoneFromAuth(phoneNumber: string): Promise<void> {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
+
+    const supabase = await createAdminClient();
+    const { error } = await supabase
+        .from("users")
+        .update({ is_phone_verified: true, phone_number: phoneNumber })
+        .eq("id", session.userId);
+
+    if (error) {
+        throw new Error(`Failed to sync phone: ${error.message}`);
+    }
+}
+
+/**
+ * Reconciles the Supabase user row when Firebase already has a verified
+ * email address (e.g. a returning user whose DB row hasn't caught up).
+ */
+export async function syncEmailFromAuth(email: string): Promise<void> {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
+
+    const supabase = await createAdminClient();
+    const { error } = await supabase
+        .from("users")
+        .update({ is_email_verified: true, email })
+        .eq("id", session.userId);
+
+    if (error) {
+        throw new Error(`Failed to sync email: ${error.message}`);
+    }
+}

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export async function getQuizById(quizId: string, userId: string) {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("quizes")
+    .from("quizzes")
     .select("*")
     .eq("id", quizId)
     .eq("user_id", userId)
@@ -26,7 +26,7 @@ export async function getQuizForCurrentUser(quizId: string) {
 export async function getQuizBySkillForUser(skillId: string, userId: string) {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("quizes")
+    .from("quizzes")
     .select("*")
     .eq("skill_id", skillId)
     .eq("user_id", userId)
@@ -58,7 +58,7 @@ export async function getLatestCompletedQuizBySkillIds(
 
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("quizes")
+    .from("quizzes")
     .select("skill_id, passed, score, completed_at")
     .eq("user_id", userId)
     .in("skill_id", skillIds)

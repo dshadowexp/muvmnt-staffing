@@ -18,7 +18,7 @@ import { AddressCard } from "@/features/geo/components/address-card";
  * Same shape as `StaffRequestScheduleValues` but with `Date`s serialized to
  * ISO strings so JSON round-trips cleanly.
  */
-export const PENDING_STAFF_REQUEST_KEY = "muvmnt:pending-staff-request";
+export const PENDING_STAFF_REQUEST_KEY = "readykare:pending-staff-request";
 
 export type PendingScheduleRequest = {
     startDate: string;
@@ -79,7 +79,7 @@ export function FindStaffForm() {
                             return;
                         }
                         router.push(
-                            `/client/requests/${created.requestId}/pricing` as Parameters<
+                            `/dashboard/requests/${created.requestId}/pricing` as Parameters<
                                 typeof router.push
                             >[0],
                         );
@@ -98,7 +98,7 @@ export function FindStaffForm() {
                     }
 
                     router.push(
-                        "/client/requests/new" as Parameters<typeof router.push>[0],
+                        "/dashboard/requests/new" as Parameters<typeof router.push>[0],
                     );
                 }}
             />

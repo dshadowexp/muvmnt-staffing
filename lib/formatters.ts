@@ -66,12 +66,22 @@ export function calendarPartsFromYyyyMmDd(
   return { day, month, year };
 }
 
-/** Format raw input to E.164 Canadian format (+1XXXXXXXXXX) */
-export function formatPhoneToE164(raw: string): string {
+/** Format raw input to E.164 using the given dial code (e.g. "+1", "+44"). */
+export function formatPhoneToE164(raw: string, dialCode: string = "+1"): string {
     const digits = raw.replace(/\D/g, "");
-    if (digits.length === 10) return `+1${digits}`;
-    if (digits.startsWith("1") && digits.length === 11) return `+${digits}`;
-    return `+${digits}`;
+    const cc = dialCode.replace(/\D/g, "");
+
+    if (!digits) return "";
+
+    // Already includes the dial code at the start
+    if (cc && digits.startsWith(cc)) return `+${digits}`;
+
+    // UK national numbers commonly start with a trunk "0" — strip it
+    if (cc === "44" && digits.startsWith("0")) {
+        return `+${cc}${digits.replace(/^0+/, "")}`;
+    }
+
+    return `+${cc}${digits}`;
 }
 
 /**

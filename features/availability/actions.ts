@@ -45,8 +45,8 @@ export async function updateWorkerAvailabilityAppAction(
     return { ok: false, error: saved.message };
   }
 
-  revalidatePath("/worker/availability");
-  revalidatePath("/worker/availability/edit");
+  revalidatePath("/dashboard/availability");
+  revalidatePath("/dashboard/availability/edit");
 
   return { ok: true };
 }

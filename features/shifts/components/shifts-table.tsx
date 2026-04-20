@@ -158,12 +158,12 @@ export function ShiftsTable({
                 role="button"
                 aria-label={`Open shift on ${dateLabel}`}
                 onClick={() => {
-                  router.push(`/worker/shifts/${row.id}`);
+                  router.push(`/dashboard/shifts/${row.id}`);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    router.push(`/worker/shifts/${row.id}`);
+                    router.push(`/dashboard/shifts/${row.id}`);
                   }
                 }}
               >
@@ -219,7 +219,7 @@ export function ShiftsTable({
               onClick={
                 isClientRequestVariant
                   ? () => {
-                      router.push(`/client/requests/${row.request_id}/shifts/${row.id}`);
+                      router.push(`/dashboard/requests/${row.request_id}/shifts/${row.id}`);
                     }
                   : undefined
               }
@@ -228,7 +228,7 @@ export function ShiftsTable({
                   ? (e: KeyboardEvent<HTMLTableRowElement>) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        router.push(`/client/requests/${row.request_id}/shifts/${row.id}`);
+                        router.push(`/dashboard/requests/${row.request_id}/shifts/${row.id}`);
                       }
                     }
                   : undefined
@@ -238,7 +238,7 @@ export function ShiftsTable({
                 showRequestLink ? (
                   <TableCell className="max-w-[220px] font-medium">
                     <Link
-                      href={`/client/requests/${row.request_id}/shifts/${row.id}`}
+                      href={`/dashboard/requests/${row.request_id}/shifts/${row.id}`}
                       className="text-primary hover:underline"
                     >
                       {requestLabel}

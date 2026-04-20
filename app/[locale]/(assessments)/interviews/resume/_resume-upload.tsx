@@ -312,8 +312,8 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
     <div className="flex min-h-svh flex-col p-4">
 
       <div className="flex items-center justify-between">
-        <BackLink backHref="/worker/assessments" title="Assessments" />
-        <Logo href="/worker/assessments" />
+        <BackLink backHref="/dashboard/assessments" title="Assessments" />
+        <Logo href="/dashboard/assessments" />
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle />

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
 import { useOnboarding } from "@/features/onboarding/onboarding-provider";
 import { useTranslatedStepError } from "@/features/onboarding/lib/use-translated-step-error";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 import {
   buildClientSchema,
   ClientProfileFormInput,
@@ -21,10 +22,12 @@ import { ClientProfileForm } from "@/features/account/components/client-profile-
 export function OrganizationClient({ clientProfile }: { clientProfile: ClientProfileFormInput | null }) {
   const router = useRouter();
   const { applyStepsFromServer } = useOnboarding();
+  const { loading: authLoading } = useAuth();
   const [isPending, setIsPending] = useState(false);
   const tVal = useTranslations("kyc.onboarding.validation");
   const resolveError = useTranslatedStepError();
   const schema = useMemo(() => buildClientSchema(tVal), [tVal]);
+  const disabled = isPending || authLoading;
 
   const form = useForm<ClientProfileValues>({
     defaultValues: clientProfile
@@ -59,8 +62,10 @@ export function OrganizationClient({ clientProfile }: { clientProfile: ClientPro
         })();
       })}
     >
-      <ClientProfileForm form={form} />
-      <ContinueButton pending={isPending} />
+      <fieldset disabled={disabled} className="space-y-6 disabled:opacity-60">
+        <ClientProfileForm form={form} />
+        <ContinueButton pending={isPending} />
+      </fieldset>
     </form>
   );
 }

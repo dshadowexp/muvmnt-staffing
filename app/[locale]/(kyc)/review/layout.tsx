@@ -5,7 +5,7 @@ import { getSession } from "@/lib/get-session";
 import { getOnboardingCompletionStatus } from "@/features/onboarding/dal/queries";
 import { Card, CardContent } from "@/components/ui/card";
 
-export const metadata: Metadata = { title: "Application status | Muvmnt" };
+export const metadata: Metadata = { title: "Application status | ReadyKare" };
 
 export default async function ReviewLayout({
   children,

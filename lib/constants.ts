@@ -6,9 +6,9 @@ import type {
 
 // ── Site ─────────────────────────────────────────────────────────────────────
 // Brand / contact data. Localized copy lives in messages/{locale}.json.
-export const SITE_NAME  = "Muvmnt";
+export const SITE_NAME  = "ReadyKare";
 export const SITE_PHONE = "1-437-979-7797";
-export const SITE_EMAIL = "info@muvmnt.ca";
+export const SITE_EMAIL = "info@readykare.ca";
 export const PUBLIC_PATHS: string[] = [
   "/",
   "/find-staff",
@@ -32,26 +32,10 @@ export const NON_ORG_PREFIXES: string[] = [
 ];
 
 /** Authenticated route prefixes (locale stripped by proxy). Use absolute paths. */
-export const ADMIN_PREFIXES: string[] = ["/admin"];
-
 export const AUTH_PREFIXES: string[] = [
   "/sign-in",
   "/sign-up",
   "/forgot-password",
-];
-
-export const WORKER_PREFIXES: string[] = [
-  "/worker",
-  "/onboarding",
-  "/review",
-  "/interviews",
-  "/quizes",
-];
-
-export const CLIENT_PREFIXES: string[] = [
-  "/client",
-  "/onboarding",
-  "/review",
 ];
 
 export const INACTIVE_PREFIXES: string[] = [

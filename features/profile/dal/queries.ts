@@ -76,6 +76,25 @@ export async function getSkills() {
   return data ?? [];
 }
 
+/**
+ * Fetch a single skill by id, scoped to the owning user so a worker can't
+ * read another user's skill row. Returns `null` when not found.
+ */
+export async function getSkillById(skillId: string, userId: string) {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("skills")
+    .select("*")
+    .eq("id", skillId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    throw new Error(error.message);
+  }
+  return data ?? null;
+}
+
 /** Compliance documents (admin-verified, with file_url / is_verified). */
 export async function getCompliances() {
   const session = await getSession();

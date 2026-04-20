@@ -29,7 +29,7 @@ import {
   UsersIcon,
   WalletIcon,
   CheckIcon,
-  SquircleDashedIcon,
+  CircleDashedIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
@@ -47,11 +47,9 @@ export type AppSidebarAdminUser = {
 function homeHrefForRole(role: string | null | undefined): string {
   switch (role?.toLowerCase()) {
     case "admin":
-      return "/admin";
     case "worker":
-      return "/worker";
     case "client":
-      return "/client";
+      return "/dashboard";
     default:
       return "/";
   }
@@ -65,36 +63,36 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
 
   if (r === "worker") {
     return [
-      { title: t("home"), url: "/worker", icon: <LayoutDashboardIcon className="size-4" /> },
-      { title: t("shifts"), url: "/worker/shifts", icon: <CalendarDays className="size-4" /> },
-      { title: t("availability"), url: "/worker/availability", icon: <CalendarClock className="size-4" /> },
-      { title: t("assessments"), url: "/worker/assessments", icon: <CheckIcon className="size-4" /> },
-      { title: t("compliance"), url: "/worker/compliance", icon: <ShieldCheckIcon className="size-4" /> },
-      { title: t("payroll"), url: "/worker/payroll", icon: <WalletIcon className="size-4" /> },
-      { title: t("referrals"), url: "/worker/referrals", icon: <GiftIcon className="size-4" /> },
+      { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
+      { title: t("shifts"), url: "/dashboard/shifts", icon: <CalendarDays className="size-4" /> },
+      { title: t("availability"), url: "/dashboard/availability", icon: <CalendarClock className="size-4" /> },
+      { title: t("assessments"), url: "/dashboard/assessments", icon: <CheckIcon className="size-4" /> },
+      { title: t("compliance"), url: "/dashboard/compliance", icon: <ShieldCheckIcon className="size-4" /> },
+      { title: t("payroll"), url: "/dashboard/payroll", icon: <WalletIcon className="size-4" /> },
+      { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }
 
   if (r === "client") {
     return [
-      { title: t("home"), url: "/client", icon: <LayoutDashboardIcon className="size-4" /> },
-      { title: t("requests"), url: "/client/requests", icon: <ListChecksIcon className="size-4" /> },
-      { title: t("account"), url: "/client/account", icon: <UserIcon className="size-4" /> },
-      { title: t("billing"), url: "/client/billing", icon: <CreditCardIcon className="size-4" /> },
-      { title: t("referrals"), url: "/client/referrals", icon: <GiftIcon className="size-4" /> },
+      { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
+      { title: t("requests"), url: "/dashboard/requests", icon: <ListChecksIcon className="size-4" /> },
+      { title: t("account"), url: "/dashboard/account", icon: <UserIcon className="size-4" /> },
+      { title: t("billing"), url: "/dashboard/billing", icon: <CreditCardIcon className="size-4" /> },
+      { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }
 
   if (r === "admin") {
     return [
-      { title: t("dashboardLabel"), url: "/admin", icon: <LayoutDashboardIcon className="size-4" /> },
-      { title: t("requests"), url: "/admin/requests", icon: <ListChecksIcon className="size-4" /> },
-      { title: t("shifts"), url: "/admin/shifts", icon: <CalendarDays className="size-4" /> },
-      { title: t("authorization"), url: "/admin/authorization", icon: <BadgeCheckIcon className="size-4" /> },
-      { title: t("compliance"), url: "/admin/compliance", icon: <ShieldCheckIcon className="size-4" /> },
-      { title: t("clients"), url: "/admin/clients", icon: <Building2Icon className="size-4" /> },
-      { title: t("workers"), url: "/admin/workers", icon: <UsersIcon className="size-4" /> },
-      { title: t("referrals"), url: "/admin/referrals", icon: <GiftIcon className="size-4" /> },
+      { title: t("dashboardLabel"), url: "/dashboard/admin", icon: <LayoutDashboardIcon className="size-4" /> },
+      { title: t("requests"), url: "/dashboard/admin/requests", icon: <ListChecksIcon className="size-4" /> },
+      { title: t("shifts"), url: "/dashboard/admin/shifts", icon: <CalendarDays className="size-4" /> },
+      { title: t("authorization"), url: "/dashboard/admin/authorization", icon: <BadgeCheckIcon className="size-4" /> },
+      { title: t("compliance"), url: "/dashboard/admin/compliance", icon: <ShieldCheckIcon className="size-4" /> },
+      { title: t("clients"), url: "/dashboard/admin/clients", icon: <Building2Icon className="size-4" /> },
+      { title: t("workers"), url: "/dashboard/admin/workers", icon: <UsersIcon className="size-4" /> },
+      { title: t("referrals"), url: "/dashboard/admin/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }
 
@@ -146,7 +144,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {loading && !admin ? <SquircleDashedIcon /> : <NavMain items={navMain} />}
+        {loading && !admin ? <CircleDashedIcon className="size-4 animate-spin" /> : <NavMain items={navMain} />}
       </SidebarContent>
       <SidebarFooter className="gap-2">
         {isClientOrWorker ? (

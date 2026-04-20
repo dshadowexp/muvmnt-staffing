@@ -22,7 +22,7 @@ export type QuizUpdate = {
 export async function insertQuiz(payload: QuizInsert) {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("quizes")
+    .from("quizzes")
     .insert(payload)
     .select()
     .single();
@@ -39,7 +39,7 @@ export async function updateQuizByOwner(
 ) {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("quizes")
+    .from("quizzes")
     .update(patch)
     .eq("id", id)
     .eq("user_id", userId)

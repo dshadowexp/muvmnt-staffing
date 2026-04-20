@@ -6,6 +6,7 @@ import { WorkerAuthorizationForm } from "@/features/profile/components/worker-au
 import { authorizationAction } from "./_action";
 import { useActionState } from "react";
 
+
 interface AuthorizationClientProps {
   initialWorkAuthorization?: {
     type: string;

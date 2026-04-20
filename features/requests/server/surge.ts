@@ -13,9 +13,9 @@ import {
  *
  * Demand-pricing inputs are intentionally regional (not global) — the surge
  * for "RNs in Toronto next Saturday" should not move based on requests in
- * Halifax. The region key here is the requesting client's `cell_id`; once
- * `workers_cell_grid` is migrated to fan-out-at-write we can broaden this to
- * the same ring the matcher uses without changing the call surface.
+ * Halifax. The region key here is the requesting client's `cell_id`; we can
+ * later broaden this to the same ring the matcher uses (over `workers.cell_id`)
+ * without changing the call surface.
  */
 
 export type DemandSnapshot = {

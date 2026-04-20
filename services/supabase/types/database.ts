@@ -445,13 +445,15 @@ export type Database = {
           },
         ]
       }
-      quizes: {
+      quizzes: {
         Row: {
           answers: Json | null
           completed_at: string | null
           created_at: string
+          duration_seconds: number
           generation: Json | null
           id: string
+          pass_threshold: number
           passed: boolean | null
           questions: Json
           score: number | null
@@ -464,8 +466,10 @@ export type Database = {
           answers?: Json | null
           completed_at?: string | null
           created_at?: string
+          duration_seconds?: number
           generation?: Json | null
           id?: string
+          pass_threshold?: number
           passed?: boolean | null
           questions: Json
           score?: number | null
@@ -478,8 +482,10 @@ export type Database = {
           answers?: Json | null
           completed_at?: string | null
           created_at?: string
+          duration_seconds?: number
           generation?: Json | null
           id?: string
+          pass_threshold?: number
           passed?: boolean | null
           questions?: Json
           score?: number | null
@@ -994,6 +1000,7 @@ export type Database = {
         Row: {
           auto_confirm: boolean
           availability_timezone: string | null
+          cell_id: string | null
           created_at: string
           date_of_birth: string
           first_name: string
@@ -1002,6 +1009,8 @@ export type Database = {
           last_name: string
           photo_url: string
           profession: string
+          rating_avg: number | null
+          rating_count: number | null
           status: string
           user_id: string
           years_exp: number
@@ -1009,6 +1018,7 @@ export type Database = {
         Insert: {
           auto_confirm?: boolean
           availability_timezone?: string | null
+          cell_id?: string | null
           created_at?: string
           date_of_birth: string
           first_name: string
@@ -1017,6 +1027,8 @@ export type Database = {
           last_name: string
           photo_url: string
           profession: string
+          rating_avg?: number | null
+          rating_count?: number | null
           status?: string
           user_id: string
           years_exp: number
@@ -1024,6 +1036,7 @@ export type Database = {
         Update: {
           auto_confirm?: boolean
           availability_timezone?: string | null
+          cell_id?: string | null
           created_at?: string
           date_of_birth?: string
           first_name?: string
@@ -1032,6 +1045,8 @@ export type Database = {
           last_name?: string
           photo_url?: string
           profession?: string
+          rating_avg?: number | null
+          rating_count?: number | null
           status?: string
           user_id?: string
           years_exp?: number
@@ -1046,41 +1061,19 @@ export type Database = {
           },
         ]
       }
-      workers_cell_grid: {
-        Row: {
-          cell_id: string
-          created_at: string
-          id: string
-          worker_id: string
-        }
-        Insert: {
-          cell_id: string
-          created_at?: string
-          id?: string
-          worker_id: string
-        }
-        Update: {
-          cell_id?: string
-          created_at?: string
-          id?: string
-          worker_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "workers_cell_grid_worker_id_fkey"
-            columns: ["worker_id"]
-            isOneToOne: true
-            referencedRelation: "workers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      append_quiz_answer: {
+        Args: { p_answer: Json; p_quiz_id: string }
+        Returns: undefined
+      }
+      append_quiz_batch: {
+        Args: { p_generation: Json; p_questions: Json; p_quiz_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

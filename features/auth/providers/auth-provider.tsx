@@ -2,7 +2,7 @@
 
 import {
     type User,
-    onIdTokenChanged,
+    onAuthStateChanged,
 } from "firebase/auth";
 import React, { 
     createContext, 
@@ -16,7 +16,7 @@ import { auth } from "@/services/firebase/client";
 import { deleteSession, setSession } from "@/lib/session";
 import { UserAuth, UserRole } from "@/types/auth";
 import { setCookie, deleteCookie } from "cookies-next";
-import { redirect } from "@/i18n/navigation";
+import { redirect, useRouter } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { logout } from "@/services/firebase/auth";
 import { recordReferralAction } from "@/features/referrals/actions";
@@ -40,7 +40,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const locale = useLocale();
+    const router = useRouter();
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
     const [authUser, setAuthUser] = useState<UserAuth | null>(null);
     const [loading, setLoading] = useState(true);
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     useEffect(() => {
-        const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             setLoading(true);
 
             if (!firebaseUser) {
@@ -111,13 +111,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 await runTokenExchange(firebaseUser);
             } catch (err) {
+                toast.error("First sign up to create your account");
                 await clearAuth();
                 await logout();
-                redirect({ href: "/sign-up", locale });
+                router.push("/sign-up"); // TODO: redirect to sign-up with the role
                 return;
             }
 
-            posthog.identify(firebaseUser.email ?? undefined, { email: firebaseUser.email ?? undefined });
+            posthog.identify(firebaseUser.email ?? firebaseUser.uid, { email: firebaseUser.email ?? undefined });
             setFirebaseUser(firebaseUser);
             setLoading(false);
         });

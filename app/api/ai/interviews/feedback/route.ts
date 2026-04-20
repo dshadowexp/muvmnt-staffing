@@ -67,6 +67,7 @@ export async function POST(req: Request) {
 
   const result = await streamAiInterviewFeedback({
     humeChatId: interview.hume_chat_id,
+    humeGroupChatId: interview.chat_group_id,
     interviewInfo: {
       title: interview.subject.replace(/_/g, " "),
       profession: worker?.profession ?? "General",

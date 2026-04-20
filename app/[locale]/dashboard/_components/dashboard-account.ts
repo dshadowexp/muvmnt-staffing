@@ -4,11 +4,11 @@ export function dashboardAccountHrefForRole(
 ): string {
   switch (role?.toLowerCase()) {
     case "worker":
-      return "/worker/profile";
+      return "/dashboard/profile";
     case "client":
-      return "/client/account";
+      return "/dashboard/account";
     case "admin":
-      return "/admin";
+      return "/dashboard/admin";
     default:
       return "/";
   }

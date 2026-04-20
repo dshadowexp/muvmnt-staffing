@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { upsertLocationAction } from "@/features/geo/dal/mutations";
@@ -9,6 +9,7 @@ import { AddressCard } from "@/features/geo/components/address-card";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
 import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboarding-form-navigate";
 import { useActionState } from "react";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 import { locationAction } from "./_action";
 import { useRouter } from "@/i18n/navigation";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -23,19 +24,21 @@ interface LocationFormProps {
 
 export function LocationClient({ location, role }: LocationFormProps) {
     const router = useRouter();
-    const [state, formAction] = useActionState(locationAction, undefined);
+    const [state, formAction, isSubmitting] = useActionState(locationAction, undefined);
     useOnboardingFormNavigate(state);
+    const { loading: authLoading } = useAuth();
     const t = useTranslations("kyc.onboarding.forms.address");
     const [, startTransition] = useTransition();
+    const disabled = isSubmitting || authLoading;
 
-    const [suite, setSuite] = useState(location?.addressLine2 ?? "");
-    const [postalCode, setPostalCode] = useState(location?.postalCode ?? "");
-    const [instructions, setInstructions] = useState(location?.instructions ?? "");
+    const suiteRef = useRef<HTMLInputElement>(null);
+    const postalCodeRef = useRef<HTMLInputElement>(null);
+    const instructionsRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        setSuite(location?.addressLine2 ?? "");
-        setPostalCode(location?.postalCode ?? "");
-        setInstructions(location?.instructions ?? "");
+        if (suiteRef.current) suiteRef.current.value = location?.addressLine2 ?? "";
+        if (postalCodeRef.current) postalCodeRef.current.value = location?.postalCode ?? "";
+        if (instructionsRef.current) instructionsRef.current.value = location?.instructions ?? "";
     }, [location?.id, location?.addressLine2, location?.postalCode, location?.instructions]);
 
     async function persistLocation(next: AddressLocation) {
@@ -78,50 +81,52 @@ export function LocationClient({ location, role }: LocationFormProps) {
 
     return (
         <form action={formAction} className="space-y-6">
-            <AddressCard
-                value={location ?? undefined}
-                onChange={handleAddressChange}
-            />
+            <fieldset disabled={disabled} className="space-y-6 disabled:opacity-60">
+                <AddressCard
+                    value={location ?? undefined}
+                    onChange={handleAddressChange}
+                />
 
-            {showClientDetails && (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <Field>
-                        <FieldLabel htmlFor="suite">{t("suiteLabel")}</FieldLabel>
-                        <Input
-                            id="suite"
-                            value={suite}
-                            onChange={(e) => setSuite(e.target.value)}
-                            onBlur={(e) => handleDetailsBlur("addressLine2", e.target.value)}
-                            placeholder={t("suitePlaceholder")}
-                            autoComplete="address-line2"
-                        />
-                    </Field>
-                    <Field>
-                        <FieldLabel htmlFor="postal-code">{t("postalCodeLabel")}</FieldLabel>
-                        <Input
-                            id="postal-code"
-                            value={postalCode}
-                            onChange={(e) => setPostalCode(e.target.value)}
-                            onBlur={(e) => handleDetailsBlur("postalCode", e.target.value)}
-                            placeholder={t("postalCodePlaceholder")}
-                            autoComplete="postal-code"
-                        />
-                    </Field>
-                    <Field className="sm:col-span-2">
-                        <FieldLabel htmlFor="instructions">{t("instructionsLabel")}</FieldLabel>
-                        <Textarea
-                            id="instructions"
-                            value={instructions}
-                            onChange={(e) => setInstructions(e.target.value)}
-                            onBlur={(e) => handleDetailsBlur("instructions", e.target.value)}
-                            placeholder={t("instructionsPlaceholder")}
-                            rows={4}
-                        />
-                    </Field>
-                </div>
-            )}
+                {showClientDetails && (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Field>
+                            <FieldLabel htmlFor="suite">{t("suiteLabel")}</FieldLabel>
+                            <Input
+                                id="suite"
+                                ref={suiteRef}
+                                defaultValue={location?.addressLine2 ?? ""}
+                                onBlur={(e) => handleDetailsBlur("addressLine2", e.target.value)}
+                                placeholder={t("suitePlaceholder")}
+                                autoComplete="address-line2"
+                            />
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="postal-code">{t("postalCodeLabel")}</FieldLabel>
+                            <Input
+                                id="postal-code"
+                                ref={postalCodeRef}
+                                defaultValue={location?.postalCode ?? ""}
+                                onBlur={(e) => handleDetailsBlur("postalCode", e.target.value)}
+                                placeholder={t("postalCodePlaceholder")}
+                                autoComplete="postal-code"
+                            />
+                        </Field>
+                        <Field className="sm:col-span-2">
+                            <FieldLabel htmlFor="instructions">{t("instructionsLabel")}</FieldLabel>
+                            <Textarea
+                                id="instructions"
+                                ref={instructionsRef}
+                                defaultValue={location?.instructions ?? ""}
+                                onBlur={(e) => handleDetailsBlur("instructions", e.target.value)}
+                                placeholder={t("instructionsPlaceholder")}
+                                rows={4}
+                            />
+                        </Field>
+                    </div>
+                )}
 
-            <ContinueButton />
+                <ContinueButton pending={isSubmitting} />
+            </fieldset>
         </form>
     );
 }

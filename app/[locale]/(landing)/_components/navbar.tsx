@@ -15,7 +15,7 @@ async function NavbarAuthButtons() {
   if (session) {
     return (
       <Button size="sm" asChild>
-        <Link href={`/${session.role}`}>{t("dashboard")}</Link>
+        <Link href={`/dashboard`}>{t("dashboard")}</Link>
       </Button>
     );
   }

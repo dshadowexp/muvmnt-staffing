@@ -26,7 +26,7 @@ export default async function AssessmentsNotFound() {
                 </CardHeader>
                 <CardContent>
                     <Button asChild variant="default" className="w-full">
-                        <Link href="/worker/assessments">
+                        <Link href="/dashboard/assessments">
                             {t("backAssessments")}
                         </Link>
                     </Button>

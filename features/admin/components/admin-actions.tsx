@@ -142,7 +142,7 @@ function CreateRequestDialog({
     if (!selected) return;
     // TODO(admin): support an admin-side new request flow that accepts a
     // pre-selected client (e.g. /admin/requests/new?clientId=...).
-    router.push(`/client/requests/new?clientId=${selected.id}`);
+    router.push(`/dashboard/requests/new?clientId=${selected.id}`);
     onOpenChange(false);
   }
 

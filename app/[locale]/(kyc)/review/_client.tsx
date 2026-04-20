@@ -20,7 +20,7 @@ export default function ReviewClient() {
 
   useEffect(() => {
     if (loading || !authUser?.isActive) return;
-    router.replace(`/${authUser.role}`);
+    router.replace(`/dashboard`);
   }, [loading, authUser, router]);
 
   if (loading || authUser?.isActive) {

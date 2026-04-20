@@ -31,7 +31,7 @@ async function SuspendedContent() {
   const locale = await getLocale();
   const session = await getSession();
   if (!session) return redirect({ href: "/sign-in", locale });
-  if (session.role !== "worker") return redirect({ href: `/${session.role}`, locale });
+  if (session.role !== "worker") return redirect({ href: `/dashboard`, locale });
 
   const worker = await getWorkerProfile();
 
@@ -83,7 +83,7 @@ async function SuspendedContent() {
           name: userName,
           imageUrl: photoSrc ?? "",
         }}
-        returnPath="/worker/assessments"
+        returnPath="/dashboard/assessments"
       />
     </VoiceProvider>
   );

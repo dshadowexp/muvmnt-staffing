@@ -1,164 +1,155 @@
 "use server";
 
-import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
-import { prepareQuizForSkillPage } from "./lib/prepare-quiz-attempt";
-import { expandDeferredQuizQuestions } from "./lib/expand-deferred-quiz";
-import { updateQuizByOwner } from "./dal/mutations";
-import { parseQuizGeneration } from "./lib/quiz-generation-meta";
-import type { QuizQuestion } from "@/services/ai/quizes";
-import type { Json } from "@/services/supabase/types/database";
 
-export async function startQuiz({
-  skillId,
-}: {
+// ─── Types matching the jsonb column shapes ───────────────────────────────────
+
+export type QuestionRow = {
+  id:          string;
+  type:        "single" | "multi";
+  question:    string;
+  options:     { id: string; label: string }[];
+  correctIds:  string[];
+  explanation: string;
+  difficulty:  "beginner" | "intermediate" | "advanced";
+};
+
+export type AnswerRow = {
+  questionId:  string;
+  selectedIds: string[];
+  correct:     boolean;
+  answeredAt:  string;
+};
+
+export type GenerationRow = {
+  batchIndex:  number;
+  generatedAt: string;
+  questionIds: string[];
+};
+
+// ─── Create quiz attempt ──────────────────────────────────────────────────────
+// CHANGED: row is created upfront (before any questions are generated) so we
+// have a stable quizId to reference for every subsequent write.
+
+export async function createQuizAttempt(params: {
+  userId:  string;
   skillId: string;
-}): Promise<
-  { error: true; message: string } | { error: false; quizId: string }
-> {
-  const session = await getSession();
-  if (!session) return { error: true, message: "Not authenticated" };
+}) {
+  const supabase = await createAdminClient();
 
-  try {
-    const prepared = await prepareQuizForSkillPage({
-      skillId,
-      userId: session.userId,
-    });
-    if (!prepared) {
-      return { error: true, message: "Skill not found" };
-    }
-    return { error: false, quizId: prepared.quizId };
-  } catch (e) {
-    const message = e instanceof Error ? e.message : "Failed to start quiz";
-    return { error: true, message };
-  }
+  const { data, error } = await supabase
+    .from("quizzes")
+    .insert({
+      user_id:          params.userId,
+      skill_id:         params.skillId,
+      questions:        [],
+      answers:          [],
+      generation:       [],
+      total_questions:  10,
+      score:            null,
+      passed:           null,
+      completed_at:     null,
+      duration_seconds: 0,
+      pass_threshold:   75,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data.id as string;
 }
 
-export async function completeDeferredQuizQuestions(
-  quizId: string,
-): Promise<
-  | { error: true; message: string }
-  | { error: false; questions: QuizQuestion[] }
-> {
-  const session = await getSession();
-  if (!session) return { error: true, message: "Not authenticated" };
+// ─── Append generated questions ───────────────────────────────────────────────
+// CHANGED: called from onFinish() after each AI batch completes. Appends to
+// both the questions[] and generation[] columns atomically via RPC.
 
+export async function appendGeneratedQuestions(params: {
+  quizId:     string;
+  questions:  QuestionRow[];
+  batchIndex: number;
+}) {
   const supabase = await createAdminClient();
-  const result = await expandDeferredQuizQuestions({
-    supabase,
-    quizId,
-    userId: session.userId,
+
+  const generationEvent: GenerationRow = {
+    batchIndex:  params.batchIndex,
+    generatedAt: new Date().toISOString(),
+    questionIds: params.questions.map(q => q.id),
+  };
+
+  const { error } = await supabase.rpc("append_quiz_batch", {
+    p_quiz_id:    params.quizId,
+    p_questions:  params.questions,
+    p_generation: generationEvent,
   });
 
-  if (!result.ok) {
-    return { error: true, message: result.message };
-  }
-  return { error: false, questions: result.questions };
+  if (error) throw new Error(error.message);
 }
 
-/**
- * Persists in-progress answers so a page reload can resume exactly where the
- * worker left off. Does not alter `completed_at`, score, or generation flags.
- */
-export async function saveQuizProgress({
-  quizId,
-  answers,
-}: {
+// ─── Append a single answer ───────────────────────────────────────────────────
+// CHANGED: called immediately after the user submits their answer (before they
+// click Next). This means each answer is durable even if the tab closes.
+
+export async function appendAnswer(params: {
   quizId: string;
-  answers: Record<number, number[]>;
-}): Promise<{ error: true; message: string } | { error: false }> {
-  const session = await getSession();
-  if (!session) return { error: true, message: "Not authenticated" };
-
+  answer: Omit<AnswerRow, "answeredAt">;
+}) {
   const supabase = await createAdminClient();
-  const { data: quiz, error } = await supabase
-    .from("quizes")
-    .select("id, completed_at")
-    .eq("id", quizId)
-    .eq("user_id", session.userId)
-    .maybeSingle();
 
-  if (error) return { error: true, message: error.message };
-  if (!quiz) return { error: true, message: "Quiz not found" };
-  if (quiz.completed_at) return { error: false };
+  const answerRow: AnswerRow = {
+    ...params.answer,
+    answeredAt: new Date().toISOString(),
+  };
 
-  await updateQuizByOwner(quizId, session.userId, {
-    answers: answers as unknown as Json,
+  const { error } = await supabase.rpc("append_quiz_answer", {
+    p_quiz_id: params.quizId,
+    p_answer:  answerRow,
   });
 
-  return { error: false };
+  if (error) throw new Error(error.message);
 }
 
-export async function submitQuiz({
-  quizId,
-  answers,
-}: {
-  quizId: string;
-  answers: Record<number, number[]>;
-}): Promise<
-  | { error: true; message: string }
-  | { error: false; score: number; passed: boolean; total: number }
-> {
-  const session = await getSession();
-  if (!session) return { error: true, message: "Not authenticated" };
+// ─── Sync duration ────────────────────────────────────────────────────────────
+// CHANGED: called every 10 seconds from the client while the quiz is active.
+// Lightweight write — only touches duration_seconds + updated_at.
 
+export async function syncQuizDuration(params: {
+  quizId:          string;
+  durationSeconds: number;
+}) {
   const supabase = await createAdminClient();
-  const { data: quiz, error: qErr } = await supabase
-    .from("quizes")
-    .select("*")
-    .eq("id", quizId)
-    .eq("user_id", session.userId)
-    .maybeSingle();
 
-  if (qErr) return { error: true, message: qErr.message };
-  if (!quiz) return { error: true, message: "Quiz not found" };
+  const { error } = await supabase
+    .from("quizzes")
+    .update({ duration_seconds: params.durationSeconds })
+    .eq("id", params.quizId);
 
-  const gen = parseQuizGeneration(quiz.generation);
-  if (gen && !gen.ready) {
-    return {
-      error: true,
-      message: "Questions are still loading. Please wait a moment and try again.",
-    };
-  }
+  if (error) throw new Error(error.message);
+}
 
-  const questions = quiz.questions as Array<{
-    correctAnswers: number[];
-  }>;
-  const total = questions.length;
+// ─── Finalize quiz ────────────────────────────────────────────────────────────
+// CHANGED: called once from finishQuiz() — writes final score, pass/fail,
+// completed_at, and duration atomically. Called whether the user completes
+// all questions or the 15-minute timer expires.
 
-  if (total === 0) {
-    return { error: true, message: "Quiz has no questions" };
-  }
+export async function finalizeQuiz(params: {
+  quizId:          string;
+  score:           number;
+  passed:          boolean;
+  durationSeconds: number;
+  totalAnswered:   number;
+}) {
+  const supabase = await createAdminClient();
 
-  let correct = 0;
-  for (let i = 0; i < total; i++) {
-    const expected = questions[i].correctAnswers.sort();
-    const given = (answers[i] ?? []).sort();
-    if (
-      expected.length === given.length &&
-      expected.every((v, idx) => v === given[idx])
-    ) {
-      correct++;
-    }
-  }
+  const { error } = await supabase
+    .from("quizzes")
+    .update({
+      score:            params.score,
+      passed:           params.passed,
+      completed_at:     new Date().toISOString(),
+      duration_seconds: params.durationSeconds,
+      total_questions:  params.totalAnswered,
+    })
+    .eq("id", params.quizId);
 
-  const score = Math.round((correct / total) * 100);
-  const passed = score >= 70;
-
-  await updateQuizByOwner(quizId, session.userId, {
-    answers: answers as unknown as Json,
-    score,
-    passed,
-    completed_at: new Date().toISOString(),
-  });
-
-  if (passed && quiz.skill_id) {
-    await supabase
-      .from("skills")
-      .update({ assessed: true })
-      .eq("id", quiz.skill_id)
-      .eq("user_id", session.userId);
-  }
-
-  return { error: false, score, passed, total };
+  if (error) throw new Error(error.message);
 }

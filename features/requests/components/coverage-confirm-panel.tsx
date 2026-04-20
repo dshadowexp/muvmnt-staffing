@@ -292,7 +292,7 @@ function ChargeRunTracker({
             {done && !failed ? (
                 <a
                     className="text-primary text-sm font-medium underline-offset-2 hover:underline"
-                    href={`/client/requests/${requestId}`}
+                    href={`/dashboard/requests/${requestId}`}
                 >
                     {t("viewConfirmedRequest")}
                 </a>

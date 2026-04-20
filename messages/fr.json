@@ -1,17 +1,17 @@
 {
   "site": {
-    "name": "Muvmnt",
+    "name": "ReadyKare",
     "tagline": "Solutions de dotation en santé",
     "phone": "1-437-979-7797",
-    "email": "info@muvmnt.ca",
+    "email": "info@readykare.ca",
     "countries": "Canada, États-Unis, Royaume-Uni",
-    "copyright": "© {year} Muvmnt Staffing Inc. Tous droits réservés."
+    "copyright": "© {year} ReadyKare Staffing Inc. Tous droits réservés."
   },
 
   "meta": {
-    "description": "Muvmnt met en lien les établissements de santé canadiens avec des professionnels qualifiés et accrédités — rapidement. Dotation temporaire, soins à domicile et relève d'urgence partout au Canada.",
+    "description": "ReadyKare met en lien les établissements de santé canadiens avec des professionnels qualifiés et accrédités — rapidement. Dotation temporaire, soins à domicile et relève d'urgence partout au Canada.",
     "openGraphDescription": "Solutions de dotation en santé rapides et fiables pour les établissements canadiens.",
-    "openGraphImageAlt": "Muvmnt Staffing Inc."
+    "openGraphImageAlt": "ReadyKare Staffing Inc."
   },
 
   "common": {
@@ -100,7 +100,7 @@
       "titleLead": "Demandez du",
       "titleAccent": "personnel soignant",
       "titleTail": "en quelques minutes.",
-      "subtitle": "Muvmnt connecte les équipes de santé à des professionnels accrédités et pré-qualifiés — rapidement. Dites-nous votre horaire, confirmez les jumelages, et obtenez une couverture instantanée.",
+      "subtitle": "ReadyKare connecte les équipes de santé à des professionnels accrédités et pré-qualifiés — rapidement. Dites-nous votre horaire, confirmez les jumelages, et obtenez une couverture instantanée.",
       "ctaRequest": "Demander du personnel →",
       "ctaProfessional": "Je suis un professionnel",
       "stats": [
@@ -126,9 +126,9 @@
       "ctaJoin": "Rejoindre comme professionnel"
     },
     "why": {
-      "overline": "Pourquoi Muvmnt",
+      "overline": "Pourquoi ReadyKare",
       "title": "Au rythme des soins.",
-      "subtitle": "Les soins ne peuvent pas attendre. Nous non plus. Muvmnt a été conçu pour la pression quotidienne des équipes canadiennes.",
+      "subtitle": "Les soins ne peuvent pas attendre. Nous non plus. ReadyKare a été conçu pour la pression quotidienne des équipes canadiennes.",
       "points": [
         { "icon": "Zap", "title": "Couverture rapide", "description": "La plupart des demandes sont jumelées le jour même — incluant la relève d'urgence." },
         { "icon": "BadgeCheck", "title": "Professionnels vérifiés", "description": "Chaque intervenant est accrédité, vérifié par références et en règle côté conformité." },
@@ -136,7 +136,7 @@
         { "icon": "MessageCircle", "title": "Soutien humain", "description": "Une équipe dédiée qui connaît votre établissement — pas de billets, pas de robots." }
       ],
       "statCards": [
-        { "title": "Plus de 500 établissements", "subtitle": "Font confiance à Muvmnt en Ontario" },
+        { "title": "Plus de 500 établissements", "subtitle": "Font confiance à ReadyKare en Ontario" },
         { "title": "98 % de jumelage", "subtitle": "Sur tous les types de quarts" },
         { "title": "< 2 h de délai", "subtitle": "Pour la relève d'urgence" }
       ]
@@ -145,7 +145,7 @@
       "overline": "Témoignages",
       "title": "Ce que disent les établissements.",
       "items": [
-        { "stars": 5, "text": "Muvmnt a comblé trois quarts d'IA pendant un long congé férié. Sincèrement, ça nous a sauvé la mise.", "name": "Sandra K.", "role": "Directrice des soins — Toronto" },
+        { "stars": 5, "text": "ReadyKare a comblé trois quarts d'IA pendant un long congé férié. Sincèrement, ça nous a sauvé la mise.", "name": "Sandra K.", "role": "Directrice des soins — Toronto" },
         { "stars": 5, "text": "Les PAB envoyés sont professionnels et chaleureux. Les résidents ont remarqué la différence.", "name": "James L.", "role": "Administrateur — Calgary" },
         { "stars": 5, "text": "Inscription faite et du personnel vérifié sur le plancher en moins de 48 heures. Impressionnant.", "name": "Maria T.", "role": "Gestionnaire RH — Vancouver" }
       ],
@@ -209,18 +209,18 @@
   "findWork": {
     "meta": {
       "title": "Trouver du travail en santé",
-      "description": "Rejoignez le réseau Muvmnt d'infirmières, de PAB et de professionnels de santé connexes. Créez un compte gratuit et obtenez des quarts qui correspondent à votre vie.",
-      "ogDescription": "Choisissez les quarts qui vous conviennent. Muvmnt jumèle des professionnels accrédités à des emplois en santé dans tout le Canada."
+      "description": "Rejoignez le réseau ReadyKare d'infirmières, de PAB et de professionnels de santé connexes. Créez un compte gratuit et obtenez des quarts qui correspondent à votre vie.",
+      "ogDescription": "Choisissez les quarts qui vous conviennent. ReadyKare jumèle des professionnels accrédités à des emplois en santé dans tout le Canada."
     },
     "breadcrumb": "Trouver un quart",
     "badge": "Pour les professionnels de santé",
     "titleLead": "Votre prochain",
     "titleAccent": "quart",
     "titleTail": "est à un clic.",
-    "subtitle": "Créez un compte Muvmnt gratuit et obtenez des quarts qui correspondent à vos compétences, à votre horaire et à vos milieux préférés — partout en Ontario et ailleurs.",
+    "subtitle": "Créez un compte ReadyKare gratuit et obtenez des quarts qui correspondent à vos compétences, à votre horaire et à vos milieux préférés — partout en Ontario et ailleurs.",
     "ctaCreate": "Créer un compte gratuit →",
     "ctaSignIn": "Vous avez déjà un compte? Connectez-vous",
-    "perksOverline": "Pourquoi Muvmnt",
+    "perksOverline": "Pourquoi ReadyKare",
     "perksTitle": "Conçu pour votre vraie réalité de travail.",
     "perks": [
       { "icon": "Zap", "title": "Choisissez vos quarts", "description": "Jours, nuits, fins de semaine ou relève — ce qui convient à votre vie." },
@@ -244,20 +244,20 @@
   "faq": {
     "meta": {
       "title": "FAQ",
-      "description": "Questions fréquentes sur Muvmnt — dotation en santé pour les établissements et les professionnels au Canada."
+      "description": "Questions fréquentes sur ReadyKare — dotation en santé pour les établissements et les professionnels au Canada."
     },
     "breadcrumb": "FAQ",
     "title": "Foire aux questions",
-    "subtitle": "Réponses rapides sur le fonctionnement de Muvmnt pour les équipes de santé et les professionnels.",
+    "subtitle": "Réponses rapides sur le fonctionnement de ReadyKare pour les équipes de santé et les professionnels.",
     "items": [
-      { "id": "what-is-muvmnt", "question": "Qu'est-ce que Muvmnt?", "answer": "Muvmnt met en lien les établissements de santé canadiens avec des professionnels accrédités et pré-qualifiés pour la dotation temporaire, les soins à domicile et la relève. Nous misons sur un jumelage rapide et la conformité pour combler les quarts sans longs cycles d'embauche." },
-      { "id": "who-can-use", "question": "Qui peut utiliser Muvmnt?", "answer": "Les organisations et établissements de santé peuvent publier leurs besoins. Les professionnels accrédités (infirmières, PAB, santé connexe et plus) peuvent créer un profil et postuler aux opportunités qui correspondent à leurs compétences et à leur disponibilité." },
+      { "id": "what-is-readykare", "question": "Qu'est-ce que ReadyKare?", "answer": "ReadyKare met en lien les établissements de santé canadiens avec des professionnels accrédités et pré-qualifiés pour la dotation temporaire, les soins à domicile et la relève. Nous misons sur un jumelage rapide et la conformité pour combler les quarts sans longs cycles d'embauche." },
+      { "id": "who-can-use", "question": "Qui peut utiliser ReadyKare?", "answer": "Les organisations et établissements de santé peuvent publier leurs besoins. Les professionnels accrédités (infirmières, PAB, santé connexe et plus) peuvent créer un profil et postuler aux opportunités qui correspondent à leurs compétences et à leur disponibilité." },
       { "id": "how-matching", "question": "Comment fonctionne le jumelage?", "answer": "Les établissements décrivent le poste, les dates et les exigences. Nous faisons ressortir les candidats de notre bassin vérifié en fonction des accréditations, de l'expérience et de la disponibilité. Les professionnels peuvent aussi parcourir et postuler aux postes ouverts." },
       { "id": "cost", "question": "La création d'un compte est-elle payante?", "answer": "Vous pouvez créer un compte et explorer la plateforme sans frais initiaux. Les tarifs pour les établissements et les options facultatives pour les professionnels sont présentés dans votre espace une fois connecté." },
       { "id": "credentials", "question": "Comment les accréditations sont-elles vérifiées?", "answer": "Nous collectons et vérifions les licences professionnelles, certifications et autres exigences selon votre rôle et les règles provinciales. Les étapes sont affichées lors de l'intégration — vous saurez toujours ce qui est requis." },
       { "id": "data-privacy", "question": "Comment mes données sont-elles protégées?", "answer": "Nous traitons les renseignements personnels selon la loi canadienne sur la protection des renseignements (notamment la LPRPDE lorsque applicable). Nous partageons seulement ce qui est nécessaire aux placements. Voir notre politique de confidentialité." },
       { "id": "ontario", "question": "Opérez-vous hors de l'Ontario?", "answer": "Nous sommes aujourd'hui concentrés sur l'Ontario. Si vous êtes ailleurs au Canada, contactez-nous tout de même — nous vous aviserons lors de l'expansion." },
-      { "id": "support", "question": "Comment obtenir de l'aide?", "answer": "Utilisez les coordonnées au bas du site ou écrivez à info@muvmnt.ca. Pour les questions liées au compte, connectez-vous et utilisez le soutien intégré si disponible." }
+      { "id": "support", "question": "Comment obtenir de l'aide?", "answer": "Utilisez les coordonnées au bas du site ou écrivez à info@readykare.ca. Pour les questions liées au compte, connectez-vous et utilisez le soutien intégré si disponible." }
     ],
     "cta": {
       "title": "Prêt à commencer?",
@@ -278,7 +278,7 @@
     "signIn": {
       "meta": {
         "title": "Connexion",
-        "description": "Connectez-vous à votre compte Muvmnt. Accédez à vos demandes de personnel et à votre compte."
+        "description": "Connectez-vous à votre compte ReadyKare. Accédez à vos demandes de personnel et à votre compte."
       },
       "overline": "Bon retour",
       "title": "Connectez-vous à votre compte",
@@ -295,7 +295,7 @@
     "signUp": {
       "meta": {
         "title": "Inscription",
-        "description": "Créez votre compte Muvmnt gratuit. Inscrivez-vous comme professionnel ou comme établissement."
+        "description": "Créez votre compte ReadyKare gratuit. Inscrivez-vous comme professionnel ou comme établissement."
       },
       "overline": "Commencez gratuitement",
       "referralBanner": "Vous avez été référé! Inscrivez-vous pour commencer.",
@@ -605,7 +605,7 @@
         "toastFailed": "Impossible d'envoyer les invitations. Veuillez réessayer."
       },
       "meta": {
-        "home": "Admin | Muvmnt",
+        "home": "Admin | ReadyKare",
         "workers": "Travailleurs | Admin",
         "clients": "Clients | Admin",
         "requests": "Demandes | Admin",
@@ -658,7 +658,7 @@
   "kyc": {
     "onboarding": {
       "meta": {
-        "title": "Intégration | Muvmnt"
+        "title": "Intégration | ReadyKare"
       },
       "progressFallback": "Intégration",
       "continue": "Continuer",
@@ -944,14 +944,14 @@
     },
     "review": {
       "meta": {
-        "title": "Demande en cours d'examen | Muvmnt"
+        "title": "Demande en cours d'examen | ReadyKare"
       },
       "title": "Profil en cours d'examen",
       "bodyPrefix": "Merci d'avoir complété chaque étape. Votre dossier est maintenant entre les mains de notre équipe pour vérification. Nous vous contacterons par courriel ou par téléphone dès que nous aurons terminé l'examen de votre profil. La plupart des dossiers sont traités en moins de",
       "bodyHighlight": "24 heures",
       "bodySuffix": ", mais cela peut prendre un peu plus longtemps en période d'affluence.",
       "nextTitle": "Ce que vous pouvez faire maintenant",
-      "nextBody": "Aucune action supplémentaire n'est requise sur cette page. Consultez votre boîte de réception et vos messages pour les mises à jour de Muvmnt — nous vous informerons dès que votre compte sera prêt."
+      "nextBody": "Aucune action supplémentaire n'est requise sur cette page. Consultez votre boîte de réception et vos messages pour les mises à jour de ReadyKare — nous vous informerons dès que votre compte sera prêt."
     }
   },
 
@@ -1088,7 +1088,7 @@
       "copied": "Copié",
       "linkCopied": "Lien copié",
       "copyFailed": "Impossible de copier le lien",
-      "shareTitle": "Rejoignez-moi sur MUVMNT",
+      "shareTitle": "Rejoignez-moi sur ReadyKare",
       "rewards": "Récompenses",
       "statsReferred": "Parrainés",
       "statsCompleted": "Complétés",

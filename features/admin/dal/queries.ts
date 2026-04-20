@@ -88,7 +88,7 @@ export type AdminDashboardSnapshot = {
 export async function requireAdminSession() {
   const session = await getSession();
   if (!session) redirect("/sign-in");
-  if (session.role !== "admin") redirect(`/${session.role}`);
+  if (session.role !== "admin") redirect(`/dashboard`);
 }
 
 export async function getAdminNavProfile(
