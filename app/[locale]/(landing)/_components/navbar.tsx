@@ -33,7 +33,7 @@ async function NavbarAuthButtons() {
 
 async function NavbarMobileMenu() {
   const session = await getSession();
-  return <MenuToggle isLoggedIn={!!session} />;
+  return <MenuToggle isLoggedIn={!!session} role={session?.role} />;
 }
 
 export default async function Navbar() {

@@ -2,7 +2,6 @@
 
 import type { AdminWorkerRow } from "@/features/admin/dal/queries";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,6 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  TablePagination,
+  useTablePagination,
+} from "@/components/table-pagination";
 import { useRouter } from "@/i18n/navigation";
 import { format } from "date-fns";
 import { CircleCheckIcon, LoaderIcon } from "lucide-react";
@@ -25,7 +28,7 @@ function WorkerStatusBadge({ status }: { status: string | null }) {
     normalized === "verified";
 
   return (
-    <Badge variant="outline" className="gap-1.5 px-1.5 text-muted-foreground">
+    <Badge variant="outline" className="text-muted-foreground gap-1.5 px-1.5">
       {isComplete ? (
         <CircleCheckIcon className="size-3.5 shrink-0 fill-green-500 dark:fill-green-400" />
       ) : (
@@ -36,15 +39,25 @@ function WorkerStatusBadge({ status }: { status: string | null }) {
   );
 }
 
-export function AdminWorkersTable({ workers }: { workers: AdminWorkerRow[] }) {
+export function AdminWorkersTable({
+  workers,
+  preview = false,
+  emptyLabel = "No workers yet",
+}: {
+  workers: AdminWorkerRow[];
+  preview?: boolean;
+  emptyLabel?: string;
+}) {
   const router = useRouter();
+  const pagination = useTablePagination(workers);
+  const rows = preview ? workers : pagination.rows;
 
-  function goToWorker(workerId: string) {
+  function go(workerId: string) {
     router.push(`/admin/workers/${workerId}`);
   }
 
   return (
-    <Card size="sm" className="py-0">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -55,34 +68,36 @@ export function AdminWorkersTable({ workers }: { workers: AdminWorkerRow[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {workers.length === 0 ? (
+          {rows.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={4}
                 className="text-muted-foreground py-8 text-center"
               >
-                No workers yet
+                {emptyLabel}
               </TableCell>
             </TableRow>
           ) : (
-            workers.map((w) => (
+            rows.map((w) => (
               <TableRow
                 key={w.id}
-                role="link"
+                role="button"
                 tabIndex={0}
                 className="hover:bg-muted/50 cursor-pointer"
-                onClick={() => goToWorker(w.id)}
+                onClick={() => go(w.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    goToWorker(w.id);
+                    go(w.id);
                   }
                 }}
               >
                 <TableCell className="font-medium">
                   {w.first_name} {w.last_name}
                 </TableCell>
-                <TableCell>{w.profession}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {w.profession}
+                </TableCell>
                 <TableCell>
                   <WorkerStatusBadge status={w.status} />
                 </TableCell>
@@ -94,6 +109,16 @@ export function AdminWorkersTable({ workers }: { workers: AdminWorkerRow[] }) {
           )}
         </TableBody>
       </Table>
-    </Card>
+      {!preview && pagination.pageCount > 1 && (
+        <TablePagination
+          totalRows={pagination.totalRows}
+          pageIndex={pagination.pageIndex}
+          pageSize={pagination.pageSize}
+          pageCount={pagination.pageCount}
+          onPageChange={pagination.setPageIndex}
+          onPageSizeChange={pagination.setPageSize}
+        />
+      )}
+    </div>
   );
 }

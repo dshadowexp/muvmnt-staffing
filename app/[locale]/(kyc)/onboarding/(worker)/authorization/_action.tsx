@@ -23,6 +23,25 @@ export const authorizationAction = async (
 
   const workAuthorization = await getWorkAuthorization();
   if (!workAuthorization) return onboardingStepError("workAuthorizationMissing");
+  if (!workAuthorization.file_url)
+    return onboardingStepError("workAuthorizationMissing");
+  if (!workAuthorization.social_number)
+    return onboardingStepError("socialNumberMissing");
+
+  const requiresExpiry = (
+    [
+      "Open Work Permit",
+      "Closed Work Permit",
+      "Study Permit (with work authorization)",
+    ] as const
+  ).includes(
+    workAuthorization.type as
+      | "Open Work Permit"
+      | "Closed Work Permit"
+      | "Study Permit (with work authorization)",
+  );
+  if (requiresExpiry && !workAuthorization.social_number_expiry)
+    return onboardingStepError("socialNumberExpiryMissing");
 
   const persist = await completeOnboardingStep("authorization");
   if (persist.error) {

@@ -10,6 +10,7 @@ import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getProfessionContext } from "@/services/ai/profession-context";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
 import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";
+import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
 import { InterviewShell } from "../_components/interview-shell";
 
 export default async function ProfessionInterviewPage() {
@@ -41,16 +42,19 @@ async function SuspendedContent() {
     session.userId,
   );
   if (existing && isAssessmentInterviewLocked(existing)) {
-    return redirect({ href: "/worker/assessments", locale });
+    return redirect({ href: `/interviews/${existing.id}`, locale });
   }
 
   const profession = worker.profession ?? "Other";
   const context = getProfessionContext(profession);
 
-  const accessToken = await fetchAccessToken({
-    apiKey: env.HUME_API_KEY,
-    secretKey: env.HUME_SECRET_KEY,
-  });
+  const [accessToken, photoSrc] = await Promise.all([
+    fetchAccessToken({
+      apiKey: env.HUME_API_KEY,
+      secretKey: env.HUME_SECRET_KEY,
+    }),
+    resolveWorkerPhotoSrc(worker.photo_url),
+  ]);
 
   const t = await getTranslations("assessments.interview");
 
@@ -62,11 +66,14 @@ async function SuspendedContent() {
     <VoiceProvider>
       <InterviewShell
         accessToken={accessToken}
+        interviewId={existing?.id ?? undefined}
+        chatGroupId={existing?.chat_group_id ?? undefined}
         subject="profession"
-        subjectRef={{ key: "", body: profession, limit: 0 }}
+        subjectRef={{ key: profession, body: context, limit: 0 }}
         title={t("profession.title", { profession })}
         description={t("profession.description", { profession })}
         sessionVariables={{
+          language: locale,
           candidate_name: userName,
           profession: profession,
           profession_context: context,
@@ -74,7 +81,7 @@ async function SuspendedContent() {
         }}
         user={{
           name: userName,
-          imageUrl: worker.photo_url ?? "",
+          imageUrl: photoSrc ?? "",
         }}
         returnPath="/worker/assessments"
       />

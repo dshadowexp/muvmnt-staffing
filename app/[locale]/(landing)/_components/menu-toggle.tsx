@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { UserRole } from "@/types/auth";
 
 interface MenuToggleProps {
   isLoggedIn: boolean;
+  role?: UserRole;
 }
 
-export function MenuToggle({ isLoggedIn }: MenuToggleProps) {
+export function MenuToggle({ isLoggedIn, role }: MenuToggleProps) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
@@ -45,9 +47,9 @@ export function MenuToggle({ isLoggedIn }: MenuToggleProps) {
               </Link>
             ))}
 
-            {isLoggedIn ? (
+            {isLoggedIn && role ? (
               <Button asChild className="w-full justify-center">
-                <Link href="/app" onClick={() => setOpen(false)}>
+                <Link href={`/${role}`} onClick={() => setOpen(false)}>
                   {t("dashboard")}
                 </Link>
               </Button>

@@ -21,16 +21,26 @@ function normalizeCode(raw: string): string | null {
   return normalized;
 }
 
+function asRoleHint(value: string | undefined | null): "worker" | "client" | null {
+  return value === "worker" || value === "client" ? value : null;
+}
+
 /**
  * Resolves a referral link:
  *  - Already signed in + self-referral → back to dashboard with `ref_error=self`.
  *  - Already signed in + someone else's code → back to dashboard with `ref_notice=already_member`.
  *  - Anonymous + invalid code → `/sign-up?ref_error=invalid|not_found`.
  *  - Anonymous + valid code → set `referral_code` cookie, go to
- *    `/sign-up?ref=CODE&as=<referrer role>` so the sign-up form preselects
- *    the correct account type.
+ *    `/sign-up?ref=CODE&as=<role>` so the sign-up form preselects the correct
+ *    account type. The role is taken from the explicit `as` argument first
+ *    (used for admin-issued invites that target a specific role), falling
+ *    back to the referrer's own role.
  */
-export async function claimReferralCode(rawCode: string, locale: Locale) {
+export async function claimReferralCode(
+  rawCode: string,
+  locale: Locale,
+  asOverride?: string | null,
+) {
   const session = await getSession();
   const normalized = normalizeCode(rawCode);
 
@@ -75,10 +85,13 @@ export async function claimReferralCode(rawCode: string, locale: Locale) {
     sameSite: "lax",
   });
 
-  // Pre-select the sign-up role to match the referrer's role.
+  // Pre-select the sign-up role: explicit `as` from the link wins (admin
+  // invites carry it), otherwise fall back to the referrer's role when it is
+  // a sign-up-eligible role.
   const signUpParams = new URLSearchParams({ ref: normalized });
-  if (referralCode.role === "worker" || referralCode.role === "client") {
-    signUpParams.set("as", referralCode.role);
-  }
+  const overrideRole = asRoleHint(asOverride);
+  const referrerRole = asRoleHint(referralCode.role);
+  const resolvedAs = overrideRole ?? referrerRole;
+  if (resolvedAs) signUpParams.set("as", resolvedAs);
   redirect({ href: `/sign-up?${signUpParams.toString()}`, locale });
 }

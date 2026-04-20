@@ -7,7 +7,12 @@ import { authorizationAction } from "./_action";
 import { useActionState } from "react";
 
 interface AuthorizationClientProps {
-  initialWorkAuthorization?: { type: string; file_url: string } | null;
+  initialWorkAuthorization?: {
+    type: string;
+    file_url: string;
+    social_number?: string | null;
+    social_number_expiry?: string | null;
+  } | null;
   workAuthorizationVerified?: boolean;
 }
 

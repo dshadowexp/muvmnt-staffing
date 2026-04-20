@@ -21,8 +21,8 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  CircleDashedIcon,
   FileTextIcon,
-  Loader2Icon,
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
@@ -51,6 +51,8 @@ import {
   createAssessmentInterview,
   updateInterviewSubjectRefBody,
 } from "@/features/interviews/actions";
+import { Logo } from "@/components/logo";
+import { BackLink } from "@/components/back-link";
 
 type SummaryShape = DeepPartial<ResumeSummary>;
 
@@ -308,9 +310,14 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
 
   return (
     <div className="flex min-h-svh flex-col p-4">
-      <div className="flex justify-end gap-2">
-        <LanguageSwitcher />
-        <ThemeToggle />
+
+      <div className="flex items-center justify-between">
+        <BackLink backHref="/worker/assessments" title="Assessments" />
+        <Logo href="/worker/assessments" />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -373,7 +380,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
                 className="w-full"
               >
                 {!ready && !isRemoving && (
-                  <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                  <CircleDashedIcon className="size-4 animate-spin" aria-hidden />
                 )}
                 Proceed to interview
               </Button>
@@ -481,7 +488,7 @@ function FileRow({
         </span>
       </div>
       {(isUploading || isRemoving) && (
-        <Loader2Icon className="size-4 shrink-0 animate-spin text-primary" />
+        <CircleDashedIcon className="size-4 shrink-0 animate-spin text-primary" />
       )}
       <Button
         type="button"
@@ -614,7 +621,7 @@ function SectionTriggerLabel({
     <span className="flex w-full items-center gap-2">
       <span className="font-medium">{title}</span>
       {!ready && isStreaming && (
-        <Loader2Icon className="size-3.5 animate-spin text-muted-foreground" />
+        <CircleDashedIcon className="size-3.5 animate-spin text-muted-foreground" />
       )}
     </span>
   );

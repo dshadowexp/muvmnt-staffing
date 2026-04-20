@@ -85,7 +85,7 @@ export type RequesterType =
   | "Community Health Centre"
   | "Rehabilitation Centre"
   | "Dental / Medical Clinic"
-  | "Individual / Private Home Care"
+  | "Individual"
   | "Other";
 
 export type ShiftType = "Day" | "Evening" | "Night" | "Rotating" | "Flexible";

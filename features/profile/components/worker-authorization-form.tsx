@@ -1,14 +1,21 @@
 "use client";
 
-import { CheckCircle2, CircleDashed } from "lucide-react";
+import { CalendarIcon, CheckCircle2, CircleDashed, Lock } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import { format } from "date-fns";
 import { WORK_AUTHORIZATION_TYPES } from "@/lib/constants";
 import type { WorkAuthorization } from "@/types";
+import { cn } from "@/lib/utils";
 import {
   buildAuthorizationSchema,
+  canEditSocialNumber,
+  formatSocialNumber,
+  maskSocialNumber,
+  normalizeSocialNumber,
+  requiresSinExpiry,
   type AuthorizationFormValues,
 } from "@/features/profile/schemas/authorization";
 import {
@@ -31,15 +38,27 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { FileInput } from "@/features/storage/components/file-input";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+interface InitialWorkAuthorization {
+  type: string;
+  file_url: string;
+  social_number?: string | null;
+  social_number_expiry?: string | null;
+}
+
 interface WorkerAuthorizationFormProps {
-  initialWorkAuthorization?:
-    | { type: string; file_url: string }
-    | null;
+  initialWorkAuthorization?: InitialWorkAuthorization | null;
   /** When true, work authorization cannot be changed. */
   workAuthorizationVerified?: boolean;
   /**
@@ -53,6 +72,11 @@ interface WorkerAuthorizationFormProps {
   onCancelEdit?: () => void;
 }
 
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export function WorkerAuthorizationForm({
   initialWorkAuthorization,
   workAuthorizationVerified = false,
@@ -61,49 +85,85 @@ export function WorkerAuthorizationForm({
   onCancelEdit,
 }: WorkerAuthorizationFormProps) {
   const [fileKey, setFileKey] = useState<string | null>(
-    initialWorkAuthorization?.file_url ?? null
+    initialWorkAuthorization?.file_url ?? null,
   );
   const [saving, setSaving] = useState(false);
+  const [expiryOpen, setExpiryOpen] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.authorization");
   const tCommon = useTranslations("common");
   const tVal = useTranslations("kyc.onboarding.validation");
   const schema = useMemo(() => buildAuthorizationSchema(tVal), [tVal]);
 
+  const initialSin = normalizeSocialNumber(
+    initialWorkAuthorization?.social_number,
+  );
+  const initialExpiry = initialWorkAuthorization?.social_number_expiry ?? "";
+
   const form = useForm<AuthorizationFormValues>({
     defaultValues: {
       workAuthorization: (initialWorkAuthorization?.type ?? "") as WorkAuthorization,
+      socialNumber: initialSin,
+      socialNumberExpiry: initialExpiry,
     },
     resolver: zodResolver(schema),
+    mode: "onBlur",
   });
 
-  const { setValue, watch } = form;
+  const { setValue, watch, formState } = form;
   const workAuthorization = watch("workAuthorization");
+  const socialNumberRaw = watch("socialNumber") ?? "";
+  const socialNumberExpiry = watch("socialNumberExpiry") ?? "";
+
+  const socialNumber = normalizeSocialNumber(socialNumberRaw);
+  const needsExpiry = requiresSinExpiry(workAuthorization);
+  const sinLocked = !canEditSocialNumber({
+    socialNumber: initialSin,
+    socialNumberExpiry: initialExpiry || null,
+  });
 
   const hasType = !!workAuthorization;
   const hasFile = !!fileKey;
-  const canSave = hasType && hasFile;
+  const hasValidSin = socialNumber.length === 9;
+  const hasValidExpiry = !needsExpiry || (() => {
+    if (!socialNumberExpiry) return false;
+    const parsed = parseLocalDate(socialNumberExpiry);
+    if (Number.isNaN(parsed.getTime())) return false;
+    const today = new Date();
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    return parsed >= todayStart;
+  })();
+  const canSave = hasType && hasFile && hasValidSin && hasValidExpiry;
 
   const isUnchanged =
     initialWorkAuthorization &&
     workAuthorization === initialWorkAuthorization.type &&
-    fileKey === initialWorkAuthorization.file_url;
+    fileKey === initialWorkAuthorization.file_url &&
+    socialNumber === initialSin &&
+    (socialNumberExpiry ?? "") === (initialExpiry ?? "");
 
   /** Profile: editable UI only while editing. Onboarding: always editable when not verified. */
   const inEditUI =
-    !workAuthorizationVerified &&
-    (!profileEditMode || isEditing);
+    !workAuthorizationVerified && (!profileEditMode || isEditing);
 
   useEffect(() => {
     if (!inEditUI) return;
     if (workAuthorizationVerified) return;
     if (!canSave || isUnchanged) return;
 
+    let cancelled = false;
     async function save() {
       setSaving(true);
-      const { error, message } = await upsertWorkAuthorizationAction(
-        workAuthorization,
-        fileKey!
-      );
+      const { error, message } = await upsertWorkAuthorizationAction({
+        type: workAuthorization,
+        fileUrl: fileKey!,
+        socialNumber,
+        socialNumberExpiry: needsExpiry ? socialNumberExpiry : null,
+      });
+      if (cancelled) return;
       setSaving(false);
       if (error) {
         toast.error(message);
@@ -111,8 +171,10 @@ export function WorkerAuthorizationForm({
         toast.success(message);
       }
     }
-
     save();
+    return () => {
+      cancelled = true;
+    };
   }, [
     inEditUI,
     workAuthorizationVerified,
@@ -120,6 +182,9 @@ export function WorkerAuthorizationForm({
     isUnchanged,
     workAuthorization,
     fileKey,
+    socialNumber,
+    socialNumberExpiry,
+    needsExpiry,
   ]);
 
   const wasEditingRef = useRef(false);
@@ -134,11 +199,15 @@ export function WorkerAuthorizationForm({
       (initialWorkAuthorization?.type ?? "") as WorkAuthorization,
       { shouldValidate: false },
     );
+    setValue("socialNumber", initialSin, { shouldValidate: false });
+    setValue("socialNumberExpiry", initialExpiry, { shouldValidate: false });
   }, [
     profileEditMode,
     isEditing,
     initialWorkAuthorization?.type,
     initialWorkAuthorization?.file_url,
+    initialSin,
+    initialExpiry,
     setValue,
   ]);
 
@@ -160,6 +229,10 @@ export function WorkerAuthorizationForm({
 
     setValue("workAuthorization", newType, { shouldValidate: true });
 
+    if (!requiresSinExpiry(newType)) {
+      setValue("socialNumberExpiry", "", { shouldValidate: true });
+    }
+
     if (fileKey && newType !== prevType) {
       const keyToDelete = fileKey;
       setFileKey(null);
@@ -173,6 +246,11 @@ export function WorkerAuthorizationForm({
       const { error, message } = await deleteWorkAuthorizationAction();
       if (error) toast.error(message);
     }
+  }
+
+  function handleSocialNumberChange(raw: string) {
+    const digits = normalizeSocialNumber(raw).slice(0, 9);
+    setValue("socialNumber", digits, { shouldValidate: true });
   }
 
   if (workAuthorizationVerified) {
@@ -190,6 +268,18 @@ export function WorkerAuthorizationForm({
             {fileKey ? t("documentOnFile") : t("none")}
           </p>
         </Field>
+        <Field>
+          <FieldLabel>{t("socialNumberLabel")}</FieldLabel>
+          <p className="text-sm">{maskSocialNumber(initialSin) || t("none")}</p>
+        </Field>
+        {initialExpiry ? (
+          <Field>
+            <FieldLabel>{t("socialNumberExpiryLabel")}</FieldLabel>
+            <p className="text-sm">
+              {format(parseLocalDate(initialExpiry), "PPP")}
+            </p>
+          </Field>
+        ) : null}
         <Field>
           <FieldLabel>{t("verificationLabel")}</FieldLabel>
           <div className="flex items-center gap-2 text-sm">
@@ -214,9 +304,19 @@ export function WorkerAuthorizationForm({
         <dt className="text-muted-foreground font-medium">
           {t("documentLabel")}
         </dt>
-        <dd>
-          {hasDoc ? t("documentOnFile") : t("none")}
-        </dd>
+        <dd>{hasDoc ? t("documentOnFile") : t("none")}</dd>
+        <dt className="text-muted-foreground font-medium">
+          {t("socialNumberLabel")}
+        </dt>
+        <dd>{maskSocialNumber(initialSin) || t("none")}</dd>
+        {initialExpiry ? (
+          <>
+            <dt className="text-muted-foreground font-medium">
+              {t("socialNumberExpiryLabel")}
+            </dt>
+            <dd>{format(parseLocalDate(initialExpiry), "PPP")}</dd>
+          </>
+        ) : null}
         <dt className="text-muted-foreground font-medium">
           {t("verificationLabel")}
         </dt>
@@ -240,7 +340,7 @@ export function WorkerAuthorizationForm({
   return (
     <>
       <FieldGroup>
-        <Field data-invalid={!!form.formState.errors.workAuthorization}>
+        <Field data-invalid={!!formState.errors.workAuthorization}>
           <FieldLabel>{t("typeLabel")}</FieldLabel>
           <FieldDescription>{t("typeDescription")}</FieldDescription>
           <MultiSelect
@@ -261,7 +361,9 @@ export function WorkerAuthorizationForm({
               </MultiSelectGroup>
             </MultiSelectContent>
           </MultiSelect>
-          <FieldError>{form.formState.errors.workAuthorization?.message}</FieldError>
+          <FieldError>
+            {formState.errors.workAuthorization?.message}
+          </FieldError>
         </Field>
 
         {hasType && (
@@ -275,6 +377,111 @@ export function WorkerAuthorizationForm({
               onUploaded={handleFileUploaded}
               onFileChange={(hasFile) => !hasFile && handleFileRemoved()}
             />
+          </Field>
+        )}
+
+        <Field data-invalid={!!formState.errors.socialNumber}>
+          <FieldLabel htmlFor="worker-sin">{t("socialNumberLabel")}</FieldLabel>
+          <FieldDescription>
+            {sinLocked
+              ? t("socialNumberLockedDescription")
+              : t("socialNumberDescription")}
+          </FieldDescription>
+          <div className="relative">
+            <Input
+              id="worker-sin"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder={t("socialNumberPlaceholder")}
+              maxLength={11}
+              disabled={sinLocked}
+              value={
+                sinLocked
+                  ? maskSocialNumber(initialSin)
+                  : formatSocialNumber(socialNumberRaw)
+              }
+              onChange={(e) => handleSocialNumberChange(e.target.value)}
+            />
+            {sinLocked ? (
+              <Lock
+                className="text-muted-foreground absolute right-3 top-1/2 size-4 -translate-y-1/2"
+                aria-hidden
+              />
+            ) : null}
+          </div>
+          <FieldError>{formState.errors.socialNumber?.message}</FieldError>
+        </Field>
+
+        {needsExpiry && (
+          <Field data-invalid={!!formState.errors.socialNumberExpiry}>
+            <FieldLabel htmlFor="worker-sin-expiry">
+              {t("socialNumberExpiryLabel")}
+            </FieldLabel>
+            <FieldDescription>
+              {t("socialNumberExpiryDescription")}
+            </FieldDescription>
+            <Popover open={expiryOpen} onOpenChange={setExpiryOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="worker-sin-expiry"
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !socialNumberExpiry && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="mr-2 size-4" />
+                  {socialNumberExpiry
+                    ? format(parseLocalDate(socialNumberExpiry), "PPP")
+                    : t("socialNumberExpiryPlaceholder")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={
+                    socialNumberExpiry
+                      ? parseLocalDate(socialNumberExpiry)
+                      : undefined
+                  }
+                  defaultMonth={
+                    socialNumberExpiry
+                      ? parseLocalDate(socialNumberExpiry)
+                      : undefined
+                  }
+                  onSelect={(d) => {
+                    setValue(
+                      "socialNumberExpiry",
+                      d ? format(d, "yyyy-MM-dd") : "",
+                      { shouldValidate: true },
+                    );
+                    setExpiryOpen(false);
+                  }}
+                  disabled={(d) => {
+                    const day = new Date(
+                      d.getFullYear(),
+                      d.getMonth(),
+                      d.getDate(),
+                    );
+                    const today = new Date();
+                    const todayStart = new Date(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      today.getDate(),
+                    );
+                    return day < todayStart;
+                  }}
+                  captionLayout="dropdown"
+                  fromYear={new Date().getFullYear()}
+                  toYear={new Date().getFullYear() + 20}
+                />
+              </PopoverContent>
+            </Popover>
+            <FieldError>
+              {formState.errors.socialNumberExpiry?.message}
+            </FieldError>
           </Field>
         )}
       </FieldGroup>
@@ -291,6 +498,10 @@ export function WorkerAuthorizationForm({
                 (initialWorkAuthorization?.type ?? "") as WorkAuthorization,
                 { shouldValidate: true },
               );
+              setValue("socialNumber", initialSin, { shouldValidate: true });
+              setValue("socialNumberExpiry", initialExpiry, {
+                shouldValidate: true,
+              });
               onCancelEdit();
             }}
           >

@@ -65,7 +65,8 @@ export function AddressCard({
       a.city === b.city &&
       a.adminArea === b.adminArea &&
       a.postalCode === b.postalCode &&
-      a.countryCode === b.countryCode
+      a.countryCode === b.countryCode &&
+      a.instructions === b.instructions
     );
   }
 
@@ -83,20 +84,28 @@ export function AddressCard({
     setResolving(true);
 
     const id = value?.id ?? crypto.randomUUID();
-    setLocalAddress(
-      addressLocationFromFields(id, fields, {
-        lat: value?.lat ?? 0,
-        lng: value?.lng ?? 0,
-      }),
-    );
+    const optimistic = addressLocationFromFields(id, fields, {
+      lat: value?.lat ?? 0,
+      lng: value?.lng ?? 0,
+    });
+    setLocalAddress({
+      ...optimistic,
+      addressLine2: value?.addressLine2 ?? null,
+      instructions: value?.instructions ?? null,
+    });
 
     try {
       const details = await getPlaceDetails(fields.placeId, sessionToken.current);
 
-      const location = buildAddressLocation(id, details, {
+      const built = buildAddressLocation(id, details, {
         displayAddress: fields.description,
         fallback: fields,
       });
+      const location: AddressLocation = {
+        ...built,
+        addressLine2: value?.addressLine2 ?? null,
+        instructions: value?.instructions ?? null,
+      };
       setLocalAddress(location);
       onChange?.(location);
     } catch {

@@ -23,10 +23,10 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
-  Loader2Icon,
   ArrowRightIcon,
   TrophyIcon,
   RotateCcwIcon,
+  CircleDashedIcon,
 } from "lucide-react";
 import type { QuizQuestion } from "@/services/ai/quizes";
 import Link from "next/link";
@@ -263,7 +263,7 @@ export function QuizClient({
     return (
       <div className="flex min-h-svh items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2Icon className="size-12 animate-spin" />
+          <CircleDashedIcon className="size-12 animate-spin" />
           <p className="text-muted-foreground">{t("scoring")}</p>
         </div>
       </div>
@@ -389,7 +389,7 @@ export function QuizClient({
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2Icon className="size-3.5 animate-spin" />
+            <CircleDashedIcon className="size-3.5 animate-spin" />
             {t("streamingLabel")}{" "}
             {questions.length > 0 && (
               <span className="tabular-nums">
@@ -420,7 +420,7 @@ export function QuizClient({
             </CardContent>
             <CardFooter className="justify-end">
               <Button disabled>
-                <Loader2Icon className="size-4 animate-spin" />
+                <CircleDashedIcon className="size-4 animate-spin" />
                 {t("loadingNextQuestion")}
               </Button>
             </CardFooter>

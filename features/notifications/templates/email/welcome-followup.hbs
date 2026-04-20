@@ -1,0 +1,25 @@
+{{#> email-base previewText="A few quick next steps"}}
+  {{#*inline "body"}}
+    <p class="label">Getting started</p>
+    <h1>{{#if firstName}}Hey {{firstName}},{{else}}Welcome.{{/if}}</h1>
+    <p>Thanks for signing up to <strong>MUVMNT</strong>. Here are a couple of things you can do next to get the most out of your account:</p>
+
+    {{#if isWorker}}
+      <div class="details">
+        <div class="detail-row"><span class="detail-key">1.</span><span class="detail-value">Finish your worker profile</span></div>
+        <div class="detail-row"><span class="detail-key">2.</span><span class="detail-value">Upload your compliance documents</span></div>
+        <div class="detail-row"><span class="detail-key">3.</span><span class="detail-value">Set your weekly availability</span></div>
+      </div>
+    {{else}}
+      <div class="details">
+        <div class="detail-row"><span class="detail-key">1.</span><span class="detail-value">Tell us about your facility</span></div>
+        <div class="detail-row"><span class="detail-key">2.</span><span class="detail-value">Add a billing method</span></div>
+        <div class="detail-row"><span class="detail-key">3.</span><span class="detail-value">Post your first staffing request</span></div>
+      </div>
+    {{/if}}
+
+    {{#if dashboardUrl}}
+      <a href="{{dashboardUrl}}" class="btn">Go to dashboard</a>
+    {{/if}}
+  {{/inline}}
+{{/email-base}}

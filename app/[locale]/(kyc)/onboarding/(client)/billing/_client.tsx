@@ -2,12 +2,14 @@
 
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
 import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboarding-form-navigate";
-import type { ReactNode } from "react";
 import { SubmitEventHandler, useActionState, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { billingAction } from "./_action";
-import { useOnboardingSkip } from "@/features/onboarding/hooks/use-onboarding-skip";
+import {
+    useOnboardingSkip,
+    type OnboardingSkipDescriptor,
+} from "@/features/onboarding/hooks/use-onboarding-skip";
 import { CardSummary } from "@/features/payments/billing/dal/queries";
 import { PaymentMethodList } from "@/features/payments/billing/components/payment-method-list";
 import { useTheme } from "next-themes";
@@ -28,7 +30,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [billingState, action] = useActionState(billingAction, undefined);
     useOnboardingFormNavigate(billingState);
-    const { skipForm, skipSlot, skipPending } = useOnboardingSkip();
+    const { skipForm, skip } = useOnboardingSkip();
     const t = useTranslations("kyc.onboarding.forms.billing");
     const appearance = resolvedTheme === "dark" ? DARK_APPEARANCE : LIGHT_APPEARANCE;
 
@@ -88,8 +90,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
                     />
                     <ContinueButton
                         text={t("finish")}
-                        skipSlot={skipSlot}
-                        skipPending={skipPending}
+                        skip={skip}
                     />
                 </form>
             ) : (
@@ -98,7 +99,7 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
                     stripe={stripePromise}
                     options={{ appearance, clientSecret, currency: "cad", loader: "auto" }}
                 >
-                    <PaymentForm skipSlot={skipSlot} skipPending={skipPending} />
+                    <PaymentForm skip={skip} />
                 </Elements>
             )}
         </>
@@ -106,11 +107,9 @@ export function BillingClient({ initialPaymentMethods }: { initialPaymentMethods
 }
 
 function PaymentForm({
-    skipSlot,
-    skipPending,
+    skip,
 }: {
-    skipSlot: ReactNode;
-    skipPending: boolean;
+    skip: OnboardingSkipDescriptor | null;
 }) {
     const stripe = useStripe();
     const elements = useElements();
@@ -166,8 +165,7 @@ function PaymentForm({
             <PaymentElement id="payment-element" options={{ layout: "accordion" }} />
             <ContinueButton
                 text={t("save")}
-                skipSlot={skipSlot}
-                skipPending={skipPending}
+                skip={skip}
                 pending={isSubmitting}
             />
         </form>

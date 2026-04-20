@@ -8,7 +8,7 @@ import { useAuth } from "@/features/auth/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { FieldLabel } from "@/components/ui/field";
 import { LoadingSwap } from "@/components/ui/loading-swap";
-import { Check, Loader2 } from "lucide-react";
+import { Check, CircleDashed } from "lucide-react";
 import posthog from "posthog-js";
 
 const POLL_INTERVAL_MS = 4000;
@@ -99,7 +99,7 @@ export function EmailVerification() {
           aria-live="polite"
           aria-busy="true"
         >
-          <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+          <CircleDashed className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
         </div>
       ) : (
         <>

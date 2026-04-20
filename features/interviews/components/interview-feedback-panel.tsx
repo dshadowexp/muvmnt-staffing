@@ -63,19 +63,19 @@ export function InterviewFeedbackPanel({
         </div>
       )}
 
-      {parsed.scores && Object.keys(parsed.scores).length > 0 && (
+      {parsed.scores.length > 0 && (
         <div>
           <p className="mb-2 font-medium">Scores</p>
           <ul className="grid gap-1 sm:grid-cols-2">
-            {Object.entries(parsed.scores).map(([k, v]) => (
+            {parsed.scores.map((entry, index) => (
               <li
-                key={k}
+                key={`${entry.label}-${index}`}
                 className="flex justify-between gap-4 rounded-md border px-3 py-2"
               >
                 <span className="capitalize text-muted-foreground">
-                  {k.replace(/_/g, " ")}
+                  {entry.label}
                 </span>
-                <span className="tabular-nums font-medium">{v}</span>
+                <span className="tabular-nums font-medium">{entry.score}</span>
               </li>
             ))}
           </ul>

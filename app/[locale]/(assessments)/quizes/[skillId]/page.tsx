@@ -1,5 +1,5 @@
 import { redirect, notFound } from "next/navigation";
-import { Loader2Icon } from "lucide-react";
+import { CircleDashedIcon } from "lucide-react";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
@@ -19,7 +19,7 @@ export default async function QuizPage({
     <Suspense
       fallback={
         <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-          <Loader2Icon className="size-16 animate-spin" />
+          <CircleDashedIcon className="size-16 animate-spin" />
           <p className="text-muted-foreground">{t("preparingTitle")}</p>
           <p className="text-xs text-muted-foreground">{t("preparingHint")}</p>
         </div>

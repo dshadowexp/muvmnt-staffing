@@ -23,6 +23,7 @@ import { recordReferralAction } from "@/features/referrals/actions";
 import { deregisterPushTokenAction } from "@/features/notifications/actions";
 import { exchangeFirebaseUser } from "../actions";
 import posthog from "posthog-js";
+import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type AuthContextType = {
@@ -64,16 +65,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             emailVerified: firebaseUser.emailVerified ?? false,
             role: pendingRoleRef.current ?? undefined,
         });
-
-        const hadReferral = pendingReferralCodeRef.current !== null;
-        pendingRoleRef.current = null;
-        pendingReferralCodeRef.current = null;
+       
         setAuthUser(authUser);
         await setSession(authUser);
         await setCookie("__session", firebaseToken);
 
-        if (hadReferral) {
-            recordReferralAction().catch(console.error);
+        if (pendingReferralCodeRef.current && pendingRoleRef.current) { 
+            recordReferralAction().then(({ success, error }) => {
+                if (success) {
+                    toast.success("Referral recorded successfully");
+                } else {
+                    toast.error("Failed to record referral");
+                }
+            })
+            pendingReferralCodeRef.current = null;
+            pendingRoleRef.current = null;
         }
     }
 

@@ -12,6 +12,8 @@ export default async function AuthorizationPage() {
             ? {
                 type: workAuthorization.type,
                 file_url: workAuthorization.file_url,
+                social_number: workAuthorization.social_number,
+                social_number_expiry: workAuthorization.social_number_expiry,
               }
             : null
         }

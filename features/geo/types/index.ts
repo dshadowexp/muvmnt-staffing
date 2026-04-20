@@ -34,4 +34,5 @@ export interface AddressLocation {
     adminArea: string | null;
     postalCode: string | null;
     countryCode: string | null;
+    instructions: string | null;
 }

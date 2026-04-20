@@ -2,7 +2,7 @@
 
 import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
-import { generateAiInterviewFeedback } from "@/services/ai/interviews";
+import { generateAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import {
   getInterviewByIdForUser,
   getInterviewBySubjectForUser,
@@ -74,6 +74,7 @@ export async function updateInterview(
   data: {
     humeChatId?: string;
     duration?: string;
+    chatGroupId?: string;
     feedback?: InterviewUpdate["feedback"];
     completedAt?: string | null;
   },
@@ -85,6 +86,7 @@ export async function updateInterview(
 
   const patch: InterviewUpdate = {};
   if (data.humeChatId !== undefined) patch.hume_chat_id = data.humeChatId;
+  if (data.chatGroupId !== undefined) patch.chat_group_id = data.chatGroupId;
   if (data.duration !== undefined) patch.duration = data.duration;
   if (data.feedback !== undefined) patch.feedback = data.feedback;
   if (data.completedAt !== undefined) patch.completed_at = data.completedAt;

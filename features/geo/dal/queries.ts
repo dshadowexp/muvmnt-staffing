@@ -56,5 +56,6 @@ export async function getAddressLocation(): Promise<AddressLocation | undefined>
     adminArea: data.admin_area,
     postalCode: data.postal_code,
     countryCode: data.country_code,
+    instructions: data.instructions,
   };
 }

@@ -1,4 +1,4 @@
-import { generateAiInterviewFeedback } from "@/services/ai/interviews";
+import { generateAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
 import { getInterviewByIdForUser } from "./queries";

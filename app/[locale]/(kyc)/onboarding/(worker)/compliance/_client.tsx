@@ -22,7 +22,7 @@ export function ComplianceOnboardingClient({
   const rows = React.use(compliancesPromise);
   const [state, formAction] = useActionState(complianceAction, undefined);
   useOnboardingFormNavigate(state);
-  const { skipForm, skipSlot, skipPending } = useOnboardingSkip();
+  const { skipForm, skip } = useOnboardingSkip();
   const t = useTranslations("kyc.onboarding.forms.compliance");
 
   return (
@@ -37,7 +37,7 @@ export function ComplianceOnboardingClient({
           />
         </div>
 
-        <ContinueButton skipSlot={skipSlot} skipPending={skipPending} />
+        <ContinueButton skip={skip} />
       </form>
     </>
   );

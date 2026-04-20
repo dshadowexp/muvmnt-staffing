@@ -28,6 +28,7 @@ export function buildAddressLocation(
     adminArea: nonEmpty(c.state) ?? nonEmpty(fb?.province),
     postalCode: nonEmpty(c.postalCode) ?? nonEmpty(fb?.postalCode),
     countryCode: nonEmpty(c.countryCode),
+    instructions: null,
   };
 }
 
@@ -48,5 +49,6 @@ export function addressLocationFromFields(
     adminArea: nonEmpty(fields.province),
     postalCode: nonEmpty(fields.postalCode),
     countryCode: null,
+    instructions: null,
   };
 }

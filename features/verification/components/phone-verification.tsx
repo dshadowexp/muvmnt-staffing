@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { LoadingSwap } from "@/components/ui/loading-swap";
-import { Check, Loader2 } from "lucide-react";
+import { Check, CircleDashed } from "lucide-react";
 import { formatPhoneToE164 } from "@/lib/formatters";
 import posthog from "posthog-js";
 
@@ -157,7 +157,7 @@ export function PhoneVerification() {
           aria-live="polite"
           aria-busy="true"
         >
-          <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+          <CircleDashed className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
         </div>
       ) : isVerified ? (
         <p className="text-sm leading-relaxed text-muted-foreground">

@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { ChevronLeft } from "lucide-react";
@@ -9,29 +8,29 @@ import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { useOnboarding } from "../onboarding-provider";
 import { LoadingSwap } from "@/components/ui/loading-swap";
+import type { OnboardingSkipDescriptor } from "../hooks/use-onboarding-skip";
 
 interface ContinueButtonProps {
   id?: string;
   text?: string;
   pending?: boolean;
-  skipSlot?: ReactNode;
-  skipPending?: boolean;
+  skip?: OnboardingSkipDescriptor | null;
 }
 
 export function ContinueButton({
   text,
   pending: pendingProp,
-  skipSlot,
-  skipPending,
+  skip,
 }: ContinueButtonProps) {
   const { back, isFirstStep, steps, currentStepIndex } = useOnboarding();
   const { pending: formActionPending } = useFormStatus();
-  const pending = Boolean(skipPending || (pendingProp ?? formActionPending));
   const { loading: authLoading } = useAuth();
   const router = useRouter();
   const t = useTranslations("kyc.onboarding");
 
-  const disabled = pending || authLoading;
+  const submitPending = pendingProp ?? formActionPending;
+  const skipPending = skip?.pending ?? false;
+  const anyLoading = submitPending || authLoading || skipPending;
 
   function handleBack() {
     if (isFirstStep) return;
@@ -53,16 +52,26 @@ export function ContinueButton({
           size="sm"
           onClick={handleBack}
           className="gap-1.5"
-          disabled={disabled}
+          disabled={anyLoading}
         >
           <ChevronLeft className="size-4" />
           {t("back")}
         </Button>
       )}
       <div className="flex items-center gap-2">
-        {skipSlot}
-        <Button type="submit" variant="default" disabled={disabled}>
-          <LoadingSwap isLoading={pending || authLoading}>
+        {skip && (
+          <Button
+            type="submit"
+            form={skip.formId}
+            variant="outline"
+            size="default"
+            disabled={anyLoading}
+          >
+            <LoadingSwap isLoading={skipPending}>{t("skip")}</LoadingSwap>
+          </Button>
+        )}
+        <Button type="submit" variant="default" disabled={anyLoading}>
+          <LoadingSwap isLoading={submitPending || authLoading}>
             {text ?? t("continue")}
           </LoadingSwap>
         </Button>

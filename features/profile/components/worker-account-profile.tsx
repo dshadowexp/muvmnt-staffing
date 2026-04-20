@@ -29,6 +29,8 @@ type WorkerRow = {
 type WorkAuthData = {
   type: string;
   file_url: string;
+  social_number?: string | null;
+  social_number_expiry?: string | null;
   is_verified: boolean;
 } | null;
 
@@ -160,7 +162,12 @@ function WorkAuthCardSlot({
         <WorkerAuthorizationForm
           initialWorkAuthorization={
             workAuth
-              ? { type: workAuth.type, file_url: workAuth.file_url }
+              ? {
+                  type: workAuth.type,
+                  file_url: workAuth.file_url,
+                  social_number: workAuth.social_number,
+                  social_number_expiry: workAuth.social_number_expiry,
+                }
               : null
           }
           workAuthorizationVerified={verified}

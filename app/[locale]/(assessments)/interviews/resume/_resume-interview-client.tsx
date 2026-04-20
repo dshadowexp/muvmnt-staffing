@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { VoiceProvider } from "@humeai/voice-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { InterviewShell } from "../_components/interview-shell";
 import { ResumeUpload } from "./_resume-upload";
 import type { InterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
@@ -31,6 +31,7 @@ export function ResumeInterviewClient({
   existingInterview,
 }: Props) {
   const t = useTranslations("assessments.interview.resume");
+  const locale = useLocale();
   const [ready, setReady] = useState<ReadyState | null>(null);
 
   if (!ready) {
@@ -47,7 +48,7 @@ export function ResumeInterviewClient({
       <InterviewShell
         accessToken={accessToken}
         subject="resume"
-        interviewId={ready.interviewId}
+        interviewId={existingInterview?.id ?? undefined}
         subjectRef={{
           key: ready.ref.key,
           body: ready.ref.body.slice(0, 4000),
@@ -56,6 +57,7 @@ export function ResumeInterviewClient({
         title={t("interviewTitle")}
         description={t("interviewDescription")}
         sessionVariables={{
+          language: locale,
           candidate_name: userName,
           resume_text: ready.ref.body,
           profession: profession,

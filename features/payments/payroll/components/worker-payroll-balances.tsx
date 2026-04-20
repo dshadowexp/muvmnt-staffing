@@ -15,7 +15,7 @@ import {
   ConnectBalances,
   ConnectComponentsProvider,
 } from "@stripe/react-connect-js";
-import { Loader2Icon } from "lucide-react";
+import { CircleDashedIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createPayrollBalancesAccountSession } from "../dal/mutations";
@@ -53,7 +53,7 @@ export function WorkerPayrollBalances() {
     return (
       <Card size="sm">
         <CardContent className="flex min-h-[200px] items-center justify-center gap-2 py-8">
-          <Loader2Icon className="text-muted-foreground size-6 animate-spin" />
+          <CircleDashedIcon className="text-muted-foreground size-6 animate-spin" />
           <span className="text-muted-foreground text-sm">
             Loading payroll…
           </span>

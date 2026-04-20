@@ -224,6 +224,7 @@ export type Database = {
       }
       interviews: {
         Row: {
+          chat_group_id: string | null
           completed_at: string | null
           created_at: string
           duration: string | null
@@ -236,6 +237,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          chat_group_id?: string | null
           completed_at?: string | null
           created_at?: string
           duration?: string | null
@@ -248,6 +250,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          chat_group_id?: string | null
           completed_at?: string | null
           created_at?: string
           duration?: string | null
@@ -279,6 +282,7 @@ export type Database = {
           country_code: string | null
           created_at: string
           id: string
+          instructions: string | null
           lat: number
           lng: number
           postal_code: string | null
@@ -294,6 +298,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string
           id?: string
+          instructions?: string | null
           lat: number
           lng: number
           postal_code?: string | null
@@ -309,6 +314,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string
           id?: string
+          instructions?: string | null
           lat?: number
           lng?: number
           postal_code?: string | null
@@ -946,6 +952,8 @@ export type Database = {
           file_url: string
           id: number
           is_verified: boolean
+          social_number: string | null
+          social_number_expiry: string | null
           type: string
           updated_at: string
           user_id: string
@@ -955,6 +963,8 @@ export type Database = {
           file_url: string
           id?: number
           is_verified?: boolean
+          social_number?: string | null
+          social_number_expiry?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -964,6 +974,8 @@ export type Database = {
           file_url?: string
           id?: number
           is_verified?: boolean
+          social_number?: string | null
+          social_number_expiry?: string | null
           type?: string
           updated_at?: string
           user_id?: string

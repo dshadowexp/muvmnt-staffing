@@ -13,20 +13,19 @@ import { errorToast } from "@/components/error-toast";
 import { env } from "@/data/env/client";
 import {
   CheckCircle2Icon,
-  Loader2Icon,
   MicIcon,
   MicOffIcon,
   PhoneOffIcon,
   VideoIcon,
   VideoOffIcon,
   AlertTriangleIcon,
+  CircleDashedIcon,
 } from "lucide-react";
 import { condenseChatMessages } from "@/services/hume/lib/condense-chat-messages";
 import { CondensedMessages } from "@/services/hume/components/condensed-messages";
 import {
   createAssessmentInterview,
   updateInterview,
-  generateInterviewFeedback,
 } from "@/features/interviews/actions";
 import type { InterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import {
@@ -37,8 +36,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { BackLink } from "@/components/back-link";
+import { Logo } from "@/components/logo";
 
-const INTERVIEW_DURATION_SECS = 10 * 60;
+const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 3 * 60 : 5 * 60;
+const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 1.5 * 60 : 2.5 * 60;
 
 function parseDurationToSeconds(ts: string | null | undefined): number {
   if (!ts) return 0;
@@ -58,11 +61,8 @@ type InterviewShellProps = {
   accessToken: string;
   subject: string;
   subjectRef: InterviewSubjectRef;
-  /**
-   * Pre-created interview row id. When provided, the shell skips the
-   * `createAssessmentInterview` call on start and reuses the existing row.
-   */
   interviewId?: string;
+  chatGroupId?: string;
   sessionVariables: Record<string, string>;
   user: { name: string; imageUrl: string };
   title: string;
@@ -246,7 +246,7 @@ function DeviceSetupCard({
 }: {
   title: string;
   description: string;
-  onStart: () => void;
+  onStart: () => Promise<void>;
 }) {
   const t = useTranslations("assessments.interview.setup");
   const [micOn, setMicOn] = useState(false);
@@ -316,9 +316,13 @@ function DeviceSetupCard({
 
   return (
     <div className="flex min-h-svh flex-col p-4">
-      <div className="flex justify-end gap-2">
-        <LanguageSwitcher />
-        <ThemeToggle />
+      <div className="flex items-center justify-between">
+        <BackLink backHref="/worker/assessments" title="Assessments" />
+        <Logo href="/worker/assessments" />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
       <div className="flex flex-1 items-center justify-center">
         <Card className="w-full max-w-lg">
@@ -400,17 +404,17 @@ function DeviceSetupCard({
             <Button
               size="lg"
               disabled={!canStart || starting}
-              onClick={() => {
+              onClick={async () => {
                 setStarting(true);
                 camStreamRef.current?.getTracks().forEach((track) => track.stop());
                 camStreamRef.current = null;
-                onStart();
+                await onStart();
               }}
               className="w-full"
             >
               {starting ? (
                 <>
-                  <Loader2Icon className="size-4 animate-spin" />
+                  <CircleDashedIcon className="size-4 animate-spin" />
                   {t("starting")}
                 </>
               ) : (
@@ -431,6 +435,7 @@ export function InterviewShell({
   subject,
   subjectRef,
   interviewId: initialInterviewId,
+  chatGroupId,
   sessionVariables,
   user,
   title,
@@ -444,13 +449,13 @@ export function InterviewShell({
     initialInterviewId ?? null,
   );
   const [cameraEnabled, setCameraEnabled] = useState(false);
-  const [, setCameraError] = useState<string | null>(null);
-  const [generatingFeedback, setGeneratingFeedback] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const feedbackTriggeredRef = useRef(false);
+  const closeTriggeredRef = useRef(false);
+  const lastSyncedChatIdRef = useRef<string | null>(null);
   const router = useRouter();
 
   // Only keep the latest non-null values so disconnect resets don't wipe them
@@ -464,10 +469,20 @@ export function InterviewShell({
   const elapsed = parseDurationToSeconds(callDurationTimestamp);
   const remaining = Math.max(0, INTERVIEW_DURATION_SECS - elapsed);
 
+  // Callback ref: as soon as the <video> element mounts, attach whatever
+  // stream is currently active. This avoids the race where srcObject was
+  // assigned before the element existed (which left the box blank).
+  const attachVideoEl = useCallback((el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+    if (el && streamRef.current && el.srcObject !== streamRef.current) {
+      el.srcObject = streamRef.current;
+    }
+  }, []);
+
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 320, height: 240 },
+        video: { facingMode: "user", width: 640, height: 480 },
         audio: false,
       });
       streamRef.current = stream;
@@ -475,28 +490,40 @@ export function InterviewShell({
         videoRef.current.srcObject = stream;
       }
       setCameraEnabled(true);
-      setCameraError(null);
     } catch {
-      setCameraError(t("controls.cameraDenied"));
+      toast.error(t("controls.cameraDenied"));
     }
   }, [t]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
     setCameraEnabled(false);
   }, []);
+
+  const toggleCamera = useCallback(() => {
+    if (cameraEnabled) stopCamera();
+    else void startCamera();
+  }, [cameraEnabled, startCamera, stopCamera]);
 
   useEffect(() => {
     return () => stopCamera();
   }, [stopCamera]);
 
-  // Persist chatId to DB as soon as it's available
+  // Persist chatId/chatGroupId once per unique value. Guarded by a ref so the
+  // hook never refires in a loop even if chatMetadata's identity churns.
   useEffect(() => {
-    const chatId = chatMetadata?.chatId;
+    const chatId = chatMetadata?.chatId ?? null;
+    const groupId = chatMetadata?.chatGroupId ?? null;
     if (chatId == null || interviewId == null) return;
-    updateInterview(interviewId, { humeChatId: chatId });
-  }, [chatMetadata?.chatId, interviewId]);
+    if (lastSyncedChatIdRef.current === chatId) return;
+    lastSyncedChatIdRef.current = chatId;
+    updateInterview(interviewId, {
+      humeChatId: chatId,
+      ...(groupId != null ? { chatGroupId: groupId } : {}),
+    });
+  }, [chatMetadata?.chatId, chatMetadata?.chatGroupId, interviewId]);
 
   // Persist duration to DB every 10 seconds
   useEffect(() => {
@@ -516,36 +543,41 @@ export function InterviewShell({
     }
   }, [remaining, elapsed, disconnect, interviewId]);
 
-  // On disconnect: save final state, generate feedback, redirect to hub
+  // On disconnect: save final state, then redirect to the per-interview review
+  // page where feedback is streamed in. The feedback generation itself lives
+  // on that page so users see progress immediately.
   useEffect(() => {
     if (readyState !== VoiceReadyState.CLOSED) return;
-    if (feedbackTriggeredRef.current) return;
+    if (closeTriggeredRef.current) return;
 
     if (interviewId == null) {
+      toast.error(t("interviewNotFound"));
       router.push(returnPath);
       return;
     }
 
-    feedbackTriggeredRef.current = true;
+    closeTriggeredRef.current = true;
 
     const finalDuration = durationRef.current;
     const finalChatId = chatIdRef.current;
 
     (async () => {
+      setFinalizing(true);
+      const chatSeconds = parseDurationToSeconds(finalDuration);
       const patch: {
         duration?: string;
         humeChatId?: string;
-        completedAt: string;
-      } = { completedAt: new Date().toISOString() };
+        completedAt?: string;
+      } = {};
       if (finalDuration) patch.duration = finalDuration;
       if (finalChatId) patch.humeChatId = finalChatId;
+      if (chatSeconds > MIN_DURATION_FOR_COMPLETED_AT_SECS) {
+        patch.completedAt = new Date().toISOString();
+      }
 
       await updateInterview(interviewId, patch);
-
       stopCamera();
-      setGeneratingFeedback(true);
-      await generateInterviewFeedback(interviewId);
-      router.push(returnPath);
+      router.push(`/interviews/${interviewId}`);
     })();
   }, [interviewId, readyState, router, returnPath, stopCamera]);
 
@@ -564,12 +596,20 @@ export function InterviewShell({
 
     connect({
       auth: { type: "accessToken", value: accessToken },
-      configId:  subject === "profession" ? env.NEXT_PUBLIC_HUME_CONFIG_ID_PROFESSION : env.NEXT_PUBLIC_HUME_CONFIG_ID_RESUME,
+      configId:
+        subject === "profession"
+          ? env.NEXT_PUBLIC_HUME_CONFIG_ID_PROFESSION
+          : env.NEXT_PUBLIC_HUME_CONFIG_ID_RESUME,
       sessionSettings: {
         type: "session_settings",
-        variables: sessionVariables,
+        variables: {
+          ...sessionVariables,
+          duration: INTERVIEW_DURATION_SECS.toString(),
+        },
       },
+      resumedChatGroupId: chatGroupId ?? undefined,
     }).catch((error) => {
+      console.error("error connecting", error);
       errorToast(error.message);
     });
   };
@@ -584,13 +624,13 @@ export function InterviewShell({
     );
   }
 
-  if (generatingFeedback) {
+  if (finalizing) {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-        <Loader2Icon className="size-16 animate-spin" />
+        <CircleDashedIcon className="size-10 animate-spin" />
         <p className="text-lg font-medium">{t("completed.title")}</p>
         <p className="text-sm text-muted-foreground">
-          {t("completed.generating")}
+          {t("completed.wrappingUp")}
         </p>
       </div>
     );
@@ -602,32 +642,34 @@ export function InterviewShell({
   ) {
     return (
       <div className="flex min-h-svh items-center justify-center">
-        <Loader2Icon className="size-24 animate-spin" />
+        <CircleDashedIcon className="size-10 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-svh flex-col">
-      <div className="flex min-h-0 flex-1 flex-col-reverse overflow-y-auto p-4">
-        <div className="mx-auto flex w-full max-w-5xl flex-col justify-end gap-4 py-6">
+    <div className="flex h-svh flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-6">
+        <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col justify-end pb-6">
           <Messages user={user} />
-          <Controls
-            cameraEnabled={cameraEnabled}
-            remaining={remaining}
-            onToggleCamera={() =>
-              cameraEnabled ? stopCamera() : startCamera()
-            }
-          />
         </div>
       </div>
+
+      <div className="shrink-0 flex justify-center px-4 pb-6">
+        <Controls
+          cameraEnabled={cameraEnabled}
+          remaining={remaining}
+          onToggleCamera={toggleCamera}
+        />
+      </div>
+
       {cameraEnabled && (
         <video
-          ref={videoRef}
+          ref={attachVideoEl}
           autoPlay
           playsInline
           muted
-          className="fixed bottom-20 right-4 z-50 h-32 w-44 rounded-lg border bg-black object-cover shadow-lg"
+          className="fixed bottom-24 right-4 z-50 h-32 w-44 rounded-lg border bg-black object-cover shadow-lg"
         />
       )}
     </div>
@@ -640,13 +682,27 @@ function Messages({ user }: { user: { name: string; imageUrl: string } }) {
     () => condenseChatMessages(messages),
     [messages],
   );
+  const maxFft = useMemo(
+    () => (fft.length > 0 ? Math.max(...fft) : 0),
+    [fft],
+  );
+
+  // Auto-scroll to the latest message whenever the message list grows.
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [condensedMessages.length]);
+
   return (
-    <CondensedMessages
-      messages={condensedMessages}
-      user={user}
-      maxFft={Math.max(...fft)}
-      className="max-w-5xl"
-    />
+    <>
+      <CondensedMessages
+        messages={condensedMessages}
+        user={user}
+        maxFft={maxFft}
+        className="w-full"
+      />
+      <div ref={bottomRef} aria-hidden className="h-0" />
+    </>
   );
 }
 
@@ -664,7 +720,7 @@ function Controls({
   const timeLow = remaining <= 60;
 
   return (
-    <div className="sticky bottom-6 flex w-fit items-center gap-4 rounded-lg border bg-background px-4 py-2 shadow-sm">
+    <div className="flex w-fit items-center gap-4 rounded-full border bg-background/95 px-4 py-2 shadow-lg backdrop-blur">
       <Button
         variant="ghost"
         size="icon"

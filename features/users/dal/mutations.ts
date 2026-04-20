@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/services/supabase/server";
 import type { UserRole } from "@/types/auth";
 import type { Database } from "@/services/supabase/types/database";
+import { enqueueWelcomeFollowupNotification } from "@/features/notifications/server/enqueue-welcome-followup";
+
 
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
 
@@ -67,6 +69,15 @@ export async function findOrCreateUser(params: {
             `Failed to create user: ${insertError?.message ?? "unknown error"}`,
         );
     }
+
+    // First-time sign-up — schedule a follow-up nudge 10 minutes from now.
+    // Idempotent on user id, so retries / double-clicks collapse.
+    void enqueueWelcomeFollowupNotification({
+        userId: newUser.id,
+        role: newUser.role as UserRole,
+    }).catch((err: unknown) => {
+        console.error("[users] failed to enqueue welcome-followup", err);
+    });
 
     return newUser;
 }

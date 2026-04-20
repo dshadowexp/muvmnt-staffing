@@ -248,9 +248,17 @@ export const REQUESTER_TYPES: RequesterType[] = [
   "Community Health Centre",
   "Rehabilitation Centre",
   "Dental / Medical Clinic",
-  "Individual / Private Home Care",
+  "Individual",
   "Other",
 ];
+
+/** Stored `clients.type` value for individual / private home-care accounts. */
+export const INDIVIDUAL_CLIENT_TYPE =
+  "Individual" as const satisfies RequesterType;
+
+/** Facility types when the account represents an organization (excludes individual). */
+export const ORGANIZATION_REQUESTER_TYPES: RequesterType[] =
+  REQUESTER_TYPES.filter((t) => t !== INDIVIDUAL_CLIENT_TYPE);
 
 export const SHIFT_TYPES: ShiftType[] = [
   "Day",

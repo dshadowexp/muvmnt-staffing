@@ -1,0 +1,14 @@
+{{#> email-base previewText="You're invited to join MUVMNT"}}
+  {{#*inline "body"}}
+    <p class="label">Invitation</p>
+    <h1>{{#if recipientName}}Hi {{recipientName}},{{else}}Welcome.{{/if}}</h1>
+    <p>{{#if inviterName}}{{inviterName}} from{{else}}Our team at{{/if}} <strong>MUVMNT</strong> invited you to set up a client account.</p>
+    <p>Create your account in a couple of minutes to post staffing requests and get matched with vetted healthcare professionals near you.</p>
+    <a href="{{inviteUrl}}" class="btn">Accept invitation</a>
+    <div class="divider"></div>
+    <p style="font-size:13px;color:#888;">
+      If the button doesn't work, copy and paste this link into your browser:<br>
+      <a href="{{inviteUrl}}" style="color:#888;word-break:break-all;">{{inviteUrl}}</a>
+    </p>
+  {{/inline}}
+{{/email-base}}

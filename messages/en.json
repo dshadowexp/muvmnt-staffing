@@ -376,15 +376,15 @@
       "requests": "Requests",
       "account": "Account",
       "billing": "Billing",
-      "lifecycle": "Lifecycle",
-      "analytics": "Analytics",
-      "projects": "Projects",
-      "team": "Team",
+      "authorization": "Authorization",
+      "clients": "Clients",
+      "workers": "Workers",
       "settings": "Settings",
       "getHelp": "Get help",
       "search": "Search",
       "inbox": "Inbox",
       "referAndEarn": "Refer and earn",
+      "referrals": "Referrals",
       "feedback": "Feedback",
       "loading": "Loading…"
     },
@@ -510,18 +510,147 @@
     },
     "admin": {
       "home": {
-        "subtitle": "Platform overview — key metrics, activity chart, and records.",
-        "recentWorkers": "Recent workers",
-        "recentWorkersDescription": "Latest registered profiles",
+        "title": "Admin",
+        "subtitle": "Platform overview — key metrics and recent activity.",
+        "quickActionsTitle": "Quick actions",
+        "quickActionsSubtitle": "Create a request or invite people to the platform.",
+        "metrics": {
+          "clients": "Clients",
+          "clientsDescription": "Total organizations",
+          "workers": "Workers",
+          "workersDescription": "Registered professionals",
+          "balance": "Balance",
+          "balanceDescription": "Lifetime processed",
+          "requests": "Requests",
+          "requestsDescription": "Staff requests created",
+          "shifts": "Shifts",
+          "shiftsDescription": "Total shifts scheduled"
+        },
+        "viewAll": "View all",
+        "recentRequests": "Recent requests",
+        "recentRequestsDescription": "Latest staff requests",
+        "recentShifts": "Recent shifts",
+        "recentShiftsDescription": "Newest scheduled or in-progress shifts",
+        "recentAuthorization": "Recent authorization",
+        "recentAuthorizationDescription": "New work authorization documents",
+        "recentCompliance": "Recent compliance",
+        "recentComplianceDescription": "Newly uploaded compliance credentials",
         "recentClients": "Recent clients",
         "recentClientsDescription": "Organizations on the platform",
+        "recentWorkers": "Recent workers",
+        "recentWorkersDescription": "Latest registered profiles",
         "recentJobs": "Recent job postings",
         "recentJobsDescription": "Staff requests from clients"
       },
+      "actions": {
+        "createRequest": {
+          "title": "Create a request",
+          "description": "Start a new staff request on behalf of a client."
+        },
+        "inviteWorker": {
+          "title": "Invite a worker",
+          "description": "Email one healthcare professional or paste a list to invite many at once."
+        },
+        "inviteClient": {
+          "title": "Invite a client",
+          "description": "Send a personal onboarding invite to a client contact."
+        }
+      },
+      "createRequestDialog": {
+        "title": "Create a request",
+        "description": "Choose the client this staff request is being created on behalf of.",
+        "clientLabel": "Client",
+        "searchPlaceholder": "Search clients…",
+        "empty": "No clients found.",
+        "cancel": "Cancel",
+        "continue": "Continue"
+      },
+      "inviteClient": {
+        "title": "Invite a client",
+        "description": "Send a personal onboarding invitation. They will receive a link to complete client onboarding.",
+        "descriptionIndividual": "They will set up an individual client profile.",
+        "descriptionOrganization": "They will set up an organization profile and choose the facility type.",
+        "accountKindLabel": "Account type",
+        "accountKindPlaceholder": "Select account type",
+        "accountKindIndividual": "Individual",
+        "accountKindOrganization": "Organization",
+        "nameLabel": "Name",
+        "namePlaceholderIndividual": "e.g. Alex Morgan",
+        "namePlaceholderOrganization": "e.g. Sunnyvale Care Home",
+        "email": "Email",
+        "cancel": "Cancel",
+        "submit": "Send invite",
+        "sending": "Sending…",
+        "toastQueued": "Invite sent to {name}",
+        "toastFailed": "Could not send invite. Please try again."
+      },
+      "inviteWorker": {
+        "title": "Invite workers",
+        "description": "Type or paste one or more email addresses, then send personalised onboarding invites.",
+        "emailsLabel": "Email addresses",
+        "emailsPlaceholder": "nurse1@example.com, nurse2@example.com",
+        "emailsHint": "Press Enter, a comma, or a space to add an address.",
+        "recipientsCount": "{count, plural, one {# recipient} other {# recipients}}",
+        "removeAria": "Remove {email}",
+        "uploadCta": "Drop a CSV here, or <browse>browse</browse>",
+        "uploadHint": "CSV (.csv) or text (.txt)",
+        "removeFileAria": "Remove file",
+        "excelHint": "Excel files aren't parsed yet — please save as CSV and re-upload.",
+        "fileReadError": "Could not read the selected file.",
+        "cancel": "Cancel",
+        "sending": "Sending…",
+        "submit": "{count, plural, =0 {Send invite} one {Send 1 invite} other {Send # invites}}",
+        "toastSent": "{count, plural, one {Invite sent to # recipient} other {Invites sent to # recipients}}",
+        "toastPartial": "Sent {sent} — {failed} failed.",
+        "toastFailed": "Could not send invites. Please try again."
+      },
       "meta": {
+        "home": "Admin | Muvmnt",
         "workers": "Workers | Admin",
         "clients": "Clients | Admin",
+        "requests": "Requests | Admin",
+        "shifts": "Shifts | Admin",
+        "authorization": "Authorization | Admin",
+        "compliance": "Compliance | Admin",
         "jobs": "Job postings | Admin"
+      },
+      "lists": {
+        "requests": {
+          "title": "Requests",
+          "subtitle": "All staff requests created by clients.",
+          "empty": "No requests yet"
+        },
+        "shifts": {
+          "title": "Shifts",
+          "subtitle": "All scheduled shifts across the platform.",
+          "empty": "No shifts yet"
+        },
+        "authorization": {
+          "title": "Work authorization",
+          "subtitle": "All work authorization documents on file.",
+          "empty": "No authorization documents on file"
+        },
+        "compliance": {
+          "title": "Compliance",
+          "subtitle": "All compliance documents uploaded by workers.",
+          "empty": "No compliance documents on file"
+        },
+        "clients": {
+          "title": "Clients",
+          "subtitle": "All organizations on the platform.",
+          "empty": "No clients yet"
+        },
+        "workers": {
+          "title": "Workers",
+          "subtitle": "All registered worker profiles.",
+          "empty": "No workers yet"
+        }
+      },
+      "details": {
+        "back": "Back",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "openFile": "Open file"
       }
     }
   },
@@ -565,8 +694,8 @@
           "description": "Set up your payroll account to receive payments."
         },
         "details": {
-          "title": "Details",
-          "description": "Provide your basic information."
+          "title": "Account",
+          "description": "Provide information about yourself or your organization."
         },
         "billing": {
           "title": "Billing",
@@ -586,6 +715,8 @@
         "profileMissing": "Please complete your profile.",
         "photoMissing": "Please upload a profile photo.",
         "workAuthorizationMissing": "Please upload your work authorization.",
+        "socialNumberMissing": "Please enter your Social Insurance Number.",
+        "socialNumberExpiryMissing": "Please enter the expiry date for your Social Insurance Number.",
         "invalidSubmission": "Invalid submission.",
         "availabilityCheck": "Check your availability.",
         "billingSetupIncomplete": "Please complete billing setup.",
@@ -607,6 +738,11 @@
         "organizationTypeRequired": "Organization type is required",
         "workAuthorizationRequired": "Please select work authorization status",
         "workAuthorizationInvalid": "Please select a valid work authorization",
+        "socialNumberRequired": "Social Insurance Number is required",
+        "socialNumberInvalid": "Enter a valid 9-digit Social Insurance Number",
+        "socialNumberExpiryRequired": "Expiry date is required for permit holders",
+        "socialNumberExpiryInvalid": "Enter a valid expiry date",
+        "socialNumberExpiryPast": "Expiry date must be in the future",
         "phoneRequired": "Phone number is required",
         "phoneInvalid": "Enter a valid 10-digit Canadian number",
         "codeLength": "Enter the 6-digit code",
@@ -644,11 +780,19 @@
           "photoUploadFailed": "Could not upload your photo. Please try again."
         },
         "clientProfile": {
-          "nameLabel": "Organization name",
-          "nameDescription": "Your name or business name",
-          "namePlaceholder": "e.g. Sunnyvale Care Home",
-          "typeLabel": "Client type",
-          "typeDescription": "Select the type that best describes your organization",
+          "accountKindLabel": "Account type",
+          "accountKindDescription": "Are you an individual or organization.",
+          "accountKindPlaceholder": "Select account type",
+          "accountKindIndividual": "Individual",
+          "accountKindOrganization": "Organization",
+          "nameLabelIndividual": "Your name",
+          "nameDescriptionIndividual": "Provide your full name",
+          "namePlaceholderIndividual": "e.g. Alex Morgan",
+          "nameLabelOrganization": "Organization name",
+          "nameDescriptionOrganization": "Legal or operating name of the facility or agency",
+          "namePlaceholderOrganization": "e.g. Sunnyvale Care Home",
+          "typeLabel": "Organization type",
+          "typeDescription": "Select the type that best describes this organization",
           "typePlaceholder": "Select type...",
           "typeSearch": "Search type..."
         },
@@ -662,6 +806,13 @@
           "verifiedNotice": "This information was reviewed and can't be changed here.",
           "documentLabel": "Authorization document",
           "documentOnFile": "Document on file.",
+          "socialNumberLabel": "Social Insurance Number (SIN)",
+          "socialNumberDescription": "Your 9-digit Canadian Social Insurance Number. Stored securely; required for payroll.",
+          "socialNumberLockedDescription": "Your SIN is on file and can only be updated after its expiry date.",
+          "socialNumberPlaceholder": "123-456-789",
+          "socialNumberExpiryLabel": "SIN expiry date",
+          "socialNumberExpiryDescription": "The expiry date printed on your work or study permit SIN.",
+          "socialNumberExpiryPlaceholder": "Pick an expiry date",
           "verificationLabel": "Verification",
           "verificationStatusVerified": "Verified",
           "verificationStatusPending": "Pending review",
@@ -732,7 +883,13 @@
           "placeholder": "Start typing a new address…",
           "required": "Required",
           "invalid": "Please enter a valid address",
-          "verifyFailed": "Could not verify address"
+          "verifyFailed": "Could not verify address",
+          "suiteLabel": "Suite / Unit No.",
+          "suitePlaceholder": "e.g. Suite 402",
+          "postalCodeLabel": "Postal code",
+          "postalCodePlaceholder": "e.g. M5V 2T6",
+          "instructionsLabel": "Location instructions",
+          "instructionsPlaceholder": "Entrance, parking, buzzer code, floor, who to ask for — anything staff need to find you on a shift."
         },
         "payroll": {
           "complete": "Complete",
@@ -853,7 +1010,8 @@
       },
       "completed": {
         "title": "Interview complete",
-        "generating": "Generating your feedback — this may take a moment…"
+        "generating": "Generating your feedback — this may take a moment…",
+        "wrappingUp": "Saving your interview — taking you to your feedback…"
       },
       "profession": {
         "title": "{profession} Professional Interview",
@@ -878,7 +1036,34 @@
         "transcriptEmpty": "No transcript available for this interview.",
         "viewFeedback": "View Feedback",
         "generateFeedback": "Generate Feedback",
-        "feedbackDialogTitle": "Feedback"
+        "feedbackDialogTitle": "Feedback",
+        "feedbackTitle": "Interview feedback",
+        "completedOn": "Completed on {date}",
+        "viewMessages": "View transcript",
+        "messagesTitle": "Interview transcript",
+        "messagesDescription": "Conversation from your {subject}.",
+        "streaming": "Generating…",
+        "averageScore": "Average {value} / 5",
+        "summary": "Summary",
+        "scores": "Scores",
+        "strengths": "Strengths",
+        "weaknesses": "Weaknesses",
+        "riskFlags": "Risk flags",
+        "noStrengths": "No strengths identified.",
+        "noWeaknesses": "No weaknesses identified.",
+        "noRiskFlags": "No risk flags identified.",
+        "notReadyTitle": "Feedback not available",
+        "notReadyDescription": "This interview has not been completed, so no feedback can be generated.",
+        "completeInterview": "Complete interview",
+        "errorTitle": "Couldn't generate feedback",
+        "retry": "Try again",
+        "retakeAvailable": "You did not pass. You can retake this interview now.",
+        "retake": "Start new interview",
+        "retakeAfter": "You did not pass. You can retake after <strong>{date}</strong>.",
+        "subject": {
+          "profession": "Profession interview",
+          "resume": "Resume interview"
+        }
       }
     }
   },
@@ -887,10 +1072,18 @@
     "claim": {
       "applying": "Applying your referral link…"
     },
+    "page": {
+      "title": "Referrals",
+      "subtitleWorker": "Share your link with other healthcare professionals and earn rewards when they join.",
+      "subtitleClient": "Invite other facilities and earn free hours when they post their first request.",
+      "subtitleAdmin": "Send invites to workers or clients — every sign-up is attributed back to you."
+    },
     "dialog": {
       "title": "Refer and earn",
       "description": "Share your link and earn rewards when people join through you.",
       "yourLink": "Your referral link",
+      "yourLinkWorker": "Worker invite link",
+      "yourLinkClient": "Client invite link",
       "copy": "Copy",
       "copied": "Copied",
       "linkCopied": "Link copied",
@@ -908,6 +1101,10 @@
       "rewardsClient": {
         "line1": "You earn up to 3 hours of free shifts when your referral completes a request",
         "line2": "They get a seamless onboarding experience"
+      },
+      "rewardsAdmin": {
+        "line1": "Choose the right link for who you're inviting — workers or clients.",
+        "line2": "Every sign-up that comes through your link is attributed back to you."
       }
     }
   },

@@ -376,15 +376,15 @@
       "requests": "Demandes",
       "account": "Compte",
       "billing": "Facturation",
-      "lifecycle": "Cycle de vie",
-      "analytics": "Analytique",
-      "projects": "Projets",
-      "team": "Équipe",
+      "authorization": "Autorisation",
+      "clients": "Clients",
+      "workers": "Travailleurs",
       "settings": "Paramètres",
       "getHelp": "Obtenir de l'aide",
       "search": "Rechercher",
       "inbox": "Boîte de réception",
       "referAndEarn": "Parrainer et gagner",
+      "referrals": "Parrainages",
       "feedback": "Commentaires",
       "loading": "Chargement…"
     },
@@ -510,18 +510,147 @@
     },
     "admin": {
       "home": {
-        "subtitle": "Aperçu de la plateforme — indicateurs clés, graphique d'activité et données.",
-        "recentWorkers": "Travailleurs récents",
-        "recentWorkersDescription": "Derniers profils inscrits",
+        "title": "Admin",
+        "subtitle": "Aperçu de la plateforme — indicateurs clés et activité récente.",
+        "quickActionsTitle": "Actions rapides",
+        "quickActionsSubtitle": "Créer une demande ou inviter des personnes sur la plateforme.",
+        "metrics": {
+          "clients": "Clients",
+          "clientsDescription": "Total des organisations",
+          "workers": "Travailleurs",
+          "workersDescription": "Professionnels inscrits",
+          "balance": "Solde",
+          "balanceDescription": "Total cumulé traité",
+          "requests": "Demandes",
+          "requestsDescription": "Demandes de personnel créées",
+          "shifts": "Quarts",
+          "shiftsDescription": "Total des quarts planifiés"
+        },
+        "viewAll": "Tout voir",
+        "recentRequests": "Demandes récentes",
+        "recentRequestsDescription": "Dernières demandes de personnel",
+        "recentShifts": "Quarts récents",
+        "recentShiftsDescription": "Derniers quarts planifiés ou en cours",
+        "recentAuthorization": "Autorisations récentes",
+        "recentAuthorizationDescription": "Nouveaux documents d'autorisation",
+        "recentCompliance": "Conformité récente",
+        "recentComplianceDescription": "Documents de conformité récemment téléversés",
         "recentClients": "Clients récents",
         "recentClientsDescription": "Organisations sur la plateforme",
+        "recentWorkers": "Travailleurs récents",
+        "recentWorkersDescription": "Derniers profils inscrits",
         "recentJobs": "Offres récentes",
         "recentJobsDescription": "Demandes de personnel des clients"
       },
+      "actions": {
+        "createRequest": {
+          "title": "Créer une demande",
+          "description": "Créez une nouvelle demande de personnel au nom d'un client."
+        },
+        "inviteWorker": {
+          "title": "Inviter un travailleur",
+          "description": "Envoyez un courriel à un professionnel de la santé ou collez une liste pour en inviter plusieurs à la fois."
+        },
+        "inviteClient": {
+          "title": "Inviter un client",
+          "description": "Envoyez une invitation d'intégration personnelle à un contact client."
+        }
+      },
+      "createRequestDialog": {
+        "title": "Créer une demande",
+        "description": "Choisissez le client pour qui cette demande de personnel est créée.",
+        "clientLabel": "Client",
+        "searchPlaceholder": "Rechercher des clients…",
+        "empty": "Aucun client trouvé.",
+        "cancel": "Annuler",
+        "continue": "Continuer"
+      },
+      "inviteClient": {
+        "title": "Inviter un client",
+        "description": "Envoyez une invitation personnelle à l’intégration. Un lien permettra de terminer l’inscription client.",
+        "descriptionIndividual": "La personne configurera un profil client particulier.",
+        "descriptionOrganization": "La personne configurera un profil d’organisation et choisira le type d’établissement.",
+        "accountKindLabel": "Type de compte",
+        "accountKindPlaceholder": "Sélectionner le type de compte",
+        "accountKindIndividual": "Particulier",
+        "accountKindOrganization": "Organisation",
+        "nameLabel": "Nom",
+        "namePlaceholderIndividual": "p. ex. Alex Morgan",
+        "namePlaceholderOrganization": "p. ex. Maison de soins Sunnyvale",
+        "email": "Courriel",
+        "cancel": "Annuler",
+        "submit": "Envoyer l’invitation",
+        "sending": "Envoi…",
+        "toastQueued": "Invitation envoyée à {name}",
+        "toastFailed": "Impossible d'envoyer l'invitation. Veuillez réessayer."
+      },
+      "inviteWorker": {
+        "title": "Inviter des travailleurs",
+        "description": "Saisissez ou collez une ou plusieurs adresses courriel, puis envoyez des invitations d'intégration personnalisées.",
+        "emailsLabel": "Adresses courriel",
+        "emailsPlaceholder": "infirmier1@exemple.com, infirmier2@exemple.com",
+        "emailsHint": "Appuyez sur Entrée, une virgule ou un espace pour ajouter une adresse.",
+        "recipientsCount": "{count, plural, one {# destinataire} other {# destinataires}}",
+        "removeAria": "Retirer {email}",
+        "uploadCta": "Déposez un CSV ici ou <browse>parcourez</browse>",
+        "uploadHint": "CSV (.csv) ou texte (.txt)",
+        "removeFileAria": "Retirer le fichier",
+        "excelHint": "Les fichiers Excel ne sont pas encore traités — enregistrez en CSV puis réessayez.",
+        "fileReadError": "Impossible de lire le fichier sélectionné.",
+        "cancel": "Annuler",
+        "sending": "Envoi…",
+        "submit": "{count, plural, =0 {Envoyer l’invitation} one {Envoyer 1 invitation} other {Envoyer # invitations}}",
+        "toastSent": "{count, plural, one {Invitation envoyée à # destinataire} other {Invitations envoyées à # destinataires}}",
+        "toastPartial": "{sent} envoyée(s) — {failed} échouée(s).",
+        "toastFailed": "Impossible d'envoyer les invitations. Veuillez réessayer."
+      },
       "meta": {
+        "home": "Admin | Muvmnt",
         "workers": "Travailleurs | Admin",
         "clients": "Clients | Admin",
+        "requests": "Demandes | Admin",
+        "shifts": "Quarts | Admin",
+        "authorization": "Autorisation | Admin",
+        "compliance": "Conformité | Admin",
         "jobs": "Offres d'emploi | Admin"
+      },
+      "lists": {
+        "requests": {
+          "title": "Demandes",
+          "subtitle": "Toutes les demandes de personnel créées par les clients.",
+          "empty": "Aucune demande pour le moment"
+        },
+        "shifts": {
+          "title": "Quarts",
+          "subtitle": "Tous les quarts planifiés sur la plateforme.",
+          "empty": "Aucun quart pour le moment"
+        },
+        "authorization": {
+          "title": "Autorisation de travail",
+          "subtitle": "Tous les documents d'autorisation de travail au dossier.",
+          "empty": "Aucun document d'autorisation au dossier"
+        },
+        "compliance": {
+          "title": "Conformité",
+          "subtitle": "Tous les documents de conformité téléversés par les travailleurs.",
+          "empty": "Aucun document de conformité au dossier"
+        },
+        "clients": {
+          "title": "Clients",
+          "subtitle": "Toutes les organisations sur la plateforme.",
+          "empty": "Aucun client pour le moment"
+        },
+        "workers": {
+          "title": "Travailleurs",
+          "subtitle": "Tous les profils de travailleurs inscrits.",
+          "empty": "Aucun travailleur pour le moment"
+        }
+      },
+      "details": {
+        "back": "Retour",
+        "verified": "Vérifié",
+        "unverified": "Non vérifié",
+        "openFile": "Ouvrir le fichier"
       }
     }
   },
@@ -565,8 +694,8 @@
           "description": "Configurez votre compte de paie pour recevoir vos paiements."
         },
         "details": {
-          "title": "Détails",
-          "description": "Fournissez vos informations de base."
+          "title": "Compte",
+          "description": "Fournissez des informations sur vous ou votre organisation."
         },
         "billing": {
           "title": "Facturation",
@@ -586,6 +715,8 @@
         "profileMissing": "Veuillez compléter votre profil.",
         "photoMissing": "Veuillez téléverser une photo de profil.",
         "workAuthorizationMissing": "Veuillez téléverser votre autorisation de travail.",
+        "socialNumberMissing": "Veuillez saisir votre numéro d'assurance sociale (NAS).",
+        "socialNumberExpiryMissing": "Veuillez saisir la date d'expiration de votre numéro d'assurance sociale.",
         "invalidSubmission": "Soumission invalide.",
         "availabilityCheck": "Vérifiez vos disponibilités.",
         "billingSetupIncomplete": "Veuillez compléter la configuration de facturation.",
@@ -607,6 +738,11 @@
         "organizationTypeRequired": "Le type d'organisation est requis",
         "workAuthorizationRequired": "Veuillez sélectionner un statut d'autorisation de travail",
         "workAuthorizationInvalid": "Veuillez sélectionner une autorisation de travail valide",
+        "socialNumberRequired": "Le numéro d'assurance sociale est requis",
+        "socialNumberInvalid": "Saisissez un NAS valide à 9 chiffres",
+        "socialNumberExpiryRequired": "La date d'expiration est requise pour les détenteurs de permis",
+        "socialNumberExpiryInvalid": "Saisissez une date d'expiration valide",
+        "socialNumberExpiryPast": "La date d'expiration doit être ultérieure",
         "phoneRequired": "Le numéro de téléphone est requis",
         "phoneInvalid": "Saisissez un numéro canadien valide à 10 chiffres",
         "codeLength": "Saisissez le code à 6 chiffres",
@@ -644,11 +780,19 @@
           "photoUploadFailed": "Impossible de téléverser votre photo. Veuillez réessayer."
         },
         "clientProfile": {
-          "nameLabel": "Nom de l'organisation",
-          "nameDescription": "Votre nom ou raison sociale",
-          "namePlaceholder": "p. ex. Maison de soins Sunnyvale",
-          "typeLabel": "Type de client",
-          "typeDescription": "Sélectionnez le type qui décrit le mieux votre organisation",
+          "accountKindLabel": "Type de compte",
+          "accountKindDescription": "Êtes-vous un particulier ou une organisation.",
+          "accountKindPlaceholder": "Sélectionner le type de compte",
+          "accountKindIndividual": "Particulier",
+          "accountKindOrganization": "Organisation",
+          "nameLabelIndividual": "Votre nom",
+          "nameDescriptionIndividual": "Fournissez votre nom complet",
+          "namePlaceholderIndividual": "p. ex. Alex Morgan",
+          "nameLabelOrganization": "Nom de l'organisation",
+          "nameDescriptionOrganization": "Raison sociale ou nom d'usage de l'établissement ou de l'agence",
+          "namePlaceholderOrganization": "p. ex. Maison de soins Sunnyvale",
+          "typeLabel": "Type d'organisation",
+          "typeDescription": "Sélectionnez le type qui décrit le mieux cette organisation",
           "typePlaceholder": "Sélectionner un type...",
           "typeSearch": "Rechercher un type..."
         },
@@ -662,6 +806,13 @@
           "verifiedNotice": "Ces informations ont été vérifiées et ne peuvent pas être modifiées ici.",
           "documentLabel": "Document d'autorisation",
           "documentOnFile": "Document au dossier.",
+          "socialNumberLabel": "Numéro d'assurance sociale (NAS)",
+          "socialNumberDescription": "Votre NAS canadien à 9 chiffres. Conservé en sécurité; requis pour la paie.",
+          "socialNumberLockedDescription": "Votre NAS est enregistré et ne peut être modifié qu'après sa date d'expiration.",
+          "socialNumberPlaceholder": "123-456-789",
+          "socialNumberExpiryLabel": "Date d'expiration du NAS",
+          "socialNumberExpiryDescription": "La date d'expiration imprimée sur votre permis de travail ou d'études.",
+          "socialNumberExpiryPlaceholder": "Choisir une date d'expiration",
           "verificationLabel": "Vérification",
           "verificationStatusVerified": "Vérifié",
           "verificationStatusPending": "En attente de révision",
@@ -732,7 +883,13 @@
           "placeholder": "Commencez à taper une nouvelle adresse…",
           "required": "Obligatoire",
           "invalid": "Veuillez saisir une adresse valide",
-          "verifyFailed": "Impossible de vérifier l'adresse"
+          "verifyFailed": "Impossible de vérifier l'adresse",
+          "suiteLabel": "Bureau / N° d'unité",
+          "suitePlaceholder": "ex. Bureau 402",
+          "postalCodeLabel": "Code postal",
+          "postalCodePlaceholder": "ex. M5V 2T6",
+          "instructionsLabel": "Instructions sur le lieu",
+          "instructionsPlaceholder": "Entrée, stationnement, code d'interphone, étage, personne à demander — tout ce dont le personnel a besoin pour vous trouver lors d'un quart."
         },
         "payroll": {
           "complete": "Complet",
@@ -853,7 +1010,8 @@
       },
       "completed": {
         "title": "Entretien terminé",
-        "generating": "Génération de votre rétroaction — cela peut prendre un instant…"
+        "generating": "Génération de votre rétroaction — cela peut prendre un instant…",
+        "wrappingUp": "Enregistrement de votre entretien — redirection vers votre rétroaction…"
       },
       "profession": {
         "title": "Entretien professionnel — {profession}",
@@ -878,7 +1036,34 @@
         "transcriptEmpty": "Aucune transcription disponible pour cet entretien.",
         "viewFeedback": "Voir la rétroaction",
         "generateFeedback": "Générer la rétroaction",
-        "feedbackDialogTitle": "Rétroaction"
+        "feedbackDialogTitle": "Rétroaction",
+        "feedbackTitle": "Rétroaction de l'entretien",
+        "completedOn": "Terminé le {date}",
+        "viewMessages": "Voir la transcription",
+        "messagesTitle": "Transcription de l'entretien",
+        "messagesDescription": "Conversation de votre {subject}.",
+        "streaming": "Génération…",
+        "averageScore": "Moyenne {value} / 5",
+        "summary": "Résumé",
+        "scores": "Scores",
+        "strengths": "Points forts",
+        "weaknesses": "Points faibles",
+        "riskFlags": "Signaux d'alerte",
+        "noStrengths": "Aucun point fort identifié.",
+        "noWeaknesses": "Aucun point faible identifié.",
+        "noRiskFlags": "Aucun signal d'alerte identifié.",
+        "notReadyTitle": "Rétroaction indisponible",
+        "notReadyDescription": "Cet entretien n'a pas été terminé, aucune rétroaction ne peut être générée.",
+        "completeInterview": "Terminer l'entretien",
+        "errorTitle": "Impossible de générer la rétroaction",
+        "retry": "Réessayer",
+        "retakeAvailable": "Vous n'avez pas réussi. Vous pouvez refaire cet entretien dès maintenant.",
+        "retake": "Commencer un nouvel entretien",
+        "retakeAfter": "Vous n'avez pas réussi. Vous pourrez refaire l'entretien après <strong>{date}</strong>.",
+        "subject": {
+          "profession": "Entretien professionnel",
+          "resume": "Entretien basé sur le CV"
+        }
       }
     }
   },
@@ -887,10 +1072,18 @@
     "claim": {
       "applying": "Application de votre lien de parrainage…"
     },
+    "page": {
+      "title": "Parrainages",
+      "subtitleWorker": "Partagez votre lien avec d'autres professionnels de la santé et gagnez des récompenses lorsqu'ils s'inscrivent.",
+      "subtitleClient": "Invitez d'autres établissements et gagnez des heures gratuites lorsqu'ils publient leur première demande.",
+      "subtitleAdmin": "Envoyez des invitations aux travailleurs ou aux clients — chaque inscription vous est attribuée."
+    },
     "dialog": {
       "title": "Parrainez et gagnez",
       "description": "Partagez votre lien et obtenez des récompenses lorsque des personnes s'inscrivent grâce à vous.",
       "yourLink": "Votre lien de parrainage",
+      "yourLinkWorker": "Lien d'invitation pour travailleur",
+      "yourLinkClient": "Lien d'invitation pour client",
       "copy": "Copier",
       "copied": "Copié",
       "linkCopied": "Lien copié",
@@ -908,6 +1101,10 @@
       "rewardsClient": {
         "line1": "Vous gagnez jusqu'à 3 heures de quarts gratuits lorsque votre filleul complète une demande",
         "line2": "Il bénéficie d'une expérience d'intégration fluide"
+      },
+      "rewardsAdmin": {
+        "line1": "Choisissez le bon lien selon la personne invitée — travailleur ou client.",
+        "line2": "Chaque inscription provenant de votre lien vous est attribuée."
       }
     }
   },
