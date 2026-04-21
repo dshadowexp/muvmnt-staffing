@@ -34,7 +34,7 @@ import {
   CheckIcon,
   ChevronsUpDownIcon,
   ClipboardListIcon,
-  Loader2Icon,
+  CircleDashedIcon,
   MailPlusIcon,
   PaperclipIcon,
   UploadCloudIcon,
@@ -358,7 +358,7 @@ function InviteClientFormDialog({
             <Button type="submit" disabled={!valid || submitting}>
               {submitting ? (
                 <>
-                  <Loader2Icon className="size-4 animate-spin" />
+                  <CircleDashedIcon className="size-4 animate-spin" />
                   {t("sending")}
                 </>
               ) : (
@@ -614,7 +614,7 @@ function InviteWorkerBulkDialog({
           <Button type="button" disabled={!canSubmit} onClick={handleSubmit}>
             {submitting ? (
               <>
-                <Loader2Icon className="size-4 animate-spin" />
+                <CircleDashedIcon className="size-4 animate-spin" />
                 {t("sending")}
               </>
             ) : (

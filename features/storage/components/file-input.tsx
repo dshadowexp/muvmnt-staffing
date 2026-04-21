@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, Loader2, Trash2, Upload } from "lucide-react";
+import { Check, CircleDashedIcon, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getPresignedUrl } from "@/features/storage/dal/queries";
@@ -260,7 +260,7 @@ export function FileInput({
       >
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {(uploading || isDeleting || removingExisting) && (
-            <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
+            <CircleDashedIcon className="size-4 shrink-0 animate-spin text-primary" />
           )}
           <span
             className={cn(

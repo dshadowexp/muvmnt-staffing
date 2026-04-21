@@ -5,11 +5,11 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
   CheckIcon,
+  CircleDashedIcon,
   ClockIcon,
   CopyIcon,
   DollarSignIcon,
   GiftIcon,
-  Loader2,
   ShareIcon,
   UserPlus2Icon,
 } from "lucide-react";
@@ -25,6 +25,7 @@ import type {
   ReferralRoleHint,
 } from "@/features/referrals/lib/build-referral-url";
 import type { ReferralStats } from "@/features/referrals/dal/queries";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 
 export type ReferralRole = "worker" | "client" | "admin";
 
@@ -62,7 +63,7 @@ function LinkRow({
   if (loading && !url) {
     return (
       <div className="flex h-10 items-center justify-center rounded-xl border bg-muted/30">
-        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+        <CircleDashedIcon className="size-4 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -113,15 +114,14 @@ function LinkRow({
  * links since the same code is used to refer either role.
  */
 export function ReferralView({
-  role,
   enabled = true,
   className,
 }: {
-  role: ReferralRole;
-  /** When false, skips the network round-trip (used for closed dialogs). */
   enabled?: boolean;
   className?: string;
 }) {
+  const { authUser } = useAuth();
+  const role = authUser?.role ?? null;
   const t = useTranslations("referral.dialog");
   const [code, setCode] = useState<string | null>(null);
   const [stats, setStats] = useState<ReferralStats | null>(null);

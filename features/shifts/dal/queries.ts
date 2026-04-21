@@ -1,3 +1,4 @@
+import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
 
@@ -245,16 +246,17 @@ export async function listShiftsForClientRequest(
  * Stats for completed shifts belonging to a client user:
  * total count and total covered hours (from checkin/checkout or start/end).
  */
-export async function completedShiftStatsForClient(
-  clientUserId: string,
-): Promise<{ count: number; totalMinutes: number }> {
+export async function completedShiftStatsForClient(): Promise<{ count: number; totalMinutes: number }> {
+  const session = await getSession();
+  if (!session) return { count: 0, totalMinutes: 0 };
+  const { userId } = session;
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("shifts")
     .select(
       "checkin_time, checkout_time, start_time, end_time, staff_requests!inner ( client_id )",
     )
-    .eq("staff_requests.client_id", clientUserId)
+    .eq("staff_requests.client_id", userId)
     .eq("status", "completed");
   if (error) throw new Error(error.message);
 
@@ -275,17 +277,19 @@ export async function completedShiftStatsForClient(
  * `dayStartUtc` / `dayEndUtc` bound the day in the shift schedule timezone.
  */
 export async function listTodayShiftsForClientUser(
-  clientUserId: string,
   dayStartUtc: string,
   dayEndUtc: string,
 ): Promise<ShiftWithStaffRequestAndWorker[]> {
+  const session = await getSession();
+  if (!session) return [];
+  const { userId } = session;
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("shifts")
     .select(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
-    .eq("staff_requests.client_id", clientUserId)
+    .eq("staff_requests.client_id", userId)
     .gte("start_time", dayStartUtc)
     .lt("start_time", dayEndUtc)
     .not("status", "in", '("cancelled","canceled","declined")')

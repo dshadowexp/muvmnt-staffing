@@ -1,11 +1,11 @@
 "use server";
 
-import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
+import { getCurrentUser } from "@/features/users/dal/queries";
 import { createAdminClient } from "@/services/supabase/server";
 import { getStripeServer, STRIPE_PRICE_IDS } from "@/services/stripe/server";
 
 export async function createSetupIntent() {
-    const { user } = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" };
 
     const supabase = await createAdminClient();
@@ -36,6 +36,15 @@ export async function createSetupIntent() {
         stripeCustomerId = data.stripe_customer_id;
     }
 
+    if (data?.stripe_customer_id) {
+        const existingPms = await getStripeServer().paymentMethods.list({
+            customer: data.stripe_customer_id,
+        });
+        if (existingPms.data.length >= 3) {
+            return { error: "You can save up to 3 payment methods." };
+        }
+    }
+
     const intent = await getStripeServer().setupIntents.create({
         customer: stripeCustomerId,
         payment_method_types: ['card'],
@@ -50,11 +59,15 @@ export async function createSetupIntent() {
 }
 
 /**
- * After a successful SetupIntent, persist the saved payment method as the account default
- * and set it on the Stripe customer for off-session charges.
+ * After a successful SetupIntent, optionally set the new payment method as default on Stripe
+ * and in `billing_accounts`. When `setAsDefault` is omitted, defaults to true only if this is
+ * the customer's first saved card (so adding a 2nd/3rd card does not steal default).
  */
-export async function syncDefaultPaymentMethodAfterSetupIntent(setupIntentId: string) {
-    const { user } = await getCurrentUser({ allData: true });
+export async function syncDefaultPaymentMethodAfterSetupIntent(
+    setupIntentId: string,
+    options?: { setAsDefault?: boolean },
+) {
+    const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" as const };
 
     const id = setupIntentId?.trim();
@@ -103,7 +116,7 @@ export async function syncDefaultPaymentMethodAfterSetupIntent(setupIntentId: st
 }
 
 export async function createCheckoutSession(priceId: string) {
-    const { user } = await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user) throw new Error('Unauthenticated');
 
     if (!priceId || !(priceId in STRIPE_PRICE_IDS)) {
@@ -156,11 +169,16 @@ export async function createCheckoutSession(priceId: string) {
 }
 
 export async function createPortalSession() {
-    const { user } = await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user) throw new Error('Unauthenticated');
 
     const supabase = await createAdminClient();
-    const { data: userBillingAccount } = await supabase.from("billing_accounts").select("*").eq("user_id", user.id).single();
+    const { data: userBillingAccount } = await supabase
+        .from("billing_accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
     if (!userBillingAccount || !userBillingAccount.stripe_customer_id) throw new Error('Billing account not setup');
 
     const portalSession = await getStripeServer().billingPortal.sessions.create({
@@ -172,7 +190,7 @@ export async function createPortalSession() {
 }
 
 export async function setDefaultPayment(paymentMethodId: string) {
-    const { user } = await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" };
 
     const supabase = await createAdminClient();
@@ -190,7 +208,11 @@ export async function setDefaultPayment(paymentMethodId: string) {
     });
     const owned   = methods.data.some((pm) => pm.id === paymentMethodId);
 
-    if (!owned) throw new Error('Payment method not found on this account');
+    if (!owned) return { error: "Payment method not found on this account" };
+
+    await getStripeServer().customers.update(data.stripe_customer_id, {
+        invoice_settings: { default_payment_method: paymentMethodId },
+    });
 
     await supabase.from('billing_accounts').update({
         default_payment_method_id: paymentMethodId,
@@ -200,7 +222,7 @@ export async function setDefaultPayment(paymentMethodId: string) {
 }
 
 export async function deletePaymentMethod(paymentMethodId: string) {
-    const { user } = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" };
 
     const supabase = await createAdminClient();
@@ -218,16 +240,27 @@ export async function deletePaymentMethod(paymentMethodId: string) {
     });
     const owned   = methods.data.some((pm) => pm.id === paymentMethodId);
 
-    if (!owned) throw new Error('Payment method not found on this account')
+    if (!owned) return { error: "Payment method not found on this account" };
 
     await getStripeServer().paymentMethods.detach(paymentMethodId);
 
-    // Clear default if the removed card was the default
-    if (data.default_payment_method_id === paymentMethodId) {
-      await supabase.from('billing_accounts').update({
-        default_payment_method_id: null,
-      }).eq('user_id', user.id);
-    }
+    const remaining = await getStripeServer().paymentMethods.list({
+        customer: data.stripe_customer_id,
+    });
+    const nextDefaultId =
+        data.default_payment_method_id === paymentMethodId
+            ? (remaining.data[0]?.id ?? null)
+            : data.default_payment_method_id;
+
+    await getStripeServer().customers.update(data.stripe_customer_id, {
+        invoice_settings: {
+            default_payment_method: nextDefaultId ?? undefined,
+        },
+    });
+
+    await supabase.from("billing_accounts").update({
+        default_payment_method_id: nextDefaultId,
+    }).eq("user_id", user.id);
 
     return { data: { success: true } };
 }

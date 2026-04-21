@@ -84,38 +84,6 @@ export type Database = {
           },
         ]
       }
-      certification_quiz_cache: {
-        Row: {
-          certification_id: string
-          created_at: string
-          file_sha256: string
-          id: string
-          questions: Json
-        }
-        Insert: {
-          certification_id: string
-          created_at?: string
-          file_sha256: string
-          id?: string
-          questions: Json
-        }
-        Update: {
-          certification_id?: string
-          created_at?: string
-          file_sha256?: string
-          id?: string
-          questions?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "certification_quiz_cache_certification_id_fkey"
-            columns: ["certification_id"]
-            isOneToOne: false
-            referencedRelation: "compliances"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       clients: {
         Row: {
           created_at: string
@@ -923,6 +891,7 @@ export type Database = {
           plan: string
           push_token: string | null
           role: string | null
+          updated_at: string | null
         }
         Insert: {
           auth_id: string
@@ -936,6 +905,7 @@ export type Database = {
           plan?: string
           push_token?: string | null
           role?: string | null
+          updated_at?: string | null
         }
         Update: {
           auth_id?: string
@@ -949,6 +919,7 @@ export type Database = {
           plan?: string
           push_token?: string | null
           role?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1007,6 +978,7 @@ export type Database = {
           gender: string
           id: string
           last_name: string
+          live: boolean
           photo_url: string
           profession: string
           rating_avg: number | null
@@ -1025,6 +997,7 @@ export type Database = {
           gender?: string
           id?: string
           last_name: string
+          live?: boolean
           photo_url: string
           profession: string
           rating_avg?: number | null
@@ -1043,6 +1016,7 @@ export type Database = {
           gender?: string
           id?: string
           last_name?: string
+          live?: boolean
           photo_url?: string
           profession?: string
           rating_avg?: number | null

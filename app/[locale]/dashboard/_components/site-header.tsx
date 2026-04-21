@@ -24,13 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useAuth } from "@/features/auth/providers/auth-provider";
-import { BellIcon } from "lucide-react";
+import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -72,19 +67,7 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
           />
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={tAccount("notifications")}
-              >
-                <BellIcon className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{tAccount("notifications")}</TooltipContent>
-          </Tooltip>
+          <NotificationsBell />
           <LanguageSwitcher variant="ghost" />
           <ThemeToggle />
           <Separator

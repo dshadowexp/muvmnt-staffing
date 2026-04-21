@@ -11,34 +11,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 1,
         },
         {
-            url: `${baseUrl}/find-work`,
-            lastModified: new Date(),
-            changeFrequency: "monthly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/careers`,
+            url: `${baseUrl}/find-staff`,
             lastModified: new Date(),
             changeFrequency: "weekly",
             priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/find-work`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.6,
         },
         {
             url: `${baseUrl}/faq`,
             lastModified: new Date(),
-            changeFrequency: "monthly",
+            changeFrequency: "weekly",
             priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/privacy`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.6,
-        },
-        {
-            url: `${baseUrl}/terms`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.6,
-        },
+        }
     ];
 }

@@ -1,7 +1,8 @@
 import admin from 'firebase-admin';
-import { Auth } from 'firebase-admin/auth';
 import { Messaging } from 'firebase-admin/messaging';
+import { Auth } from 'firebase-admin/auth';
 import { env } from '@/data/env/server';
+
 
 if (!admin.apps.length) {
     admin.initializeApp({
@@ -13,5 +14,5 @@ if (!admin.apps.length) {
     });
 }
 
-export const getAuth = (): Auth => admin.auth();
 export const getMessaging = (): Messaging => admin.messaging();
+export const getAuth = (): Auth => admin.auth();

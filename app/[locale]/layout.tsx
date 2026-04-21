@@ -8,7 +8,6 @@ import { routing } from '@/i18n/routing';
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/features/auth/providers/auth-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Analytics } from "@vercel/analytics/next"
 import { CustomThemeProvider } from "@/providers/custom-theme-provider";
 import { SITE_NAME } from "@/lib/constants";
 
@@ -48,12 +47,14 @@ export async function generateMetadata({
       "caregiver staffing",
       "caregiver agency",
       "caregiver",
+      "emergency staffing relief"
     ],
     openGraph: {
       title,
       description: tMeta("openGraphDescription"),
       type: "website",
       siteName: SITE_NAME,
+      locale: locale,
       images: [
         {
           url: "/og-image.png",
@@ -62,6 +63,12 @@ export async function generateMetadata({
           alt: tMeta("openGraphImageAlt"),
         },
       ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: tMeta("openGraphDescription"),
+      images: ["/og-image.png"],
     },
     robots: {
       index: true,
@@ -91,16 +98,22 @@ export default async function RootLayout({ children, params }: { children: React
 
   return (
     <html lang={ locale } suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+      </head>
       <body className={`${outfitSans.variable} antialiased font-sans`}>
         <CustomThemeProvider>
-        <NextIntlClientProvider>
-        <AuthProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster position="top-right" richColors closeButton duration={3000} />
-        </AuthProvider>
-        </NextIntlClientProvider>
+          <NextIntlClientProvider>
+            <AuthProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+              <Toaster position="top-right" richColors closeButton duration={3000} />
+            </AuthProvider>
+          </NextIntlClientProvider>
         </CustomThemeProvider>
-        <Analytics />
       </body>
     </html>
   );

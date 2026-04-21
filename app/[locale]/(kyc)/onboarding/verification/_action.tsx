@@ -1,31 +1,33 @@
 "use server";
 
+import { getFirebaseUser } from "@/features/auth/actions";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
 import {
   onboardingStepError,
   onboardingStepRawError,
 } from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
+import { getCurrentUser } from "@/features/users/dal/queries";
 import {
   syncEmailFromAuth,
   syncPhoneFromAuth,
 } from "@/features/verification/dal/mutations";
-import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 
 export const verifyDetailsAction = async (
   _prevState: OnboardingStepFormState | undefined,
   _formData: FormData,
 ): Promise<OnboardingStepFormState> => {
-  const { authUser, user } = await getCurrentUser({ allData: true });
-  if (!authUser) return onboardingStepError("userNotAuthenticated");
+  const user = await getCurrentUser();
   if (!user) return onboardingStepError("userNotFound");
+  const firebaseUser = await getFirebaseUser(user.auth_id);
+  if (!firebaseUser) return onboardingStepError("userNotAuthenticated");
 
   if (!user.is_email_verified) {
-    if (!authUser.emailVerified || !authUser.email) {
+    if (!firebaseUser.emailVerified || !firebaseUser.email) {
       return onboardingStepError("emailNotVerified");
     }
     try {
-      await syncEmailFromAuth(authUser.email);
+      await syncEmailFromAuth(firebaseUser.email);
     } catch (e) {
       return onboardingStepRawError(
         e instanceof Error ? e.message : "Failed to sync email",
@@ -33,9 +35,9 @@ export const verifyDetailsAction = async (
     }
   }
   if (!user.is_phone_verified) {
-    if (!authUser.phoneNumber) return onboardingStepError("phoneNotVerified");
+    if (!firebaseUser.phoneNumber) return onboardingStepError("phoneNotVerified");
     try {
-      await syncPhoneFromAuth(authUser.phoneNumber);
+      await syncPhoneFromAuth(firebaseUser.phoneNumber);
     } catch (e) {
       return onboardingStepRawError(
         e instanceof Error ? e.message : "Failed to sync phone",

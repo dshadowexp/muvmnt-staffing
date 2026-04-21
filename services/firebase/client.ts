@@ -20,3 +20,4 @@ const firebaseConfig = {
 // Initialize Firebase
 export const firebaseApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
+auth.useDeviceLanguage();

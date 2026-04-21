@@ -8,7 +8,7 @@ import {
   StarIcon,
   LightbulbIcon,
   ImagePlusIcon,
-  Loader2,
+  CircleDashedIcon,
   XIcon,
 } from "lucide-react";
 import {
@@ -214,7 +214,7 @@ export function FeedbackDialog({
                 disabled={uploading}
               >
                 {uploading ? (
-                  <Loader2 className="size-3.5 animate-spin" />
+                  <CircleDashedIcon className="size-3.5 animate-spin" />
                 ) : (
                   <ImagePlusIcon className="size-3.5" />
                 )}
@@ -262,7 +262,7 @@ export function FeedbackDialog({
           >
             {pending ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
+                <CircleDashedIcon className="size-4 animate-spin" />
                 {t("sending")}
               </>
             ) : (

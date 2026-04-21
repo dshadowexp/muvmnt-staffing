@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { getAuthErrorMessage, logout } from "@/services/firebase/auth";
+import { getAuthErrorKey, logout } from "@/services/firebase/auth";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { useRouter } from "@/i18n/navigation";
 import posthog from "posthog-js";
@@ -27,7 +27,7 @@ export function LogoutButton({ asChild = false, children }: LogoutButtonProps) {
       await logout();
       router.push("/sign-in");
     } catch (err) {
-      const msg = getAuthErrorMessage(err);
+      const msg = getAuthErrorKey(err);
       if (msg) toast.error(msg);
     }
   };

@@ -1,6 +1,5 @@
 "use server";
 
-import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import {
   workerProfessionExperienceSchema,
   workerSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/features/profile/schemas/worker";
 import { createAdminClient } from "@/services/supabase/server";
 import { z } from "zod";
+import { getSession } from "@/lib/session";
 
 const workerPayload = (data: z.infer<typeof workerSchema>) => ({
   first_name: data.firstName,
@@ -26,12 +26,9 @@ function workerRowPayload(data: WorkerUpsertWithPhotoValues) {
 }
 
 export async function upsertWorkerAction(data: WorkerUpsertWithPhotoValues) {
-  const { user } = await getCurrentUser({ allData: true });
-  if (user == null) {
-    return { error: true, message: "User not authenticated" };
-  }
-
-  const userId = user.id;
+  const session = await getSession();
+  if (!session) return { error: true, message: "User not authenticated" };
+  const { userId } = session;
   const supabase = await createAdminClient();
 
   const { data: existing } = await supabase
@@ -64,16 +61,15 @@ export async function upsertWorkerAction(data: WorkerUpsertWithPhotoValues) {
 }
 
 export async function updateWorkerPhotoAction(photoUrl: string) {
-  const { user } = await getCurrentUser({ allData: true });
-  if (user == null) {
-    return { error: true, message: "User not authenticated" };
-  }
+  const session = await getSession();
+  if (!session) return { error: true, message: "User not authenticated" };
+  const { userId } = session;
 
   const supabase = await createAdminClient();
   const { error } = await supabase
     .from("workers")
     .update({ photo_url: photoUrl })
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   if (error) {
     return { error: true, message: error.message };
@@ -89,16 +85,15 @@ export async function updateWorkerProfessionAndExperienceAction(
     return { error: true, message: parsed.error.message };
   }
 
-  const { user } = await getCurrentUser({ allData: true });
-  if (user == null) {
-    return { error: true, message: "User not authenticated" };
-  }
+  const session = await getSession();
+  if (!session) return { error: true, message: "User not authenticated" };
+  const { userId } = session;
 
   const supabase = await createAdminClient();
   const { data: existing, error: fetchErr } = await supabase
     .from("workers")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .maybeSingle();
 
   if (fetchErr) {
@@ -114,7 +109,7 @@ export async function updateWorkerProfessionAndExperienceAction(
       profession: parsed.data.profession,
       years_exp: parsed.data.yearsExp,
     })
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   if (error) {
     return { error: true, message: error.message };

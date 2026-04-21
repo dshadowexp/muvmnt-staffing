@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Trash2Icon, Upload, X } from "lucide-react";
+import { CircleDashedIcon, Trash2Icon, Upload, X } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -273,7 +273,7 @@ export function ComplianceDocumentsSection({
                         }
                       >
                         {uploadingKey === `draft:${row.draftId}` ? (
-                          <Loader2 className="size-4 shrink-0 animate-spin" />
+                          <CircleDashedIcon className="size-4 shrink-0 animate-spin" />
                         ) : (
                           <Upload className="size-4 shrink-0" />
                         )}
@@ -321,7 +321,7 @@ export function ComplianceDocumentsSection({
                           }
                         >
                           {uploadingKey === `saved:${row.id}` ? (
-                            <Loader2 className="size-4 shrink-0 animate-spin" />
+                            <CircleDashedIcon className="size-4 shrink-0 animate-spin" />
                           ) : (
                             <Upload className="size-4 shrink-0" />
                           )}

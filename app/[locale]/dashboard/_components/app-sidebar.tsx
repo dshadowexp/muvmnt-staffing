@@ -22,7 +22,7 @@ import {
   CreditCardIcon,
   GiftIcon,
   LayoutDashboardIcon,
-  ListChecksIcon,
+  ScanSearchIcon,
   MessageSquareIcon,
   ShieldCheckIcon,
   UserIcon,
@@ -76,9 +76,9 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
   if (r === "client") {
     return [
       { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
-      { title: t("requests"), url: "/dashboard/requests", icon: <ListChecksIcon className="size-4" /> },
-      { title: t("account"), url: "/dashboard/account", icon: <UserIcon className="size-4" /> },
+      { title: t("requests"), url: "/dashboard/requests", icon: <ScanSearchIcon className="size-4" /> },
       { title: t("billing"), url: "/dashboard/billing", icon: <CreditCardIcon className="size-4" /> },
+      { title: t("account"), url: "/dashboard/account", icon: <UserIcon className="size-4" /> },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }
@@ -86,13 +86,13 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
   if (r === "admin") {
     return [
       { title: t("dashboardLabel"), url: "/dashboard/admin", icon: <LayoutDashboardIcon className="size-4" /> },
-      { title: t("requests"), url: "/dashboard/admin/requests", icon: <ListChecksIcon className="size-4" /> },
+      { title: t("requests"), url: "/dashboard/admin/requests", icon: <ScanSearchIcon className="size-4" /> },
       { title: t("shifts"), url: "/dashboard/admin/shifts", icon: <CalendarDays className="size-4" /> },
       { title: t("authorization"), url: "/dashboard/admin/authorization", icon: <BadgeCheckIcon className="size-4" /> },
       { title: t("compliance"), url: "/dashboard/admin/compliance", icon: <ShieldCheckIcon className="size-4" /> },
       { title: t("clients"), url: "/dashboard/admin/clients", icon: <Building2Icon className="size-4" /> },
       { title: t("workers"), url: "/dashboard/admin/workers", icon: <UsersIcon className="size-4" /> },
-      { title: t("referrals"), url: "/dashboard/admin/referrals", icon: <GiftIcon className="size-4" /> },
+      { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }
 

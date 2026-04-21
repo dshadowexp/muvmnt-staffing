@@ -8,7 +8,7 @@ import {
   useLayoutEffect,
 } from "react";
 import { createPortal } from "react-dom";
-import { Search } from "lucide-react";
+import { CircleDashedIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { searchAddresses } from "@/features/geo/dal/queries";
 import {
@@ -16,7 +16,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Spinner } from "@/components/ui/spinner";
 import type { ReactNode } from "react";
 import { AddressFields } from "../types";
 
@@ -177,7 +176,7 @@ export function AddressInput({
                 aria-label="Loading suggestions"
                 role="status"
               >
-                <Spinner className="size-4 text-muted-foreground" />
+                <CircleDashedIcon className="size-4 text-muted-foreground" />
               </span>
             ) : (
               suffix

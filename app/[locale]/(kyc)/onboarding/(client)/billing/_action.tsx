@@ -20,7 +20,9 @@ export const billingAction = async (
   const billingAccount = await getBillingAccount();
   if (!billingAccount) return onboardingStepError("billingSetupIncomplete");
 
-  const persist = await completeOnboardingStep("billing");
+  const persist = await completeOnboardingStep("billing", {
+    markOnboardingCompleted: true,
+  });
   if (persist.error) {
     return persist.message
       ? onboardingStepRawError(persist.message)

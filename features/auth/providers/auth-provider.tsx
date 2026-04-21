@@ -15,9 +15,7 @@ import React, {
 import { auth } from "@/services/firebase/client";
 import { deleteSession, setSession } from "@/lib/session";
 import { UserAuth, UserRole } from "@/types/auth";
-import { setCookie, deleteCookie } from "cookies-next";
-import { redirect, useRouter } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { logout } from "@/services/firebase/auth";
 import { recordReferralAction } from "@/features/referrals/actions";
 import { deregisterPushTokenAction } from "@/features/notifications/actions";
@@ -57,8 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
     async function runTokenExchange(firebaseUser: User) {
-        const firebaseToken = await firebaseUser.getIdToken();
-
         const authUser = await exchangeFirebaseUser({
             authId: firebaseUser.uid,
             email: firebaseUser.email ?? "",
@@ -68,7 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
        
         setAuthUser(authUser);
         await setSession(authUser);
-        await setCookie("__session", firebaseToken);
 
         if (pendingReferralCodeRef.current && pendingRoleRef.current) { 
             recordReferralAction().then(({ success, error }) => {
@@ -86,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function clearAuth() {
         await deregisterPushTokenAction().catch(console.error);
         await deleteSession();
-        await deleteCookie("__session");
         setFirebaseUser(null);
         setAuthUser(null);
         setLoading(false);
@@ -105,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (!firebaseUser) {
                 await clearAuth();
+                setLoading(false);
                 return;
             }
 

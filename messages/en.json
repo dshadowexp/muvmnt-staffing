@@ -1,19 +1,18 @@
 {
   "site": {
     "name": "ReadyKare",
-    "tagline": "Healthcare Staffing Solutions",
+    "tagline": "Healthcare Staffing in Under 5 Min",
     "phone": "1-437-979-7797",
     "email": "info@readykare.com",
     "countries": "Canada, USA, UK",
-    "copyright": "© {year} ReadyKare Staffing Inc. All rights reserved."
+    "copyright": "© {year} ReadyKare Inc. All rights reserved."
   },
 
   "meta": {
-    "description": "ReadyKare connects Canadian healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief across Canada.",
-    "openGraphDescription": "Fast, reliable healthcare staffing solutions for Canadian facilities.",
-    "openGraphImageAlt": "ReadyKare Staffing Inc."
+    "description": "ReadyKare connects healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief.",
+    "openGraphDescription": "Fill staffing gaps in under 5 minutes with AI-powered, real-time matching to vetted, prescreened healthcare professionals nearby.",
+    "openGraphImageAlt": "ReadyKare Inc."
   },
-
   "common": {
     "home": "Home",
     "continue": "Continue",
@@ -97,16 +96,16 @@
   "landing": {
     "hero": {
       "badge": "Healthcare staffing, simplified",
-      "titleLead": "Request",
-      "titleAccent": "care staff",
-      "titleTail": "in minutes.",
+      "titleLead": "Coverage",
+      "titleAccent": "in less than",
+      "titleTail": "5 minutes.",
       "subtitle": "ReadyKare connects healthcare teams with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
-        { "value": "500+", "label": "Facilities served" },
+        { "value": "93+", "label": "Facilities served" },
         { "value": "98%", "label": "Shift fill rate" },
-        { "value": "<2h", "label": "Avg. response" }
+        { "value": "<3m", "label": "Avg. response" }
       ]
     },
     "trust": {
@@ -136,9 +135,9 @@
         { "icon": "MessageCircle", "title": "Real support", "description": "A dedicated team that knows your facility — no tickets, no chatbots." }
       ],
       "statCards": [
-        { "title": "500+ facilities", "subtitle": "Trust ReadyKare across Ontario" },
+        { "title": "93+ facilities", "subtitle": "Trust ReadyKare across Ontario" },
         { "title": "98% fill rate", "subtitle": "Across all shift types" },
-        { "title": "<2h response", "subtitle": "For emergency coverage" }
+        { "title": "<3m response", "subtitle": "For emergency coverage" }
       ]
     },
     "testimonials": {
@@ -161,11 +160,6 @@
       "ogDescription": "Fill nursing, PSW, and allied health shifts fast — same-day relief to long-term coverage."
     },
     "breadcrumb": "Request staff",
-    "badge": "For clients",
-    "titleLead": "Requests",
-    "titleAccent": "get matched",
-    "titleTail": "in under two minutes.",
-    "subtitle": "Tell us when you need staff. We'll connect you to vetted, credentialed professionals and confirm coverage instantly.",
     "points": [
       { "icon": "Timer", "label": "Same-day placement" },
       { "icon": "BadgeCheck", "label": "Credentialed professionals" },
@@ -174,7 +168,7 @@
     "rolesLabel": "We place",
     "roles": ["RN", "RPN", "PSW", "DSW", "Allied", "Support"],
     "card": {
-      "title": "Submit a request",
+      "title": "Find staff nearby",
       "subtitle": "Get matched with staff instantly."
     },
     "form": {
@@ -203,6 +197,13 @@
         { "num": "02", "title": "We match fast", "description": "Review proposed coverage and pick a pricing tier." },
         { "num": "03", "title": "Confirm & go", "description": "Lock in staff. Hours are tracked and paid out for you." }
       ]
+    },
+    "account": {
+      "overline": "Client account",
+      "title": "New here or already a member?",
+      "description": "Create a free account to manage requests and matched staff, or sign in if you already use ReadyKare.",
+      "ctaCreate": "Create account",
+      "ctaSignIn": "Already a member? Sign in"
     }
   },
 
@@ -263,6 +264,219 @@
       "title": "Ready to get started?",
       "primary": "Request staff",
       "secondary": "Find work"
+    }
+  },
+
+  "legal": {
+    "breadcrumb": "Legal",
+    "badge": "Legal",
+    "jurisdiction": "Canada",
+    "effectiveLabel": "Effective",
+    "updatedLabel": "Last updated",
+    "contactHeading": "Questions?",
+    "contactBody": "We're a small team — reach out and a human will get back to you.",
+    "disclaimer": "This page is a plain-language summary, not legal advice. If you need specifics for your situation, please talk to your own legal counsel.",
+    "privacy": {
+      "meta": {
+        "title": "Privacy Policy",
+        "description": "How ReadyKare collects, uses, and protects personal information for temporary healthcare staffing in Canada."
+      },
+      "title": "Privacy Policy",
+      "subtitle": "A short, plain-language summary of how ReadyKare handles personal information as we match healthcare facilities with temporary staff.",
+      "effective": "April 20, 2026",
+      "updated": "April 20, 2026",
+      "related": { "label": "Terms of Use", "href": "/terms" },
+      "contactEmail": "privacy@readykare.ca",
+      "sections": [
+        {
+          "id": "overview",
+          "title": "Overview",
+          "paragraphs": [
+            "ReadyKare Inc. (\"ReadyKare\", \"we\", \"us\") runs a temporary healthcare staffing platform that matches Canadian healthcare facilities with pre-screened, credentialed professionals.",
+            "This policy explains what personal information we collect, what we do with it, and the rights you have. We handle personal information in line with Canadian privacy law, including PIPEDA and applicable provincial equivalents."
+          ]
+        },
+        {
+          "id": "what-we-collect",
+          "title": "What we collect",
+          "groups": [
+            {
+              "heading": "From professionals",
+              "bullets": [
+                "Name, contact details, and location",
+                "Credentials, licenses, and relevant work history",
+                "Availability and shift preferences",
+                "Payroll details needed to pay you"
+              ]
+            },
+            {
+              "heading": "From facilities",
+              "bullets": [
+                "Organization details and authorized contacts",
+                "Staffing requests (role, dates, requirements)",
+                "Billing and invoicing information"
+              ]
+            },
+            {
+              "heading": "From visitors",
+              "bullets": [
+                "Basic technical data (IP, browser, pages visited)",
+                "Anything you voluntarily share in a form or email"
+              ]
+            }
+          ],
+          "note": "We only collect what we need to run the platform and staff shifts."
+        },
+        {
+          "id": "how-we-use-it",
+          "title": "How we use it",
+          "bullets": [
+            "Verify credentials and eligibility to work",
+            "Match professionals with facility requests",
+            "Coordinate schedules, placements, and payroll",
+            "Respond to questions and provide support",
+            "Meet our legal and regulatory obligations"
+          ]
+        },
+        {
+          "id": "who-we-share-with",
+          "title": "Who we share it with",
+          "paragraphs": [
+            "We share only what's necessary: with facilities to confirm a placement, with regulators or colleges to verify credentials, and with trusted service providers (payroll, background checks, hosting) acting on our behalf under confidentiality terms.",
+            "We disclose information to authorities when required by law or a valid legal process."
+          ],
+          "note": "We do not sell your personal information."
+        },
+        {
+          "id": "security",
+          "title": "Security",
+          "paragraphs": [
+            "We use reasonable, industry-standard safeguards — encryption in transit, access controls, and secure hosting — proportionate to the sensitivity of the data.",
+            "If a breach occurs that poses a real risk of significant harm, we will notify you and the appropriate authorities."
+          ]
+        },
+        {
+          "id": "your-rights",
+          "title": "Your rights",
+          "paragraphs": [
+            "You can access, correct, or delete your personal information and withdraw consent where it applies.",
+            "Email privacy@readykare.ca and we will respond within 30 days."
+          ]
+        },
+        {
+          "id": "retention",
+          "title": "Retention",
+          "paragraphs": [
+            "We keep personal information for as long as we need it to provide our services and to meet legal or tax obligations, then securely delete or anonymize it."
+          ]
+        },
+        {
+          "id": "changes",
+          "title": "Changes",
+          "paragraphs": [
+            "As ReadyKare grows, this policy may change. We will update the \"last updated\" date and, for material changes, notify you directly."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "meta": {
+        "title": "Terms of Use",
+        "description": "The terms that govern use of the ReadyKare platform for healthcare facilities and professionals in Canada."
+      },
+      "title": "Terms of Use",
+      "subtitle": "The plain-language ground rules for using ReadyKare, whether you're a healthcare professional picking up shifts or a facility requesting staff.",
+      "effective": "April 20, 2026",
+      "updated": "April 20, 2026",
+      "related": { "label": "Privacy Policy", "href": "/privacy" },
+      "contactEmail": "legal@readykare.ca",
+      "sections": [
+        {
+          "id": "agreement",
+          "title": "Your agreement with us",
+          "paragraphs": [
+            "These Terms govern your use of readykare.ca and our staffing services (the \"Services\"). By using the Services, you agree to these Terms and our Privacy Policy.",
+            "If you are accepting on behalf of an organization, you confirm you have authority to bind it. If you don't agree to these Terms, please don't use the Services."
+          ]
+        },
+        {
+          "id": "what-we-do",
+          "title": "What we do",
+          "paragraphs": [
+            "ReadyKare is a temporary healthcare staffing platform. We help Canadian facilities fill shifts with pre-screened, credentialed professionals, and we help those professionals find suitable placements.",
+            "We match, coordinate, and (where applicable) handle payroll for the placements we arrange."
+          ]
+        },
+        {
+          "id": "your-account",
+          "title": "Your account",
+          "bullets": [
+            "Give us accurate, up-to-date information",
+            "Keep your login credentials secure",
+            "You're responsible for activity on your account"
+          ]
+        },
+        {
+          "id": "for-professionals",
+          "title": "For professionals",
+          "bullets": [
+            "Hold and maintain valid credentials for the work you accept",
+            "Follow the policies, procedures, and professional standards of the facility you're placed in",
+            "Let us know right away if your licence, availability, or eligibility changes",
+            "Don't use ReadyKare to circumvent placements (e.g. soliciting direct hire from a facility you met through us)"
+          ]
+        },
+        {
+          "id": "for-facilities",
+          "title": "For facilities",
+          "bullets": [
+            "Give accurate details about the shift, setting, and any known hazards",
+            "Follow applicable health and safety laws for staff working on your site",
+            "Pay invoices on the terms set out in your agreement with us"
+          ]
+        },
+        {
+          "id": "acceptable-use",
+          "title": "Acceptable use",
+          "bullets": [
+            "No false, misleading, or fraudulent submissions",
+            "No unauthorized access, scraping, or automated abuse",
+            "No conduct that undermines the safety or integrity of the platform"
+          ]
+        },
+        {
+          "id": "disclaimers",
+          "title": "Disclaimers & limits",
+          "paragraphs": [
+            "We make reasonable efforts to screen professionals and to fill requests, but we don't guarantee placements or specific outcomes.",
+            "Clinical decisions during a shift remain the professional responsibility of the individual and the facility. ReadyKare is not a clinical care provider."
+          ],
+          "note": "To the extent permitted by law, ReadyKare's total liability in connection with the Services is limited to the fees you've paid us in the three months before the claim."
+        },
+        {
+          "id": "changes",
+          "title": "Changes & termination",
+          "paragraphs": [
+            "We may update these Terms as the platform evolves. We'll post the revised date and, for material changes, notify you directly.",
+            "We may also suspend or end access for anyone who misuses the Services."
+          ]
+        },
+        {
+          "id": "governing-law",
+          "title": "Governing law",
+          "paragraphs": [
+            "These Terms are governed by the laws of the Province of Ontario and the federal laws of Canada that apply there, without regard to conflict-of-law rules.",
+            "Disputes are subject to the exclusive jurisdiction of the courts of Ontario."
+          ]
+        },
+        {
+          "id": "contact",
+          "title": "Contact",
+          "paragraphs": [
+            "Questions about these Terms? Email legal@readykare.ca."
+          ]
+        }
+      ]
     }
   },
 
@@ -402,8 +616,8 @@
         "subtitle": "Here's a snapshot of your activity.",
         "shiftsCompleted": "Shifts completed",
         "totalEarned": "Total earned",
-        "pendingActionsTitle": "Pending actions",
-        "pendingActionsSubtitle": "A few things to finish so you're ready for work.",
+        "importantTasksTitle": "Important tasks",
+        "importantTasksSubtitle": "A few things to finish so you're ready for work.",
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today.",
@@ -419,6 +633,11 @@
           "title": "Work authorization",
           "description": "Your document is being reviewed by our team.",
           "badge": "Pending"
+        },
+        "payrollOnboarding": {
+          "title": "Payroll setup",
+          "description": "Connect your payout account so you can get paid for completed shifts.",
+          "startError": "Could not start payroll setup. Try again or visit Payroll from your account menu."
         }
       },
       "shifts": {
@@ -499,13 +718,36 @@
         "title": "Billing",
         "subtitle": "Payment methods and payment history.",
         "cardsTitle": "Credit/debit cards",
-        "cardsDescription": "Manage cards that will be used for payments.",
+        "cardsDescription": "Manage cards that will be used for payments. You can save up to three cards and choose which one is the default for charges.",
+        "addCardAria": "Add another payment method",
+        "addCardDialogTitle": "Add a payment method",
+        "addCardDialogDescription": "Enter your card details. You can save up to three cards.",
+        "addPaymentMethod": "Add payment method",
+        "couldNotLoadForm": "Could not load payment form.",
+        "defaultCardBadge": "Default payment method",
+        "defaultUpdated": "Default payment method updated.",
+        "setDefaultFailed": "Could not update default payment method.",
+        "paymentMethodSaved": "Payment method saved.",
+        "savingPaymentMethod": "Saving…",
         "paymentHistory": "Payment history",
         "paymentHistorySubtitle": "Completed payments across your staff requests."
       },
       "account": {
         "title": "Account",
-        "subtitle": "Organization profile and address."
+        "subtitle": "Organization profile and address.",
+        "address": {
+          "cardTitle": "Address",
+          "cardDescription": "This is where your shifts will be posted and workers will be matched.",
+          "formattedAddress": "Address",
+          "suite": "Suite / Unit no.",
+          "city": "City",
+          "province": "Province / territory",
+          "postalCode": "Postal code",
+          "country": "Country",
+          "instructions": "Site instructions",
+          "edit": "Edit address",
+          "doneEditing": "Done"
+        }
       }
     },
     "admin": {

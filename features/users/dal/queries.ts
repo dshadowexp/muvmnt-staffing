@@ -1,10 +1,16 @@
-import { createAdminClient } from "@/services/supabase/server"
-import { getGlobalTag } from "@/lib/data-cache"
-import { cacheTag } from "next/cache"
+import { getSession } from "@/lib/session";
+import { createAdminClient } from "@/services/supabase/server";
+
+
+export async function getCurrentUser() {
+    const session = await getSession();
+    if (!session) return null;
+    return getUser(session.userId);
+}
 
 export async function getUser(id: string) {
-    "use cache"
-    cacheTag(getGlobalTag("users"))
+    // "use cache"
+    // cacheTag(getGlobalTag("users"))
 
     const supabase = await createAdminClient();   
     const { data, error } = await supabase

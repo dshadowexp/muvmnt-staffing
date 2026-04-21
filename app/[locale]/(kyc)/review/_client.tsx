@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/features/auth/providers/auth-provider";
-import { ClipboardCheck, Loader2 } from "lucide-react";
+import { ClipboardCheck, CircleDashedIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -11,11 +11,14 @@ export default function ReviewClient() {
   const { authUser, reloadToken, loading } = useAuth();
   const router = useRouter();
   const t = useTranslations("kyc.review");
-  const reloadRef = useRef(reloadToken);
-  reloadRef.current = reloadToken;
+
 
   useEffect(() => {
-    void reloadRef.current().catch(console.error);
+    async function runReloadToken() {
+      await reloadToken();
+    }
+
+    runReloadToken();
   }, []);
 
   useEffect(() => {
@@ -24,7 +27,7 @@ export default function ReviewClient() {
   }, [loading, authUser, router]);
 
   if (loading || authUser?.isActive) {
-    return <Loader2 className="size-4 animate-spin" />;
+    return <CircleDashedIcon className="size-4 animate-spin" />;
   }
 
   return (

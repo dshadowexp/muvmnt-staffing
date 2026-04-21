@@ -2,8 +2,8 @@ import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
 import { getInterviewByIdForUser } from "./queries";
-import { getCurrentUser } from "@/services/firebase/lib/getCurrentUser";
 import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
+import { getCurrentUser } from "@/features/users/dal/queries";
 
 export type InterviewInsert = Database["public"]["Tables"]["interviews"]["Insert"];
 export type InterviewUpdate = Database["public"]["Tables"]["interviews"]["Update"];
@@ -49,7 +49,7 @@ export async function updateInterviewByOwner(
 }
 
 export async function generateInterviewFeedback(interviewId: string) {
-    const { user } = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser();
     if (user == null) {
       return { error: true, message: "Not authenticated" };
     }

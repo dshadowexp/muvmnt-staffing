@@ -28,24 +28,9 @@ export function getAuthErrorKey(error: unknown): string {
         "auth/missing-email":           "invalidCredentials",
         "auth/cancelled-popup-request": "",
         "auth/popup-closed-by-user":    "",
+        "auth/invalid-verification-code": "",
     };
     return map[code] ?? "generic";
-}
-
-/** Backwards-compatible label helper (English only) — prefer translating via `getAuthErrorKey`. */
-export function getAuthErrorMessage(error: unknown): string {
-    const key = getAuthErrorKey(error);
-    if (!key) return "";
-    const fallbacks: Record<string, string> = {
-        emailInUse:          "An account with this email already exists.",
-        invalidCredentials:  "Invalid email or password.",
-        weakPassword:        "Password must be at least 6 characters.",
-        userNotFound:        "No account found with this email.",
-        tooManyRequests:     "Too many attempts. Please try again later.",
-        networkRequest:      "Network error. Please check your connection.",
-        generic:             "Something went wrong. Please try again.",
-    };
-    return fallbacks[key] ?? fallbacks.generic;
 }
 
 // ── Auth actions ──────────────────────────────────────────────────────────

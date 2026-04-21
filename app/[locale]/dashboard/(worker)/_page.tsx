@@ -12,6 +12,8 @@ import {
   getWorkerProfile,
 } from "@/features/profile/dal/queries";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
+import { PayrollOnboardingTaskCard } from "@/features/payments/payroll/components/payroll-onboarding-task-card";
+import { payrollAccountMeetsOnboardingRequirements } from "@/features/payments/payroll/dal/queries";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import {
@@ -126,18 +128,20 @@ type PendingAction = {
   id: string;
   title: string;
   description: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   href?: string;
   badge?: { label: string; icon?: ReactNode };
 };
 
 async function PendingActions({ userId }: { userId: string }) {
-  const [professionInterview, resumeInterview, workAuth, t] = await Promise.all([
-    getInterviewBySubjectForUser("profession", userId),
-    getInterviewBySubjectForUser("resume", userId),
-    getWorkAuthorization(),
-    getTranslations("dashboard.worker.home"),
-  ]);
+  const [professionInterview, resumeInterview, workAuth, payrollOk, t] =
+    await Promise.all([
+      getInterviewBySubjectForUser("profession", userId),
+      getInterviewBySubjectForUser("resume", userId),
+      getWorkAuthorization(),
+      payrollAccountMeetsOnboardingRequirements(userId),
+      getTranslations("dashboard.worker.home"),
+    ]);
 
   const actions: PendingAction[] = [];
 
@@ -174,20 +178,38 @@ async function PendingActions({ userId }: { userId: string }) {
     });
   }
 
+  if (!payrollOk.ok) {
+    actions.push({
+      id: "payroll-onboarding",
+      title: t("payrollOnboarding.title"),
+      description: t("payrollOnboarding.description"),
+    });
+  }
+
   if (actions.length === 0) return null;
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight">
-        {t("pendingActionsTitle")}
-      </h2>
-      <p className="text-muted-foreground mt-1 mb-4 max-w-2xl text-sm">
-        {t("pendingActionsSubtitle")}
-      </p>
-      <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1">
-        {actions.map((a) => (
-          <PendingActionCard key={a.id} action={a} />
-        ))}
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="text-sm text-muted-foreground font-semibold tracking-tight">
+          {t("importantTasksTitle")}
+        </h2>
+        <Badge variant="secondary" className="tabular-nums">
+          {actions.length}
+        </Badge>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {actions.map((a) =>
+          a.id === "payroll-onboarding" ? (
+            <PayrollOnboardingTaskCard
+              key={a.id}
+              title={a.title}
+              description={a.description}
+            />
+          ) : (
+            <PendingActionCard key={a.id} action={a} />
+          ),
+        )}
       </div>
     </div>
   );
@@ -197,14 +219,16 @@ function PendingActionCard({ action }: { action: PendingAction }) {
   const card = (
     <Card
       size="sm"
-      className={`h-full w-[280px] shrink-0 snap-start ${
+      className={`h-full ${
         action.href
           ? "transition-colors hover:border-primary/50 hover:bg-muted/30"
           : ""
       }`}
     >
       <CardContent className="flex items-start gap-3 p-4">
-        <div className="rounded-md bg-muted p-2">{action.icon}</div>
+        {action.icon ? (
+          <div className="rounded-md bg-muted p-2">{action.icon}</div>
+        ) : null}
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-semibold">{action.title}</p>
@@ -247,11 +271,11 @@ function PendingActionCard({ action }: { action: PendingAction }) {
 function PendingActionsSkeleton() {
   return (
     <div>
-      <Skeleton className="h-6 w-24" />
+      <Skeleton className="h-6 w-40" />
       <Skeleton className="mt-2 mb-4 h-4 w-64" />
-      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <Card size="sm" key={i} className="w-[280px] shrink-0">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card size="sm" key={i}>
             <CardContent className="flex items-start gap-3 p-4">
               <Skeleton className="size-9 rounded-md" />
               <div className="flex-1 space-y-2">
@@ -292,22 +316,24 @@ export default async function WorkerHomePage() {
   const t = await getTranslations("dashboard.worker.home");
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-6">
+    <div className="flex w-full max-w-6xl flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">
           {t("welcome", { name: worker.first_name })}
         </h1>
-        <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-          {t("subtitle")}
-        </p>
       </div>
-
-      <Suspense fallback={<StatsCardsSkeleton />}>
-        <StatsCards workerId={worker.id} />
-      </Suspense>
 
       <Suspense fallback={<PendingActionsSkeleton />}>
         <PendingActions userId={worker.user_id} />
+      </Suspense>
+
+      <Suspense fallback={<StatsCardsSkeleton />}>
+        <div className="flex flex-col gap-4">
+          <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
+            {t("subtitle")}
+          </p>
+          <StatsCards workerId={worker.id} />
+        </div>
       </Suspense>
 
       <div>

@@ -5,7 +5,6 @@ const withNextIntl = createNextIntlPlugin();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     // cacheComponents: true,
-    // Enable image optimization for future use
     headers: async () => {
         return [
             {
@@ -26,20 +25,20 @@ const nextConfig = {
                 ],
             },
             {
-                source: '/sw.js',
+                source: "/firebase-messaging-sw.js",
                 headers: [
-                    {
-                        key: 'Content-Type',
-                        value: 'application/javascript; charset=utf-8',
-                    },
-                    {
-                        key: 'Cache-Control',
-                        value: 'no-cache, no-store, must-revalidate',
-                    },
-                    {
-                        key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self'",
-                    },
+                  {
+                    key: "Content-Type",
+                    value: "application/javascript; charset=utf-8",
+                  },
+                  {
+                    key: "Cache-Control",
+                    value: "no-cache, no-store, must-revalidate",
+                  },
+                  {
+                    key: "Service-Worker-Allowed",
+                    value: "/",
+                  },
                 ],
             },
         ]

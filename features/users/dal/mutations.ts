@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/services/supabase/server";
 import type { UserRole } from "@/types/auth";
 import type { Database } from "@/services/supabase/types/database";
-import { enqueueWelcomeFollowupNotification } from "@/features/notifications/server/enqueue-welcome-followup";
+import { enqueueNotification } from "@/features/notifications/service/enqueue";
 
 
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
@@ -72,11 +72,22 @@ export async function findOrCreateUser(params: {
 
     // First-time sign-up — schedule a follow-up nudge 10 minutes from now.
     // Idempotent on user id, so retries / double-clicks collapse.
-    void enqueueWelcomeFollowupNotification({
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+
+    await enqueueNotification({
         userId: newUser.id,
-        role: newUser.role as UserRole,
-    }).catch((err: unknown) => {
-        console.error("[users] failed to enqueue welcome-followup", err);
+        channels: ["email"],
+        subject: "A few quick next steps",
+        template: "welcome-followup",
+        data: {
+            firstName: null,
+            isWorker: newUser.role === "worker",
+            dashboardUrl: `${baseUrl}/dashboard`,
+            previewText: "A few quick next steps",
+            unsubscribeUrl: `${baseUrl}/`,
+            privacyUrl: `${baseUrl}/`,
+        },
+        idempotencyKey: `welcome-followup-${newUser.id}`,
     });
 
     return newUser;

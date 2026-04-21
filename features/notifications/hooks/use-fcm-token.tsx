@@ -7,14 +7,14 @@ import { messaging } from "@/services/firebase/messaging";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 
-async function getNotificationPermission() {
+async function getNotificationPermissionAndToken() {
     if (!('Notification' in window)) {
         console.log("This browser does not support notifications");
         return null;
     }
 
     if (Notification.permission === 'granted') {
-        return await fetchToken()
+        return await fetchToken();
     } else {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
@@ -35,7 +35,7 @@ export const useFcmToken = () => {
     const loadToken = async () => {
         if (isLoading.current) return;
         isLoading.current = true;
-        const token = await getNotificationPermission();
+        const token = await getNotificationPermissionAndToken();
 
         if (Notification.permission === 'denied') {
             setNotificationPermissionStatus('denied');
@@ -74,7 +74,7 @@ export const useFcmToken = () => {
             const m = await messaging();
             if (!m) return;
 
-            const unsubscribe = await onMessage(m, async (payload) => {
+            const unsubscribe = onMessage(m, async (payload) => {
                 console.log("Message received:", payload);
                 if (Notification.permission !== 'granted') return;
 

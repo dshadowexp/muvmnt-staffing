@@ -1,6 +1,6 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import { resendClient } from '@/services/resend/client';
 import { renderEmail } from '../template-engine';
-import { env } from '@/data/env/server';
+import { Resend } from 'resend';
 
 interface SendEmailParams {
     to:       string
@@ -10,30 +10,22 @@ interface SendEmailParams {
 }
 
 export class EmailChannel {
-    private readonly transporter: Transporter
+    private readonly resend: Resend
 
     constructor() {
-        this.transporter = nodemailer.createTransport({
-            host:   env.SMTP_HOST,
-            port:   env.SMTP_PORT,
-            secure: env.SMTP_SECURE === true,
-            auth: {
-                user: env.SMTP_USER,
-                pass: env.SMTP_PASSWORD,
-            },
-        })
+        this.resend = resendClient;
     }
 
     async send({ to, subject, template, data }: SendEmailParams): Promise<{ success: boolean }> {
-        const html = renderEmail(template, data)
+        const html = renderEmail(template, data);
 
-        await this.transporter.sendMail({
-            from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_ADDRESS}>`,
+        await this.resend.emails.send({
+            from: `Karren <karren@readykare.com>`,
             to,
             subject,
             html,
-        })
+        });
 
-        return { success: true }
+        return { success: true };
     }
 }

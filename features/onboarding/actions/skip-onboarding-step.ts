@@ -1,6 +1,5 @@
 "use server";
 
-import { enqueueWorkerOnboardingSubmittedNotification } from "@/features/notifications/server/enqueue-worker-onboarding-submitted";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
 import { getOnboardingStepsJson } from "@/features/onboarding/dal/queries";
 import {
@@ -60,7 +59,9 @@ export async function skipOnboardingStepAction(
       return { ok: true, redirectTo: "/onboarding/payroll", steps: persist.steps };
     }
     case "billing": {
-      const persist = await completeOnboardingStep("billing");
+      const persist = await completeOnboardingStep("billing", {
+        markOnboardingCompleted: true,
+      });
       if (persist.error) {
         return persist.message
           ? onboardingStepRawError(persist.message)
@@ -79,11 +80,7 @@ export async function skipOnboardingStepAction(
           : onboardingStepError("persistFailed");
       }
       await updateUserIsActive(session.userId, true);
-      try {
-        await enqueueWorkerOnboardingSubmittedNotification();
-      } catch (err) {
-        console.error("[skipOnboardingStepAction] onboarding submitted notification", err);
-      }
+
       return { ok: true, redirectTo: "/review", steps: persist.steps };
     }
     default:

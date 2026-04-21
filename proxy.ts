@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
     NON_ORG_PREFIXES,
     PUBLIC_PATHS,
-    AUTH_PREFIXES,
-    INACTIVE_PREFIXES
+    INACTIVE_PREFIXES,
+    WORKER_DASHBOARD_PREFIXES,
+    CLIENT_DASHBOARD_PREFIXES,
+    ADMIN_DASHBOARD_PREFIXES
 } from './lib/constants';
-import { UserAuth } from './types/auth';
+import { UserAuth, UserRole } from './types/auth';
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -42,21 +44,28 @@ function isPublicRoute(pathnameWithoutLocale: string): boolean {
     return exactMatch || prefixMatch;
 }
 
-function isAuthRoute(pathname: string): boolean {
-    return AUTH_PREFIXES.some((p) => pathHasPrefix(pathname, p));
-}
-
 function isInactiveRoute(pathname: string): boolean {
     return INACTIVE_PREFIXES.some((p) => pathHasPrefix(pathname, p));
+}
+
+function isNotRoleDashboardRoute(pathname: string, role: UserRole): boolean {
+    if (role === "worker") {
+        return !WORKER_DASHBOARD_PREFIXES.some((p) => pathHasPrefix(pathname, p));
+    }
+    if (role === "client") {
+        return !CLIENT_DASHBOARD_PREFIXES.some((p) => pathHasPrefix(pathname, p));
+    }
+    if (role === "admin") {
+        return !ADMIN_DASHBOARD_PREFIXES.some((p) => pathHasPrefix(pathname, p));
+    }
+    return false;
 }
 
 function safeRedirectParam(raw: string | null): string | null {
     if (!raw) return null;
     // only allow same-origin, absolute path redirects
     if (!raw.startsWith('/') || raw.startsWith('//')) return null;
-    // don't bounce them back to an auth route
-    const stripped = stripLocaleFromPathname(raw.split('?')[0] ?? raw);
-    if (isAuthRoute(stripped)) return null;
+
     return raw;
 }
 
@@ -70,14 +79,6 @@ export async function proxy(req: NextRequest) {
     const pathForRules = stripLocaleFromPathname(pathname);
     const session = getSessionFromRequest(req);
 
-    if (session && isAuthRoute(pathForRules)) {
-        const redirectParam = safeRedirectParam(
-            req.nextUrl.searchParams.get('redirect'),
-        );
-        const target = redirectParam ?? `/dashboard`;
-        return NextResponse.redirect(new URL(target, req.url));
-    }
-
     if (isPublicRoute(pathForRules)) {
         return intlMiddleware(req);
     }
@@ -88,8 +89,20 @@ export async function proxy(req: NextRequest) {
         return NextResponse.redirect(signinUrl);
     }
 
-    if (!session.isActive && !isInactiveRoute(pathForRules)) {
-        return NextResponse.redirect(new URL('/review', req.url));
+    if (!session.isActive) {
+        if (!isInactiveRoute(pathForRules)) {
+            const redirectParam = safeRedirectParam(
+                req.nextUrl.searchParams.get('redirect'),
+            );
+            console.log("redirecting to review");
+            return NextResponse.redirect(new URL('/review', req.url));
+        } else {
+            return intlMiddleware(req);
+        }
+    }
+
+    if (isNotRoleDashboardRoute(pathForRules, session.role)) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
     return intlMiddleware(req);

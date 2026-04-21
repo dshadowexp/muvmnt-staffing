@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import {
   BadgeCheck,
-  Clock,
   ShieldCheck,
   Stethoscope,
   Timer,
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FindStaffForm } from "./_form";
 
@@ -68,26 +67,7 @@ export default async function FindStaffPage() {
             <span className="text-primary">{t("breadcrumb")}</span>
           </nav>
 
-          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(560px,1.6fr)] lg:gap-16">
-            <div className="lg:max-w-[460px]">
-              <Badge className="mb-6 gap-1.5 border border-[rgba(13,148,136,0.3)] bg-[rgba(13,148,136,0.15)] text-[var(--teal-mid)]">
-                {t("badge")}
-              </Badge>
-
-              <h1 className="mb-5 font-[var(--font-display)] text-[clamp(2.2rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
-                {t("titleLead")}{" "}
-                <span className="text-[var(--teal-mid)]">
-                  {t("titleAccent")}
-                </span>
-                <br />
-                {t("titleTail")}
-              </h1>
-
-              <p className="text-base font-light leading-[1.7] text-white/60">
-                {t("subtitle")}
-              </p>
-            </div>
-
+          <div className="mx-auto w-full max-w-3xl">
             <Card className="overflow-hidden rounded-2xl p-0 shadow-2xl">
               <div className="relative overflow-hidden bg-primary px-7 py-6">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_100%_at_100%_100%,rgba(255,255,255,0.12)_0%,transparent_60%)]" />
@@ -96,9 +76,9 @@ export default async function FindStaffPage() {
                     <Users className="text-primary-foreground size-5" />
                   </div>
                   <div>
-                    <p className="text-primary-foreground font-[var(--font-display)] text-lg font-extrabold leading-tight">
+                    <h1 className="text-primary-foreground font-[var(--font-display)] text-lg font-extrabold leading-tight">
                       {t("card.title")}
-                    </p>
+                    </h1>
                     <p className="text-primary-foreground/70 text-[0.82rem] font-light">
                       {t("card.subtitle")}
                     </p>
@@ -169,6 +149,31 @@ export default async function FindStaffPage() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="flex flex-col gap-6 rounded-2xl border bg-card p-6 lg:flex-row lg:items-center lg:justify-between lg:p-8">
+            <div className="max-w-xl">
+              <p className="text-primary mb-2 text-xs font-semibold uppercase tracking-[1.5px]">
+                {t("account.overline")}
+              </p>
+              <h2 className="font-[var(--font-display)] text-[clamp(1.25rem,2.5vw,1.5rem)] font-extrabold tracking-tight text-foreground">
+                {t("account.title")}
+              </h2>
+              <p className="text-muted-foreground mt-2 text-sm font-light leading-relaxed">
+                {t("account.description")}
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
+              <Button size="lg" asChild>
+                <Link href="/sign-up?as=client">{t("account.ctaCreate")}</Link>
+              </Button>
+              <Link
+                href="/sign-in"
+                className="text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
+              >
+                {t("account.ctaSignIn")}
+              </Link>
+            </div>
           </div>
         </div>
       </section>

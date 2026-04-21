@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Loader2, Trash2 } from "lucide-react";
+import { Camera, CircleDashedIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -290,7 +290,7 @@ export function PhotoUpload({
             />
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                <Loader2 className="size-8 animate-spin text-primary" />
+                <CircleDashedIcon className="size-8 animate-spin text-primary" />
               </div>
             )}
             {done && canInteract && (
@@ -319,7 +319,7 @@ export function PhotoUpload({
         ) : (
           <div className="flex flex-col items-center gap-2 px-4 text-center">
             {isLoading ? (
-              <Loader2 className="size-10 animate-spin text-muted-foreground" />
+              <CircleDashedIcon className="size-10 animate-spin text-muted-foreground" />
             ) : (
               <Camera className="size-10 text-muted-foreground" />
             )}

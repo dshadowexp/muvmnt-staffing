@@ -13,7 +13,7 @@ import { Check, GiftIcon, Hospital, Stethoscope } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/providers/auth-provider";
-import { useAuthRedirect } from "@/hooks/use-auth-redirect";
+import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

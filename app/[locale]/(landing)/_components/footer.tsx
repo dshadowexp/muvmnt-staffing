@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Separator } from "@/components/ui/separator";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SITE_NAME, SITE_EMAIL } from "@/lib/constants";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Link } from "@/i18n/navigation";
 
 type FooterColumn = {
   title: string;
@@ -101,6 +102,7 @@ export default async function Footer() {
               </Link>
             ))}
             <LanguageSwitcher variant="outline" />
+            <ThemeToggle />
           </div>
         </div>
       </div>

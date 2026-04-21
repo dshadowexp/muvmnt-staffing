@@ -37,3 +37,8 @@ export async function exchangeFirebaseUser({
         isActive: user.is_active,
     };
 }
+
+export async function getFirebaseUser(authId: string) {
+    const firebaseUser = await getAuth().getUser(authId);
+    return firebaseUser;
+}

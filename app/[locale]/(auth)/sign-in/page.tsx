@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { SignInForm } from "@/features/auth/components/sign-in-form";
+import { SignInForm } from "@/features/auth/forms/sign-in-form";
 
 export async function generateMetadata({
   params,

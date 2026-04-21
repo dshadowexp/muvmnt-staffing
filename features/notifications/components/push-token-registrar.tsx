@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/features/auth/providers/auth-provider";
-import { useFcmToken } from "@/hooks/use-fcm-token";
+import { useFcmToken } from "@/features/notifications/hooks/use-fcm-token";
 import { registerPushTokenAction } from "@/features/notifications/actions";
 
 export function PushTokenRegistrar() {

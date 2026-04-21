@@ -1,7 +1,6 @@
 "use server";
 
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
-import { enqueueWorkerOnboardingSubmittedNotification } from "@/features/notifications/server/enqueue-worker-onboarding-submitted";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
 import {
   onboardingStepError,
@@ -34,12 +33,6 @@ export const payrollAction = async (
   }
 
   await updateUserIsActive(session.userId, true);
-
-  try {
-    await enqueueWorkerOnboardingSubmittedNotification();
-  } catch (err) {
-    console.error("[payrollAction] onboarding submitted notification", err);
-  }
 
   return { ok: true, redirectTo: "/review", steps: persist.steps };
 };

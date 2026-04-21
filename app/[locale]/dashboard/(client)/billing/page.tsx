@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { FinalizeSavedPaymentMethod } from "@/features/payments/billing/components/finalize-saved-payment-method";
 import {
-  getBillingAccount,
   getPaymentMethods,
   getSuccessfulPaymentsForClient,
 } from "@/features/payments/billing/dal/queries";
@@ -11,39 +10,18 @@ import { PaymentsTable } from "./_payments-table";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 async function BillingContent() {
-  const [pmRes, billingRes, t] = await Promise.all([
-    getPaymentMethods(),
-    getBillingAccount(),
-    getTranslations("dashboard.client.billing"),
-  ]);
+  const pmRes = await getPaymentMethods();
 
   const paymentMethods =
     pmRes.error || !pmRes.data ? [] : pmRes.data;
-  const billingSummary =
-    billingRes.error || !billingRes.data
-      ? null
-      : { customerId: billingRes.data.customerId };
 
   return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>{t("cardsTitle")}</CardTitle>
-        <CardDescription>{t("cardsDescription")}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ClientAccountBillingPanel
-          initialPaymentMethods={paymentMethods}
-          billingSummary={billingSummary}
-        />
-      </CardContent>
-    </Card>
+    <ClientAccountBillingPanel initialPaymentMethods={paymentMethods} />
   );
 }
 

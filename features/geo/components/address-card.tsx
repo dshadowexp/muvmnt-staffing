@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MapPin, Pencil, X } from "lucide-react";
+import { MapPin, Pencil, X, CircleDashedIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ import { AddressInput } from "@/features/geo/components/address-input";
 import { getPlaceDetails } from "@/features/geo/dal/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
 import {
   Field,
   FieldError,
@@ -180,7 +179,7 @@ export function AddressCard({
             </div>
             <div className="flex h-8 w-8 shrink-0 items-center justify-center">
               {resolving ? (
-                <Spinner
+                <CircleDashedIcon
                   className="size-4 text-muted-foreground"
                   aria-label={t("updatingAddress")}
                 />

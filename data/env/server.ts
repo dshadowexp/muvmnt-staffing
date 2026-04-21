@@ -26,14 +26,7 @@ export const env = createEnv({
         TWILIO_AUTH_TOKEN: z.string().min(1),
         TWILIO_FROM_NUMBER: z.string().min(1),
         TWILIO_MESSAGING_ID: z.string().min(1),
-        SMTP_HOST: z.string().min(1),
-        SMTP_PORT: z.string().transform(Number),
-        SMTP_SECURE: z.string().transform(Boolean),
-        SMTP_USER: z.string().min(1),
-        SMTP_PASSWORD: z.string().min(1),
-        SMTP_FROM_ADDRESS: z.string().min(1),
-        SMTP_FROM_NAME: z.string().min(1),
-        WEB_PUSH_VAPID_PRIVATE_KEY: z.string().min(1),
+        RESEND_API_KEY: z.string().min(1),
     },
     createFinalSchema: env => {
         return z.object(env).transform(val => {

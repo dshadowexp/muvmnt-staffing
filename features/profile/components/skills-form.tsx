@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, FileText, Loader2 } from "lucide-react";
+import { ChevronDown, FileText, CircleDashedIcon } from "lucide-react";
 import {
   SKILL_CATALOG,
   getSkillDescription,
@@ -149,7 +149,7 @@ export function SkillsForm({ initialSkills = [], onSaved }: SkillsFormProps) {
               Cancel
             </Button>
             <Button type="button" size="lg" onClick={handleSave} disabled={saving}>
-              {saving && <Loader2 className="size-4 animate-spin" />}
+              {saving && <CircleDashedIcon className="size-4 animate-spin" />}
               Save
             </Button>
           </div>

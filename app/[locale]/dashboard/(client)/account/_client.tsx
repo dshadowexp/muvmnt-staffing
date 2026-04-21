@@ -1,10 +1,14 @@
 "use client";
 
-import { Suspense, use } from "react";
+import { Suspense, use, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { OrganizationCard } from "@/features/account/components/organization-card";
 import type { ClientProfileFormInput } from "@/features/account/schemas/client";
 import type { AddressLocation } from "@/features/geo/types";
+import { AddressLocationReadonlySummary } from "@/features/geo/components/address-location-readonly-summary";
+import { AddressCard } from "@/features/geo/components/address-card";
+import { ClientLocationDetailInputs } from "@/features/geo/components/client-location-detail-inputs";
 import {
   Card,
   CardContent,
@@ -12,10 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AddressCard } from "@/features/geo/components/address-card";
 import { useRouter } from "@/i18n/navigation";
 import { upsertLocationAction } from "@/features/geo/dal/mutations";
+import { Pencil } from "lucide-react";
 
 export function ClientAccountProfile({
   clientProfilePromise,
@@ -51,31 +56,77 @@ function AddressSlot({
   locationPromise: Promise<AddressLocation | null | undefined>;
 }) {
   const router = useRouter();
+  const t = useTranslations("dashboard.client.account.address");
   const location = use(locationPromise);
+  const [editing, setEditing] = useState(!location);
 
-  async function handleAddressChange(loc: AddressLocation) {
-    const { error, message } = await upsertLocationAction(loc);
+  async function persistQuiet(next: AddressLocation): Promise<boolean> {
+    const { error, message } = await upsertLocationAction(next);
     if (error) {
       toast.error(message);
-      return;
+      return false;
+    }
+    return true;
+  }
+
+  async function persistWithToast(next: AddressLocation): Promise<boolean> {
+    const { error, message } = await upsertLocationAction(next);
+    if (error) {
+      toast.error(message);
+      return false;
     }
     toast.success(message);
+    return true;
+  }
+
+  async function handleAddressChange(loc: AddressLocation) {
+    const ok = await persistWithToast(loc);
+    if (ok) router.refresh();
+  }
+
+  function handleDoneEditing() {
+    setEditing(false);
     router.refresh();
   }
 
   return (
     <Card size="sm">
-      <CardHeader>
-        <CardTitle>Address</CardTitle>
-        <CardDescription>
-          This is where your shifts will be posted and workers will be matched.
-        </CardDescription>
+      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4 space-y-0">
+        <div className="space-y-1.5">
+          <CardTitle>{t("cardTitle")}</CardTitle>
+          <CardDescription>{t("cardDescription")}</CardDescription>
+        </div>
+        {location && !editing ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setEditing(true)}
+            className="shrink-0"
+          >
+            <Pencil className="size-3.5" />
+          </Button>
+        ) : null}
       </CardHeader>
-      <CardContent>
-        <AddressCard
-          value={location ?? undefined}
-          onChange={handleAddressChange}
-        />
+      <CardContent className="space-y-6">
+        {!location || editing ? (
+          <>
+            <AddressCard value={location ?? undefined} onChange={handleAddressChange} />
+            <ClientLocationDetailInputs
+              location={location ?? null}
+              onPersist={persistQuiet}
+            />
+            {location ? (
+              <div className="flex justify-end">
+                <Button type="button" variant="secondary" onClick={handleDoneEditing}>
+                  {t("doneEditing")}
+                </Button>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <AddressLocationReadonlySummary location={location} />
+        )}
       </CardContent>
     </Card>
   );

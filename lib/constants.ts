@@ -30,17 +30,41 @@ export const NON_ORG_PREFIXES: string[] = [
   "/terms",
   "/refer",
 ];
-
-/** Authenticated route prefixes (locale stripped by proxy). Use absolute paths. */
-export const AUTH_PREFIXES: string[] = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-];
-
 export const INACTIVE_PREFIXES: string[] = [
   "/onboarding",
   "/review",
+];
+
+export const WORKER_DASHBOARD_PREFIXES: string[] = [
+  "/dashboard",
+  "/dashboard/shifts",
+  "/dashboard/availability",
+  "/dashboard/profile",
+  "/dashboard/assessments",
+  "/dashboard/compliance",
+  "/dashboard/payroll",
+  "/dashboard/referrals",
+  "/interviews",
+  "/quizes",
+];
+
+export const CLIENT_DASHBOARD_PREFIXES: string[] = [
+  "/dashboard",
+  "/dashboard/requests",
+  "/dashboard/account",
+  "/dashboard/billing",
+  "/dashboard/referrals",
+];
+
+export const ADMIN_DASHBOARD_PREFIXES: string[] = [
+  "/dashboard/admin",
+  "/dashboard/admin/requests",
+  "/dashboard/admin/shifts",
+  "/dashboard/admin/authorization",
+  "/dashboard/admin/compliance",
+  "/dashboard/admin/clients",
+  "/dashboard/admin/workers",
+  "/dashboard/referrals",
 ];
 
 // ── Professional (Find Work) ──────────────────────────────────────────────────

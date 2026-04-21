@@ -7,11 +7,9 @@ import {
 } from "@/features/shifts/dal/queries";
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
 import { attachResolvedWorkerPhotos } from "@/features/shifts/lib/resolve-worker-photo-url";
-import { getSession } from "@/lib/session";
 import { getClientProfile } from "@/features/profile/dal/queries";
 import { Link } from "@/i18n/navigation";
 import { CheckCircle2Icon, ClockIcon, PlusIcon } from "lucide-react";
-import { redirect } from "next/navigation";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import {
@@ -30,9 +28,9 @@ function formatDuration(totalMinutes: number): string {
   return `${hrs}h ${mins}m`;
 }
 
-async function StatsCards({ userId }: { userId: string }) {
+async function StatsCards() {
   const [stats, t] = await Promise.all([
-    completedShiftStatsForClient(userId),
+    completedShiftStatsForClient(),
     getTranslations("dashboard.client.home"),
   ]);
 
@@ -84,13 +82,13 @@ function StatsCardsSkeleton() {
   );
 }
 
-async function TodayShifts({ userId }: { userId: string }) {
+async function TodayShifts() {
   const t = await getTranslations("dashboard.client.home");
   const now = toZonedTime(new Date(), SHIFT_SCHEDULE_TIMEZONE);
   const dayStart = fromZonedTime(startOfDay(now), SHIFT_SCHEDULE_TIMEZONE).toISOString();
   const dayEnd = fromZonedTime(endOfDay(now), SHIFT_SCHEDULE_TIMEZONE).toISOString();
 
-  const shiftsRaw = await listTodayShiftsForClientUser(userId, dayStart, dayEnd);
+  const shiftsRaw = await listTodayShiftsForClientUser(dayStart, dayEnd);
   const shifts = await attachResolvedWorkerPhotos(shiftsRaw);
 
   return (
@@ -125,9 +123,6 @@ function ShiftsTableSkeleton() {
 }
 
 export default async function ClientHomePage() {
-  const session = await getSession();
-  if (!session) redirect("/sign-in");
-  if (session.role !== "client") redirect(`/dashboard`);
 
   const [client, t] = await Promise.all([
     getClientProfile(),
@@ -142,22 +137,12 @@ export default async function ClientHomePage() {
             ? t("welcomeWithName", { name: client.name })
             : t("welcome")}
         </h1>
-        <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-          {t("subtitle")}
-        </p>
       </div>
 
-      <Suspense fallback={<StatsCardsSkeleton />}>
-        <StatsCards userId={session.userId} />
-      </Suspense>
-
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-sm text-muted-foreground font-semibold tracking-tight">
           {t("makeRequest")}
         </h1>
-        <p className="text-muted-foreground mt-1 mb-4 max-w-2xl text-sm">
-          {t("makeRequestSubtitle")}
-        </p>
         <div>
           <Link className="transition-opacity" href="/dashboard/requests/new" prefetch={true}>
             <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
@@ -170,12 +155,22 @@ export default async function ClientHomePage() {
         </div>
       </div>
 
+      <div className="flex flex-col gap-4">
+        <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
+            {t("subtitle")}
+        </p>
+        <Suspense fallback={<StatsCardsSkeleton />}>
+          <StatsCards />
+        </Suspense>
+      </div>
+      
+
       <div>
         <h1 className="text-xl font-semibold tracking-tight">
           {t("todaysShifts")}
         </h1>
         <Suspense fallback={<ShiftsTableSkeleton />}>
-          <TodayShifts userId={session.userId} />
+          <TodayShifts />
         </Suspense>
       </div>
     </div>

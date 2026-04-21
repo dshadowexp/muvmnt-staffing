@@ -25,7 +25,7 @@ import {
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, loginWithEmail } from "@/services/firebase/auth";
 import { useRouter } from "@/i18n/navigation";
-import { useAuthRedirect } from "@/hooks/use-auth-redirect";
+import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import posthog from "posthog-js";
 
 export function SignInForm() {

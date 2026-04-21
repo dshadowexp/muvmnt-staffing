@@ -1,24 +1,30 @@
-import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
+"use client";
+
 import { Link } from "@/i18n/navigation";
-import { getSession } from "@/lib/get-session";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MenuToggle } from "./menu-toggle";
 import { Logo } from "@/components/logo";
-import { Spinner } from "@/components/ui/spinner";
+import { useAuth } from "@/features/auth/providers/auth-provider";
+import { useTranslations } from "next-intl";
+import { CircleDashedIcon } from "lucide-react";
 
-async function NavbarAuthButtons() {
-  const [session, t] = await Promise.all([getSession(), getTranslations("nav")]);
-  if (session) {
+function NavbarAuthButtons() {
+  const { authUser, loading } = useAuth();
+  const t = useTranslations("nav");
+
+  if (loading) return <CircleDashedIcon className="animate-spin" />;
+
+  if (authUser) {
     return (
       <Button size="sm" asChild>
         <Link href={`/dashboard`}>{t("dashboard")}</Link>
       </Button>
     );
   }
+
   return (
     <div className="flex items-center gap-2">
       <Button variant="ghost" size="sm" asChild>
@@ -31,13 +37,8 @@ async function NavbarAuthButtons() {
   );
 }
 
-async function NavbarMobileMenu() {
-  const session = await getSession();
-  return <MenuToggle isLoggedIn={!!session} role={session?.role} />;
-}
-
-export default async function Navbar() {
-  const t = await getTranslations("nav");
+export default function Navbar() {
+  const t = useTranslations("nav");
   const navLinks = t.raw("links") as Array<{ label: string; href: string }>;
 
   return (
@@ -57,15 +58,7 @@ export default async function Navbar() {
 
         <Separator orientation="vertical" className="h-5" />
 
-        <Suspense
-          fallback={
-            <div className="flex h-9 min-w-[10rem] items-center justify-center">
-              <Spinner />
-            </div>
-          }
-        >
-          <NavbarAuthButtons />
-        </Suspense>
+        <NavbarAuthButtons />
 
         <div className="flex items-center gap-1">
           <LanguageSwitcher />
@@ -73,19 +66,7 @@ export default async function Navbar() {
         </div>
       </div>
 
-      <Suspense
-        fallback={
-          <div
-            className="flex size-9 items-center justify-center lg:hidden"
-            aria-busy
-            aria-label="Loading session"
-          >
-            <Spinner />
-          </div>
-        }
-      >
-        <NavbarMobileMenu />
-      </Suspense>
+      <MenuToggle />
     </nav>
   );
 }

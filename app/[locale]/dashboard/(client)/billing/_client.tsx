@@ -13,24 +13,44 @@ import getStripeBrowser, {
 } from "@/services/stripe/client";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
-import { CircleDashedIcon } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CircleDashedIcon, Plus } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type SubmitEventHandler } from "react";
 import { toast } from "sonner";
 
+const MAX_CARD_METHODS = 3;
+
 export function ClientAccountBillingPanel({
   initialPaymentMethods,
-  billingSummary,
 }: {
   initialPaymentMethods: PaymentMethodCardType[];
-  billingSummary: { customerId: string } | null;
 }) {
+  const t = useTranslations("dashboard.client.billing");
   const [cards, setCards] = useState(initialPaymentMethods);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogSecret, setDialogSecret] = useState<string | null>(null);
+  const [dialogLoading, setDialogLoading] = useState(false);
   const stripePromise = useMemo(() => getStripeBrowser(), []);
   const { resolvedTheme } = useTheme();
   const [loading, setLoading] = useState(initialPaymentMethods.length === 0);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const appearance = resolvedTheme === "dark" ? DARK_APPEARANCE : LIGHT_APPEARANCE;
+  const router = useRouter();
 
   useEffect(() => {
     setCards(initialPaymentMethods);
@@ -67,43 +87,152 @@ export function ClientAccountBillingPanel({
     };
   }, [cards.length]);
 
-  return (
-    <div className="space-y-6">
-      {cards.length > 0 ? (
-        <PaymentMethodList
-          initialCards={cards}
-          onDelete={(id) => setCards((prev) => prev.filter((c) => c.id !== id))}
-        />
-      ) : null}
+  useEffect(() => {
+    if (!dialogOpen) {
+      setDialogSecret(null);
+      return;
+    }
 
-      {cards.length === 0 ? (
-        loading ? (
-          <CircleDashedIcon className="text-muted-foreground size-6 animate-spin" />
-        ) : !clientSecret ? (
-          <p className="text-destructive text-sm">Could not load payment form.</p>
-        ) : (
-          <Elements
-            key={resolvedTheme ?? "light"}
-            stripe={stripePromise}
-            options={{
-              appearance,
-              clientSecret,
-              currency: "cad",
-              loader: "auto",
-            }}
+    let cancelled = false;
+    async function loadIntent() {
+      setDialogLoading(true);
+      setDialogSecret(null);
+      try {
+        const { error, data } = await createSetupIntent();
+        if (cancelled) return;
+        if (error) {
+          toast.error(error);
+          setDialogOpen(false);
+          return;
+        }
+        setDialogSecret(data?.clientSecret ?? null);
+      } catch (e) {
+        if (!cancelled) {
+          toast.error(
+            e instanceof Error ? e.message : "Failed to load payment form",
+          );
+          setDialogOpen(false);
+        }
+      } finally {
+        if (!cancelled) setDialogLoading(false);
+      }
+    }
+    void loadIntent();
+    return () => {
+      cancelled = true;
+    };
+  }, [dialogOpen]);
+
+  const canAddMore = cards.length < MAX_CARD_METHODS;
+  const hasCards = cards.length > 0;
+
+  return (
+    <Card size="sm">
+      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4 space-y-0">
+        <div className="space-y-1.5">
+          <CardTitle>{t("cardsTitle")}</CardTitle>
+          <CardDescription>{t("cardsDescription")}</CardDescription>
+        </div>
+        {hasCards && canAddMore ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="shrink-0"
+            onClick={() => setDialogOpen(true)}
+            aria-label={t("addCardAria")}
+            title={t("addCardAria")}
           >
-            <AccountAddPaymentForm />
-          </Elements>
-        )
-      ) : null}
-    </div>
+            <Plus className="size-4" />
+          </Button>
+        ) : null}
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {hasCards ? (
+          <PaymentMethodList
+            initialCards={cards}
+            onDelete={(id) => setCards((prev) => prev.filter((c) => c.id !== id))}
+            onDefaultChange={() => router.refresh()}
+          />
+        ) : null}
+
+        {!hasCards ? (
+          loading ? (
+            <CircleDashedIcon className="text-muted-foreground size-6 animate-spin" />
+          ) : !clientSecret ? (
+            <p className="text-destructive text-sm">{t("couldNotLoadForm")}</p>
+          ) : (
+            <Elements
+              key={`${resolvedTheme ?? "light"}-${clientSecret}`}
+              stripe={stripePromise}
+              options={{
+                appearance,
+                clientSecret,
+                currency: "cad",
+                loader: "auto",
+              }}
+            >
+              <AddPaymentMethodForm
+                setAsDefault={cards.length === 0}
+                onSuccess={() => router.refresh()}
+                submitLabel={t("addPaymentMethod")}
+              />
+            </Elements>
+          )
+        ) : null}
+
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="max-w-lg sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{t("addCardDialogTitle")}</DialogTitle>
+              <DialogDescription>{t("addCardDialogDescription")}</DialogDescription>
+            </DialogHeader>
+            {dialogLoading ? (
+              <div className="flex justify-center py-8">
+                <CircleDashedIcon className="text-muted-foreground size-8 animate-spin" />
+              </div>
+            ) : dialogSecret ? (
+              <Elements
+                key={`dialog-${resolvedTheme ?? "light"}-${dialogSecret}`}
+                stripe={stripePromise}
+                options={{
+                  appearance,
+                  clientSecret: dialogSecret,
+                  currency: "cad",
+                  loader: "auto",
+                }}
+              >
+                <AddPaymentMethodForm
+                  setAsDefault={false}
+                  onSuccess={() => {
+                    setDialogOpen(false);
+                    router.refresh();
+                  }}
+                  submitLabel={t("addPaymentMethod")}
+                />
+              </Elements>
+            ) : (
+              <p className="text-destructive text-sm">{t("couldNotLoadForm")}</p>
+            )}
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
   );
 }
 
-function AccountAddPaymentForm() {
+function AddPaymentMethodForm({
+  setAsDefault,
+  onSuccess,
+  submitLabel,
+}: {
+  setAsDefault: boolean;
+  onSuccess: () => void;
+  submitLabel: string;
+}) {
+  const t = useTranslations("dashboard.client.billing");
   const stripe = useStripe();
   const elements = useElements();
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
@@ -138,12 +267,14 @@ function AccountAddPaymentForm() {
     }
 
     if (setupIntent?.status === "succeeded" && setupIntent.id) {
-      const res = await syncDefaultPaymentMethodAfterSetupIntent(setupIntent.id);
+      const res = await syncDefaultPaymentMethodAfterSetupIntent(setupIntent.id, {
+        setAsDefault,
+      });
       if (res.error) {
         toast.error(res.error);
       } else {
         toast.success("Payment method saved.");
-        router.refresh();
+        onSuccess();
       }
     }
     setIsSubmitting(false);
@@ -152,14 +283,14 @@ function AccountAddPaymentForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement options={{ layout: "accordion" }} />
-      <Button type="submit" disabled={isSubmitting}>
+      <Button className="w-full" type="submit" disabled={isSubmitting}>
         {isSubmitting ? (
           <>
             <CircleDashedIcon className="mr-2 size-4 animate-spin" />
-            Saving…
+            {t("savingPaymentMethod")}
           </>
         ) : (
-          "Add payment method"
+          submitLabel
         )}
       </Button>
     </form>

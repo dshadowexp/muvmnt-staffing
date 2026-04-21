@@ -13,7 +13,7 @@ import { parseOnboardingSteps } from "@/features/onboarding/types";
 /**
  * Marks a step complete (idempotent). Merges into existing `onboarding.steps` JSON.
  * Returns the merged map so the client can update onboarding UI without a refetch.
- * @param markOnboardingCompleted When true, sets `onboarding.is_completed` (worker payroll finish).
+ * @param markOnboardingCompleted When true, sets `onboarding.is_completed` (e.g. worker payroll finish or client billing).
  */
 export async function completeOnboardingStep(
   stepId: string,

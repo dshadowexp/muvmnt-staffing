@@ -44,7 +44,7 @@ async function fetchExchange(
 
     try {
         res = await fetch(
-            `${env.NEXT_PUBLIC_API_URL}/v1/auth/exchange-token`,
+            `${env.NEXT_PUBLIC_APP_URL}/api/v1/auth/exchange-token`,
             {
                 method:  "POST",
                 headers: {

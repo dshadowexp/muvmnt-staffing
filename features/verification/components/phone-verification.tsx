@@ -4,8 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/features/auth/providers/auth-provider";
-import { sendPhoneOtp } from "@/features/verification/dal/queries";
-import { verifyPhoneOtp } from "@/features/verification/dal/mutations";
 import {
   buildPhoneSchema,
   buildOtpSchema,
@@ -30,6 +28,8 @@ import {
 import { Check, CircleDashed } from "lucide-react";
 import { formatPhoneToE164 } from "@/lib/formatters";
 import posthog from "posthog-js";
+import { ConfirmationResult, linkWithCredential, PhoneAuthProvider, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { auth } from "@/services/firebase/client";
 
 type PhoneStep = "input" | "otp" | "done";
 
@@ -70,6 +70,9 @@ export function PhoneVerification() {
     [country],
   );
 
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
+  const [confirmResult, setConfirmResult] = useState<ConfirmationResult | null>(null);
+
   const form = useForm<FormValues>({
     defaultValues: { phone: "", code: "" },
   });
@@ -84,6 +87,19 @@ export function PhoneVerification() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    const recaptchaVerifier = new RecaptchaVerifier(
+      auth, "recaptcha-container", {
+      size: "invisible"
+    });
+
+    setRecaptchaVerifier(recaptchaVerifier);
+
+    return () => {
+      recaptchaVerifier.clear();
+    };
+  }, [auth]);
 
   const startCooldown = () => {
     setCooldown(60);
@@ -117,7 +133,16 @@ export function PhoneVerification() {
     setSending(true);
     try {
       const formatted = formatPhoneToE164(phone, selectedCountry.dialCode);
-      await sendPhoneOtp(formatted);
+      if (!recaptchaVerifier) {
+        setError("phone", {
+          message: "RecaptchaVerifier is not initialized",
+        });
+        return;
+      }
+
+      const confirmationResult = await signInWithPhoneNumber(auth, formatted, recaptchaVerifier);
+      setConfirmResult(confirmationResult);
+
       posthog.capture("phone_otp_sent");
       setStep("otp");
       startCooldown();
@@ -140,18 +165,28 @@ export function PhoneVerification() {
       return;
     }
 
+    if (!confirmResult) {
+      setError("code", {
+        message: "Please request OTP first",
+      });
+      return;
+    }
+
+
     setVerifying(true);
     try {
+      const credential = PhoneAuthProvider.credential(
+        confirmResult.verificationId,
+        otp
+      );
+      await linkWithCredential(auth.currentUser!, credential);
+
       const formatted = formatPhoneToE164(phone, selectedCountry.dialCode);
-      const res = await verifyPhoneOtp(formatted, otp);
-      if (res.status === "approved") {
-        posthog.capture("phone_verified");
+      posthog.capture("phone_verified");
         setVerifiedPhone(formatted);
         setStep("done");
-      } else {
-        setError("code", { message: t("verifyFailed") });
-      }
     } catch (e) {
+      console.error(e);
       setError("code", {
         message: e instanceof Error ? e.message : t("verifyFailed"),
       });
@@ -165,6 +200,7 @@ export function PhoneVerification() {
 
   return (
     <section className="space-y-3" aria-labelledby="phone-verification-heading">
+      <div id="recaptcha-container" />
       <div className="flex items-center justify-between gap-2">
         <FieldLabel id="phone-verification-heading" className="font-semibold">
           {t("phoneLabel")}
@@ -278,7 +314,7 @@ export function PhoneVerification() {
                 <InputOTP
                   maxLength={6}
                   value={code}
-                  disabled={verifying}
+                  disabled={verifying || !confirmResult}
                   onChange={(v) => {
                     setValue("code", v, { shouldValidate: true });
                     clearErrors("code");

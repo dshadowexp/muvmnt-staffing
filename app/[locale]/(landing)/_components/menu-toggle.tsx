@@ -3,23 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Menu, X } from "lucide-react";
+import { CircleDashedIcon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { UserRole } from "@/types/auth";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 
-interface MenuToggleProps {
-  isLoggedIn: boolean;
-  role?: UserRole;
-}
-
-export function MenuToggle({ isLoggedIn, role }: MenuToggleProps) {
+export function MenuToggle() {
+  const { authUser, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
   const navLinks = t.raw("links") as Array<{ label: string; href: string }>;
+  const isLoggedIn = !!authUser;
+  const role = authUser?.role;
+
+  if (loading) return <CircleDashedIcon className="animate-spin" />;
 
   return (
     <>

@@ -5,7 +5,7 @@ import {
     AlertCircle,
     CheckCircle2,
     CircleDashed,
-    Loader2,
+    CircleDashedIcon
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -106,7 +106,7 @@ function Inner({ runId }: { runId: string }) {
                         aria-hidden
                     />
                 ) : (
-                    <Loader2
+                    <CircleDashedIcon
                         className="mt-0.5 size-5 animate-spin text-primary"
                         aria-hidden
                     />
@@ -148,7 +148,7 @@ function Inner({ runId }: { runId: string }) {
                                     aria-hidden
                                 />
                             ) : isCurrent ? (
-                                <Loader2
+                                <CircleDashedIcon
                                     className="size-4 animate-spin text-primary"
                                     aria-hidden
                                 />

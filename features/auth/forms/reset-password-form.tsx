@@ -21,7 +21,7 @@ import {
     SuccessBanner,
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, resetPassword } from "@/services/firebase/auth";
-import { useAuthRedirect } from "@/hooks/use-auth-redirect";
+import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import { SITE_EMAIL } from "@/lib/constants";
 
 export function ResetPasswordForm() {
@@ -106,13 +106,13 @@ export function ResetPasswordForm() {
                                 {t("emailLabel")} <span className="text-destructive">*</span>
                                 </FieldLabel>
                                 <Input
-                                id="reset-email"
-                                type="email"
-                                placeholder={t("emailPlaceholder")}
-                                autoComplete="email"
-                                disabled={isSubmitting}
-                                aria-invalid={!!errors.email || undefined}
-                                {...register("email")}
+                                    id="reset-email"
+                                    type="email"
+                                    placeholder={t("emailPlaceholder")}
+                                    autoComplete="email"
+                                    disabled={isSubmitting}
+                                    aria-invalid={!!errors.email || undefined}
+                                    {...register("email")}
                                 />
                                 <FieldError>{errors.email?.message}</FieldError>
                             </Field>
@@ -131,8 +131,8 @@ export function ResetPasswordForm() {
                             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
                                 {t("remembered")}{" "}
                                 <Link
-                                href={withAuthParams("/sign-in")}
-                                className="font-semibold text-primary no-underline hover:text-primary/80"
+                                    href={withAuthParams("/sign-in")}
+                                    className="font-semibold text-primary no-underline hover:text-primary/80"
                                 >
                                 {t("backToSignIn")}
                                 </Link>

@@ -1,17 +1,17 @@
 {
   "site": {
     "name": "ReadyKare",
-    "tagline": "Solutions de dotation en santé",
+    "tagline": "Dotation en santé en moins de 5 minutes",
     "phone": "1-437-979-7797",
     "email": "info@readykare.ca",
     "countries": "Canada, États-Unis, Royaume-Uni",
-    "copyright": "© {year} ReadyKare Staffing Inc. Tous droits réservés."
+    "copyright": "© {year} ReadyKare Inc. Tous droits réservés."
   },
 
   "meta": {
-    "description": "ReadyKare met en lien les établissements de santé canadiens avec des professionnels qualifiés et accrédités — rapidement. Dotation temporaire, soins à domicile et relève d'urgence partout au Canada.",
-    "openGraphDescription": "Solutions de dotation en santé rapides et fiables pour les établissements canadiens.",
-    "openGraphImageAlt": "ReadyKare Staffing Inc."
+    "description": "ReadyKare met en lien les établissements de santé avec des professionnels qualifiés et accrédités — rapidement. Dotation temporaire, soins à domicile et relève d'urgence partout au Canada.",
+    "openGraphDescription": "Comblez vos besoins en personnel en moins de 5 minutes grâce à un matching en temps réel par IA avec des professionnels de santé qualifiés, présélectionnés et vérifiés près de vous.",
+    "openGraphImageAlt": "ReadyKare Inc."
   },
 
   "common": {
@@ -97,16 +97,16 @@
   "landing": {
     "hero": {
       "badge": "La dotation en santé, simplifiée",
-      "titleLead": "Demandez du",
-      "titleAccent": "personnel soignant",
-      "titleTail": "en quelques minutes.",
+      "titleLead": "Couverture",
+      "titleAccent": "en moins de",
+      "titleTail": "5 minutes.",
       "subtitle": "ReadyKare connecte les équipes de santé à des professionnels accrédités et pré-qualifiés — rapidement. Dites-nous votre horaire, confirmez les jumelages, et obtenez une couverture instantanée.",
       "ctaRequest": "Demander du personnel →",
       "ctaProfessional": "Je suis un professionnel",
       "stats": [
-        { "value": "500+", "label": "Établissements desservis" },
+        { "value": "93+", "label": "Établissements desservis" },
         { "value": "98%", "label": "Taux de jumelage" },
-        { "value": "<2h", "label": "Délai moyen" }
+        { "value": "<3m", "label": "Délai moyen" }
       ]
     },
     "trust": {
@@ -136,9 +136,9 @@
         { "icon": "MessageCircle", "title": "Soutien humain", "description": "Une équipe dédiée qui connaît votre établissement — pas de billets, pas de robots." }
       ],
       "statCards": [
-        { "title": "Plus de 500 établissements", "subtitle": "Font confiance à ReadyKare en Ontario" },
+        { "title": "Plus de 93 établissements", "subtitle": "Font confiance à ReadyKare en Ontario" },
         { "title": "98 % de jumelage", "subtitle": "Sur tous les types de quarts" },
-        { "title": "< 2 h de délai", "subtitle": "Pour la relève d'urgence" }
+        { "title": "< 3 m de délai", "subtitle": "Pour la relève d'urgence" }
       ]
     },
     "testimonials": {
@@ -161,11 +161,6 @@
       "ogDescription": "Comblez vos quarts en soins infirmiers, PAB et santé connexe — de la relève le jour même à la couverture à long terme."
     },
     "breadcrumb": "Demander du personnel",
-    "badge": "Pour les clients",
-    "titleLead": "Les demandes",
-    "titleAccent": "sont jumelées",
-    "titleTail": "en moins de deux minutes.",
-    "subtitle": "Dites-nous quand vous avez besoin de personnel. Nous vous connectons à des professionnels vérifiés et accrédités, et confirmons la couverture instantanément.",
     "points": [
       { "icon": "Timer", "label": "Placement le jour même" },
       { "icon": "BadgeCheck", "label": "Professionnels accrédités" },
@@ -174,7 +169,7 @@
     "rolesLabel": "Nous plaçons",
     "roles": ["IA", "IAA", "PAB", "PSE", "Connexe", "Soutien"],
     "card": {
-      "title": "Soumettre une demande",
+      "title": "Trouver du personnel à proximité",
       "subtitle": "Obtenez des jumelages instantanément."
     },
     "form": {
@@ -203,6 +198,13 @@
         { "num": "02", "title": "Nous jumelons vite", "description": "Consultez la couverture proposée et choisissez votre tarif." },
         { "num": "03", "title": "Confirmez et c'est parti", "description": "Verrouillez le personnel. Les heures sont suivies et payées pour vous." }
       ]
+    },
+    "account": {
+      "overline": "Compte client",
+      "title": "Nouveau ici ou déjà membre?",
+      "description": "Créez un compte gratuit pour gérer vos demandes et votre personnel, ou connectez-vous si vous utilisez déjà ReadyKare.",
+      "ctaCreate": "Créer un compte",
+      "ctaSignIn": "Déjà membre? Connectez-vous"
     }
   },
 
@@ -263,6 +265,219 @@
       "title": "Prêt à commencer?",
       "primary": "Demander du personnel",
       "secondary": "Trouver un quart"
+    }
+  },
+
+  "legal": {
+    "breadcrumb": "Mentions légales",
+    "badge": "Mentions légales",
+    "jurisdiction": "Canada",
+    "effectiveLabel": "En vigueur",
+    "updatedLabel": "Mise à jour",
+    "contactHeading": "Des questions?",
+    "contactBody": "Nous sommes une petite équipe — écrivez-nous et une vraie personne vous répondra.",
+    "disclaimer": "Cette page est un résumé en langage clair, pas un avis juridique. Pour votre situation précise, consultez un conseiller juridique.",
+    "privacy": {
+      "meta": {
+        "title": "Politique de confidentialité",
+        "description": "Comment ReadyKare recueille, utilise et protège les renseignements personnels pour la dotation temporaire en santé au Canada."
+      },
+      "title": "Politique de confidentialité",
+      "subtitle": "Un court résumé en langage clair sur la façon dont ReadyKare gère les renseignements personnels lorsqu'elle jumelle les établissements de santé à du personnel temporaire.",
+      "effective": "20 avril 2026",
+      "updated": "20 avril 2026",
+      "related": { "label": "Conditions d'utilisation", "href": "/terms" },
+      "contactEmail": "privacy@readykare.ca",
+      "sections": [
+        {
+          "id": "overview",
+          "title": "Survol",
+          "paragraphs": [
+            "ReadyKare Inc. (« ReadyKare », « nous ») exploite une plateforme de dotation temporaire en santé qui met en lien les établissements canadiens avec des professionnels pré-qualifiés et accrédités.",
+            "Cette politique explique les renseignements personnels que nous recueillons, ce que nous en faisons et les droits dont vous disposez. Nous traitons ces renseignements conformément au droit canadien de la protection de la vie privée, notamment la LPRPDE et les équivalents provinciaux applicables."
+          ]
+        },
+        {
+          "id": "what-we-collect",
+          "title": "Ce que nous recueillons",
+          "groups": [
+            {
+              "heading": "Des professionnels",
+              "bullets": [
+                "Nom, coordonnées et lieu",
+                "Accréditations, permis et expérience pertinente",
+                "Disponibilités et préférences de quart",
+                "Renseignements de paie nécessaires pour vous payer"
+              ]
+            },
+            {
+              "heading": "Des établissements",
+              "bullets": [
+                "Coordonnées de l'organisation et personnes-ressources autorisées",
+                "Demandes de dotation (rôle, dates, exigences)",
+                "Renseignements de facturation"
+              ]
+            },
+            {
+              "heading": "Des visiteurs",
+              "bullets": [
+                "Données techniques de base (IP, navigateur, pages consultées)",
+                "Tout ce que vous partagez volontairement dans un formulaire ou un courriel"
+              ]
+            }
+          ],
+          "note": "Nous recueillons uniquement ce qui est nécessaire pour faire fonctionner la plateforme et pourvoir les quarts."
+        },
+        {
+          "id": "how-we-use-it",
+          "title": "Comment nous l'utilisons",
+          "bullets": [
+            "Vérifier les accréditations et l'admissibilité à travailler",
+            "Jumeler les professionnels aux demandes des établissements",
+            "Coordonner les horaires, les placements et la paie",
+            "Répondre à vos questions et offrir du soutien",
+            "Respecter nos obligations légales et réglementaires"
+          ]
+        },
+        {
+          "id": "who-we-share-with",
+          "title": "Avec qui nous le partageons",
+          "paragraphs": [
+            "Nous partageons uniquement ce qui est nécessaire : avec les établissements pour confirmer un placement, avec les ordres professionnels pour vérifier les accréditations, et avec des fournisseurs de services de confiance (paie, vérifications d'antécédents, hébergement) agissant pour nous sous ententes de confidentialité.",
+            "Nous divulguons aussi des renseignements aux autorités lorsque la loi ou une procédure légale valide l'exige."
+          ],
+          "note": "Nous ne vendons pas vos renseignements personnels."
+        },
+        {
+          "id": "security",
+          "title": "Sécurité",
+          "paragraphs": [
+            "Nous appliquons des mesures raisonnables et reconnues — chiffrement en transit, contrôles d'accès et hébergement sécurisé — proportionnées à la sensibilité des données.",
+            "Si une atteinte présentant un risque réel de préjudice important survient, nous vous en aviserons ainsi que les autorités compétentes."
+          ]
+        },
+        {
+          "id": "your-rights",
+          "title": "Vos droits",
+          "paragraphs": [
+            "Vous pouvez accéder à vos renseignements personnels, les corriger ou les supprimer, et retirer votre consentement lorsque cela s'applique.",
+            "Écrivez à privacy@readykare.ca — nous répondons dans les 30 jours."
+          ]
+        },
+        {
+          "id": "retention",
+          "title": "Conservation",
+          "paragraphs": [
+            "Nous conservons les renseignements personnels aussi longtemps que nécessaire pour offrir nos services et respecter nos obligations légales ou fiscales, puis nous les supprimons ou les anonymisons de façon sécuritaire."
+          ]
+        },
+        {
+          "id": "changes",
+          "title": "Modifications",
+          "paragraphs": [
+            "Cette politique peut évoluer avec ReadyKare. Nous mettrons à jour la date de « dernière mise à jour » et, pour les changements importants, nous vous en aviserons directement."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "meta": {
+        "title": "Conditions d'utilisation",
+        "description": "Les conditions qui encadrent l'utilisation de la plateforme ReadyKare par les établissements de santé et les professionnels au Canada."
+      },
+      "title": "Conditions d'utilisation",
+      "subtitle": "Les règles de base en langage clair pour utiliser ReadyKare, que vous soyez un professionnel en quête de quarts ou un établissement qui demande du personnel.",
+      "effective": "20 avril 2026",
+      "updated": "20 avril 2026",
+      "related": { "label": "Politique de confidentialité", "href": "/privacy" },
+      "contactEmail": "legal@readykare.ca",
+      "sections": [
+        {
+          "id": "agreement",
+          "title": "Votre entente avec nous",
+          "paragraphs": [
+            "Ces Conditions encadrent votre utilisation de readykare.ca et de nos services de dotation (les « Services »). En utilisant les Services, vous acceptez ces Conditions et notre Politique de confidentialité.",
+            "Si vous acceptez au nom d'une organisation, vous confirmez avoir l'autorité pour l'engager. Si vous n'êtes pas d'accord avec ces Conditions, n'utilisez pas les Services."
+          ]
+        },
+        {
+          "id": "what-we-do",
+          "title": "Ce que nous faisons",
+          "paragraphs": [
+            "ReadyKare est une plateforme de dotation temporaire en santé. Nous aidons les établissements canadiens à pourvoir des quarts avec des professionnels pré-qualifiés et accrédités, et nous aidons ces professionnels à trouver des placements qui leur conviennent.",
+            "Nous assurons le jumelage, la coordination et, s'il y a lieu, la paie des placements que nous organisons."
+          ]
+        },
+        {
+          "id": "your-account",
+          "title": "Votre compte",
+          "bullets": [
+            "Fournissez des renseignements exacts et à jour",
+            "Gardez vos identifiants en sécurité",
+            "Vous êtes responsable de l'activité sur votre compte"
+          ]
+        },
+        {
+          "id": "for-professionals",
+          "title": "Pour les professionnels",
+          "bullets": [
+            "Détenir et maintenir les accréditations valides pour le travail accepté",
+            "Respecter les politiques, procédures et normes professionnelles de l'établissement où vous êtes placé",
+            "Nous informer rapidement si votre permis, vos disponibilités ou votre admissibilité changent",
+            "Ne pas utiliser ReadyKare pour contourner les placements (par exemple en sollicitant une embauche directe auprès d'un établissement rencontré via nous)"
+          ]
+        },
+        {
+          "id": "for-facilities",
+          "title": "Pour les établissements",
+          "bullets": [
+            "Fournir des détails exacts sur le quart, le milieu et tout risque connu",
+            "Respecter les lois applicables en matière de santé et sécurité pour le personnel sur place",
+            "Payer les factures selon les modalités de votre entente avec nous"
+          ]
+        },
+        {
+          "id": "acceptable-use",
+          "title": "Utilisation acceptable",
+          "bullets": [
+            "Aucune soumission fausse, trompeuse ou frauduleuse",
+            "Aucun accès non autorisé, extraction (scraping) ou utilisation automatisée abusive",
+            "Aucune conduite qui compromet la sécurité ou l'intégrité de la plateforme"
+          ]
+        },
+        {
+          "id": "disclaimers",
+          "title": "Avertissements et limites",
+          "paragraphs": [
+            "Nous faisons des efforts raisonnables pour qualifier les professionnels et pourvoir les demandes, mais nous ne garantissons pas les placements ni des résultats précis.",
+            "Les décisions cliniques pendant un quart demeurent la responsabilité professionnelle de la personne et de l'établissement. ReadyKare n'est pas un fournisseur de soins cliniques."
+          ],
+          "note": "Dans la mesure permise par la loi, la responsabilité totale de ReadyKare liée aux Services se limite aux frais que vous nous avez payés au cours des trois mois précédant la réclamation."
+        },
+        {
+          "id": "changes",
+          "title": "Modifications et résiliation",
+          "paragraphs": [
+            "Nous pouvons modifier ces Conditions à mesure que la plateforme évolue. Nous afficherons la date révisée et, pour les changements importants, nous vous aviserons directement.",
+            "Nous pouvons également suspendre ou mettre fin à l'accès en cas d'usage abusif des Services."
+          ]
+        },
+        {
+          "id": "governing-law",
+          "title": "Droit applicable",
+          "paragraphs": [
+            "Ces Conditions sont régies par les lois de la province de l'Ontario et les lois fédérales du Canada qui s'y appliquent, sans égard aux règles de conflit de lois.",
+            "Les différends relèvent de la compétence exclusive des tribunaux de l'Ontario."
+          ]
+        },
+        {
+          "id": "contact",
+          "title": "Nous joindre",
+          "paragraphs": [
+            "Des questions sur ces Conditions? Écrivez à legal@readykare.ca."
+          ]
+        }
+      ]
     }
   },
 
@@ -402,8 +617,8 @@
         "subtitle": "Voici un aperçu de votre activité.",
         "shiftsCompleted": "Quarts terminés",
         "totalEarned": "Total gagné",
-        "pendingActionsTitle": "Actions en attente",
-        "pendingActionsSubtitle": "Quelques éléments à compléter avant de commencer à travailler.",
+        "importantTasksTitle": "Tâches importantes",
+        "importantTasksSubtitle": "Quelques éléments à compléter avant de commencer à travailler.",
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
         "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui.",
@@ -419,6 +634,11 @@
           "title": "Autorisation de travail",
           "description": "Votre document est en cours d'examen par notre équipe.",
           "badge": "En cours d'examen"
+        },
+        "payrollOnboarding": {
+          "title": "Configuration de la paie",
+          "description": "Connectez votre compte de versement pour recevoir le paiement de vos quarts complétés.",
+          "startError": "Impossible de démarrer la configuration de la paie. Réessayez ou ouvrez Paie depuis le menu du compte."
         }
       },
       "shifts": {
@@ -499,13 +719,36 @@
         "title": "Facturation",
         "subtitle": "Modes de paiement et historique des paiements.",
         "cardsTitle": "Cartes de crédit/débit",
-        "cardsDescription": "Gérez les cartes utilisées pour les paiements.",
+        "cardsDescription": "Gérez les cartes utilisées pour les paiements. Vous pouvez enregistrer jusqu'à trois cartes et choisir celle utilisée par défaut pour les prélèvements.",
+        "addCardAria": "Ajouter un autre mode de paiement",
+        "addCardDialogTitle": "Ajouter un mode de paiement",
+        "addCardDialogDescription": "Saisissez les détails de la carte. Vous pouvez enregistrer jusqu'à trois cartes.",
+        "addPaymentMethod": "Ajouter un mode de paiement",
+        "couldNotLoadForm": "Impossible de charger le formulaire de paiement.",
+        "defaultCardBadge": "Mode de paiement par défaut",
+        "defaultUpdated": "Mode de paiement par défaut mis à jour.",
+        "setDefaultFailed": "Impossible de mettre à jour le mode de paiement par défaut.",
+        "paymentMethodSaved": "Mode de paiement enregistré.",
+        "savingPaymentMethod": "Enregistrement…",
         "paymentHistory": "Historique des paiements",
         "paymentHistorySubtitle": "Paiements complétés sur l'ensemble de vos demandes de personnel."
       },
       "account": {
         "title": "Compte",
-        "subtitle": "Profil de l'organisation et adresse."
+        "subtitle": "Profil de l'organisation et adresse.",
+        "address": {
+          "cardTitle": "Adresse",
+          "cardDescription": "C'est là que vos quarts seront publiés et que le personnel sera jumelé.",
+          "formattedAddress": "Adresse",
+          "suite": "Bureau / N° d'unité",
+          "city": "Ville",
+          "province": "Province / territoire",
+          "postalCode": "Code postal",
+          "country": "Pays",
+          "instructions": "Instructions pour le site",
+          "edit": "Modifier l'adresse",
+          "doneEditing": "Terminé"
+        }
       }
     },
     "admin": {

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
 import { ReferralView } from "@/features/referrals/components/referral-view";
 
 export async function generateMetadata({
@@ -14,11 +12,7 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-export default async function ReferralsPage() {
-  const session = await getSession();
-  if (!session) redirect("/sign-in");
-  if (session.role !== "worker") redirect("/dashboard");
-  
+export default async function ReferralsPage() {  
   const t = await getTranslations("referral.page");
 
   return (
@@ -29,7 +23,7 @@ export default async function ReferralsPage() {
           </h1>
         </div>
 
-        <ReferralView role={session.role} />
+        <ReferralView />
       </div>
     );
 }

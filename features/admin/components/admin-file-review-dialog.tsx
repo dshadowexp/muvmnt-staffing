@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ExternalLinkIcon, FileTextIcon, Loader2Icon } from "lucide-react";
+import { ExternalLinkIcon, FileTextIcon, CircleDashedIcon } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { format } from "date-fns";
 import * as React from "react";
@@ -126,7 +126,7 @@ function FilePreviewPane({
   if (status === "loading") {
     return (
       <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 md:min-h-[min(70vh,560px)]">
-        <Loader2Icon
+        <CircleDashedIcon
           className="text-muted-foreground size-10 animate-spin"
           aria-hidden
         />
