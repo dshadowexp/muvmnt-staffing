@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
        
         setAuthUser(authUser);
         await setSession(authUser);
+        pendingRoleRef.current = null;
 
         if (pendingReferralCodeRef.current && pendingRoleRef.current) { 
             recordReferralAction().then(({ success, error }) => {
@@ -74,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
             })
             pendingReferralCodeRef.current = null;
-            pendingRoleRef.current = null;
         }
     }
 

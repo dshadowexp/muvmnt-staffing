@@ -33,9 +33,9 @@ export default async function OnboardingStepsLayout({
     <OnboardingProvider role={role} initialStepCompletion={stepCompletion}>
       <div className="flex w-full flex-col gap-6 md:flex-row md:items-start md:gap-8 lg:gap-10">
         <OnboardingProgress />
-        <Card className="min-w-0 w-full flex-1 overflow-visible">
-          <CardContent className="px-5 pt-2 sm:px-6 md:px-8">
-            <div className="space-y-6">
+        <Card className="min-w-0 w-full max-w-full flex-1 overflow-x-hidden overflow-y-visible">
+          <CardContent className="min-w-0 px-5 pt-2 sm:px-6 md:px-8">
+            <div className="min-w-0 space-y-6">
               <OnboardingDetails />
               {children}
             </div>

@@ -150,7 +150,7 @@ export function AddressInput({
   }, []);
 
   return (
-    <div ref={wrapperRef} className="relative w-full">
+    <div ref={wrapperRef} className="relative w-full min-w-0 max-w-full">
       <InputGroup className={cn(className)}>
         <InputGroupAddon align="inline-start">
           <Search className="size-4 text-muted-foreground" />

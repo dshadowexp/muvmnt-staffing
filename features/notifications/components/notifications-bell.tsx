@@ -20,9 +20,7 @@ export function NotificationsBell() {
                     size="icon"
                     aria-label={tAccount("notifications")}
                 >
-                    { notificationPermissionStatus === null ? 
-                        <CircleDashedIcon className="size-4 animate-spin" /> :
-                        isGranted ? <BellIcon className="size-4" /> : <BellOffIcon className="size-4" />}
+                    {  isGranted ? <BellIcon className="size-4" /> : <BellOffIcon className="size-4" />}
                 </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">{tAccount("notifications")}</TooltipContent>

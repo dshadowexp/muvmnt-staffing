@@ -42,8 +42,8 @@ export function LocationClient({ location, role }: LocationFormProps) {
   const showClientDetails = role === "client" && !!location;
 
   return (
-    <form action={formAction} className="space-y-6">
-      <fieldset disabled={disabled} className="space-y-6 disabled:opacity-60">
+    <form action={formAction} className="min-w-0 space-y-6">
+      <fieldset disabled={disabled} className="min-w-0 space-y-6 disabled:opacity-60">
         <AddressCard value={location ?? undefined} onChange={handleAddressChange} />
 
         {showClientDetails && (

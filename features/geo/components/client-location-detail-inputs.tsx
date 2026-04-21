@@ -68,8 +68,8 @@ export function ClientLocationDetailInputs({
   if (!location) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <Field>
+    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+      <Field className="min-w-0">
         <FieldLabel htmlFor={`${baseId}-suite`}>{t("suiteLabel")}</FieldLabel>
         <Input
           id={`${baseId}-suite`}
@@ -81,7 +81,7 @@ export function ClientLocationDetailInputs({
           disabled={disabled}
         />
       </Field>
-      <Field>
+      <Field className="min-w-0">
         <FieldLabel htmlFor={`${baseId}-postal`}>{t("postalCodeLabel")}</FieldLabel>
         <Input
           id={`${baseId}-postal`}
@@ -93,7 +93,7 @@ export function ClientLocationDetailInputs({
           disabled={disabled}
         />
       </Field>
-      <Field className="sm:col-span-2">
+      <Field className="min-w-0 sm:col-span-2">
         <FieldLabel htmlFor={`${baseId}-instructions`}>{t("instructionsLabel")}</FieldLabel>
         <Textarea
           id={`${baseId}-instructions`}

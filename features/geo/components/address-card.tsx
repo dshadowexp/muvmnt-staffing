@@ -139,7 +139,7 @@ export function AddressCard({
   const showClose = displayed || searchValue.length > 0;
 
   return (
-    <Field data-invalid={!!error} className="w-full">
+    <Field data-invalid={!!error} className="w-full min-w-0 max-w-full">
       {label && (
         <FieldLabel>
           {label}
@@ -150,14 +150,14 @@ export function AddressCard({
       {displayed && !editing ? (
         <Card
           className={cn(
-            "border-primary/25 py-0 transition-opacity",
+            "min-w-0 max-w-full border-primary/25 py-0 transition-opacity",
             error && "border-destructive/50",
           )}
           aria-busy={resolving}
         >
           <CardContent
             className={cn(
-              "flex items-center justify-between gap-3 py-2.5 px-4 transition-opacity",
+              "flex min-w-0 items-center justify-between gap-3 py-2.5 px-4 transition-opacity",
               resolving && "opacity-60",
             )}
           >
@@ -199,9 +199,9 @@ export function AddressCard({
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="min-w-0 space-y-3">
           {displayed && (
-            <p className="text-sm text-muted-foreground">
+            <p className="min-w-0 break-words text-sm text-muted-foreground">
               {t("currentPrefix")}
               <span className="text-foreground">{displayed.address}</span>
             </p>
