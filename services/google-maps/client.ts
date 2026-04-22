@@ -48,21 +48,22 @@ export class GoogleMapsClient {
     // ─── Private ─────────────────────────────────────────────────────────────
 
     private async get<T>(path: string, params: Record<string, string>): Promise<T> {
-        const url = new URL(path, this.baseURL);
+        const base = this.baseURL.replace(/\/$/, '');
+        const url  = new URL(`${base}${path}`);
+    
         url.searchParams.set('key', this.apiKey);
         Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-
+    
         const response = await fetch(url.toString(), {
             signal: AbortSignal.timeout(5000),
         });
-
+    
         if (!response.ok) {
             throw new Error(`Google Maps request failed: ${response.status} ${response.statusText}`);
         }
-
+    
         return response.json() as Promise<T>;
     }
-
     private parseGeocodeResult(result: any): GeocodeResult {
         return {
             lat:              result.geometry.location.lat,
