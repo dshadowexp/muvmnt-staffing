@@ -2,6 +2,7 @@
 
 import { Slot } from "@radix-ui/react-slot";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -18,6 +19,7 @@ interface LogoutButtonProps {
 export function LogoutButton({ asChild = false, children }: LogoutButtonProps) {
   const { loading } = useAuth();
   const router = useRouter();
+  const tErrors = useTranslations("auth.errors");
 
   const handleLogout = async () => {
     if (loading) return;
@@ -27,8 +29,8 @@ export function LogoutButton({ asChild = false, children }: LogoutButtonProps) {
       await logout();
       router.push("/sign-in");
     } catch (err) {
-      const msg = getAuthErrorKey(err);
-      if (msg) toast.error(msg);
+      const key = getAuthErrorKey(err);
+      if (key) toast.error(tErrors(key));
     }
   };
 
