@@ -109,7 +109,7 @@ export function WorkerAuthorizationForm({
     mode: "onBlur",
   });
 
-  const { setValue, watch, formState } = form;
+  const { setValue, watch, trigger, formState } = form;
   const workAuthorization = watch("workAuthorization");
   const socialNumberRaw = watch("socialNumber") ?? "";
   const socialNumberExpiry = watch("socialNumberExpiry") ?? "";
@@ -250,7 +250,14 @@ export function WorkerAuthorizationForm({
 
   function handleSocialNumberChange(raw: string) {
     const digits = normalizeSocialNumber(raw).slice(0, 9);
-    setValue("socialNumber", digits, { shouldValidate: true });
+    setValue("socialNumber", digits, { shouldValidate: false });
+    if (digits.length === 9) {
+      void trigger("socialNumber");
+    }
+  }
+
+  function handleSocialNumberBlur() {
+    void trigger("socialNumber");
   }
 
   if (workAuthorizationVerified) {
@@ -402,6 +409,7 @@ export function WorkerAuthorizationForm({
                   : formatSocialNumber(socialNumberRaw)
               }
               onChange={(e) => handleSocialNumberChange(e.target.value)}
+              onBlur={sinLocked ? undefined : handleSocialNumberBlur}
             />
             {sinLocked ? (
               <Lock
