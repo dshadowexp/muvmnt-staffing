@@ -109,7 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 toast.error("First sign up to create your account");
                 await clearAuth();
                 await logout();
-                router.push("/sign-up"); // TODO: redirect to sign-up with the role
+                setLoading(false);
+                router.push("/sign-up");
                 return;
             }
 
