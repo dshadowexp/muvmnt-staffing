@@ -17,5 +17,5 @@
 // // Upload to Trigger.dev (replace with your project ref and environment slug)
 // await envvars.upload("proj_csgaittwhahtnolpoifz", "prod", {
 //   variables: parsed,
-//   override: false, // Set to true to override existing variables
+//   override: true, // Set to true to override existing variables
 // });
