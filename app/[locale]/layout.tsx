@@ -10,6 +10,7 @@ import { AuthProvider } from "@/features/auth/providers/auth-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CustomThemeProvider } from "@/providers/custom-theme-provider";
 import { SITE_NAME } from "@/lib/constants";
+import { env } from "@/data/env/client";
 
 const outfitSans = Outfit({
   variable: "--font-outfit-sans",
@@ -28,6 +29,7 @@ export async function generateMetadata({
   const title = `${t("name")} — ${t("tagline")}`;
 
   return {
+    metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
     title: {
       default: title,
       template: `%s | ${SITE_NAME}`,
@@ -49,6 +51,16 @@ export async function generateMetadata({
       "caregiver",
       "emergency staffing relief"
     ],
+    icons: {
+      icon: [
+        { url: '/favicon.svg', type: 'image/svg+xml' },
+        { url: '/favicon.ico', sizes: '48x48' },
+      ],
+      // shortcut: ['/favicon.svg'],
+      apple: [
+        { url: '/apple-touch-icon.png', sizes: '180x180' },
+      ],
+    },
     openGraph: {
       title,
       description: tMeta("openGraphDescription"),
@@ -98,13 +110,6 @@ export default async function RootLayout({ children, params }: { children: React
 
   return (
     <html lang={ locale } suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="48x48" />
-        <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-      </head>
       <body className={`${outfitSans.variable} antialiased font-sans`}>
         <CustomThemeProvider>
           <NextIntlClientProvider>

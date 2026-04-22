@@ -5,6 +5,7 @@ import { ShiftsTable } from "@/features/shifts/components/shifts-table";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { redirect } from "next/navigation";
+import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
 
 async function WorkerShiftsTableContent({ workerId }: { workerId: string }) {
   const shifts = await listShiftsForWorker(workerId);
@@ -46,11 +47,16 @@ export default async function WorkerShiftsPage() {
     <div className="flex w-full max-w-5xl flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-          {t("subtitle")}
-        </p>
+        
       </div>
 
+      <Suspense fallback={<ShiftRequestCardsSkeleton />}>
+        <WorkerPendingShiftRequestCards workerId={worker.id} />
+      </Suspense>
+
+      <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
+        {t("subtitle")}
+      </p>
       <Suspense fallback={<TableSkeleton />}>
         <WorkerShiftsTableContent workerId={worker.id} />
       </Suspense>

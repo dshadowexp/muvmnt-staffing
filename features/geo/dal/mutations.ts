@@ -2,8 +2,9 @@
 
 import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
-import { encodeLatLngToCellId } from "@/services/h3/client";
 import type { AddressLocation } from "@/features/geo/types";
+import { latLngToCell } from "h3-js";
+import { H3_RESOLUTION } from "@/lib/constants";
 
 export async function upsertLocationAction(location: AddressLocation) {
   const session = await getSession();
@@ -76,6 +77,6 @@ async function syncWorkerCellId(
 
   if (!worker) return;
 
-  const cellId = encodeLatLngToCellId(lat, lng);
+  const cellId = latLngToCell(lat, lng, H3_RESOLUTION);
   await supabase.from("workers").update({ cell_id: cellId }).eq("id", worker.id);
 }

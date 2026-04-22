@@ -8,6 +8,8 @@ import { env } from "@/data/env/server";
 import { getSession } from "@/lib/session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getProfessionContext } from "@/services/ai/profession-context";
+import { professionLabelEn } from "@/lib/labels-en";
+import { normalizeProfessionId } from "@/lib/professions";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
 import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";
 import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
@@ -45,8 +47,8 @@ async function SuspendedContent() {
     return redirect({ href: `/interviews/${existing.id}`, locale });
   }
 
-  const profession = worker.profession ?? "Other";
-  const context = getProfessionContext(profession);
+  const professionKey = normalizeProfessionId(worker.profession);
+  const context = getProfessionContext(professionKey);
 
   const [accessToken, photoSrc] = await Promise.all([
     fetchAccessToken({
@@ -57,6 +59,8 @@ async function SuspendedContent() {
   ]);
 
   const t = await getTranslations("assessments.interview");
+  const tProf = await getTranslations({ locale, namespace: "professions" });
+  const professionLabel = tProf(professionKey);
 
   const userName =
     [worker.first_name, worker.last_name].filter(Boolean).join(" ") ||
@@ -69,13 +73,13 @@ async function SuspendedContent() {
         interviewId={existing?.id ?? undefined}
         chatGroupId={existing?.chat_group_id ?? undefined}
         subject="profession"
-        subjectRef={{ key: profession, body: context, limit: 0 }}
-        title={t("profession.title", { profession })}
-        description={t("profession.description", { profession })}
+        subjectRef={{ key: professionKey, body: context, limit: 0 }}
+        title={t("profession.title", { profession: professionLabel })}
+        description={t("profession.description", { profession: professionLabel })}
         sessionVariables={{
           language: locale,
           candidate_name: userName,
-          profession: profession,
+          profession: professionLabelEn(professionKey),
           profession_context: context,
           years_of_experience: worker.years_exp?.toString() ?? "0",
         }}

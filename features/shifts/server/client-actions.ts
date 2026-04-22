@@ -31,7 +31,7 @@ export async function completeClientShift(
     if (!row) return { ok: false, message: "Shift not found" };
 
     const sr = row.staff_requests;
-    if (!sr || sr.client_id !== clientUserId) {
+    if (!sr || sr.client_user_id !== clientUserId) {
         return { ok: false, message: "Shift not found" };
     }
     if (normalizeShiftStatus(row.status) !== SHIFT_STATUS_CHECKED_OUT) {

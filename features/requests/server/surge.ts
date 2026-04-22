@@ -1,10 +1,9 @@
 import "server-only";
 
 import { createAdminClient } from "@/services/supabase/server";
-import {
-    STAFF_REQUEST_STATUS_PENDING_COVERAGE,
-    STAFF_REQUEST_STATUS_PENDING_PRICING,
-} from "../constants";
+import { gridRing } from "h3-js";
+
+const H3_K = 5;
 
 /**
  * Per-day open-positions count for the requesting client's region. Driven by a
@@ -13,7 +12,7 @@ import {
  *
  * Demand-pricing inputs are intentionally regional (not global) — the surge
  * for "RNs in Toronto next Saturday" should not move based on requests in
- * Halifax. The region key here is the requesting client's `cell_id`; we can
+ * Halifax. The region key here is the request's `cell_id` and its rings; we can
  * later broaden this to the same ring the matcher uses (over `workers.cell_id`)
  * without changing the call surface.
  */
@@ -56,14 +55,12 @@ export async function getRegionalDemand(args: {
     }
 
     const supabase = await createAdminClient();
+    const rings = gridRing(args.cellId, H3_K);
+    rings.push(args.cellId)
     let query = supabase
         .from("staff_requests")
         .select("start_date, end_date, positions")
-        .eq("cell_id", args.cellId)
-        .in("status", [
-            STAFF_REQUEST_STATUS_PENDING_PRICING,
-            STAFF_REQUEST_STATUS_PENDING_COVERAGE,
-        ])
+        .in("cell_id", rings)
         .lte("start_date", args.endYmd)
         .or(`end_date.gte.${args.startYmd},end_date.is.null`);
 

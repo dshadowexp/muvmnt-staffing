@@ -56,11 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const result = await enqueueNotification(parsed.data);
         return NextResponse.json({ success: true, ...result }, { status: 202 });
     } catch (err) {
-        console.error("[notifications.send] enqueue failed", {
-            userId: parsed.data.userId,
-            template: parsed.data.template,
-            message: err instanceof Error ? err.message : String(err),
-        });
+
         return NextResponse.json(
             { error: "Failed to enqueue notification" },
             { status: 500 },

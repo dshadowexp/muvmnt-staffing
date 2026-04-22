@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { tryNormalizeProfessionId } from "@/lib/professions";
 import { PROFESSIONAL_ROLES } from "@/lib/constants";
 import type { ProfessionalRole } from "@/types";
 import {
@@ -47,12 +49,15 @@ export function ProfessionExperienceCard({
   yearsExp: number;
 }) {
   const router = useRouter();
+  const tProf = useTranslations("professions");
   const [isEditing, setIsEditing] = useState(false);
+  const resolvedProfessionId = tryNormalizeProfessionId(profession);
+  const professionFormValue = resolvedProfessionId ?? "other";
 
   const form = useForm<WorkerProfessionExperienceValues>({
     resolver: zodResolver(workerProfessionExperienceSchema),
     defaultValues: {
-      profession: profession as ProfessionalRole,
+      profession: professionFormValue,
       yearsExp,
     },
   });
@@ -75,7 +80,7 @@ export function ProfessionExperienceCard({
   }
 
   function cancelEdit() {
-    form.reset({ profession: profession as ProfessionalRole, yearsExp });
+    form.reset({ profession: professionFormValue, yearsExp });
     setIsEditing(false);
   }
 
@@ -143,7 +148,7 @@ export function ProfessionExperienceCard({
                         {(PROFESSIONAL_ROLES as ProfessionalRole[]).map(
                           (role) => (
                             <MultiSelectItem key={role} value={role}>
-                              {role}
+                              {tProf(role)}
                             </MultiSelectItem>
                           ),
                         )}
@@ -180,7 +185,9 @@ export function ProfessionExperienceCard({
         ) : (
           <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(8rem,10rem)_1fr] sm:gap-x-4">
             <dt className="text-muted-foreground font-medium">Profession</dt>
-            <dd>{profession || "—"}</dd>
+            <dd>
+              {resolvedProfessionId ? tProf(resolvedProfessionId) : "—"}
+            </dd>
             <dt className="text-muted-foreground font-medium">
               Years of experience
             </dt>

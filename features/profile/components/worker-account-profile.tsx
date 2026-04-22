@@ -3,8 +3,6 @@
 import { Suspense, use, useState } from "react";
 import { Pencil } from "lucide-react";
 import { format } from "date-fns";
-import { AddressCard } from "@/features/geo/components/address-card";
-import type { AddressLocation } from "@/features/geo/types";
 import { WorkerAuthorizationForm } from "@/features/profile/components/worker-authorization-form";
 import { ProfessionExperienceCard } from "@/features/profile/components/profession-experience-card";
 import {
@@ -36,20 +34,14 @@ type WorkAuthData = {
 
 export function WorkerAccountProfile({
   worker,
-  locationPromise,
   workAuthPromise,
 }: {
   worker: WorkerRow;
-  locationPromise: Promise<AddressLocation | null | undefined>;
   workAuthPromise: Promise<WorkAuthData>;
 }) {
   return (
     <div className="flex flex-col gap-6">
       <PersonalDetailsCard worker={worker} />
-
-      <Suspense fallback={<SectionCardSkeleton lines={2} />}>
-        <AddressCardSlot locationPromise={locationPromise} />
-      </Suspense>
 
       <ProfessionExperienceCard
         profession={worker.profession}
@@ -95,31 +87,6 @@ function PersonalDetailsCard({ worker }: { worker: WorkerRow }) {
           <dt className="text-muted-foreground font-medium">Gender</dt>
           <dd>{genderLabel}</dd>
         </dl>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AddressCardSlot({
-  locationPromise,
-}: {
-  locationPromise: Promise<AddressLocation | null | undefined>;
-}) {
-  const location = use(locationPromise);
-  return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>Address</CardTitle>
-        <CardDescription>
-          Your location for matching and compliance. Changes save when you
-          finish editing the address.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <AddressCard
-          value={location ?? undefined}
-          onChange={() => {}}
-        />
       </CardContent>
     </Card>
   );

@@ -44,6 +44,22 @@ function statusSelectOptions(current: string | null | undefined) {
   return [...map.entries()].map(([value, label]) => ({ value, label }));
 }
 
+function initialSelectValue(current: string | null | undefined): string {
+  const raw = current?.trim();
+  if (!raw) return "pending";
+  const lower = raw.toLowerCase();
+  const known = STATUS_OPTIONS.find((o) => o.value === lower);
+  return known ? known.value : raw;
+}
+
+function statusDisplayLabel(current: string | null | undefined): string {
+  const raw = current?.trim();
+  if (!raw) return "Pending";
+  const lower = raw.toLowerCase();
+  const known = STATUS_OPTIONS.find((o) => o.value === lower);
+  return known ? known.label : raw;
+}
+
 export function AdminWorkerStatusEditor({
   workerId,
   workerName,
@@ -51,26 +67,23 @@ export function AdminWorkerStatusEditor({
 }: {
   workerId: string;
   workerName: string;
-  initialStatus: string | null;
+  initialStatus: string | null | undefined;
 }) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const [status, setStatus] = React.useState(() => {
-    const raw = initialStatus?.trim();
-    return raw && raw.length > 0 ? raw : "pending";
-  });
+  const [status, setStatus] = React.useState(() =>
+    initialSelectValue(initialStatus),
+  );
   const [saving, setSaving] = React.useState(false);
 
-  const displayLabel = initialStatus?.trim() || "Pending";
+  const displayLabel = statusDisplayLabel(initialStatus);
 
   React.useEffect(() => {
-    if (!open) return;
-    const raw = initialStatus?.trim();
-    setStatus(raw && raw.length > 0 ? raw : "pending");
+    setStatus(initialSelectValue(initialStatus));
   }, [open, initialStatus]);
 
   const statusDirty =
-    (initialStatus?.trim() || "pending").toLowerCase() !==
+    initialSelectValue(initialStatus).toLowerCase() !==
     status.toLowerCase();
 
   async function onSave() {

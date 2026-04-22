@@ -37,7 +37,6 @@ pnpm-debug.log*
 next-env.d.ts
 
 # firebase
-public/firebase-messaging-sw.js
 .env.local
 
 # ai
@@ -47,3 +46,7 @@ public/firebase-messaging-sw.js
 .posthog
 .posthog-events.json
 .trigger
+
+# firebase
+serviceAccount.json
+certificates

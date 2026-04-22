@@ -1,22 +1,36 @@
 "use client";
 
 import { parseISO } from "date-fns";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
 
-import { AddressCard } from "@/features/geo/components/address-card";
-import { upsertLocationAction } from "@/features/geo/dal/mutations";
-import type { AddressLocation } from "@/features/geo/types";
-import { ScheduleRequestForm } from "@/features/requests/components/schedule-request-form";
-import type { ScheduleRequestFormValues } from "@/features/requests/components/schedule-request-form";
-import { upsertStaffRequestScheduleAction } from "@/features/requests/server/actions";
 import {
     PENDING_STAFF_REQUEST_KEY,
     type PendingScheduleRequest,
 } from "@/app/[locale]/(landing)/find-staff/_form";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { BackLink } from "@/components/back-link";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { AddressCard } from "@/features/geo/components/address-card";
+import type { AddressLocation } from "@/features/geo/types";
+import { upsertLocationAction } from "@/features/geo/dal/mutations";
+import {
+    StaffRequestJobProfileSettingsRow,
+    type StaffRequestJobProfileApplyPayload,
+} from "@/features/requests/components/staff-request-job-profile-settings";
+import { ScheduleRequestForm } from "@/features/requests/components/schedule-request-form";
+import type { ScheduleRequestFormValues } from "@/features/requests/components/schedule-request-form";
+import {
+    DEFAULT_STAFF_REQUEST_PROFESSION,
+    mergePersistedStaffRequestRequirements,
+} from "@/features/requests/constants";
+import { upsertStaffRequestScheduleAction } from "@/features/requests/server/actions";
+import { useRouter } from "@/i18n/navigation";
+import { normalizeProfessionId } from "@/lib/professions";
+import { latLngToCell } from "h3-js";
+import { H3_RESOLUTION } from "@/lib/constants";
+
+export type { PendingScheduleRequest };
 
 export type ExistingScheduleDraft = {
     id: string;
@@ -32,6 +46,10 @@ export type ExistingScheduleDraft = {
 export type NewStaffRequestFormProps = {
     initialLocation: AddressLocation | null;
     existingDraft: ExistingScheduleDraft | null;
+    jobProfile: StaffRequestJobProfileApplyPayload;
+    onJobProfileFromLanding?: (
+        profile: StaffRequestJobProfileApplyPayload,
+    ) => void;
 };
 
 function draftToFormValues(draft: ExistingScheduleDraft): Partial<ScheduleRequestFormValues> {
@@ -45,31 +63,19 @@ function draftToFormValues(draft: ExistingScheduleDraft): Partial<ScheduleReques
     };
 }
 
-/**
- * Step 1 of the staff-request wizard. Persists a `pending_pricing` draft via
- * a server action and routes to step 2 (`/client/requests/[id]/pricing`).
- *
- * - Reuses the client's latest `pending_pricing` request on submit (update)
- *   so repeat submits do not create duplicate rows.
- * - `/find-staff` sessionStorage prefill wins over `existingDraft` (new intent).
- * - Back from pricing abandons the draft so this page starts empty next visit.
- */
 export function NewStaffRequestForm({
     initialLocation,
     existingDraft,
+    jobProfile,
+    onJobProfileFromLanding,
 }: NewStaffRequestFormProps) {
     const router = useRouter();
     const t = useTranslations("staffRequest.newPage");
     const [initialValues, setInitialValues] = useState<
         Partial<ScheduleRequestFormValues> | undefined
     >(undefined);
-    /** When set, schedule submit updates this row; otherwise a new row is inserted. */
     const [resumeRequestId, setResumeRequestId] = useState<string | null>(null);
     const [hydrated, setHydrated] = useState(false);
-    /**
-     * Survives React Strict Mode's double effect run: sessionStorage is read once
-     * and cleared so the second run must not fall through to `existingDraft`.
-     */
     const landingPayloadRef = useRef<PendingScheduleRequest | null | undefined>(
         undefined,
     );
@@ -97,6 +103,23 @@ export function NewStaffRequestForm({
 
         const landing = landingPayloadRef.current;
         if (landing) {
+            const hasProfileExtra =
+                landing.profession != null ||
+                (landing.tasks?.length ?? 0) > 0 ||
+                (landing.requirements?.length ?? 0) > 0;
+            if (hasProfileExtra && onJobProfileFromLanding) {
+                onJobProfileFromLanding({
+                    profession: normalizeProfessionId(
+                        landing.profession?.trim() ||
+                            DEFAULT_STAFF_REQUEST_PROFESSION,
+                    ),
+                    tasks: landing.tasks ?? [],
+                    requirements: mergePersistedStaffRequestRequirements(
+                        landing.requirements ?? [],
+                    ),
+                });
+            }
+
             const start = new Date(landing.startDate);
             const end = landing.endDate ? new Date(landing.endDate) : null;
             if (!Number.isNaN(start.getTime())) {
@@ -117,7 +140,7 @@ export function NewStaffRequestForm({
         }
 
         setHydrated(true);
-    }, [existingDraft]);
+    }, [existingDraft, onJobProfileFromLanding]);
 
     async function handleAddressChange(loc: AddressLocation) {
         const { error, message } = await upsertLocationAction(loc);
@@ -146,11 +169,29 @@ export function NewStaffRequestForm({
                 key={resumeRequestId ?? "new"}
                 initialValues={initialValues}
                 onSubmit={async (values) => {
+                    if (!initialLocation) {
+                        toast.error(
+                            "Please include the location before submitting a request.",
+                        );
+                        return;
+                    }
+
+                    const cellId = latLngToCell(
+                        initialLocation.lat,
+                        initialLocation.lng,
+                        H3_RESOLUTION,
+                    );
                     const result = await upsertStaffRequestScheduleAction({
                         startDate: values.startDate.toISOString(),
-                        endDate: values.endDate ? values.endDate.toISOString() : null,
+                        endDate: values.endDate
+                            ? values.endDate.toISOString()
+                            : null,
                         positions: values.positions,
                         dailyWindows: values.dailyWindows,
+                        cellId,
+                        profession: jobProfile.profession,
+                        tasks: jobProfile.tasks,
+                        requirements: jobProfile.requirements,
                         ...(resumeRequestId ? { requestId: resumeRequestId } : {}),
                     });
 
@@ -164,6 +205,73 @@ export function NewStaffRequestForm({
                         >[0],
                     );
                 }}
+            />
+        </div>
+    );
+}
+
+export type NewStaffRequestPageClientProps = {
+    backTitle: string;
+    step1Title: string;
+    initialJobProfile: StaffRequestJobProfileApplyPayload;
+    initialLocation: AddressLocation | null;
+    existingDraft: ExistingScheduleDraft | null;
+};
+
+export function NewStaffRequestPageClient({
+    backTitle,
+    step1Title,
+    initialJobProfile,
+    initialLocation,
+    existingDraft,
+}: NewStaffRequestPageClientProps) {
+    const tWizard = useTranslations("staffRequest.wizard");
+    const tProf = useTranslations("professions");
+    const [jobProfile, setJobProfile] =
+        useState<StaffRequestJobProfileApplyPayload>(initialJobProfile);
+
+    const handleApplyJobProfile = useCallback(
+        (payload: StaffRequestJobProfileApplyPayload) => {
+            setJobProfile(payload);
+        },
+        [],
+    );
+
+    const handleJobProfileFromLanding = useCallback(
+        (profile: StaffRequestJobProfileApplyPayload) => {
+            setJobProfile(profile);
+        },
+        [],
+    );
+
+    return (
+        <div className="w-full max-w-3xl space-y-6">
+            <div className="space-y-6">
+                <BackLink backHref="/dashboard/requests" title={backTitle} />
+                <StaffRequestJobProfileSettingsRow
+                    profession={jobProfile.profession}
+                    tasks={jobProfile.tasks}
+                    requirements={jobProfile.requirements}
+                    onApply={handleApplyJobProfile}
+                >
+                    <header className="space-y-2">
+                        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                            {step1Title}
+                        </h1>
+                        <p className="text-muted-foreground text-sm md:text-base">
+                            {tWizard("step1Description", {
+                                profession: tProf(jobProfile.profession),
+                            })}
+                        </p>
+                    </header>
+                </StaffRequestJobProfileSettingsRow>
+            </div>
+
+            <NewStaffRequestForm
+                initialLocation={initialLocation}
+                existingDraft={existingDraft}
+                jobProfile={jobProfile}
+                onJobProfileFromLanding={handleJobProfileFromLanding}
             />
         </div>
     );

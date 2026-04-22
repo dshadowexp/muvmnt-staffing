@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
+import { professionLabelEn } from "@/lib/labels-en";
 import { getPostHogClient } from "@/lib/posthog-server";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import {
@@ -70,7 +71,10 @@ export async function POST(req: Request) {
     humeGroupChatId: interview.chat_group_id,
     interviewInfo: {
       title: interview.subject.replace(/_/g, " "),
-      profession: worker?.profession ?? "General",
+      profession:
+        worker?.profession?.trim()
+          ? professionLabelEn(worker.profession)
+          : "General",
       description,
     },
     userName: userName.length > 0 ? userName : "Candidate",

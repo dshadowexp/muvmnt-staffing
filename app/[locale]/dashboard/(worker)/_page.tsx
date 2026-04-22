@@ -14,6 +14,7 @@ import {
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
 import { PayrollOnboardingTaskCard } from "@/features/payments/payroll/components/payroll-onboarding-task-card";
 import { payrollAccountMeetsOnboardingRequirements } from "@/features/payments/payroll/dal/queries";
+import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import {
@@ -325,6 +326,10 @@ export default async function WorkerHomePage() {
 
       <Suspense fallback={<PendingActionsSkeleton />}>
         <PendingActions userId={worker.user_id} />
+      </Suspense>
+
+      <Suspense fallback={<ShiftRequestCardsSkeleton />}>
+        <WorkerPendingShiftRequestCards workerId={worker.id} />
       </Suspense>
 
       <Suspense fallback={<StatsCardsSkeleton />}>

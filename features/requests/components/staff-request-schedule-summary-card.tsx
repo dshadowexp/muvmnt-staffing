@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarRange, Clock, Users } from "lucide-react";
+import { Briefcase, CalendarRange, Clock, Users } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { enCA, frCA } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,6 +13,24 @@ import {
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatTime12h } from "@/features/availability/lib/summarize-week";
+import { normalizeProfessionId } from "@/lib/professions";
+import { COMPLIANCE_IDS_SET } from "@/lib/compliance";
+import { STAFF_REQUEST_SKILL_IDS_SET } from "@/lib/skills";
+import { staffRequestExtraRequirements } from "@/features/requests/constants";
+
+function skillSummaryLabel(
+    id: string,
+    tSkills: (key: string) => string,
+): string {
+    return STAFF_REQUEST_SKILL_IDS_SET.has(id) ? tSkills(id) : id;
+}
+
+function complianceSummaryLabel(
+    id: string,
+    tCompliance: (key: string) => string,
+): string {
+    return COMPLIANCE_IDS_SET.has(id) ? tCompliance(id) : id;
+}
 
 export type StaffRequestScheduleSummaryCardProps = {
     positions: number;
@@ -22,6 +40,9 @@ export type StaffRequestScheduleSummaryCardProps = {
         date: string;
         slots: { startTime: string; endTime: string }[];
     }[];
+    profession: string;
+    tasks?: string[];
+    requirements?: string[];
 };
 
 function formatSlotLine(startTime: string, endTime: string): string {
@@ -46,10 +67,25 @@ export function StaffRequestScheduleSummaryCard({
     startDate,
     endDate,
     dailyWindows,
+    profession,
+    tasks = [],
+    requirements = [],
 }: StaffRequestScheduleSummaryCardProps) {
     const t = useTranslations("staffRequest.wizard");
+    const tProf = useTranslations("professions");
+    const tSkills = useTranslations("skills");
+    const tCompliance = useTranslations("compliance");
     const locale = useLocale();
     const dateLocale = locale.toLowerCase().startsWith("fr") ? frCA : enCA;
+
+    const professionId = normalizeProfessionId(profession);
+    const professionLabel = tProf(professionId);
+    const skillsList = [...tasks].filter(Boolean).sort((a, b) => a.localeCompare(b));
+    const extraCompliance = staffRequestExtraRequirements(requirements).sort((a, b) =>
+        a.localeCompare(b),
+    );
+    const showSkills = skillsList.length > 0;
+    const showExtraCompliance = extraCompliance.length > 0;
 
     const startYmd = startDate.slice(0, 10);
     const endYmd = (endDate ?? startDate).slice(0, 10);
@@ -103,6 +139,13 @@ export function StaffRequestScheduleSummaryCard({
                                 </span>
                                 <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-normal text-muted-foreground">
                                     <span className="inline-flex items-center gap-1.5">
+                                        <Briefcase
+                                            className="size-3.5 shrink-0"
+                                            aria-hidden
+                                        />
+                                        {professionLabel}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5">
                                         <Users className="size-3.5 shrink-0" aria-hidden />
                                         {t("requestSummaryStaff", { count: positions })}
                                     </span>
@@ -128,22 +171,57 @@ export function StaffRequestScheduleSummaryCard({
                             </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4">
-                            <div className="space-y-0.5 border-t border-border/60 pt-3 text-sm text-muted-foreground">
-                                {dayLines.length > 0 ? (
-                                    dayLines.map((day) => (
-                                        <p key={day.key}>
-                                            <span className="text-foreground">{day.dayLabel}</span>
-                                            {day.slotsText ? (
-                                                <>
-                                                    <span className="text-muted-foreground">, </span>
-                                                    {day.slotsText}
-                                                </>
-                                            ) : null}
-                                        </p>
-                                    ))
-                                ) : (
-                                    <p>{t("requestSummaryNoSchedule")}</p>
-                                )}
+                            <div className="space-y-3 border-t border-border/60 pt-3 text-sm text-muted-foreground">
+                                {showSkills ? (
+                                    <p>
+                                        <span className="text-foreground font-medium">
+                                            {t("skillsLabel")}
+                                            {": "}
+                                        </span>
+                                        {skillsList
+                                            .map((id) =>
+                                                skillSummaryLabel(id, tSkills),
+                                            )
+                                            .join(", ")}
+                                    </p>
+                                ) : null}
+                                {showExtraCompliance ? (
+                                    <p>
+                                        <span className="text-foreground font-medium">
+                                            {t("requirementsLabel")}
+                                            {": "}
+                                        </span>
+                                        {extraCompliance
+                                            .map((id) =>
+                                                complianceSummaryLabel(
+                                                    id,
+                                                    tCompliance,
+                                                ),
+                                            )
+                                            .join(", ")}
+                                    </p>
+                                ) : null}
+                                <div className="space-y-0.5">
+                                    {dayLines.length > 0 ? (
+                                        dayLines.map((day) => (
+                                            <p key={day.key}>
+                                                <span className="text-foreground">
+                                                    {day.dayLabel}
+                                                </span>
+                                                {day.slotsText ? (
+                                                    <>
+                                                        <span className="text-muted-foreground">
+                                                            ,{" "}
+                                                        </span>
+                                                        {day.slotsText}
+                                                    </>
+                                                ) : null}
+                                            </p>
+                                        ))
+                                    ) : (
+                                        <p>{t("requestSummaryNoSchedule")}</p>
+                                    )}
+                                </div>
                             </div>
                         </AccordionContent>
                     </AccordionItem>

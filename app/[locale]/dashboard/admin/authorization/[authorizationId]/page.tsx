@@ -15,7 +15,9 @@ import { getAdminAuthorizationReview } from "@/features/admin/dal/queries";
 import { Link } from "@/i18n/navigation";
 import { format } from "date-fns";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { normalizeProfessionId } from "@/lib/professions";
 
 type PageProps = { params: Promise<{ authorizationId: string }> };
 
@@ -42,6 +44,11 @@ export default async function AdminAuthorizationPage({ params }: PageProps) {
   const workerName = worker
     ? `${worker.first_name} ${worker.last_name}`.trim()
     : null;
+  const locale = await getLocale();
+  const tProf = await getTranslations({ locale, namespace: "professions" });
+  const professionLabel = worker
+    ? tProf(normalizeProfessionId(worker.profession))
+    : "—";
 
   return (
     <div className="flex w-full max-w-4xl flex-col gap-6">
@@ -85,10 +92,7 @@ export default async function AdminAuthorizationPage({ params }: PageProps) {
                 )
               }
             />
-            <AdminDetailRow
-              label="Profession"
-              value={worker?.profession ?? "—"}
-            />
+            <AdminDetailRow label="Profession" value={professionLabel} />
             <AdminDetailRow label="Type" value={authorization.type} />
             <AdminDetailRow
               label="Social number"

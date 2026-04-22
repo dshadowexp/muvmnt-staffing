@@ -1,8 +1,12 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { format, isSameDay } from "date-fns";
-import { formatJobHourlyRateLine } from "@/lib/formatters";
+import {
+  ArrowRightIcon,
+  CalendarIcon,
+  PlusIcon,
+  UserIcon,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,17 +14,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getStaffRequests } from "@/features/requests/dal/queries";
-import {
-  ArrowRightIcon,
-  CalendarIcon,
-  PlusIcon,
-  UserIcon,
-} from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  STAFF_REQUEST_STATUS_CONFIRMED,
+  clientStaffRequestHref,
+} from "@/features/requests/constants";
+import { getStaffRequests } from "@/features/requests/dal/queries";
+import { formatJobHourlyRateLine } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
+import { normalizeProfessionId } from "@/lib/professions";
 
 export default async function RequestsPage() {
+
   const t = await getTranslations("dashboard.client.requests");
   return (
     <div className="w-full space-y-5">
@@ -72,11 +79,14 @@ export default async function RequestsPage() {
   );
 }
 
-function formatStaffRequestDateRange(startDate: string, endDate: string | null): string {
+function formatStaffRequestDateRange(
+  startDate: string,
+  endDate: string | null,
+): string {
   const start = new Date(startDate);
   const startLabel = format(start, "MMM d, yyyy");
   if (endDate == null || endDate === "") {
-    return `${startLabel}`;
+    return startLabel;
   }
   const end = new Date(endDate);
   if (isSameDay(start, end)) {
@@ -86,21 +96,19 @@ function formatStaffRequestDateRange(startDate: string, endDate: string | null):
 }
 
 async function StaffRequests() {
-  const [requests, t] = await Promise.all([
+  const [requests, t, tProf] = await Promise.all([
     getStaffRequests(),
     getTranslations("dashboard.client.requests"),
+    getTranslations("professions"),
   ]);
-  const {
-    data: staffRequests,
-    error: staffRequestsError,
-    message: staffRequestsMessage,
-  } = requests;
-  if (staffRequestsError) {
+
+  if (requests.error) {
     return (
-      <p className="text-muted-foreground text-sm">{staffRequestsMessage}</p>
+      <p className="text-muted-foreground text-sm">{requests.message}</p>
     );
   }
 
+  const staffRequests = requests.data;
   if (staffRequests == null || staffRequests.length === 0) {
     return (
       <p className="text-muted-foreground text-sm">
@@ -111,36 +119,63 @@ async function StaffRequests() {
     );
   }
 
+  const sorted = [...staffRequests].sort((a, b) => {
+    const aDone = a.status === STAFF_REQUEST_STATUS_CONFIRMED ? 1 : 0;
+    const bDone = b.status === STAFF_REQUEST_STATUS_CONFIRMED ? 1 : 0;
+    if (aDone !== bDone) return aDone - bDone;
+    return (
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  });
+
   return (
     <div className="grid grid-cols-1 gap-4 has-hover:*:not-hover:opacity-70">
-      {staffRequests.map((staffRequest) => (
-        <Link
-          key={staffRequest.id}
-          href={`/dashboard/requests/${staffRequest.id}`}
-          prefetch={true}
-          className="group block rounded-xl outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring hover:scale-[1.02] transition-[transform_opacity]"
-        >
-          <Card className="h-full">
-              <div className="flex items-center justify-between h-full">
-                <div className="space-y-4 h-full">
+      {sorted.map((staffRequest) => {
+        const href = clientStaffRequestHref(staffRequest);
+        const professionLabel = tProf(normalizeProfessionId(staffRequest.profession));
+        return (
+          <Link
+            key={staffRequest.id}
+            href={href}
+            prefetch={true}
+            className="group block rounded-xl outline-none ring-offset-background transition-[transform_opacity] hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Card
+              className={cn(
+                "h-full",
+                staffRequest.status !== STAFF_REQUEST_STATUS_CONFIRMED &&
+                  "border-destructive/25 bg-destructive/[0.06]",
+              )}
+            >
+              <div className="flex h-full items-center justify-between">
+                <div className="h-full space-y-4">
                   <CardHeader>
                     <CardTitle className="text-md">
-                      {t("staffRequestId", { id: staffRequest.id.substring(0, 8) })}
+                      {t("staffRequestId", {
+                        id: staffRequest.id.substring(0, 8),
+                      })}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                    <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
-                    {formatStaffRequestDateRange(
-                      staffRequest.start_date,
-                      staffRequest.end_date,
-                    )}
+                  <CardContent className="flex flex-col gap-2 text-sm">
+                    <p className="text-muted-foreground font-medium">
+                      {professionLabel}
+                    </p>
+                    <p className="text-muted-foreground flex items-center gap-1.5">
+                      <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
+                      {formatStaffRequestDateRange(
+                        staffRequest.start_date,
+                        staffRequest.end_date,
+                      )}
+                    </p>
                   </CardContent>
-                  <CardFooter className="flex gap-2">
+                  <CardFooter className="flex flex-wrap gap-2">
+                    {staffRequest.pricing_tier ? (
+                      <Badge variant="outline" className="gap-1 font-normal">
+                        {staffRequest.pricing_tier}
+                      </Badge>
+                    ) : null}
                     <Badge variant="outline" className="gap-1 font-normal">
-                      {staffRequest.pricing_tier}
-                    </Badge>
-                    <Badge variant="outline" className="gap-1 font-normal">
-                      {`CAD ${formatJobHourlyRateLine(staffRequest.pricing_rate)}`}
+                      {formatJobHourlyRateLine(staffRequest.pricing_rate)}
                     </Badge>
                     <Badge variant="outline" className="gap-1 font-normal">
                       <UserIcon className="size-3" aria-hidden />
@@ -153,8 +188,9 @@ async function StaffRequests() {
                 </CardContent>
               </div>
             </Card>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }

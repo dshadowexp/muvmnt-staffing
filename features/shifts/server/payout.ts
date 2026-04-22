@@ -205,21 +205,24 @@ async function sendShiftPayoutReceivedEmail(params: {
 
     try {
         await enqueueNotification({
-            idempotencyKey: `shift-payout-email-${params.shiftId}`,
             userId: params.workerUserId,
-            channels: ["email"],
-            subject: "Shift payment sent",
-            template: "shift-payout-received",
-            data: {
-                previewText: "Shift payment sent",
-                workerFirstName: params.workerFirstName.trim() || "there",
-                amountLine,
-                hoursLine,
-                referenceLine: params.stripeTransferId,
-                shiftsUrl,
-                privacyUrl,
-                unsubscribeUrl,
-            },
+            channels: [
+                {
+                    channel:  "email",
+                    subject: "Shift payment sent",
+                    template: "shift-payout-received",
+                    data: {
+                        previewText: "Shift payment sent",
+                        workerFirstName: params.workerFirstName.trim() || "there",
+                        amountLine,
+                        hoursLine,
+                        referenceLine: params.stripeTransferId,
+                        shiftsUrl,
+                        privacyUrl,
+                        unsubscribeUrl,
+                    },
+                },
+            ],
         });
     } catch (e) {
         logger.error("shift-payout-email: enqueue failed", {

@@ -15,6 +15,8 @@ import {
   useTablePagination,
 } from "@/components/table-pagination";
 import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { tryNormalizeProfessionId } from "@/lib/professions";
 import { format } from "date-fns";
 import { CircleCheckIcon, LoaderIcon } from "lucide-react";
 
@@ -49,6 +51,7 @@ export function AdminWorkersTable({
   emptyLabel?: string;
 }) {
   const router = useRouter();
+  const tProf = useTranslations("professions");
   const pagination = useTablePagination(workers);
   const rows = preview ? workers : pagination.rows;
 
@@ -78,7 +81,12 @@ export function AdminWorkersTable({
               </TableCell>
             </TableRow>
           ) : (
-            rows.map((w) => (
+            rows.map((w) => {
+              const professionId = tryNormalizeProfessionId(w.profession);
+              const professionLabel = professionId
+                ? tProf(professionId)
+                : w.profession || "—";
+              return (
               <TableRow
                 key={w.id}
                 role="button"
@@ -96,16 +104,17 @@ export function AdminWorkersTable({
                   {w.first_name} {w.last_name}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {w.profession}
+                  {professionLabel}
                 </TableCell>
                 <TableCell>
-                  <WorkerStatusBadge status={w.status} />
+                  <WorkerStatusBadge status={w.live ? "active" : "inactive"} />
                 </TableCell>
                 <TableCell className="text-muted-foreground text-right">
                   {format(new Date(w.created_at), "MMM d, yyyy")}
                 </TableCell>
               </TableRow>
-            ))
+            );
+            })
           )}
         </TableBody>
       </Table>

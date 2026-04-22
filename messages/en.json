@@ -13,6 +13,94 @@
     "openGraphDescription": "Fill staffing gaps in under 5 minutes with AI-powered, real-time matching to vetted, prescreened healthcare professionals nearby.",
     "openGraphImageAlt": "ReadyKare Inc."
   },
+
+  "professions": {
+    "rn": "Registered Nurse (RN)",
+    "rpn": "Registered Practical Nurse (RPN)",
+    "psw": "Personal Support Worker (PSW)",
+    "healthcare_support_worker": "Healthcare Support Worker",
+    "allied_health_practitioner": "Allied Health Practitioner",
+    "dsw": "Developmental Services Worker (DSW)",
+    "cook": "Cook / Dietary Aide",
+    "other": "Other"
+  },
+
+  "compliance": {
+    "cpr": "CPR",
+    "first_aid": "First Aide",
+    "n95_mask_fit_test": "N95 Mask Fit Test",
+    "covid_19_vaccination": "Covid-19 Vaccination",
+    "vulnerable_sector_check": "Vulnerable Sector Check",
+    "tb_test": "TB Test",
+    "immunization_record": "Immunization Record",
+    "wes": "WES",
+    "drivers_license": "Driver's License",
+    "diploma_degree": "Diploma / Degree"
+  },
+
+  "complianceDesc": {
+    "cpr": "Cardiopulmonary resuscitation — chest compressions, rescue breathing, and AED use during cardiac emergencies.",
+    "first_aid": "Responding to injuries, bleeding, burns, and sudden illness until advanced medical help arrives.",
+    "n95_mask_fit_test": "Respirator fit test confirming an airtight seal on an N95 for aerosol-generating procedures.",
+    "covid_19_vaccination": "Proof of COVID-19 vaccination required by many healthcare settings for infection prevention.",
+    "vulnerable_sector_check": "Enhanced screening required to work with children, seniors, or vulnerable adults.",
+    "tb_test": "Two-step tuberculosis skin test or equivalent medical clearance.",
+    "immunization_record": "Proof of up-to-date immunizations (MMR, Tdap, varicella, hepatitis B, influenza).",
+    "wes": "World Education Services credential evaluation mapping international qualifications to Canadian equivalents.",
+    "drivers_license": "Valid provincial driver's license for roles that involve travel or client transport.",
+    "diploma_degree": "Highest education credential relevant to the role (e.g. BScN, PSW certificate)."
+  },
+
+  "skills": {
+    "medi_admin": "Medication Administrator",
+    "vital_signs_monitoring": "Vital Signs Monitoring",
+    "blood_glucose_monitoring": "Blood Glucose Monitoring",
+    "wound_care": "Wound Care",
+    "patient_bathing": "Patient Bathing",
+    "grooming_assistance": "Grooming Assistance",
+    "toileting_assistance": "Toileting Assistance",
+    "feeding_assistance": "Feeding Assistance",
+    "mobility_assistance": "Mobility Assistance",
+    "patient_transfers": "Patient Transfers",
+    "repositioning_patients": "Repositioning Patients",
+    "fall_prevention_monitoring": "Fall Prevention Monitoring",
+    "one_to_one_observation": "1:1 Patient Observation",
+    "dementia_care_support": "Dementia Care Support",
+    "meal_distribution": "Meal Distribution",
+    "room_cleaning_sanitation": "Room Cleaning / Sanitation",
+    "stocking_medical_supplies": "Stocking Medical Supplies",
+    "wheelchair_transport": "Wheelchair Transport",
+    "electronic_charting": "Electronic Charting",
+    "shift_handover_reporting": "Shift Handover Reporting",
+    "infection_control_protocols": "Infection Control Protocols",
+    "emergency_response_assistance": "Emergency Response Assistance"
+  },
+
+  "skillsDesc": {
+    "medi_admin": "Safe medication handling: the five rights, documentation, and routes of administration within scope of practice.",
+    "vital_signs_monitoring": "Monitoring and recording patient vital signs per protocol.",
+    "blood_glucose_monitoring": "Point-of-care glucose checks and reporting results.",
+    "wound_care": "Dressing changes and wound assessment within scope.",
+    "patient_bathing": "Assisting with bathing and personal hygiene.",
+    "grooming_assistance": "Hair, nails, and oral care support.",
+    "toileting_assistance": "Safe toileting and continence support.",
+    "feeding_assistance": "Meal assistance and dietary monitoring.",
+    "mobility_assistance": "Ambulation and mobility aid use.",
+    "patient_transfers": "Safe lifts and transfers using proper technique.",
+    "repositioning_patients": "Turning and positioning to prevent pressure injuries.",
+    "fall_prevention_monitoring": "Observation and environmental safety for fall risk.",
+    "one_to_one_observation": "Dedicated observation for safety or behavioral needs.",
+    "dementia_care_support": "Supportive care approaches for cognitive impairment.",
+    "meal_distribution": "Serving meals and tracking intake.",
+    "room_cleaning_sanitation": "Environmental cleaning in care settings.",
+    "stocking_medical_supplies": "Restocking supplies and equipment.",
+    "wheelchair_transport": "Transporting patients via wheelchair or similar.",
+    "electronic_charting": "Documentation in electronic health records.",
+    "shift_handover_reporting": "Structured handover between care teams.",
+    "infection_control_protocols": "PPE, isolation, and infection prevention practices.",
+    "emergency_response_assistance": "Supporting emergency situations until advanced help arrives."
+  },
+
   "common": {
     "home": "Home",
     "continue": "Continue",
@@ -174,6 +262,7 @@
     "form": {
       "addressTitle": "Site address",
       "addressDescription": "Requests will be matched to staff near the address you select.",
+      "addressRequired": "Select a site address before continuing.",
       "positions": "How many staff?",
       "startDate": "Start date",
       "endDate": "End date",
@@ -568,7 +657,7 @@
     "password": {
       "show": "Show password",
       "hide": "Hide password",
-      "minHint": "Minimum 6 characters",
+      "minHint": "Minimum 8 characters",
       "strength": {
         "weak": "Weak",
         "fair": "Fair",
@@ -638,7 +727,35 @@
           "title": "Payroll setup",
           "description": "Connect your payout account so you can get paid for completed shifts.",
           "startError": "Could not start payroll setup. Try again or visit Payroll from your account menu."
+        },
+        "shiftRequests": {
+          "sectionTitle": "Shift requests",
+          "shiftCount": "{count, plural, one {# shift to confirm} other {# shifts to confirm}}",
+          "timerRemaining": "Respond in {time}",
+          "timerExpired": "Response window ended",
+          "openRequestAria": "Open shift request: {profession}"
         }
+      },
+      "requestDetail": {
+        "backTitle": "Dashboard",
+        "requestLabel": "Shift request",
+        "yourEarningsTitle": "Your pay (this request)",
+        "hourlyRateLabel": "Hourly: {range}",
+        "siteTitle": "Site",
+        "siteNone": "Not on file",
+        "shiftsTitle": "Your shifts",
+        "shiftsDescription": "Shifts assigned to you on this request.",
+        "accept": "Accept request",
+        "accepting": "Accepting…",
+        "acceptSuccess": "You accepted the shifts on this request.",
+        "decline": "Decline",
+        "declining": "Declining…",
+        "declineSuccess": "You declined the pending shifts.",
+        "declineConfirm": "Decline all pending shifts on this request? The client may assign someone else.",
+        "actionsTitle": "Actions",
+        "acceptCardDescription": "Confirm all assigned shifts on this request and lock in your schedule.",
+        "declineCardDescription": "Turn down the pending shifts. The client may offer them to someone else.",
+        "declineDialogTitle": "Decline pending shifts?"
       },
       "shifts": {
         "title": "Shifts",
@@ -646,7 +763,9 @@
       },
       "availability": {
         "title": "Availability",
-        "subtitle": "Times when you are available for shifts."
+        "subtitle": "Times when you are available for shifts.",
+        "addressTitle": "Your current location",
+        "addressDescription": "You will be matched to shifts near this address location."
       },
       "payroll": {
         "title": "Payroll",
@@ -710,7 +829,7 @@
         "title": "Your requests",
         "newRequest": "New request",
         "staffRequestId": "Staff request {id}",
-        "emptyPrefix": "You have no confirmed staff requests yet. Create one with",
+        "emptyPrefix": "You have no staff requests yet. Create one with",
         "emptyAction": "New request",
         "emptySuffix": "."
       },
@@ -1418,9 +1537,25 @@
     },
     "wizard": {
       "step1Title": "Schedule request",
-      "step1Description": "Choose how many staff you need, your dates, and shift times.",
+      "step1Description": "Choose how many {profession} you need, your dates, and shift times.",
       "step2Title": "Select tier",
       "step2Description": "Select the tier that best fits your request.",
+      "preferencesTitle": "Request details",
+      "preferencesDescription": "Profession, skills, and compliance shape base rates and worker matching. Changes here apply when you submit the schedule below.",
+      "preferencesSave": "Save",
+      "preferencesCancel": "Cancel",
+      "preferencesSaved": "Request details updated.",
+      "preferencesOpenAria": "Edit profession, skills, and compliance",
+      "preferencesNeedDraftHint": "Save your schedule once to enable these settings",
+      "professionLabel": "Profession",
+      "skillsLabel": "Skills",
+      "skillsHint": "Optional. Workers can be filtered by assessed skills.",
+      "skillsPlaceholder": "Add skills…",
+      "requirementsLabel": "Extra compliance",
+      "requirementsLockedHint": "These are always required for every request.",
+      "requirementsExtraPlaceholder": "Add more compliance requirements…",
+      "searchPlaceholder": "Search…",
+      "searchEmpty": "No matches.",
       "requestSummaryTitle": "Request summary",
       "requestSummaryStaff": "{count, plural, one {# staff member} other {# staff members}}",
       "requestSummaryHours": "{hours, number, ::.##} hrs total",
@@ -1458,10 +1593,18 @@
       "yrsExpShort": "{years} yrs exp.",
       "moreAssigned": "{count, plural, one {# more assigned} other {# more assigned}}",
       "hourlyRate": "Hourly rate",
-      "total": "Total",
-      "fullScheduleEstimate": "Full schedule would be about {amount} if every window were covered.",
-      "step2BaseRateNotice": "These are base hourly rates. The total is an estimate — it may change once we match real workers and finalize coverage.",
-      "billedWeeklyNotice": "You won't be charged today. Coverage is billed weekly against the hours your staff actually work.",
+      "agreedHourlyRate": "Agreed hourly rate",
+      "amountDueToday": "Amount due today",
+      "estimatedTotalOnCompletion": "Estimated total on completion",
+      "paymentMethodOnFileTitle": "Payment method on file",
+      "paymentMethodPickDefaultHint": "Choose a card in the list to set your default for this charge.",
+      "choosePaymentMethodTitle": "Choose payment method",
+      "choosePaymentMethodDescription": "The card you select is saved as your default and will be used for this request and future charges.",
+      "paymentMethodPickerBackToList": "Back to payment methods",
+      "setupPaymentMethodCardTitle": "Select preferred payment method",
+      "setupPaymentMethodCardDescription": "Add a card to pay on file. You are billed weekly when coverage is completed.",
+      "step2BaseRateNotice": "Your tier sets the agreed base hourly rate for this coverage.",
+      "billedWeeklyNotice": "Nothing is charged at this step. You are billed weekly for actual hours worked at your selected base rate.",
       "baseRateChip": "base",
       "workersAvailable": "{count, plural, =0 {no workers} one {# worker} other {# workers}} available",
       "matchStarting": "Starting coverage matching",
@@ -1489,11 +1632,11 @@
       "priceLockNote": "Your selected rate is held while we match coverage. Rates update with regional demand.",
       "pulse": {
         "label": "Pulse",
-        "tagline": "Live market rate"
+        "tagline": "Core staff pool"
       },
       "vetted": {
         "label": "Vetted",
-        "tagline": "Top-tier trained & vetted"
+        "tagline": "Top performing staff"
       },
       "veteran": {
         "label": "Veteran",

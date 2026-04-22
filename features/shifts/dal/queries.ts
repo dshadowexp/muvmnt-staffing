@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
+import { SHIFT_STATUS_SCHEDULED, normalizeShiftStatus } from "../constants";
 
 export type ShiftRow = Database["public"]["Tables"]["shifts"]["Row"];
 
@@ -16,7 +17,7 @@ export type ShiftActionContext = {
     start_time: string | null;
     end_time: string | null;
     staff_requests: {
-        client_id: string;
+        client_user_id: string;
         pricing_tier: string | null;
         requirements: string[];
         daily_time_windows: unknown;
@@ -25,7 +26,12 @@ export type ShiftActionContext = {
 
 export type StaffRequestShiftEmbed = Pick<
   Database["public"]["Tables"]["staff_requests"]["Row"],
-  "id" | "start_date" | "end_date" | "pricing_rate" | "client_id"
+  | "id"
+  | "start_date"
+  | "end_date"
+  | "pricing_rate"
+  | "client_user_id"
+  | "profession"
 >;
 
 export type WorkerNameEmbed = Pick<
@@ -57,7 +63,8 @@ const staffRequestSelect = `
   start_date,
   end_date,
   pricing_rate,
-  client_id
+  client_user_id,
+  profession
 `;
 
 const workerSelect = `first_name, last_name, photo_url`;
@@ -143,7 +150,11 @@ export async function listShiftsForWorker(
     .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as ShiftWithStaffRequestAndWorker[];
+  const rows = (data ?? []) as ShiftWithStaffRequestAndWorker[];
+  // Pending assignments (`scheduled`) belong on the home “shift requests” cards, not this list.
+  return rows.filter(
+    (row) => normalizeShiftStatus(row.status) !== SHIFT_STATUS_SCHEDULED,
+  );
 }
 
 /**
@@ -181,7 +192,7 @@ export async function getShiftForClientUser(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} ), clients ( ${clientSelect} )`,
     )
     .eq("id", shiftId)
-    .eq("staff_requests.client_id", clientUserId)
+    .eq("staff_requests.client_user_id", clientUserId)
     .maybeSingle();
 
   if (error && error.code !== "PGRST116") {
@@ -215,8 +226,105 @@ export async function listShiftsForStaffRequest(
   );
 }
 
+/** One row per staff request: scheduled shifts awaiting worker confirm, grouped for home cards. */
+export type WorkerPendingRequestAssignment = {
+  requestId: string;
+  profession: string;
+  startDate: string;
+  endDate: string | null;
+  shiftCount: number;
+  /** Earliest `shifts.created_at` in the group (assignment time for countdown). */
+  assignedAt: string;
+};
+
+export async function listScheduledAssignmentsGroupedByRequestForWorker(
+  workerId: string,
+): Promise<WorkerPendingRequestAssignment[]> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("shifts")
+    .select(
+      `
+      id,
+      created_at,
+      request_id,
+      staff_requests!inner (
+        id,
+        profession,
+        start_date,
+        end_date
+      )
+      `,
+    )
+    .eq("worker_id", workerId)
+    .eq("status", SHIFT_STATUS_SCHEDULED);
+
+  if (error) throw new Error(error.message);
+
+  const byRequest = new Map<string, WorkerPendingRequestAssignment>();
+
+  for (const row of data ?? []) {
+    const sr = row.staff_requests as {
+      id: string;
+      profession: string;
+      start_date: string;
+      end_date: string | null;
+    } | null;
+    if (!sr || row.request_id !== sr.id) continue;
+
+    const assignedAt = row.created_at as string;
+    const existing = byRequest.get(row.request_id);
+    if (!existing) {
+      byRequest.set(row.request_id, {
+        requestId: row.request_id,
+        profession: sr.profession,
+        startDate: sr.start_date,
+        endDate: sr.end_date,
+        shiftCount: 1,
+        assignedAt,
+      });
+    } else {
+      existing.shiftCount += 1;
+      if (new Date(assignedAt).getTime() < new Date(existing.assignedAt).getTime()) {
+        existing.assignedAt = assignedAt;
+      }
+    }
+  }
+
+  return [...byRequest.values()].sort(
+    (a, b) => new Date(a.assignedAt).getTime() - new Date(b.assignedAt).getTime(),
+  );
+}
+
 /**
- * Shifts for a staff request, scoped to the request owner (`staff_requests.client_id` = app user id).
+ * Shifts for a staff request assigned to a specific worker.
+ */
+export async function listShiftsForWorkerOnRequest(
+  workerId: string,
+  requestId: string,
+): Promise<ShiftWithStaffRequestAndWorker[]> {
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("shifts")
+    .select(
+      `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
+    )
+    .eq("request_id", requestId)
+    .eq("worker_id", workerId)
+    .order("start_time", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as ShiftWithStaffRequestAndWorker[];
+  return rows.filter(
+    (row) =>
+      row.request_id === requestId &&
+      row.staff_requests != null &&
+      row.staff_requests.id === requestId,
+  );
+}
+
+/**
+ * Shifts for a staff request, scoped to the request owner (`staff_requests.client_user_id` = app user id).
  */
 export async function listShiftsForClientRequest(
   requestId: string,
@@ -229,7 +337,7 @@ export async function listShiftsForClientRequest(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
     .eq("request_id", requestId)
-    .eq("staff_requests.client_id", clientUserId)
+    .eq("staff_requests.client_user_id", clientUserId)
     .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -254,9 +362,9 @@ export async function completedShiftStatsForClient(): Promise<{ count: number; t
   const { data, error } = await supabase
     .from("shifts")
     .select(
-      "checkin_time, checkout_time, start_time, end_time, staff_requests!inner ( client_id )",
+      "checkin_time, checkout_time, start_time, end_time, staff_requests!inner ( client_user_id )",
     )
-    .eq("staff_requests.client_id", userId)
+    .eq("staff_requests.client_user_id", userId)
     .eq("status", "completed");
   if (error) throw new Error(error.message);
 
@@ -289,7 +397,7 @@ export async function listTodayShiftsForClientUser(
     .select(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
-    .eq("staff_requests.client_id", userId)
+    .eq("staff_requests.client_user_id", userId)
     .gte("start_time", dayStartUtc)
     .lt("start_time", dayEndUtc)
     .not("status", "in", '("cancelled","canceled","declined")')
@@ -364,7 +472,7 @@ export async function getShiftWithStaffRequest(
             start_time,
             end_time,
             staff_requests!inner (
-                client_id,
+                client_user_id,
                 pricing_tier,
                 requirements,
                 daily_time_windows
@@ -436,7 +544,7 @@ export async function loadCompletedShiftForClient(
             id,
             status,
             worker_id,
-            staff_requests!inner ( client_id ),
+            staff_requests!inner ( client_user_id ),
             workers!inner ( user_id )
             `,
         )
@@ -452,11 +560,11 @@ export async function loadCompletedShiftForClient(
         id: string;
         status: string | null;
         worker_id: string;
-        staff_requests: { client_id: string } | null;
+        staff_requests: { client_user_id: string } | null;
         workers: { user_id: string } | null;
     };
 
-    if (!row.staff_requests || row.staff_requests.client_id !== clientUserId) {
+    if (!row.staff_requests || row.staff_requests.client_user_id !== clientUserId) {
         return { ok: false, message: "Shift not found" };
     }
     if ((row.status ?? "").trim().toLowerCase() !== completedStatus) {
@@ -654,7 +762,7 @@ export async function listShiftsForClientUser(
     .select(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
-    .eq("staff_requests.client_id", clientUserId)
+    .eq("staff_requests.client_user_id", clientUserId)
     .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);

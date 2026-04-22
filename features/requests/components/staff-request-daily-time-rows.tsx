@@ -66,7 +66,11 @@ export function StaffRequestDailyTimeRows({
 
   function removeSlot(dayIndex: number, slotIndex: number) {
     const day = windows[dayIndex]!;
-    if (day.slots.length <= 1) return;
+    if (day.slots.length <= 1) {
+      if (windows.length <= 1) return;
+      emitWindows(windows.filter((_, i) => i !== dayIndex));
+      return;
+    }
     patchDay(dayIndex, {
       ...day,
       slots: day.slots.filter((_, i) => i !== slotIndex),
@@ -92,6 +96,8 @@ export function StaffRequestDailyTimeRows({
         {windows.map((w, dayIdx) => {
           const rowDate = parseISO(`${w.date}T12:00:00`);
           const dayLabel = formatDayHeading(w.date);
+          const canRemoveSlot =
+            w.slots.length > 1 || windows.length > 1;
           return (
             <div
               key={w.date}
@@ -140,7 +146,7 @@ export function StaffRequestDailyTimeRows({
                           />
                         </>
                       ) : null}
-                      {w.slots.length > 1 ? (
+                      {canRemoveSlot ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

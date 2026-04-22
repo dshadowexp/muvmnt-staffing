@@ -1,18 +1,15 @@
 "use client";
 
+import { AddPaymentMethodForm } from "@/features/payments/billing/components/add-payment-method-form";
 import { PaymentMethodList } from "@/features/payments/billing/components/payment-method-list";
 import type { PaymentMethodCardType } from "@/features/payments/billing/types";
-import {
-  createSetupIntent,
-  syncDefaultPaymentMethodAfterSetupIntent,
-} from "@/features/payments/billing/dal/mutations";
+import { createSetupIntent } from "@/features/payments/billing/dal/mutations";
 import { useRouter } from "@/i18n/navigation";
 import getStripeBrowser, {
   DARK_APPEARANCE,
   LIGHT_APPEARANCE,
 } from "@/services/stripe/client";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Button } from "@/components/ui/button";
+import { Elements } from "@stripe/react-stripe-js";
 import {
   Card,
   CardContent,
@@ -30,8 +27,9 @@ import {
 import { CircleDashedIcon, Plus } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState, type SubmitEventHandler } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const MAX_CARD_METHODS = 3;
 
@@ -218,81 +216,5 @@ export function ClientAccountBillingPanel({
         </Dialog>
       </CardContent>
     </Card>
-  );
-}
-
-function AddPaymentMethodForm({
-  setAsDefault,
-  onSuccess,
-  submitLabel,
-}: {
-  setAsDefault: boolean;
-  onSuccess: () => void;
-  submitLabel: string;
-}) {
-  const t = useTranslations("dashboard.client.billing");
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    if (!stripe || !elements) {
-      setIsSubmitting(false);
-      return;
-    }
-
-    const returnUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}${window.location.pathname}`
-        : "";
-
-    const { error, setupIntent } = await stripe.confirmSetup({
-      elements,
-      confirmParams: {
-        return_url: returnUrl,
-      },
-      redirect: "if_required",
-    });
-
-    if (error) {
-      if (error.type === "card_error" || error.type === "validation_error") {
-        toast.error(error.message ?? "Payment failed");
-      } else {
-        toast.error("An unexpected error occurred.");
-      }
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (setupIntent?.status === "succeeded" && setupIntent.id) {
-      const res = await syncDefaultPaymentMethodAfterSetupIntent(setupIntent.id, {
-        setAsDefault,
-      });
-      if (res.error) {
-        toast.error(res.error);
-      } else {
-        toast.success("Payment method saved.");
-        onSuccess();
-      }
-    }
-    setIsSubmitting(false);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement options={{ layout: "accordion" }} />
-      <Button className="w-full" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? (
-          <>
-            <CircleDashedIcon className="mr-2 size-4 animate-spin" />
-            {t("savingPaymentMethod")}
-          </>
-        ) : (
-          submitLabel
-        )}
-      </Button>
-    </form>
   );
 }

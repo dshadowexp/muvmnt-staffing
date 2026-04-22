@@ -1,8 +1,9 @@
 import type {
-  ProfessionalRole, Province, AvailabilityType,
+  Province, AvailabilityType,
   WorkSetting, FormStep, RequesterType, ShiftType, RequestUrgency,
   WorkAuthorization,
 } from "@/types";
+import { PROFESSION_IDS, type ProfessionalRole } from "@/lib/professions";
 
 // ── Site ─────────────────────────────────────────────────────────────────────
 // Brand / contact data. Localized copy lives in messages/{locale}.json.
@@ -38,6 +39,7 @@ export const INACTIVE_PREFIXES: string[] = [
 export const WORKER_DASHBOARD_PREFIXES: string[] = [
   "/dashboard",
   "/dashboard/shifts",
+  "/dashboard/requests",
   "/dashboard/availability",
   "/dashboard/profile",
   "/dashboard/assessments",
@@ -76,115 +78,26 @@ export const WORK_AUTHORIZATION_TYPES: WorkAuthorization[] = [
   "Study Permit (with work authorization)",
 ];
 
+/** Stable ids — labels in `messages` → `compliance` / `complianceDesc`. */
+export {
+  COMPLIANCE_IDS,
+  COMPLIANCE_IDS_SET,
+  OPTIONAL_COMPLIANCE_IDS,
+  type ComplianceId,
+} from "@/lib/compliance";
 
+/** Stable ids — labels in `messages` → `skills` / `skillsDesc`. */
+export {
+  WORKER_SKILL_IDS,
+  WORKER_SKILL_IDS_SET,
+  STAFF_REQUEST_SKILL_IDS,
+  STAFF_REQUEST_SKILL_IDS_SET,
+  type WorkerSkillId,
+  type StaffRequestSkillId,
+} from "@/lib/skills";
 
-/**
- * Canonical catalogue of skills a worker can claim. Each entry has a concise
- * description surfaced in the "Add skill" flow and used when generating quiz
- * questions. Skills have no uploaded document — compliance documents (with
- * `file_url` / `is_verified`) live in the `compliances` table.
- */
-export const SKILL_CATALOG = [
-  {
-    name: "Medication Administration",
-    description:
-      "Safe medication handling: the five rights, documentation, and routes of administration within scope of practice.",
-  },
-] as const;
-
-export const SKILL_NAMES = SKILL_CATALOG.map(
-  (c) => c.name,
-) as readonly (typeof SKILL_CATALOG)[number]["name"][];
-
-export type SkillName = (typeof SKILL_CATALOG)[number]["name"];
-
-export function getSkillDescription(name: string): string | undefined {
-  return SKILL_CATALOG.find((c) => c.name === name)?.description;
-}
-
-export const COMPLIANCE_CATALOG = [
-  {
-    name: "CPR",
-    description:
-      "Cardiopulmonary resuscitation — chest compressions, rescue breathing, and AED use during cardiac emergencies.",
-  },
-  {
-    name: "First Aid",
-    description:
-      "Responding to injuries, bleeding, burns, and sudden illness until advanced medical help arrives.",
-  },
-  {
-    name: "N95 Mask Fit Test",
-    description:
-      "Respirator fit test confirming an airtight seal on an N95 for aerosol-generating procedures.",
-  },
-  {
-    name: "Covid-19 Vaccination",
-    description:
-      "Proof of COVID-19 vaccination required by many healthcare settings for infection prevention.",
-  },
-  {
-    name: "Criminal Record Check",
-    description:
-      "Recent police background check confirming no disqualifying offences.",
-  },
-  {
-    name: "Vulnerable Sector Check",
-    description:
-      "Enhanced screening required to work with children, seniors, or vulnerable adults.",
-  },
-  {
-    name: "TB Test",
-    description:
-      "Two-step tuberculosis skin test or equivalent medical clearance.",
-  },
-  {
-    name: "Immunization Record",
-    description:
-      "Proof of up-to-date immunizations (MMR, Tdap, varicella, hepatitis B, influenza).",
-  },
-  {
-    name: "WES",
-    description:
-      "World Education Services credential evaluation mapping international qualifications to Canadian equivalents.",
-  },
-  {
-    name: "Driver's License",
-    description:
-      "Valid provincial driver's license for roles that involve travel or client transport.",
-  },
-  {
-    name: "Diploma / Degree",
-    description:
-      "Highest education credential relevant to the role (e.g. BScN, PSW certificate).",
-  },
-  {
-    name: "SIN Document",
-    description:
-      "Social Insurance Number confirmation letter or card for payroll eligibility.",
-  },
-] as const;
-
-export const COMPLIANCE_NAMES = COMPLIANCE_CATALOG.map(
-  (c) => c.name,
-) as readonly (typeof COMPLIANCE_CATALOG)[number]["name"][];
-
-export type ComplianceName = (typeof COMPLIANCE_CATALOG)[number]["name"];
-
-export function getComplianceDescription(name: string): string | undefined {
-  return COMPLIANCE_CATALOG.find((c) => c.name === name)?.description;
-}
-
-export const PROFESSIONAL_ROLES: ProfessionalRole[] = [
-  "RN",
-  "RPN",
-  "PSW",
-  "Healthcare Support Worker",
-  "Allied Health Practitioner",
-  "DSW",
-  "Cook / Dietary Aide",
-  "Other",
-];
+/** Ordered list of profession ids (labels from `messages` → `professions`). */
+export const PROFESSIONAL_ROLES: ProfessionalRole[] = [...PROFESSION_IDS];
 
 export const PROVINCES: Province[] = [
   "Ontario",
@@ -220,32 +133,6 @@ export const FORM_STEPS: FormStep[] = [
   { id: 2, title: "Professional Details", description: "Your credentials & availability" },
   { id: 3, title: "Resume & Message",    description: "Upload your resume" },
 ];
-
-// ── Job tasks ─────────────────────────────────────────────────────────────────
-export const JOB_TASKS = [
-  "Vital Signs Monitoring",
-  "Medication Administration",
-  "Blood Glucose Monitoring",
-  "Wound Care",
-  "Patient Bathing",
-  "Grooming Assistance",
-  "Toileting Assistance",
-  "Feeding Assistance",
-  "Mobility Assistance",
-  "Patient Transfers",
-  "Repositioning Patients",
-  "Fall Prevention Monitoring",
-  "1:1 Patient Observation",
-  "Dementia Care Support",
-  "Meal Distribution",
-  "Room Cleaning / Sanitation",
-  "Stocking Medical Supplies",
-  "Wheelchair Transport",
-  "Electronic Charting",
-  "Shift Handover Reporting",
-  "Infection Control Protocols",
-  "Emergency Response Assistance",
-] as const;
 
 // ── Client (Find Talent) ──────────────────────────────────────────────────────
 export const REQUESTER_TYPES: RequesterType[] = [
@@ -294,3 +181,6 @@ export const TRUST_LOGOS = [
   "HealthForceOntario",
   "CRNBC",
 ] as const;
+
+export const H3_K = 20;
+export const H3_RESOLUTION = 8;

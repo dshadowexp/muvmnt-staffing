@@ -1,6 +1,6 @@
 "use server";
 
-import { getAuth } from "@/services/firebase/admin";
+import { getAdminAuth } from "@/services/firebase/admin";
 import { findOrCreateUser } from "@/features/users/dal/mutations";
 import type { UserAuth, UserRole } from "@/types/auth";
 
@@ -39,6 +39,6 @@ export async function exchangeFirebaseUser({
 }
 
 export async function getFirebaseUser(authId: string) {
-    const firebaseUser = await getAuth().getUser(authId);
+    const firebaseUser = await getAdminAuth().getUser(authId);
     return firebaseUser;
 }

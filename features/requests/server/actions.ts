@@ -3,7 +3,9 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth as triggerAuth, tasks } from "@trigger.dev/sdk/v3";
-
+import { COMPLIANCE_IDS_SET } from "@/lib/compliance";
+import { STAFF_REQUEST_SKILL_IDS_SET } from "@/lib/skills";
+import { tryNormalizeProfessionId } from "@/lib/professions";
 import { getPresignedDownloadUrl } from "@/features/storage/dal/queries";
 import {
     LEGACY_PRICING_TIER_IDS,
@@ -17,9 +19,9 @@ import {
     dispatchCoverageMatchRun,
     getStaffRequestRow,
     isCoverageFresh,
-    persistCheckoutSession,
     persistPricingTier,
     updateStaffRequestDraft,
+    updateStaffRequestJobProfile,
     type CoverageDataCache,
 } from "./staff-request";
 import { confirmAndChargeTask } from "@/trigger/staff-requests";
@@ -65,7 +67,7 @@ export async function upsertStaffRequestScheduleAction(unsafe: unknown) {
     const { requestId, ...payload } = parsed.data;
 
     if (requestId) {
-        const updated = await updateStaffRequestDraft(auth.userId, requestId, payload);
+        const updated = await updateStaffRequestDraft(requestId, payload);
         if (!updated.ok) return { error: true as const, message: updated.message };
         return { error: false as const, requestId: updated.requestId };
     }
@@ -75,7 +77,6 @@ export async function upsertStaffRequestScheduleAction(unsafe: unknown) {
     return { error: false as const, requestId: created.requestId };
 }
 
-/** @deprecated Use {@link upsertStaffRequestScheduleAction} with optional `requestId`. */
 export async function createStaffRequestDraftAction(unsafe: unknown) {
     return upsertStaffRequestScheduleAction(unsafe);
 }
@@ -111,6 +112,49 @@ export async function applyStaffRequestPricingAction(unsafe: unknown) {
     return { error: false as const };
 }
 
+const staffRequestJobProfileSchema = z.object({
+    requestId: z.string().min(1),
+    profession: z
+        .string()
+        .min(1)
+        .refine((v) => tryNormalizeProfessionId(v) !== null, "Invalid profession")
+        .transform((v) => tryNormalizeProfessionId(v)!),
+    tasks: z.array(
+        z.string().refine(
+            (v) => STAFF_REQUEST_SKILL_IDS_SET.has(v),
+            "Invalid skill",
+        ),
+    ),
+    requirements: z.array(
+        z.string().refine(
+            (v) => COMPLIANCE_IDS_SET.has(v),
+            "Invalid compliance requirement",
+        ),
+    ),
+});
+
+export async function updateStaffRequestJobProfileAction(unsafe: unknown) {
+    const auth = await requireClient();
+    if ("error" in auth) return { error: true as const, message: auth.error };
+
+    const parsed = staffRequestJobProfileSchema.safeParse(unsafe);
+    if (!parsed.success) {
+        return {
+            error: true as const,
+            message: parsed.error.issues[0]?.message ?? "Invalid job profile",
+        };
+    }
+
+    const result = await updateStaffRequestJobProfile(auth.userId, parsed.data.requestId, {
+        profession: parsed.data.profession,
+        tasks: parsed.data.tasks,
+        requirements: parsed.data.requirements,
+    });
+
+    if (!result.ok) return { error: true as const, message: result.message };
+    return { error: false as const };
+}
+
 // ─── Step 3: dispatch / fetch coverage matching ────────────────────────────
 
 /**
@@ -123,17 +167,18 @@ export async function startCoverageMatchAction(requestId: string) {
     const session = await requireClient();
     if ("error" in session) return { error: true as const, message: session.error };
 
-    const row = await getStaffRequestRow(requestId, session.userId);
+    const row = await getStaffRequestRow(requestId);
     if (!row.ok) return { error: true as const, message: row.message };
+    if (!row.data) return { error: true as const, message: "Request not found" };
 
     if (
-        row.row.coverage_data &&
-        isCoverageFresh(row.row.coverage_data_at)
+        row.data.coverage_data &&
+        isCoverageFresh(row.data.coverage_data_at)
     ) {
         return {
             error: false as const,
             cached: true as const,
-            cache: row.row.coverage_data as CoverageDataCache,
+            cache: row.data.coverage_data as CoverageDataCache,
         };
     }
 
@@ -152,104 +197,96 @@ export async function confirmStaffRequestAction(requestId: string) {
     const session = await requireClient();
     if ("error" in session) return { error: true as const, message: session.error };
 
-    const row = await getStaffRequestRow(requestId, session.userId);
+    const row = await getStaffRequestRow(requestId);
     if (!row.ok) return { error: true as const, message: row.message };
-    if (row.row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
+    if (!row.data) return { error: true as const, message: "Request not found" };
+    if (row.data.status === STAFF_REQUEST_STATUS_CONFIRMED) {
         redirect(`/dashboard/requests/${requestId}`);
     }
 
-    const cache = row.row.coverage_data as CoverageDataCache | null;
-    if (!cache?.schedule?.length || row.row.pricing_rate == null) {
-        return {
-            error: true as const,
-            message: "Coverage is not ready yet — please wait for matching to finish.",
-        };
+    const cache = row.data.coverage_data as CoverageDataCache | null;
+    if (!cache?.schedule?.length || row.data.pricing_rate == null) {
+        redirect(`/dashboard/requests/${requestId}/pricing`);
     }
 
-    const billing = await getBillingAccount();
-    const account = "data" in billing ? billing.data : null;
-
-    if (account?.customerId && account.defaultPaymentMethodId) {
-        const handle = await tasks.trigger<typeof confirmAndChargeTask>(
-            "staff-requests.confirm-and-charge",
-            {
-                requestId,
-                stripeCustomerId: account.customerId,
-                paymentMethodId: account.defaultPaymentMethodId,
-            },
-            {
-                tags: [`staff-request:${requestId}`],
-                idempotencyKey: `staff-request-confirm:${requestId}`,
-            },
-        );
-
-        const publicAccessToken = await triggerAuth.createPublicToken({
-            scopes: { read: { runs: [handle.id] } },
-            expirationTime: "15m",
-        });
-
-        return {
-            error: false as const,
-            mode: "charge" as const,
-            runId: handle.id,
-            publicAccessToken,
-        };
-    }
-
-    // No saved card → Stripe Checkout Session.
-    const stripe = getStripeServer();
-    const totalCents = totalFromCache(cache, row.row.pricing_rate);
-
-    const successUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}?checkout=success`;
-    const cancelUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}/coverage?checkout=cancelled`;
-
-    const checkout = await stripe.checkout.sessions.create({
-        mode: "payment",
-        customer: account?.customerId,
-        line_items: [
-            {
-                quantity: 1,
-                price_data: {
-                    currency: "cad",
-                    unit_amount: totalCents,
-                    product_data: {
-                        name: "Staff request coverage",
-                        description: `Request ${requestId}`,
-                    },
-                },
-            },
-        ],
-        payment_intent_data: {
-            setup_future_usage: "off_session",
-            metadata: { staff_request_id: requestId, client_id: session.userId },
+    const handle = await tasks.trigger<typeof confirmAndChargeTask>(
+        "staff-requests.confirm-and-charge",
+        {
+            requestId,
         },
-        metadata: {
-            staff_request_id: requestId,
-            client_id: session.userId,
-            kind: "staff_request",
+        {
+            tags: [`staff-request:${requestId}`],
+            idempotencyKey: `staff-request-confirm:${requestId}`,
         },
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-    });
+    );
 
-    if (!checkout.url) {
-        return {
-            error: true as const,
-            message: "Stripe did not return a checkout URL — try again.",
-        };
-    }
-
-    await persistCheckoutSession({
-        requestId,
-        clientUserId: session.userId,
-        sessionId: checkout.id,
+    const publicAccessToken = await triggerAuth.createPublicToken({
+        scopes: { read: { runs: [handle.id] } },
+        expirationTime: "15m",
     });
 
     return {
         error: false as const,
-        mode: "checkout" as const,
-        url: checkout.url,
+        mode: "charge" as const,
+        runId: handle.id,
+        publicAccessToken,
     };
+
+    // // const billing = await getBillingAccount();
+    // // const account = "data" in billing ? billing.data : null;
+
+    // // if (account?.customerId && account.defaultPaymentMethodId) {
+        
+    // }
+
+    // // No saved card → Stripe Checkout Session.
+    // const stripe = getStripeServer();
+    // const totalCents = totalFromCache(cache, row.data.pricing_rate);
+
+    // const successUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}?checkout=success`;
+    // const cancelUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}/coverage?checkout=cancelled`;
+
+    // const checkout = await stripe.checkout.sessions.create({
+    //     mode: "payment",
+    //     customer: account?.customerId,
+    //     line_items: [
+    //         {
+    //             quantity: 1,
+    //             price_data: {
+    //                 currency: "cad",
+    //                 unit_amount: totalCents,
+    //                 product_data: {
+    //                     name: "Staff request coverage",
+    //                     description: `Request ${requestId}`,
+    //                 },
+    //             },
+    //         },
+    //     ],
+    //     payment_intent_data: {
+    //         setup_future_usage: "off_session",
+    //         metadata: { staff_request_id: requestId, client_id: session.userId },
+    //     },
+    //     metadata: {
+    //         staff_request_id: requestId,
+    //         client_id: session.userId,
+    //         kind: "staff_request",
+    //     },
+    //     success_url: successUrl,
+    //     cancel_url: cancelUrl,
+    // });
+
+    // if (!checkout.url) {
+    //     return {
+    //         error: true as const,
+    //         message: "Stripe did not return a checkout URL — try again.",
+    //     };
+    // }
+
+    // return {
+    //     error: false as const,
+    //     mode: "checkout" as const,
+    //     url: checkout.url,
+    // };
 }
 
 function totalFromCache(cache: CoverageDataCache, rate: number): number {

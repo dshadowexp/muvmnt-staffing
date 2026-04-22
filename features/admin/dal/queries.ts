@@ -12,7 +12,7 @@ export type AdminWorkerRow = {
   first_name: string;
   last_name: string;
   profession: string;
-  status: string | null;
+  live: boolean
   created_at: string;
 };
 
@@ -27,7 +27,7 @@ export type AdminClientRow = {
 export type AdminJobRow = {
   id: string;
   positions: number;
-  client_id: string;
+  client_user_id: string;
   client_name: string | null;
   start_date: string;
   end_date: string | null;
@@ -116,7 +116,7 @@ export async function getAdminWorkersList(
   const { data, error } = await supabase
     .from("workers")
     .select(
-      "id, user_id, first_name, last_name, profession, status, created_at",
+      "id, user_id, first_name, last_name, profession, live, created_at",
     )
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -282,7 +282,7 @@ export const getAdminClientReview = cache(
       supabase
         .from("staff_requests")
         .select("id", { count: "exact", head: true })
-        .eq("client_id", uid),
+        .eq("client_user_id", uid),
       supabase
         .from("shifts")
         .select("id", { count: "exact", head: true })
@@ -294,7 +294,7 @@ export const getAdminClientReview = cache(
     const { data: clientRequests } = await supabase
       .from("staff_requests")
       .select("id")
-      .eq("client_id", uid);
+      .eq("client_user_id", uid);
     const ids = (clientRequests ?? []).map((r) => r.id);
     if (ids.length > 0) {
       const { data: pays } = await supabase
@@ -342,19 +342,19 @@ export async function getAdminJobsList(limit = 200): Promise<AdminJobRow[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("staff_requests")
-    .select("id, positions, client_id, start_date, end_date, created_at, status")
+    .select("id, positions, client_user_id, start_date, end_date, created_at, status")
     .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(error.message);
 
   const rows = data ?? [];
-  const names = await joinClientNamesByUserId(rows.map((r) => r.client_id));
+  const names = await joinClientNamesByUserId(rows.map((r) => r.client_user_id));
   return rows.map((r) => ({
     id: r.id,
     positions: r.positions,
-    client_id: r.client_id,
-    client_name: names.get(r.client_id) ?? null,
+    client_user_id: r.client_user_id,
+    client_name: names.get(r.client_user_id) ?? null,
     start_date: r.start_date,
     end_date: r.end_date ?? null,
     created_at: r.created_at,
@@ -401,12 +401,12 @@ export const getAdminRequestReview = cache(
       supabase
         .from("clients")
         .select("id, name, user_id")
-        .eq("user_id", request.client_id)
+        .eq("user_id", request.client_user_id)
         .maybeSingle(),
       supabase
         .from("locations")
         .select("address, city, admin_area, postal_code, country_code")
-        .eq("user_id", request.client_id)
+        .eq("user_id", request.client_user_id)
         .maybeSingle(),
       supabase
         .from("shifts")
@@ -714,7 +714,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     supabase
       .from("workers")
       .select(
-        "id, user_id, first_name, last_name, profession, status, created_at",
+        "id, user_id, first_name, last_name, profession, live, created_at",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
@@ -727,7 +727,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     supabase
       .from("staff_requests")
       .select(
-        "id, positions, client_id, start_date, end_date, created_at, status",
+        "id, positions, client_user_id, start_date, end_date, created_at, status",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
@@ -786,7 +786,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
 
   const [jobClientNames, shiftClientNames, shiftWorkerNames, authWorkerNames, compWorkerNames] =
     await Promise.all([
-      joinClientNamesByUserId(jobsRaw.map((r) => r.client_id)),
+      joinClientNamesByUserId(jobsRaw.map((r) => r.client_user_id)),
       joinClientNamesByClientId(shiftsRaw.map((r) => r.client_id)),
       joinWorkerNamesByWorkerId(shiftsRaw.map((r) => r.worker_id)),
       joinWorkerNamesByUserId(authsRaw.map((r) => r.user_id)),
@@ -808,8 +808,8 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     jobs: jobsRaw.map((r) => ({
       id: r.id,
       positions: r.positions,
-      client_id: r.client_id,
-      client_name: jobClientNames.get(r.client_id) ?? null,
+      client_user_id: r.client_user_id,
+      client_name: jobClientNames.get(r.client_user_id) ?? null,
       start_date: r.start_date,
       end_date: r.end_date ?? null,
       created_at: r.created_at,

@@ -8,13 +8,14 @@ import {
 import { createAdminClient } from "@/services/supabase/server";
 import { z } from "zod";
 import { getSession } from "@/lib/session";
+import { normalizeProfessionId } from "@/lib/professions";
 
 const workerPayload = (data: z.infer<typeof workerSchema>) => ({
   first_name: data.firstName,
   last_name: data.lastName,
   date_of_birth: data.dateOfBirth,
   gender: data.gender,
-  profession: data.profession,
+  profession: normalizeProfessionId(data.profession),
   years_exp: data.yearsExp,
 });
 
@@ -106,7 +107,7 @@ export async function updateWorkerProfessionAndExperienceAction(
   const { error } = await supabase
     .from("workers")
     .update({
-      profession: parsed.data.profession,
+      profession: normalizeProfessionId(parsed.data.profession),
       years_exp: parsed.data.yearsExp,
     })
     .eq("user_id", userId);

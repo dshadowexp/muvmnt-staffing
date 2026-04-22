@@ -18,8 +18,10 @@ import {
 import { Link } from "@/i18n/navigation";
 import { format } from "date-fns";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { normalizeProfessionId } from "@/lib/professions";
 
 function boolLabel(v: boolean | null | undefined) {
   if (v === true) return "Yes";
@@ -55,6 +57,9 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
   if (!data) notFound();
 
   const { worker, user, compliances, authorizations, payroll } = data;
+  const locale = await getLocale();
+  const tProf = await getTranslations({ locale, namespace: "professions" });
+  const professionLabel = tProf(normalizeProfessionId(worker.profession));
 
   return (
     <div className="flex w-full max-w-6xl flex-col gap-6">
@@ -81,17 +86,18 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <dl className="space-y-3">
-            <DetailRow label="Profession" value={worker.profession} />
+            <DetailRow label="Profession" value={professionLabel} />
             <DetailRow
               label="Status"
               value={
                 <AdminWorkerStatusEditor
                   workerId={worker.id}
                   workerName={`${worker.first_name} ${worker.last_name}`}
-                  initialStatus={worker.status}
+                  initialStatus={worker.live ? "active" : "inactive"}
                 />
               }
             />
+            <DetailRow label="Live" value={boolLabel(worker.live)} />
             <DetailRow
               label="Date of birth"
               value={format(new Date(worker.date_of_birth), "MMM d, yyyy")}

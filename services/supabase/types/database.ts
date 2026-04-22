@@ -770,7 +770,7 @@ export type Database = {
         Row: {
           cell_id: string
           charge_frequency: string | null
-          client_id: string
+          client_user_id: string
           coverage_data: Json | null
           coverage_data_at: string | null
           created_at: string
@@ -782,6 +782,7 @@ export type Database = {
           positions: number
           pricing_rate: number | null
           pricing_tier: string | null
+          profession: string
           requirements: string[]
           start_date: string
           status: string
@@ -791,7 +792,7 @@ export type Database = {
         Insert: {
           cell_id: string
           charge_frequency?: string | null
-          client_id: string
+          client_user_id: string
           coverage_data?: Json | null
           coverage_data_at?: string | null
           created_at?: string
@@ -803,6 +804,7 @@ export type Database = {
           positions?: number
           pricing_rate?: number | null
           pricing_tier?: string | null
+          profession: string
           requirements?: string[]
           start_date: string
           status?: string
@@ -812,7 +814,7 @@ export type Database = {
         Update: {
           cell_id?: string
           charge_frequency?: string | null
-          client_id?: string
+          client_user_id?: string
           coverage_data?: Json | null
           coverage_data_at?: string | null
           created_at?: string
@@ -824,6 +826,7 @@ export type Database = {
           positions?: number
           pricing_rate?: number | null
           pricing_tier?: string | null
+          profession?: string
           requirements?: string[]
           start_date?: string
           status?: string
@@ -832,8 +835,8 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "job_infos_client_id_fkey"
-            columns: ["client_id"]
+            foreignKeyName: "staff_requests_client_user_id_fkey"
+            columns: ["client_user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -983,7 +986,6 @@ export type Database = {
           profession: string
           rating_avg: number | null
           rating_count: number | null
-          status: string
           user_id: string
           years_exp: number
         }
@@ -1002,7 +1004,7 @@ export type Database = {
           profession: string
           rating_avg?: number | null
           rating_count?: number | null
-          status?: string
+          status?: string | null
           user_id: string
           years_exp: number
         }
@@ -1021,7 +1023,7 @@ export type Database = {
           profession?: string
           rating_avg?: number | null
           rating_count?: number | null
-          status?: string
+          status?: string | null
           user_id?: string
           years_exp?: number
         }

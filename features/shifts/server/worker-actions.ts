@@ -20,6 +20,7 @@ import {
     getShiftWithStaffRequest,
     getWorkerIdByUserId,
 } from "../dal/queries";
+import { createAdminClient } from "@/services/supabase/server";
 import { patchShiftById } from "../dal/mutations";
 import { shiftWindowFromTimestamps } from "../lib/shift-time";
 
@@ -86,33 +87,93 @@ export async function declineWorkerShift(
     const win = shiftWindowFromTimestamps(row.start_time, row.end_time);
     if (!win) return { ok: false, message: "Shift has invalid times" };
 
-    const replacementUserId = await findReplacementUserIdForShiftWindow({
-        clientUserId: sr.client_id,
-        dateYmd: win.dateYmd,
-        startHHmm: win.startHHmm,
-        endHHmm: win.endHHmm,
-        pricingTierId: sr.pricing_tier,
-        requestProfession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
-        requirements: sr.requirements ?? [],
-        excludeUserIds: [workerUserId],
-    });
+    // const replacementUserId = await findReplacementUserIdForShiftWindow({
 
-    if (replacementUserId) {
-        const newWorkerId = await getWorkerIdByUserId(replacementUserId);
-        if (!newWorkerId) {
-            await patchShiftById(shiftId, { status: SHIFT_STATUS_DECLINED });
-            return {
-                ok: false,
-                message: "Replacement could not be linked to a worker profile",
-            };
-        }
-        return patchShiftById(shiftId, {
-            worker_id: newWorkerId,
-            status: SHIFT_STATUS_SCHEDULED,
-        });
-    }
+    //     dateYmd: win.dateYmd,
+    //     startHHmm: win.startHHmm,
+    //     endHHmm: win.endHHmm,
+    //     pricingTierId: sr.pricing_tier,
+    //     requestProfession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
+    //     requirements: sr.requirements ?? [],
+    //     excludeUserIds: [workerUserId],
+    // });
+
+    // if (replacementUserId) {
+    //     const newWorkerId = await getWorkerIdByUserId(replacementUserId);
+    //     if (!newWorkerId) {
+    //         await patchShiftById(shiftId, { status: SHIFT_STATUS_DECLINED });
+    //         return {
+    //             ok: false,
+    //             message: "Replacement could not be linked to a worker profile",
+    //         };
+    //     }
+    //     return patchShiftById(shiftId, {
+    //         worker_id: newWorkerId,
+    //         status: SHIFT_STATUS_SCHEDULED,
+    //     });
+    // }
 
     return patchShiftById(shiftId, { status: SHIFT_STATUS_DECLINED });
+}
+
+export async function confirmWorkerShiftsForRequest(
+    workerUserId: string,
+    requestId: string,
+): Promise<WorkerShiftActionResult> {
+    const workerId = await getWorkerIdByUserId(workerUserId);
+    if (!workerId) return { ok: false, message: "Worker profile not found" };
+
+    const supabase = await createAdminClient();
+    const { data: shifts, error } = await supabase
+        .from("shifts")
+        .select("id, status")
+        .eq("request_id", requestId)
+        .eq("worker_id", workerId);
+
+    if (error) return { ok: false, message: error.message };
+
+    const scheduled = (shifts ?? []).filter(
+        (s) => normalizeShiftStatus(s.status) === SHIFT_STATUS_SCHEDULED,
+    );
+    if (scheduled.length === 0) {
+        return { ok: false, message: "No shifts awaiting your response" };
+    }
+
+    for (const s of scheduled) {
+        const r = await confirmWorkerShift(workerUserId, s.id);
+        if (!r.ok) return r;
+    }
+    return { ok: true };
+}
+
+export async function declineWorkerShiftsForRequest(
+    workerUserId: string,
+    requestId: string,
+): Promise<WorkerShiftActionResult> {
+    const workerId = await getWorkerIdByUserId(workerUserId);
+    if (!workerId) return { ok: false, message: "Worker profile not found" };
+
+    const supabase = await createAdminClient();
+    const { data: shifts, error } = await supabase
+        .from("shifts")
+        .select("id, status")
+        .eq("request_id", requestId)
+        .eq("worker_id", workerId);
+
+    if (error) return { ok: false, message: error.message };
+
+    const scheduled = (shifts ?? []).filter(
+        (s) => normalizeShiftStatus(s.status) === SHIFT_STATUS_SCHEDULED,
+    );
+    if (scheduled.length === 0) {
+        return { ok: false, message: "No shifts awaiting your response" };
+    }
+
+    for (const s of scheduled) {
+        const r = await declineWorkerShift(workerUserId, s.id);
+        if (!r.ok) return r;
+    }
+    return { ok: true };
 }
 
 export async function checkInWorkerShift(

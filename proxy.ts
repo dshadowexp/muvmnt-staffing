@@ -10,6 +10,22 @@ import {
     ADMIN_DASHBOARD_PREFIXES
 } from './lib/constants';
 import { UserAuth, UserRole } from './types/auth';
+import arcjet, { detectBot, shield, slidingWindow } from "@/services/arcjet/client";
+
+const aj = arcjet.withRule(
+        shield({ mode: "LIVE" })
+    ).withRule(
+        detectBot({
+            mode: "LIVE",
+            allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR", "CATEGORY:PREVIEW"],
+        })
+    ).withRule(
+        slidingWindow({
+            mode: "LIVE",
+            interval: "1m",
+            max: 100,
+        })
+    );
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -50,6 +66,7 @@ function isInactiveRoute(pathname: string): boolean {
 
 function isNotRoleDashboardRoute(pathname: string, role: UserRole): boolean {
     if (role === "worker") {
+        console.log('worker', pathname, !WORKER_DASHBOARD_PREFIXES.some((p) => pathHasPrefix(pathname, p)));
         return !WORKER_DASHBOARD_PREFIXES.some((p) => pathHasPrefix(pathname, p));
     }
     if (role === "client") {
@@ -70,6 +87,15 @@ function safeRedirectParam(raw: string | null): string | null {
 }
 
 export async function proxy(req: NextRequest) {
+    console.log("proxy", req.url);
+    const decision = await aj.protect(req);
+    if (decision.isDenied()) {
+        return NextResponse.json(
+            { error: "Forbidden", reason: decision.reason }, 
+            { status: 403 }
+        );
+    }
+
     const { pathname, search } = req.nextUrl;
 
     if (pathname.startsWith('/api') || pathname.startsWith('/trpc')) {
@@ -84,7 +110,8 @@ export async function proxy(req: NextRequest) {
     }
 
     if (!session) {
-        const signinUrl = new URL('/sign-in', req.url);
+        const authRoute = pathHasPrefix(pathForRules, '/sign-up') ? '/sign-up' : '/sign-in';
+        const signinUrl = new URL(authRoute, req.url);
         signinUrl.searchParams.set('redirect', pathname + search);
         return NextResponse.redirect(signinUrl);
     }
@@ -94,12 +121,14 @@ export async function proxy(req: NextRequest) {
             const redirectParam = safeRedirectParam(
                 req.nextUrl.searchParams.get('redirect'),
             );
-            console.log("redirecting to review");
+
             return NextResponse.redirect(new URL('/review', req.url));
         } else {
             return intlMiddleware(req);
         }
     }
+
+    console.log("checking dashboard");
 
     if (isNotRoleDashboardRoute(pathForRules, session.role)) {
         return NextResponse.redirect(new URL('/dashboard', req.url));

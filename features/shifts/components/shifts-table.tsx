@@ -65,15 +65,16 @@ export function ShiftsTable({
   variant,
 }: {
   rows: ShiftTableRow[];
-  variant: "worker" | "client-all" | "client-request";
+  variant: "worker" | "worker-request" | "client-all" | "client-request";
 }) {
   const router = useRouter();
-  const showWorker = variant !== "worker";
+  const showWorker = variant !== "worker" && variant !== "worker-request";
   const showRequestLink = variant === "client-all";
-  const showRateAndPay = variant === "worker";
+  const showRateAndPay = variant === "worker" || variant === "worker-request";
   const showRequestColumn = variant === "client-all";
   const showHoursColumn = variant === "client-all";
   const isClientRequestVariant = variant === "client-request";
+  const isWorkerRequestVariant = variant === "worker-request";
 
   const pagination = useTablePagination(allRows);
   const rows = pagination.rows;
@@ -91,9 +92,11 @@ export function ShiftsTable({
     <Table>
       <TableHeader>
         <TableRow>
-          {variant === "worker" ? (
+          {variant === "worker" || variant === "worker-request" ? (
             <>
-              <TableHead>Location</TableHead>
+              <TableHead>
+                {variant === "worker-request" ? "Shift" : "Location"}
+              </TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>{`Rate (/hr)`}</TableHead>
@@ -137,7 +140,7 @@ export function ShiftsTable({
           const addressLine = formatShiftLocationLine(row.location);
           const fallbackDate = sr?.start_date ?? null;
 
-          if (variant === "worker") {
+          if (variant === "worker" || variant === "worker-request") {
             const dateLabel = formatShiftWorkerTableDate(
               row.start_time,
               fallbackDate,
@@ -150,27 +153,55 @@ export function ShiftsTable({
             return (
               <TableRow
                 key={row.id}
-                className={cn(
-                  "cursor-pointer rounded-md hover:bg-muted/60",
-                  "focus-within:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-                )}
-                tabIndex={0}
-                role="button"
-                aria-label={`Open shift on ${dateLabel}`}
-                onClick={() => {
-                  router.push(`/dashboard/shifts/${row.id}`);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    router.push(`/dashboard/shifts/${row.id}`);
-                  }
-                }}
+                className={
+                  isWorkerRequestVariant
+                    ? undefined
+                    : cn(
+                        "cursor-pointer rounded-md hover:bg-muted/60",
+                        "focus-within:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                      )
+                }
+                tabIndex={isWorkerRequestVariant ? undefined : 0}
+                role={isWorkerRequestVariant ? undefined : "button"}
+                aria-label={
+                  isWorkerRequestVariant
+                    ? undefined
+                    : `Open shift on ${dateLabel}`
+                }
+                onClick={
+                  isWorkerRequestVariant
+                    ? undefined
+                    : () => {
+                        router.push(`/dashboard/shifts/${row.id}`);
+                      }
+                }
+                onKeyDown={
+                  isWorkerRequestVariant
+                    ? undefined
+                    : (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          router.push(`/dashboard/shifts/${row.id}`);
+                        }
+                      }
+                }
               >
-                <TableCell className="max-w-[min(28rem,55vw)] text-muted-foreground">
-                  <span className="line-clamp-2 break-words" title={addressLine}>
-                    {addressLine}
-                  </span>
+                <TableCell
+                  className={
+                    isWorkerRequestVariant
+                      ? "font-mono text-muted-foreground text-sm tabular-nums"
+                      : "max-w-[min(28rem,55vw)] text-muted-foreground"
+                  }
+                >
+                  {isWorkerRequestVariant ? (
+                    <span className="tracking-tight" title={row.id}>
+                      {row.id.slice(0, 8)}
+                    </span>
+                  ) : (
+                    <span className="line-clamp-2 break-words" title={addressLine}>
+                      {addressLine}
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell className="text-muted-foreground whitespace-nowrap">
                   {dateLabel}
@@ -184,12 +215,20 @@ export function ShiftsTable({
                 <TableCell className="font-medium tabular-nums">
                   {payLabel}
                 </TableCell>
-                <TableCell
-                  className="w-[1%] whitespace-nowrap"
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                >
-                  <WorkerShiftTableStatusCell shiftId={row.id} status={row.status} />
+                <TableCell className="w-[1%] whitespace-nowrap">
+                  {isWorkerRequestVariant ? (
+                    <ShiftStatusBadge status={row.status} />
+                  ) : (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
+                      <WorkerShiftTableStatusCell
+                        shiftId={row.id}
+                        status={row.status}
+                      />
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             );

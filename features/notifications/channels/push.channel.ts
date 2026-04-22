@@ -1,6 +1,6 @@
 import { Messaging } from 'firebase-admin/messaging';
 import { renderPush } from '../template-engine';
-import { getMessaging } from '@/services/firebase/admin';
+import { getAdminMessaging } from '@/services/firebase/admin';
 
 interface SendPushParams {
     token:   string
@@ -12,13 +12,13 @@ export class PushChannel {
     private readonly messaging: Messaging;
 
     constructor() {
-        this.messaging = getMessaging();
+        this.messaging = getAdminMessaging();
     }
 
-    async send({ token, template, data }: SendPushParams): Promise<void> {
+    async send({ token, template, data }: SendPushParams): Promise<{ success: boolean, messageId?: string }> {
         if (!token) {
             console.warn({ template }, 'Push skipped — no push token for user')
-            return
+            return { success: false }
         }
 
         const { title, body } = renderPush(template, data)
@@ -49,11 +49,9 @@ export class PushChannel {
             token: token
         });
 
-        // return {
-        //     success: true,
-        //     messageId: response
-        // };
-
-        console.info({ token, template }, 'Push notification sent')
+        return {
+            success: true,
+            messageId: response
+        };
     }
 }

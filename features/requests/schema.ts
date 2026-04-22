@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import { z } from "zod";
-import { calendarDayStrings } from "./lib/calendar-day-strings";
 import { DEFAULT_SAME_DAY_LEAD_HOURS } from "@/lib/quarter-hour-times";
 import { isStartDateTimeAtLeastLeadHoursFromNow } from "./lib/schedule-time-bounds";
 
@@ -155,7 +154,8 @@ export function buildStaffRequestScheduleSchema(
       { message: msg("endDateAfterStart"), path: ["endDate"] },
     )
     .superRefine((data, ctx) => {
-      const expected = calendarDayStrings(data.startDate, data.endDate);
+      const rangeStartYmd = format(data.startDate, "yyyy-MM-dd");
+      const rangeEndYmd = format(data.endDate ?? data.startDate, "yyyy-MM-dd");
       const dayKeys = data.dailyWindows.map((w) => w.date);
       if (new Set(dayKeys).size !== dayKeys.length) {
         ctx.addIssue({
@@ -165,17 +165,8 @@ export function buildStaffRequestScheduleSchema(
         });
       }
       const byDate = new Map(data.dailyWindows.map((w) => [w.date, w]));
-      for (const d of expected) {
-        if (!byDate.has(d)) {
-          ctx.addIssue({
-            code: "custom",
-            message: msg("setTimesForDay", { date: d }),
-            path: ["dailyWindows"],
-          });
-        }
-      }
       for (const w of data.dailyWindows) {
-        if (!expected.includes(w.date)) {
+        if (w.date < rangeStartYmd || w.date > rangeEndYmd) {
           ctx.addIssue({
             code: "custom",
             message: msg("outsideSelectedRange", { date: w.date }),

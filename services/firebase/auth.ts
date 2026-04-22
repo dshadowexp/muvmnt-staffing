@@ -3,9 +3,13 @@ import {
     sendPasswordResetEmail, signInWithEmailAndPassword, 
     signInWithPopup, signOut as firebaseSignOut,
     createUserWithEmailAndPassword,
-    signInAnonymously, 
+    signInAnonymously,
+    getAuth, 
 } from "firebase/auth";
-import { auth } from "./client";
+import { firebaseApp } from "./client";
+
+export const auth = getAuth(firebaseApp);
+auth.useDeviceLanguage();
 
 // ─── Error mapping ────────────────────────────────────────────────────────────
 

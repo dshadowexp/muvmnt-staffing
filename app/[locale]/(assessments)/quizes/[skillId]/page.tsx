@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { getSkillById } from "@/features/profile/dal/queries";
 import { QuizClientPage } from "@/features/quizes/components/quiz-page";
-import { getSkillDescription } from "@/lib/constants";
 
 export default async function QuizPage({
   params,
@@ -38,12 +37,15 @@ async function SuspendedContent({ skillId }: { skillId: string }) {
   const skill = await getSkillById(skillId, session.userId);
   if (!skill) return notFound();
 
+  const tSkills = await getTranslations("skills");
+  const tSkillsDesc = await getTranslations("skillsDesc");
+
   return (
     <QuizClientPage
       userId={session.userId}
       skillId={skill.id}
-      skillName={skill.name}
-      skillDescription={getSkillDescription(skill.name) ?? ""}
+      skillName={tSkills(skill.name)}
+      skillDescription={tSkillsDesc(skill.name)}
     />
   );
 }

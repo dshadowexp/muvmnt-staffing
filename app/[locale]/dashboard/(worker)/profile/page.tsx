@@ -5,16 +5,11 @@ import {
   getWorkAuthorization,
   getWorkerProfile,
 } from "@/features/profile/dal/queries";
-import { getAddressLocation } from "@/features/geo/dal/queries";
-
 export default async function WorkerProfilePage() {
   const worker = await getWorkerProfile();
   if (!worker) redirect("/onboarding/profile");
 
   const t = await getTranslations("dashboard.worker.profile");
-
-  const locationPromise = getAddressLocation().then((l) => l ?? null);
-  locationPromise.catch(() => undefined);
 
   const workAuthPromise = getWorkAuthorization().then((wa) =>
     wa
@@ -44,7 +39,6 @@ export default async function WorkerProfilePage() {
           profession: worker.profession,
           years_exp: worker.years_exp,
         }}
-        locationPromise={locationPromise}
         workAuthPromise={workAuthPromise}
       />
     </div>

@@ -1,8 +1,57 @@
-/**
- * Used for client-side pricing simulation only (no `profession` on `staff_requests`).
- * Must match server `UNSPECIFIED_STAFF_REQUEST_PROFESSION`.
- */
-export const STAFF_REQUEST_PROFESSION_PLACEHOLDER = "Unspecified";
+import type { ComplianceId } from "@/lib/compliance";
+import { COMPLIANCE_IDS_SET } from "@/lib/compliance";
+import { DEFAULT_PROFESSION_ID } from "@/lib/professions";
+
+
+
+/** Default profession id for new and restored staff request drafts. */
+export const DEFAULT_STAFF_REQUEST_PROFESSION = DEFAULT_PROFESSION_ID;
+
+/** Fallback id when a stored value is missing (same as default). */
+export const STAFF_REQUEST_PROFESSION_PLACEHOLDER = DEFAULT_PROFESSION_ID;
+
+/** Compliance ids always merged into `staff_requests.requirements` on save. */
+export const STAFF_REQUEST_LOCKED_COMPLIANCE_REQUIREMENTS = [
+    "covid_19_vaccination",
+    "cpr",
+    "vulnerable_sector_check",
+] as const satisfies readonly ComplianceId[];
+
+/** Keep only valid compliance ids, preserve order, dedupe. */
+export function normalizeComplianceIds(ids: readonly string[]): ComplianceId[] {
+    const out: ComplianceId[] = [];
+    const seen = new Set<string>();
+    for (const raw of ids) {
+        const n = raw.trim();
+        if (!COMPLIANCE_IDS_SET.has(n) || seen.has(n)) continue;
+        seen.add(n);
+        out.push(n as ComplianceId);
+    }
+    return out;
+}
+
+/** Locked compliance plus normalized user-provided requirement ids. */
+export function mergePersistedStaffRequestRequirements(
+    userProvided: readonly string[],
+): string[] {
+    return [
+        ...new Set([
+            ...STAFF_REQUEST_LOCKED_COMPLIANCE_REQUIREMENTS,
+            ...normalizeComplianceIds(userProvided),
+        ]),
+    ];
+}
+
+const LOCKED_COMPLIANCE_SET = new Set<string>(
+    STAFF_REQUEST_LOCKED_COMPLIANCE_REQUIREMENTS,
+);
+
+/** Optional compliance only (excludes baseline locked items every request has). */
+export function staffRequestExtraRequirements(
+    requirements: readonly string[],
+): string[] {
+    return requirements.filter((r) => !LOCKED_COMPLIANCE_SET.has(r));
+}
 
 /** Card / list titles for staff requests (no per-request role label). */
 export const STAFF_REQUEST_DISPLAY_TITLE = "Staff request";
@@ -11,6 +60,18 @@ export const STAFF_REQUEST_DISPLAY_TITLE = "Staff request";
 export const STAFF_REQUEST_STATUS_PENDING_PRICING = "pending_pricing";
 export const STAFF_REQUEST_STATUS_PENDING_COVERAGE = "pending_coverage";
 export const STAFF_REQUEST_STATUS_CONFIRMED = "confirmed";
+
+/** Dashboard path for a staff request (pricing → coverage → detail). */
+export function clientStaffRequestHref(row: {
+  id: string;
+  status: string;
+  pricing_tier: string | null;
+}): string {
+  if (row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
+    return `/dashboard/requests/${row.id}`;
+  }
+  return `/dashboard/requests/${row.id}/pricing`;
+}
 
 /** Legacy tier IDs — kept so existing rows and the matching filter don't break. */
 export const PRICING_TIER_STANDARD = "standard";
@@ -25,13 +86,13 @@ export const PRICING_TIER_CREDENTIALED = "credentialed";
 export const PRICING_TIER_PULSE = "pulse";
 export const PRICING_TIER_VETTED = "vetted";
 export const PRICING_TIER_VETERAN = "veteran";
+/** Legacy tier id still referenced by older rows and summary UI. */
 export const PRICING_TIER_RESERVE = "reserve";
 
 export const PRICING_TIER_IDS = [
     PRICING_TIER_PULSE,
     PRICING_TIER_VETTED,
     PRICING_TIER_VETERAN,
-    PRICING_TIER_RESERVE,
 ] as const;
 
 export type PricingTierId = (typeof PRICING_TIER_IDS)[number];

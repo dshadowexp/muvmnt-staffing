@@ -1,23 +1,29 @@
 import "server-only";
 
 import { EmailChannel } from "../channels/email.channel";
+import { PushChannel } from "../channels/push.channel";
 
 /**
- * Send a transactional email directly to an arbitrary address — i.e. without
- * the recipient needing a `users` row first. Used for invitations and other
- * "anonymous" sends where {@link enqueueNotification} (which keys on
- * `userId`) does not apply.
+ * Direct sends (no Trigger.dev queue / `userId` lookup). Use
+ * {@link enqueueNotification} when the recipient is a known user and you
+ * want idempotent, retried delivery across channels.
  *
  * Notes:
- *  - Synchronous send (no Trigger.dev queue / retries / delayMs). Callers
- *    that need durable retries should still go through `enqueueNotification`.
- *  - Failures are surfaced to the caller — wrap in try/catch and log.
+ *  - Synchronous. Callers that need durable retries should use
+ *    `enqueueNotification` (or wrap these in a Trigger task).
+ *  - Failures are surfaced — wrap in try/catch and log at call sites.
  */
 
-let cachedChannel: EmailChannel | null = null;
+let cachedEmail: EmailChannel | null = null;
 function getEmailChannel(): EmailChannel {
-  if (!cachedChannel) cachedChannel = new EmailChannel();
-  return cachedChannel;
+  if (!cachedEmail) cachedEmail = new EmailChannel();
+  return cachedEmail;
+}
+
+let cachedPush: PushChannel | null = null;
+function getPushChannel(): PushChannel {
+  if (!cachedPush) cachedPush = new PushChannel();
+  return cachedPush;
 }
 
 export type SendDirectEmailInput = {
@@ -37,6 +43,48 @@ export async function sendDirectEmail(
   try {
     await getEmailChannel().send(input);
     return { status: "sent" };
+  } catch (err) {
+    return {
+      status: "failed",
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+export type SendDirectPushInput = {
+  token: string;
+  template: string;
+  data: Record<string, unknown>;
+};
+
+export type SendDirectPushResult =
+  | { status: "sent"; messageId: string }
+  | { status: "skipped"; reason: string }
+  | { status: "failed"; error: string };
+
+export async function sendDirectPush(
+  input: SendDirectPushInput,
+): Promise<SendDirectPushResult> {
+  const token = input.token?.trim();
+  if (!token) {
+    return { status: "skipped", reason: "No push token" };
+  }
+
+  try {
+    const result = await getPushChannel().send({
+      token,
+      template: input.template,
+      data: input.data,
+    });
+
+    if (!result.success || result.messageId == null) {
+      return {
+        status: "skipped",
+        reason: "Push was not delivered (token invalid or channel declined)",
+      };
+    }
+
+    return { status: "sent", messageId: result.messageId };
   } catch (err) {
     return {
       status: "failed",

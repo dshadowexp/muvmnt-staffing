@@ -51,14 +51,14 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
   const supabase = await createAdminClient();
   const { data: sr, error: srError } = await supabase
     .from("staff_requests")
-    .select("client_id, cell_id")
+    .select("client_user_id, cell_id")
     .eq("id", requestId)
     .single();
 
   if (srError || sr == null) {
     return { error: true as const, message: srError?.message ?? "Not found" };
   }
-  if (sr.client_id !== userId) {
+  if (sr.client_user_id !== userId) {
     return { error: true as const, message: "Not found" };
   }
 
@@ -68,7 +68,7 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
       .select(
         "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
       )
-      .eq("user_id", sr.client_id)
+      .eq("user_id", sr.client_user_id)
       .maybeSingle(),
     supabase
       .from("payments")
@@ -111,8 +111,7 @@ export async function getStaffRequests() {
     const { data, error } = await supabase
         .from("staff_requests")
         .select("*")
-        .eq("client_id", userId)
-        .eq("status", STAFF_REQUEST_STATUS_CONFIRMED)
+        .eq("client_user_id", userId)
         .order("created_at", { ascending: false });
 
     if (error) {

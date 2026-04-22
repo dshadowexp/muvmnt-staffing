@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sendEmailVerification } from "firebase/auth";
 import { useTranslations } from "next-intl";
-import { auth } from "@/services/firebase/client";
+import { auth } from "@/services/firebase/auth";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { FieldLabel } from "@/components/ui/field";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { Check, CircleDashed } from "lucide-react";
 import posthog from "posthog-js";
+import { env } from "@/data/env/client";
 
 const POLL_INTERVAL_MS = 4000;
 const COOLDOWN_SECONDS = 60;
@@ -56,7 +57,9 @@ export function EmailVerification() {
     setSending(true);
     setError("");
     try {
-      await sendEmailVerification(auth.currentUser);
+      await sendEmailVerification(auth.currentUser, {
+        url: `${env.NEXT_PUBLIC_APP_URL}/verify-email`
+      });
       posthog.capture("email_verification_sent");
       setSent(true);
       startCooldown();

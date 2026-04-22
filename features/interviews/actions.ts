@@ -1,6 +1,7 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
+import { professionLabelEn } from "@/lib/labels-en";
 import { createAdminClient } from "@/services/supabase/server";
 import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import {
@@ -310,7 +311,10 @@ export async function generateInterviewFeedback(
       humeGroupChatId: interview.chat_group_id,
       interviewInfo: {
         title: interview.subject.replace(/_/g, " "),
-        profession: worker?.profession ?? "General",
+        profession:
+          worker?.profession?.trim()
+            ? professionLabelEn(worker.profession)
+            : "General",
         description,
       },
       userName: userName.length > 0 ? userName : "Candidate",

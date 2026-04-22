@@ -64,6 +64,7 @@ export function WorkerProfileForm({
   const { errors } = formState;
   const [dobOpen, setDobOpen] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.workerProfile");
+  const tProf = useTranslations("professions");
 
   return (
     <>
@@ -203,7 +204,7 @@ export function WorkerProfileForm({
               <MultiSelectGroup>
                 {(PROFESSIONAL_ROLES as ProfessionalRole[]).map((role) => (
                   <MultiSelectItem key={role} value={role}>
-                    {role}
+                    {tProf(role)}
                   </MultiSelectItem>
                 ))}
               </MultiSelectGroup>

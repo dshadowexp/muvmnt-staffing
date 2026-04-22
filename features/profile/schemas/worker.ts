@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PROFESSIONAL_ROLES } from "@/lib/constants";
+import { normalizeProfessionId, tryNormalizeProfessionId } from "@/lib/professions";
 import type { ProfessionalRole } from "@/types";
 
 export const WORKER_GENDERS = ["male", "female"] as const;
@@ -59,7 +59,7 @@ export function buildWorkerSchema(t?: (key: WorkerValidationKey) => string) {
       .string()
       .min(1, msg("professionRequired"))
       .refine(
-        (val) => PROFESSIONAL_ROLES.includes(val as ProfessionalRole),
+        (val) => tryNormalizeProfessionId(val) !== null,
         msg("professionInvalid"),
       ),
     yearsExp: z
@@ -110,7 +110,7 @@ export function mapWorkerProfileToFormValues(
     lastName: row.last_name,
     dateOfBirth: row.date_of_birth ?? "",
     gender,
-    profession: row.profession as ProfessionalRole,
+    profession: normalizeProfessionId(row.profession),
     yearsExp: row.years_exp,
   };
 }

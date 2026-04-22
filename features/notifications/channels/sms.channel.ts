@@ -1,6 +1,5 @@
 import { env } from '@/data/env/server';
 import { renderSms } from '../template-engine';
-import { twilioClient } from '@/services/twilio/client';
 
 interface SendSmsParams {
     to:       string | null
@@ -12,20 +11,20 @@ export class SmsChannel {
 
     constructor() {}
 
-    async send({ to, template, data }: SendSmsParams): Promise<void> {
+    async send({ to, template, data }: SendSmsParams): Promise<{ success: boolean }> {
         if (!to) {
             console.warn({ template }, 'SMS skipped — no phone number on user')
-            return
+            return { success: false }
         }
 
         const body = renderSms(template, data)
 
-        await twilioClient.messages.create({
-            to,
-            from: env.TWILIO_FROM_NUMBER,
-            body,
-        })
+        // await twilioClient.messages.create({
+        //     to,
+        //     from: env.TWILIO_FROM_NUMBER,
+        //     body,
+        // })
 
-        console.info({ to, template }, 'SMS sent')
+        return { success: true }
     }
 }

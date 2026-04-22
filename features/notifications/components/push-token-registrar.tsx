@@ -17,7 +17,6 @@ export function PushTokenRegistrar() {
       .then((res) => {
         if (!res.error) lastSentToken.current = token;
       })
-      .catch(console.error);
   }, [token, authUser]);
 
   return null;

@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import * as React from "react";
+import { useTranslations } from "next-intl";
+import { COMPLIANCE_IDS_SET } from "@/lib/compliance";
 import {
   AdminFileReviewDialog,
   type AdminFileReviewOpen,
@@ -136,6 +138,9 @@ export function AdminWorkerCompliancesFileOpen({
   workerId: string;
   items: ComplianceRow[];
 }) {
+  const tComp = useTranslations("compliance");
+  const complianceLabel = (id: string) =>
+    COMPLIANCE_IDS_SET.has(id) ? tComp(id) : id;
   const [doc, setDoc] = React.useState<AdminFileReviewOpen | null>(null);
 
   return (
@@ -147,7 +152,7 @@ export function AdminWorkerCompliancesFileOpen({
             className="flex flex-col gap-1 border-b border-border/60 pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <p className="font-medium">{c.name}</p>
+              <p className="font-medium">{complianceLabel(c.name)}</p>
               <p className="text-muted-foreground text-xs">
                 Added {format(new Date(c.created_at), "MMM d, yyyy")}
               </p>
@@ -165,7 +170,7 @@ export function AdminWorkerCompliancesFileOpen({
                     setDoc({
                       fileUrl: c.file_url as string,
                       headline: "Compliance document",
-                      subline: c.name,
+                      subline: complianceLabel(c.name),
                       createdAt: c.created_at,
                       workerId,
                       isVerified: c.is_verified,

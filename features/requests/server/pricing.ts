@@ -3,7 +3,6 @@ import "server-only";
 import {
     PRICING_TIER_IDS,
     PRICING_TIER_PULSE,
-    PRICING_TIER_RESERVE,
     PRICING_TIER_VETERAN,
     PRICING_TIER_VETTED,
     type PricingTierId,
@@ -12,6 +11,10 @@ import {
     baselinePositionsForWeekday,
     getRegionalDemand,
 } from "./surge";
+import { getGoogleMapsClient } from "@/services/google-maps/client";
+import { normalizeProfessionId } from "@/lib/professions";
+import { cellToLatLng } from "h3-js";
+
 
 /**
  * Dynamic, demand-driven pricing.
@@ -99,16 +102,15 @@ export type QuoteInput = {
     profession: string;
     positions: number;
     dailyWindows: { date: string; slots: { startTime: string; endTime: string }[] }[];
-    province?: string;
     now?: Date;
 };
 
 export async function quoteStaffRequest(input: QuoteInput): Promise<PricingQuote> {
     const now = input.now ?? new Date();
     const baseRate = professionBase(input.profession);
-
     const { startYmd, endYmd } = scheduleBounds(input.dailyWindows);
 
+    const province = await getProvinceForCellId(input.cellId);
     const surge = await computeSurge({
         cellId: input.cellId,
         startYmd,
@@ -116,7 +118,7 @@ export async function quoteStaffRequest(input: QuoteInput): Promise<PricingQuote
         dailyWindows: input.dailyWindows,
         excludeRequestId: input.requestId,
     });
-    const dayMix = computeDayMix(input.dailyWindows, input.province);
+    const dayMix = computeDayMix(input.dailyWindows, province);
     const shiftMix = computeShiftMix(input.dailyWindows);
     const leadTime = computeLeadTime(input.dailyWindows, now);
 
@@ -150,21 +152,20 @@ export async function quoteStaffRequest(input: QuoteInput): Promise<PricingQuote
 // ─── 1. Profession base rate ─────────────────────────────────────────────────
 
 const PROF_BASE: Record<string, number> = {
-    RN: 48,
-    RPN: 36,
-    "Allied Health Practitioner": 38,
-    PSW: 26,
-    DSW: 26,
-    "Healthcare Support Worker": 26,
-    "Cook / Dietary Aide": 24,
-    Other: 28,
-    Unspecified: 28,
+    rn: 30,
+    rpn: 27,
+    allied_health_practitioner: 25,
+    psw: 21,
+    dsw: 22,
+    healthcare_support_worker: 20,
+    cook: 22,
+    other: 19,
+    unspecified: 19,
 };
 
 export function baseHourlyRateForProfession(profession: string): number {
-    const trimmed = profession?.trim();
-    if (!trimmed) return PROF_BASE.Unspecified ?? 28;
-    return PROF_BASE[trimmed] ?? PROF_BASE.Unspecified ?? 28;
+    const id = normalizeProfessionId(profession);
+    return PROF_BASE[id] ?? PROF_BASE.unspecified ?? 28;
 }
 
 function professionBase(profession: string): number {
@@ -257,6 +258,42 @@ const STAT_HOLIDAYS: Record<string, Set<string>> = {
         "2026-12-26",
     ]),
 };
+
+/** Google `administrative_area_level_1` long names → codes used in `STAT_HOLIDAYS`. */
+const CA_ADMIN_AREA_LONG_TO_CODE: Record<string, string> = {
+    Ontario: "ON",
+    Quebec: "QC",
+    "British Columbia": "BC",
+    Alberta: "AB",
+    Manitoba: "MB",
+    Saskatchewan: "SK",
+    "Nova Scotia": "NS",
+    "New Brunswick": "NB",
+    "Newfoundland and Labrador": "NL",
+    "Prince Edward Island": "PE",
+    "Northwest Territories": "NT",
+    Nunavut: "NU",
+    Yukon: "YT",
+};
+
+/**
+ * Resolves a Canadian province/territory code (e.g. ON) via reverse geocoding.
+ * Returns `undefined` outside Canada, on lookup miss, or if the API fails.
+ */
+async function getProvinceForCellId(
+    cellId: string,
+): Promise<string | undefined> {
+    try {
+        const [lat, lng] = cellToLatLng(cellId);
+        const result = await getGoogleMapsClient.reverseGeocode(lat, lng);
+        if (result.components.countryCode?.toUpperCase() !== "CA") return undefined;
+        const admin1 = result.components.state?.trim();
+        if (!admin1) return undefined;
+        return CA_ADMIN_AREA_LONG_TO_CODE[admin1];
+    } catch {
+        return undefined;
+    }
+}
 
 function computeDayMix(
     dailyWindows: QuoteInput["dailyWindows"],
@@ -374,14 +411,12 @@ const TIER_ADDON: Record<PricingTierId, number> = {
     [PRICING_TIER_PULSE]: 0,
     [PRICING_TIER_VETTED]: 0.18,
     [PRICING_TIER_VETERAN]: 0.25,
-    [PRICING_TIER_RESERVE]: 0.35,
 };
 
 const TIER_ICON: Record<PricingTierId, PricingTierIcon> = {
     [PRICING_TIER_PULSE]: "Activity",
     [PRICING_TIER_VETTED]: "ShieldCheck",
     [PRICING_TIER_VETERAN]: "Medal",
-    [PRICING_TIER_RESERVE]: "Anchor",
 };
 
 /**
@@ -409,12 +444,6 @@ const TIER_DEFAULT_COPY: Record<
         tagline: "10+ years on the floor",
         description:
             "Highly experienced workers with a long track record in your setting.",
-    },
-    [PRICING_TIER_RESERVE]: {
-        label: "Reserve",
-        tagline: "A dedicated crew, on standby for you",
-        description:
-            "Priority dispatch from a roster dedicated to your shifts.",
     },
 };
 
@@ -456,7 +485,7 @@ function isRecommended(
     dayCount: number,
 ): boolean {
     if (tierId === PRICING_TIER_PULSE) return m.surge < 1.1 && m.leadTime < 1.1;
-    if (tierId === PRICING_TIER_RESERVE) return dayCount > 4;
+    if (tierId === PRICING_TIER_VETTED) return dayCount > 4;
     return false;
 }
 

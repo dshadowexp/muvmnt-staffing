@@ -3,6 +3,7 @@ import "server-only";
 import Stripe from "stripe";
 import { getStripeServer } from "@/services/stripe/server";
 import { createAdminClient } from "@/services/supabase/server";
+import { getBillingAccount } from "@/features/payments/billing/dal/queries";
 
 /** Minimal card snapshot persisted on `payments.payment_method` (jsonb). */
 export type StaffRequestPaymentMethodCardSnapshot = {
@@ -96,9 +97,6 @@ async function insertStaffRequestPayment(row: {
 /** Off-session PaymentIntent. Idempotency key prevents double-charge on retry. */
 export async function chargeStaffRequestOffSession(params: {
     requestId: string;
-    clientUserId: string;
-    stripeCustomerId: string;
-    paymentMethodId: string;
     amountCents: number;
 }): Promise<StaffRequestChargeResult> {
     if (!Number.isFinite(params.amountCents) || params.amountCents < 50) {
@@ -109,13 +107,28 @@ export async function chargeStaffRequestOffSession(params: {
         };
     }
 
+    const billing = await getBillingAccount();
+    const account = "data" in billing ? billing.data : null;
+
+    if (!account) return {
+        ok: false,
+        message: "No billing account found. Add a card and try again.",
+        code: "no_billing_account",
+    };
+
+    if (!account.defaultPaymentMethodId) return {
+        ok: false,
+        message: " No default payment method found. Add a card and try again.",
+        code: "no_default_payment_method",
+    };
+
     const stripe = getStripeServer();
 
     let pm: Stripe.PaymentMethod;
     try {
         pm = await stripe.customers.retrievePaymentMethod(
-            params.stripeCustomerId,
-            params.paymentMethodId,
+            account.customerId,
+            account.defaultPaymentMethodId,
         );
     } catch (err) {
         const msg =
@@ -140,14 +153,13 @@ export async function chargeStaffRequestOffSession(params: {
             {
                 amount: params.amountCents,
                 currency: "cad",
-                customer: params.stripeCustomerId,
-                payment_method: params.paymentMethodId,
+                customer: account.customerId,
+                payment_method: account.defaultPaymentMethodId,
                 confirm: true,
                 off_session: true,
                 transfer_group: params.requestId,
                 metadata: {
                     staff_request_id: params.requestId,
-                    client_id: params.clientUserId,
                 },
             },
             { idempotencyKey: `staff-request-confirm-${params.requestId}` },

@@ -9,8 +9,9 @@ import {
   Zap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { LandingAuthCtas } from "../_components/landing-auth-ctas";
+import { Button } from "@/components/ui/button";
 
 export async function generateMetadata({
   params,
@@ -80,17 +81,12 @@ export default async function FindWorkPage() {
               {t("subtitle")}
             </p>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Button size="lg" asChild>
-                <Link href="/sign-up?as=worker">{t("ctaCreate")}</Link>
-              </Button>
-              <Link
-                href="/sign-in"
-                className="text-sm text-white/55 no-underline transition-colors hover:text-white/80"
-              >
-                {t("ctaSignIn")}
-              </Link>
-            </div>
+            <LandingAuthCtas
+              signUpHref="/sign-up?as=worker"
+              ctaCreateLabel={t("ctaCreate")}
+              ctaSignInLabel={t("ctaSignIn")}
+              variant="onDark"
+            />
           </div>
         </div>
       </section>

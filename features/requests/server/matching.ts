@@ -1,19 +1,13 @@
 import "server-only";
 
 import { createAdminClient } from "@/services/supabase/server";
-import { getCellsInRing } from "@/services/h3/client";
-import { enumerateCalendarDays } from "./calendar-days";
 import {
     PRICING_TIER_CREDENTIALED,
     PRICING_TIER_PULSE,
-    PRICING_TIER_RESERVE,
-    PRICING_TIER_SAME_PROFESSION,
-    PRICING_TIER_STANDARD,
     PRICING_TIER_VETERAN,
     PRICING_TIER_VETTED,
 } from "../constants";
-
-const H3_K = 5;
+import { normalizeProfessionId } from "@/lib/professions";
 
 /**
  * In-memory time interval (minutes since midnight). All time math runs in
@@ -27,6 +21,8 @@ export type MatchCandidate = {
     yearsExp: number;
     photoUrl: string | null;
     profession: string;
+    autoConfirm: boolean;
+    ratingAvg: number | null;
     /** day_of_week (0–6) → merged & sorted intervals. */
     availability: Map<number, Interval[]>;
 };
@@ -58,6 +54,15 @@ export type MatchResult = {
 export type DailyWindowMatch = {
     date: string;
     slots: { startTime: string; endTime: string }[];
+};
+
+// ─── Emptys ────────────────────────────────────────────────────────────
+export const emptyMatchResult: MatchResult = {
+    schedule: [],
+    totalWorkers: 0,
+    fullyCovered: false,
+    candidateCount: 0,
+    ringCellCount: 0,
 };
 
 // ─── Time helpers ────────────────────────────────────────────────────────────
@@ -104,6 +109,15 @@ function mergeIntervals(intervals: Interval[]): Interval[] {
     return merged;
 }
 
+function uniqueDayOfWeekFromDailyWindows(
+    windows: DailyWindowMatch[],
+): number[] {
+    const dows = windows
+      .filter((w) => w.slots?.length)
+      .map((w) => dayOfWeekFromYmd(w.date.slice(0, 10)));
+    return [...new Set(dows)];
+}
+
 function buildAvailabilityMap(
     rows: { user_id: string; day_of_week: number; start_time: string; end_time: string }[],
 ): Map<string, Map<number, Interval[]>> {
@@ -147,61 +161,44 @@ export type ProgressFn = (event: MatchProgressEvent) => void | Promise<void>;
 // ─── Pool builder ────────────────────────────────────────────────────────────
 
 export type CandidatePool =
-    | { ok: false; ringCellCount: number }
-    | { ok: true; ringCellCount: number; candidates: MatchCandidate[] };
+    | { ok: false; }
+    | { ok: true; candidates: MatchCandidate[] };
 
 export async function buildCandidatePool(params: {
-    clientUserId: string;
-    startDate: string;
-    endDate: string | null;
+    dailyWindows: DailyWindowMatch[];
+    ring: string[];
     progress?: ProgressFn;
 }): Promise<CandidatePool> {
     const supabase = await createAdminClient();
     const fail = (ringCellCount = 0) => ({ ok: false as const, ringCellCount });
-
-    const { data: clientLoc } = await supabase
-        .from("locations")
-        .select("lat, lng")
-        .eq("user_id", params.clientUserId)
-        .single();
-
-    if (!clientLoc) return fail();
-
-    await params.progress?.({ kind: "locating", cellId: `${clientLoc.lat},${clientLoc.lng}` });
-
-    const ring = getCellsInRing(clientLoc.lat, clientLoc.lng, H3_K);
-    await params.progress?.({ kind: "ring", ringCellCount: ring.length });
-    if (ring.length === 0) return fail(0);
+    
+    await params.progress?.({ kind: "ring", ringCellCount: params.ring.length });
+    if (params.ring.length === 0) return fail(0);
 
     const { data: workerRows } = await supabase
         .from("workers")
-        .select("id, user_id, first_name, last_name, photo_url, years_exp, status, profession")
-        .in("cell_id", ring);
+        .select("id, user_id, first_name, last_name, photo_url, years_exp, profession, live, auto_confirm, rating_avg, rating_count")
+        .in("cell_id", params.ring)
+        .eq("live", true);
+
+    console.log("workerRows", workerRows, params.ring.length);
 
     await params.progress?.({ kind: "workers", workerCount: workerRows?.length ?? 0 });
-    if (!workerRows?.length) return fail(ring.length);
+    if (!workerRows?.length) return fail(params.ring.length);
 
-    const workerUserIds = workerRows.map((w) => w.user_id);
-
-    const { data: userRows } = await supabase
-        .from("users")
-        .select("id, is_active, role")
-        .in("id", workerUserIds)
-        .eq("role", "worker");
-
-    const activeUserIds = new Set(
-        (userRows ?? [])
-            .filter((u) => u.is_active !== false)
-            .map((u) => u.id),
+    const activeWorkerUserIds = new Set(
+        (workerRows ?? [])
+            .filter((u) => u.live !== false)
+            .map((u) => u.user_id),
     );
 
-    const calendarDays = enumerateCalendarDays(params.startDate, params.endDate);
-    const uniqueDows = [...new Set(calendarDays.map(dayOfWeekFromYmd))];
+    const uniqueDows = uniqueDayOfWeekFromDailyWindows(params.dailyWindows);
+    if (uniqueDows.length === 0) return fail(params.ring.length);
 
     const { data: availRows } = await supabase
         .from("availability")
         .select("user_id, day_of_week, start_time, end_time")
-        .in("user_id", workerUserIds)
+        .in("user_id", Array.from(activeWorkerUserIds))
         .in("day_of_week", uniqueDows);
 
     await params.progress?.({
@@ -213,8 +210,6 @@ export async function buildCandidatePool(params: {
 
     const candidates: MatchCandidate[] = [];
     for (const w of workerRows) {
-        if (!activeUserIds.has(w.user_id)) continue;
-        if (w.status && w.status.toLowerCase() === "inactive") continue;
         const byDay = availMap.get(w.user_id);
         if (!byDay || byDay.size === 0) continue;
         candidates.push({
@@ -224,11 +219,13 @@ export async function buildCandidatePool(params: {
             photoUrl: w.photo_url ?? null,
             profession: w.profession,
             availability: byDay,
+            autoConfirm: w.auto_confirm,
+            ratingAvg: w.rating_avg
         });
     }
     candidates.sort((a, b) => b.yearsExp - a.yearsExp);
 
-    return { ok: true, ringCellCount: ring.length, candidates };
+    return { ok: true, candidates };
 }
 
 // ─── Tier filtering ──────────────────────────────────────────────────────────
@@ -254,9 +251,8 @@ async function verifiedCertNamesByUser(
 
 function certsSatisfy(certNames: string[], requirements: string[]): boolean {
     if (requirements.length === 0) return false;
-    return requirements.some((req) =>
-        certNames.some((n) => n.includes(req) || req.includes(n)),
-    );
+    const verified = new Set(certNames);
+    return requirements.every((req) => verified.has(req));
 }
 
 /**
@@ -278,16 +274,17 @@ export async function filterCandidatesForTier(
 ): Promise<MatchCandidate[]> {
     switch (tierId) {
         case PRICING_TIER_PULSE:
-        case PRICING_TIER_VETTED:
-        case PRICING_TIER_VETERAN:
-        case PRICING_TIER_RESERVE:
-        case PRICING_TIER_STANDARD:
             return all;
-        case PRICING_TIER_SAME_PROFESSION: {
-            const p = profession.trim().toLowerCase();
-            if (p.length === 0 || p === "unspecified") return [];
-            return all.filter((c) => c.profession.trim().toLowerCase() === p);
+        case PRICING_TIER_VETTED: {
+            if (!profession.trim()) return [];
+            const p = normalizeProfessionId(profession);
+            return all.filter(
+                (c) => normalizeProfessionId(c.profession) === p,
+            );
         }
+        case PRICING_TIER_VETERAN: {
+            return all.filter((c) => c.yearsExp >= 3);
+        }   
         case PRICING_TIER_CREDENTIALED: {
             const reqs = requirements
                 .map((r) => r.trim().toLowerCase())
@@ -310,19 +307,21 @@ export async function filterCandidatesForTier(
  * flows to swap in a replacement when a worker drops a confirmed shift.
  */
 export async function findReplacementUserIdForShiftWindow(params: {
-    clientUserId: string;
     dateYmd: string;
     startHHmm: string;
     endHHmm: string;
+    ring: string[];
     pricingTierId: string;
     requestProfession: string;
     requirements: string[];
     excludeUserIds: string[];
 }): Promise<string | null> {
+    const dailyWindows: DailyWindowMatch[] = [
+        { date: params.dateYmd.slice(0, 10), slots: [{ startTime: params.startHHmm, endTime: params.endHHmm }] },
+    ];
     const pool = await buildCandidatePool({
-        clientUserId: params.clientUserId,
-        startDate: params.dateYmd,
-        endDate: params.dateYmd,
+        dailyWindows,
+        ring: params.ring,
     });
     if (!pool.ok) return null;
 
@@ -422,96 +421,219 @@ function scheduleDayWithMinWorkers(
 // ─── Public match entry-point ────────────────────────────────────────────────
 
 export type MatchInput = {
-    clientUserId: string;
-    startDate: string;
-    endDate: string | null;
+    ring: string[];
     dailyWindows: DailyWindowMatch[];
     pricingTierId: string;
     profession: string;
     requirements: string[];
     progress?: ProgressFn;
-    /** Reuse a pre-built pool to avoid duplicate DB work. */
-    poolOverride?: CandidatePool;
+    filteredCandidates: MatchCandidate[];
+    existingMatchResult: MatchResult;
 };
 
 export async function matchWorkersForStaffRequest(
     input: MatchInput,
 ): Promise<MatchResult> {
-    const empty = (ringCellCount = 0): MatchResult => ({
-        schedule: [],
-        totalWorkers: 0,
-        fullyCovered: false,
-        candidateCount: 0,
-        ringCellCount,
-    });
+    const candidates = input.filteredCandidates;
+    const existing = input.existingMatchResult;
 
-    const pool =
-        input.poolOverride ??
-        (await buildCandidatePool({
-            clientUserId: input.clientUserId,
-            startDate: input.startDate,
-            endDate: input.endDate,
-            progress: input.progress,
-        }));
-    if (!pool.ok) {
-        const result = empty(pool.ringCellCount);
-        await input.progress?.({ kind: "done", result });
-        return result;
-    }
-
-    const before = pool.candidates.length;
-    const candidates = await filterCandidatesForTier(
-        pool.candidates,
-        input.pricingTierId,
-        input.profession,
-        input.requirements,
+    // Build a mutable copy of the existing schedule keyed by date
+    const scheduleByDate = new Map<string, DaySchedule>(
+        existing.schedule.map((d) => [d.date, { ...d, assignments: [...d.assignments] }])
     );
-    if (!input.poolOverride) {
-        await input.progress?.({
-            kind: "filter",
-            tierId: input.pricingTierId,
-            remaining: candidates.length,
-            before,
-        });
-    }
-
-    const calendarDays = enumerateCalendarDays(input.startDate, input.endDate);
-    await input.progress?.({ kind: "scheduling", days: calendarDays.length });
 
     const byDate = new Map(input.dailyWindows.map((w) => [w.date, w]));
-    const schedule: DaySchedule[] = calendarDays.map((date) => {
+    const calendarDays = [
+        ...new Set(
+            input.dailyWindows
+                .filter((w) => w.slots?.length)
+                .map((w) => w.date.slice(0, 10)),
+        ),
+    ].sort();
+
+    for (const date of calendarDays) {
+        const existingDay = scheduleByDate.get(date);
+
+        // Skip days already fully covered
+        if (existingDay?.covered) continue;
+
         const dow = dayOfWeekFromYmd(date);
         const plan = byDate.get(date);
-        if (!plan?.slots?.length) {
-            return { date, dayOfWeek: dow, assignments: [], covered: false };
-        }
+        if (!plan?.slots?.length) continue;
+
         const assignments: WorkerAssignment[] = [];
         let covered = true;
+
         for (const slot of plan.slots) {
-            const part = scheduleDayWithMinWorkers(
+            const reqStart = toMinutes(slot.startTime);
+            const reqEnd   = toMinutes(slot.endTime);
+
+            // Existing assignments for this slot (from prior rings)
+            const priorAssignments = (existingDay?.assignments ?? []).filter(
+                (a) => toMinutes(a.startTime) >= reqStart && toMinutes(a.endTime) <= reqEnd
+            );
+
+            const improved = improveSlotCoverage(
                 date,
                 dow,
-                toMinutes(slot.startTime),
-                toMinutes(slot.endTime),
+                reqStart,
+                reqEnd,
+                priorAssignments,
                 candidates,
             );
-            assignments.push(...part.assignments);
-            covered = covered && part.covered;
+
+            assignments.push(...improved.assignments);
+            covered = covered && improved.covered;
         }
-        return { date, dayOfWeek: dow, assignments, covered };
-    });
+
+        scheduleByDate.set(date, { date, dayOfWeek: dow, assignments, covered });
+    }
+
+    // Days from existing result that weren't in this ring's dailyWindows stay as-is
+    for (const day of existing.schedule) {
+        if (!scheduleByDate.has(day.date)) {
+            scheduleByDate.set(day.date, day);
+        }
+    }
+
+    const schedule = calendarDays
+        .map((d) => scheduleByDate.get(d)!)
+        .filter(Boolean);
 
     const allWorkerIds = new Set(
-        schedule.flatMap((d) => d.assignments.map((a) => a.userId)),
+        schedule.flatMap((d) => d.assignments.map((a) => a.userId))
     );
 
-    const result: MatchResult = {
+    return {
         schedule,
         totalWorkers: allWorkerIds.size,
         fullyCovered: schedule.every((d) => d.covered),
-        candidateCount: candidates.length,
-        ringCellCount: pool.ringCellCount,
+        candidateCount: existing.candidateCount + candidates.length,
+        ringCellCount: input.ring.length,
     };
-    await input.progress?.({ kind: "done", result });
-    return result;
+}
+
+function improveSlotCoverage(
+    date: string,
+    dayOfWeek: number,
+    reqStart: number,
+    reqEnd: number,
+    priorAssignments: WorkerAssignment[],
+    newCandidates: MatchCandidate[],
+): { assignments: WorkerAssignment[]; covered: boolean } {
+
+    // Build a mutable list of the best assignment per gap
+    // Represent coverage as a list of filled segments
+    type Segment = { startM: number; endM: number; assignment: WorkerAssignment };
+
+    const segments: Segment[] = priorAssignments.map((a) => ({
+        startM: toMinutes(a.startTime),
+        endM:   toMinutes(a.endTime),
+        assignment: a,
+    }));
+
+    // Build candidate slots from new ring
+    type CandidateSlot = { candidate: MatchCandidate; startM: number; endM: number };
+    const candidateSlots: CandidateSlot[] = [];
+    for (const c of newCandidates) {
+        const intervals = c.availability.get(dayOfWeek) ?? [];
+        for (const iv of intervals) {
+            if (iv.endM > reqStart && iv.startM < reqEnd) {
+                candidateSlots.push({
+                    candidate: c,
+                    startM: Math.max(iv.startM, reqStart),
+                    endM:   Math.min(iv.endM, reqEnd),
+                });
+            }
+        }
+    }
+    // Longest coverage first — maximises replacement value
+    candidateSlots.sort((a, b) => (b.endM - b.startM) - (a.endM - a.startM));
+
+    for (const cs of candidateSlots) {
+        // Check if this candidate replaces any existing segment with a longer one
+        const dominated = segments.filter(
+            (s) =>
+                s.startM >= cs.startM &&
+                s.endM   <= cs.endM   &&
+                (cs.endM - cs.startM) > (s.endM - s.startM),
+        );
+
+        if (dominated.length > 0) {
+            // Remove all segments this new candidate fully covers and does better
+            for (const d of dominated) {
+                segments.splice(segments.indexOf(d), 1);
+            }
+            segments.push({
+                startM: cs.startM,
+                endM:   cs.endM,
+                assignment: {
+                    userId:      cs.candidate.userId,
+                    displayName: cs.candidate.displayName,
+                    yearsExp:    cs.candidate.yearsExp,
+                    photoUrl:    cs.candidate.photoUrl,
+                    startTime:   toHHmm(cs.startM),
+                    endTime:     toHHmm(cs.endM),
+                },
+            });
+            continue;
+        }
+
+        // Otherwise check if this fills a gap
+        const gaps = findGaps(segments, reqStart, reqEnd);
+        for (const gap of gaps) {
+            if (cs.startM <= gap.startM && cs.endM > gap.startM) {
+                segments.push({
+                    startM: cs.startM,
+                    endM:   cs.endM,
+                    assignment: {
+                        userId:      cs.candidate.userId,
+                        displayName: cs.candidate.displayName,
+                        yearsExp:    cs.candidate.yearsExp,
+                        photoUrl:    cs.candidate.photoUrl,
+                        startTime:   toHHmm(cs.startM),
+                        endTime:     toHHmm(cs.endM),
+                    },
+                });
+                break;
+            }
+        }
+    }
+
+    // Run greedy cover pass to pick minimum segments that cover reqStart→reqEnd
+    segments.sort((a, b) => a.startM - b.startM || (b.endM - b.startM) - (a.endM - a.startM));
+
+    const chosen: Segment[] = [];
+    let cursor = reqStart;
+    while (cursor < reqEnd) {
+        let best: Segment | null = null;
+        for (const s of segments) {
+            if (s.startM > cursor) break;
+            if (s.endM > (best?.endM ?? cursor)) best = s;
+        }
+        if (!best) break;
+        chosen.push(best);
+        cursor = best.endM;
+    }
+
+    return {
+        assignments: chosen.map((s) => s.assignment),
+        covered: cursor >= reqEnd,
+    };
+}
+
+function findGaps(
+    segments: { startM: number; endM: number }[],
+    reqStart: number,
+    reqEnd: number,
+): { startM: number; endM: number }[] {
+    const sorted = [...segments].sort((a, b) => a.startM - b.startM);
+    const gaps: { startM: number; endM: number }[] = [];
+    let cursor = reqStart;
+    for (const s of sorted) {
+        if (s.startM > cursor) gaps.push({ startM: cursor, endM: s.startM });
+        cursor = Math.max(cursor, s.endM);
+    }
+    if (cursor < reqEnd) gaps.push({ startM: cursor, endM: reqEnd });
+    return gaps;
 }

@@ -3,7 +3,6 @@ import { Messaging } from 'firebase-admin/messaging';
 import { Auth } from 'firebase-admin/auth';
 import { env } from '@/data/env/server';
 
-
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert({
@@ -14,5 +13,5 @@ if (!admin.apps.length) {
     });
 }
 
-export const getMessaging = (): Messaging => admin.messaging();
-export const getAuth = (): Auth => admin.auth();
+export const getAdminMessaging = (): Messaging => admin.messaging();
+export const getAdminAuth = (): Auth => admin.auth();

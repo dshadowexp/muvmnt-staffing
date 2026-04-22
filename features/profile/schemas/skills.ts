@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { SKILL_NAMES } from "@/lib/constants";
+import { WORKER_SKILL_IDS_SET } from "@/lib/skills";
 
 const skillItemSchema = z.object({
   name: z
     .string()
     .min(1, "Skill name is required")
     .refine(
-      (val) => SKILL_NAMES.includes(val as (typeof SKILL_NAMES)[number]),
+      (val) => WORKER_SKILL_IDS_SET.has(val),
       "Invalid skill",
     ),
 });

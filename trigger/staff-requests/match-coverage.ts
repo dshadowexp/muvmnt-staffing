@@ -98,7 +98,7 @@ export const matchCoverageTask = task({
     id: "staff-requests.match-coverage",
     maxDuration: 300,
     retry: {
-        maxAttempts: 2,
+        maxAttempts: 1,
         minTimeoutInMs: 5_000,
         maxTimeoutInMs: 30_000,
         factor: 2,
@@ -110,7 +110,7 @@ export const matchCoverageTask = task({
             requestId: payload.requestId,
         });
 
-        await metadata.set("progress", {
+        metadata.set("progress", {
             step: "queued",
             label: "Starting coverage matching",
         } satisfies MatchCoverageProgress);
@@ -118,12 +118,12 @@ export const matchCoverageTask = task({
         const result = await runMatchForStaffRequest({
             requestId: payload.requestId,
             progress: async (event) => {
-                await metadata.set("progress", describe(event));
+                metadata.set("progress", describe(event));
             },
         });
 
         if (!result.ok) {
-            await metadata.set("progress", {
+            metadata.set("progress", {
                 step: "done",
                 label: "Coverage failed",
                 detail: result.message,

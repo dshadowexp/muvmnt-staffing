@@ -1,32 +1,43 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import {
     buildPricingQuoteForRequest,
     getStaffRequestRow,
 } from "@/features/requests/server/staff-request";
 import { STAFF_REQUEST_STATUS_CONFIRMED } from "@/features/requests/constants";
 import { PricingTierPicker } from "@/features/requests/components/pricing-tier-picker";
+import { StaffRequestLocationCard } from "@/features/requests/components/staff-request-location-card";
 import { StaffRequestScheduleSummaryCard } from "@/features/requests/components/staff-request-schedule-summary-card";
-import { getSession } from "@/lib/get-session";
 
 type PageProps = {
     params: Promise<{ requestId: string; locale: string }>;
 };
 
 export default async function PricingStepPage({ params }: PageProps) {
+    const locale = await getLocale();
     const { requestId } = await params;
-    const session = await getSession();
-    if (!session) redirect("/sign-in");
 
     const t = await getTranslations("staffRequest.wizard");
 
-    const result = await getStaffRequestRow(requestId, session.userId);
-    if (!result.ok) redirect("/dashboard/requests/new");
-    if (result.row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-        redirect(`/dashboard/requests/${requestId}`);
+    const result = await getStaffRequestRow(requestId);
+    if (!result.ok) {
+        if (result.message === "Unauthenticated") {
+            return redirect({ href: "/sign-in?redirect=/dashboard/requests/${requestId}/pricing", locale });
+        }
+        if (result.message === "Unauthorized") {
+            return redirect({ href: "/dashboard", locale });
+        }
+        return redirect({ href: "/dashboard/requests/new", locale });
+    }
+
+    const { data } = result;
+    if (!data) {
+        return redirect({ href: "/dashboard/requests/new", locale });
+    }
+    if (data.status === STAFF_REQUEST_STATUS_CONFIRMED) {
+        return redirect({ href: `/dashboard/requests/${requestId}`, locale });
     }
 
     return (
@@ -40,15 +51,25 @@ export default async function PricingStepPage({ params }: PageProps) {
                 </p>
                 <div className="text-muted-foreground space-y-1 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs">
                     <p>{t("step2BaseRateNotice")}</p>
-                    <p>{t("billedWeeklyNotice")}</p>
                 </div>
             </header>
 
+            <Suspense
+                fallback={
+                    <Skeleton className="h-[3.25rem] w-full rounded-xl" />
+                }
+            >
+                <StaffRequestLocationCard />
+            </Suspense>
+
             <StaffRequestScheduleSummaryCard
-                positions={result.row.positions}
-                startDate={result.row.start_date}
-                endDate={result.row.end_date}
-                dailyWindows={result.row.daily_time_windows ?? []}
+                positions={data.positions}
+                startDate={data.start_date}
+                endDate={data.end_date}
+                dailyWindows={data.daily_time_windows ?? []}
+                profession={data.profession}
+                tasks={data.tasks ?? []}
+                requirements={data.requirements ?? []}
             />
 
             <Suspense fallback={<PricingTierSkeleton />}>

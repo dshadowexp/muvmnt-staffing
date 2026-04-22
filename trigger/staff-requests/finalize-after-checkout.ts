@@ -102,10 +102,10 @@ export const finalizeAfterCheckoutTask = task({
             currency: intent.currency ?? "cad",
         });
 
-        const location = await loadLocation(row.client_id);
+        const location = await loadLocation(row.client_user_id);
         const inserted = await insertShiftsFromCoverage({
             staffRequestId: payload.requestId,
-            clientUserId: row.client_id,
+            clientUserId: row.client_user_id,
             hourlyRate: row.pricing_rate,
             schedule: cache.schedule,
             location,

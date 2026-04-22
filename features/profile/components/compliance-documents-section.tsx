@@ -5,9 +5,10 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
-  COMPLIANCE_CATALOG,
-  type ComplianceName,
-} from "@/lib/constants";
+  COMPLIANCE_IDS,
+  COMPLIANCE_IDS_SET,
+  type ComplianceId,
+} from "@/lib/compliance";
 import {
   saveComplianceAction,
   deleteComplianceAction,
@@ -44,10 +45,10 @@ export type ComplianceDocumentsNamespace =
   | "kyc.onboarding.forms.compliance"
   | "dashboard.worker.compliance";
 
-type DraftRow = { draftId: string; name: ComplianceName };
+type DraftRow = { draftId: string; name: ComplianceId };
 
 type DisplayRow =
-  | { kind: "draft"; draftId: string; name: ComplianceName }
+  | { kind: "draft"; draftId: string; name: ComplianceId }
   | {
       kind: "saved";
       id: string;
@@ -71,12 +72,15 @@ export function ComplianceDocumentsSection({
   className,
 }: ComplianceDocumentsSectionProps) {
   const t = useTranslations(translationNamespace);
+  const tComp = useTranslations("compliance");
+  const complianceRowLabel = (id: string) =>
+    COMPLIANCE_IDS_SET.has(id) ? tComp(id) : id;
   const [drafts, setDrafts] = useState<DraftRow[]>([]);
   const [selectNonce, setSelectNonce] = useState(0);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingUploadRef = useRef<
-    | { kind: "draft"; draftId: string; name: ComplianceName }
+    | { kind: "draft"; draftId: string; name: ComplianceId }
     | { kind: "saved"; complianceId: string; name: string }
     | null
   >(null);
@@ -88,10 +92,10 @@ export function ComplianceDocumentsSection({
 
   const available = useMemo(
     () =>
-      COMPLIANCE_CATALOG.filter(
-        (c) =>
-          !serverNames.has(c.name) &&
-          !drafts.some((d) => d.name === c.name),
+      COMPLIANCE_IDS.filter(
+        (id) =>
+          !serverNames.has(id) &&
+          !drafts.some((d) => d.name === id),
       ),
     [serverNames, drafts],
   );
@@ -116,7 +120,7 @@ export function ComplianceDocumentsSection({
   const pagination = useTablePagination(displayRows);
 
   const handlePickType = useCallback((value: string) => {
-    const name = value as ComplianceName;
+    const name = value as ComplianceId;
     setDrafts((prev) => [
       ...prev,
       { draftId: crypto.randomUUID(), name },
@@ -129,7 +133,7 @@ export function ComplianceDocumentsSection({
   }, []);
 
   const triggerDraftFilePick = useCallback(
-    (draftId: string, name: ComplianceName) => {
+    (draftId: string, name: ComplianceId) => {
       pendingUploadRef.current = { kind: "draft", draftId, name };
       queueMicrotask(() => fileInputRef.current?.click());
     },
@@ -162,7 +166,7 @@ export function ComplianceDocumentsSection({
             context: "compliance",
           });
           const res = await saveComplianceAction({
-            name: pending.name as ComplianceName,
+            name: pending.name as ComplianceId,
             file_url: key,
           });
           if (res.error) {
@@ -228,9 +232,9 @@ export function ComplianceDocumentsSection({
             />
           </SelectTrigger>
           <SelectContent className="max-h-80">
-            {available.map((c) => (
-              <SelectItem key={c.name} value={c.name}>
-                <span className="font-medium">{c.name}</span>
+            {available.map((id) => (
+              <SelectItem key={id} value={id}>
+                <span className="font-medium">{tComp(id)}</span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -259,7 +263,9 @@ export function ComplianceDocumentsSection({
               {pagination.rows.map((row) =>
                 row.kind === "draft" ? (
                   <TableRow key={`draft-${row.draftId}`}>
-                    <TableCell className="font-medium">{row.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {complianceRowLabel(row.name)}
+                    </TableCell>
                     <TableCell>
                       <Button
                         type="button"
@@ -299,7 +305,9 @@ export function ComplianceDocumentsSection({
                   </TableRow>
                 ) : (
                   <TableRow key={row.id}>
-                    <TableCell className="font-medium">{row.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {complianceRowLabel(row.name)}
+                    </TableCell>
                     <TableCell className="max-w-[min(100vw,20rem)]">
                       {row.fileUrl ? (
                         <span
@@ -343,14 +351,18 @@ export function ComplianceDocumentsSection({
                         <ActionButton
                           size="icon-sm"
                           variant="ghost"
-                          aria-label={t("removeAria", { name: row.name })}
+                          aria-label={t("removeAria", {
+                            name: complianceRowLabel(row.name),
+                          })}
                           action={() => runDelete(row.id)}
                           requireAreYouSure
                           areYouSureTitle={t("removeDialogTitle")}
                           areYouSureDescription={
                             <>
                               {t("removeDialogBodyPrefix")}
-                              <span className="font-medium">{row.name}</span>
+                              <span className="font-medium">
+                                {complianceRowLabel(row.name)}
+                              </span>
                               {t("removeDialogBodySuffix")}
                             </>
                           }

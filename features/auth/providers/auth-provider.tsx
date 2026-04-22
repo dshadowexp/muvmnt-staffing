@@ -12,7 +12,7 @@ import React, {
     useRef, 
     useState,
 } from "react";
-import { auth } from "@/services/firebase/client";
+import { auth } from "@/services/firebase/auth";
 import { deleteSession, setSession } from "@/lib/session";
 import { UserAuth, UserRole } from "@/types/auth";
 import { useRouter } from "@/i18n/navigation";

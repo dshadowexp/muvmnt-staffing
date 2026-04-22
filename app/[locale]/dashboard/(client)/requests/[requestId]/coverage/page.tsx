@@ -1,7 +1,6 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { BackLink } from "@/components/back-link";
+import { redirect } from "@/i18n/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -18,50 +17,46 @@ import {
 import { CoverageConfirmPanel } from "@/features/requests/components/coverage-confirm-panel";
 import { CoverageMatchTracker } from "@/features/requests/components/coverage-match-tracker";
 import { SelectedPricingTierCard } from "@/features/requests/components/selected-pricing-tier-card";
+import { StaffRequestLocationCard } from "@/features/requests/components/staff-request-location-card";
 import { StaffRequestScheduleSummaryCard } from "@/features/requests/components/staff-request-schedule-summary-card";
-import { getBillingAccount } from "@/features/payments/billing/dal/queries";
-import { getSession } from "@/lib/session";
+import { FinalizeSavedPaymentMethod } from "@/features/payments/billing/components/finalize-saved-payment-method";
+import { getPaymentMethods } from "@/features/payments/billing/dal/queries";
 
 type PageProps = {
     params: Promise<{ requestId: string; locale: string }>;
 };
 
-/**
- * Step 3 of the staff-request wizard.
- *
- * Render path:
- *   1. Auth + ownership; redirect back if the request isn't ours.
- *   2. If status is `pending_pricing`, send the user back to step 2.
- *   3. If `coverage_data` exists and is younger than 30 minutes → render the
- *      cached coverage + confirm CTA immediately.
- *   4. Otherwise → fire a Trigger.dev `match-coverage` run, mint a public
- *      access token for `useRealtimeRun`, and stream progress until the run
- *      finishes (then `router.refresh()` re-enters branch (3)).
- */
 export default async function CoverageStepPage({ params }: PageProps) {
+    const locale = await getLocale();
     const { requestId } = await params;
-    const session = await getSession();
-    if (!session) redirect("/sign-in");
 
     const t = await getTranslations("staffRequest.wizard");
 
-    const result = await getStaffRequestRow(requestId, session.userId);
-    if (!result.ok) redirect("/dashboard/requests/new");
-    const row = result.row;
-
-    if (row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-        redirect(`/dashboard/requests/${requestId}`);
+    const result = await getStaffRequestRow(requestId);
+    if (!result.ok) {
+        if (result.message === "Unauthenticated") {
+            return redirect({ href: "/sign-in?redirect=/dashboard/requests/${requestId}/pricing", locale });
+        }
+        if (result.message === "Unauthorized") {
+            return redirect({ href: "/dashboard", locale });
+        }
+        return redirect({ href: "/dashboard/requests/new", locale });
     }
-    if (row.status === STAFF_REQUEST_STATUS_PENDING_PRICING) {
-        redirect(`/dashboard/requests/${requestId}/pricing`);
+
+    const { data } = result;
+    if (!data) {
+        return redirect({ href: "/dashboard/requests/new", locale });
+    }
+    if (data.status === STAFF_REQUEST_STATUS_CONFIRMED) {
+        return redirect({ href: `/dashboard/requests/${requestId}`, locale });
+    }
+    if (data.status === STAFF_REQUEST_STATUS_PENDING_PRICING) {
+        return redirect({ href: `/dashboard/requests/${requestId}/pricing`, locale });
     }
 
     return (
         <div className="w-full max-w-3xl space-y-6">
-            <BackLink
-                backHref={`/dashboard/requests/${requestId}/pricing`}
-                title={t("backToPricing")}
-            />
+            <FinalizeSavedPaymentMethod />
             <header className="space-y-2">
                 <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                     {t("step3Title")}
@@ -74,23 +69,34 @@ export default async function CoverageStepPage({ params }: PageProps) {
                 </p>
             </header>
 
+            <Suspense
+                fallback={
+                    <Skeleton className="h-[3.25rem] w-full rounded-xl" />
+                }
+            >
+                <StaffRequestLocationCard />
+            </Suspense>
+
             <StaffRequestScheduleSummaryCard
-                positions={row.positions}
-                startDate={row.start_date}
-                endDate={row.end_date}
-                dailyWindows={row.daily_time_windows ?? []}
+                positions={data.positions}
+                startDate={data.start_date}
+                endDate={data.end_date}
+                dailyWindows={data.daily_time_windows ?? []}
+                profession={data.profession}
+                tasks={data.tasks ?? []}
+                requirements={data.requirements ?? []}
             />
 
-            {row.pricing_tier ? (
+            {data.pricing_tier ? (
                 <SelectedPricingTierCard
-                    tierId={row.pricing_tier}
-                    hourlyRate={row.pricing_rate ?? 0}
+                    tierId={data.pricing_tier}
+                    hourlyRate={data.pricing_rate ?? 0}
                     currency="CAD"
                 />
             ) : null}
 
             <Suspense fallback={<CoverageBodySkeleton />}>
-                <CoverageBody row={row} requestId={requestId} />
+                <CoverageBody row={data} requestId={requestId} />
             </Suspense>
         </div>
     );
@@ -105,24 +111,16 @@ async function CoverageBody({
 }) {
     const cache = row.coverage_data as CoverageDataCache | null;
     if (cache?.schedule && isCoverageFresh(row.coverage_data_at)) {
-        const billing = await getBillingAccount();
-        const account = "data" in billing ? billing.data : null;
-        const hasSavedPaymentMethod = !!(
-            account?.customerId && account?.defaultPaymentMethodId
-        );
+        const pmResult = await getPaymentMethods();
+        const initialPaymentMethods =
+            "error" in pmResult ? [] : (pmResult.data ?? []);
 
         return (
             <CoverageConfirmPanel
                 requestId={requestId}
                 cache={cache}
-                hasSavedPaymentMethod={hasSavedPaymentMethod}
+                initialPaymentMethods={initialPaymentMethods}
                 cachedAtIso={row.coverage_data_at}
-                fullSchedule={{
-                    startIso: row.start_date,
-                    endIso: row.end_date,
-                    positions: row.positions,
-                    dailyWindows: row.daily_time_windows ?? [],
-                }}
             />
         );
     }

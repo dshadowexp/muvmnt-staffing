@@ -77,7 +77,7 @@ export async function getSuccessfulPaymentsForClient(): Promise<ClientPaymentRow
   const { data: requests } = await supabase
     .from("staff_requests")
     .select("id")
-    .eq("client_id", session.userId);
+    .eq("client_user_id", session.userId);
   if (!requests || requests.length === 0) return [];
 
   const requestIds = requests.map((r) => r.id);

@@ -15,7 +15,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/components/ui/avatar";
+} from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
+import { InstallPrompt } from "@/features/notifications/components/install-prompt";
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -67,6 +68,7 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
           />
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
+          <InstallPrompt />
           <NotificationsBell />
           <LanguageSwitcher variant="ghost" />
           <ThemeToggle />

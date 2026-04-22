@@ -2,11 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { ChevronDown, FileText, CircleDashedIcon } from "lucide-react";
-import {
-  SKILL_CATALOG,
-  getSkillDescription,
-  type SkillName,
-} from "@/lib/constants";
+import { useTranslations } from "next-intl";
+import { WORKER_SKILL_IDS, type WorkerSkillId } from "@/lib/skills";
 import { saveSkillAction } from "@/features/profile/actions/skill-actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,18 +22,20 @@ interface SkillsFormProps {
 type SkillItem = { name: string };
 
 export function SkillsForm({ initialSkills = [], onSaved }: SkillsFormProps) {
+  const tSkills = useTranslations("skills");
+  const tSkillsDesc = useTranslations("skillsDesc");
   const [skills, setSkills] = useState<SkillItem[]>(initialSkills);
-  const [selectedSkill, setSelectedSkill] = useState<SkillName | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<WorkerSkillId | null>(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const selectedDescription = selectedSkill
-    ? getSkillDescription(selectedSkill)
-    : undefined;
+    ? tSkillsDesc(selectedSkill)
+    : "";
 
   const available = useMemo(() => {
     const existing = new Set(skills.map((s) => s.name));
-    return SKILL_CATALOG.filter((s) => !existing.has(s.name));
+    return WORKER_SKILL_IDS.filter((id) => !existing.has(id));
   }, [skills]);
 
   async function handleSave() {
@@ -83,7 +82,7 @@ export function SkillsForm({ initialSkills = [], onSaved }: SkillsFormProps) {
               >
                 <span className="text-muted-foreground">
                   {selectedSkill
-                    ? selectedSkill
+                    ? tSkills(selectedSkill)
                     : available.length > 0
                       ? "Select a skill..."
                       : "All skills already added"}
@@ -101,19 +100,19 @@ export function SkillsForm({ initialSkills = [], onSaved }: SkillsFormProps) {
                     All skills already added
                   </li>
                 ) : (
-                  available.map((option) => (
-                    <li key={option.name}>
+                  available.map((id) => (
+                    <li key={id}>
                       <button
                         type="button"
                         className="w-full px-3 py-2 text-left hover:bg-muted"
                         onClick={() => {
-                          setSelectedSkill(option.name as SkillName);
+                          setSelectedSkill(id);
                           setPopoverOpen(false);
                         }}
                       >
-                        <div className="text-sm font-medium">{option.name}</div>
+                        <div className="text-sm font-medium">{tSkills(id)}</div>
                         <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                          {option.description}
+                          {tSkillsDesc(id)}
                         </div>
                       </button>
                     </li>
@@ -131,12 +130,12 @@ export function SkillsForm({ initialSkills = [], onSaved }: SkillsFormProps) {
       {selectedSkill && (
         <div className="space-y-3 rounded-lg border border-border bg-card p-4">
           <div className="space-y-1">
-            <div className="text-sm font-medium">{selectedSkill}</div>
-            {selectedDescription && (
+            <div className="text-sm font-medium">{tSkills(selectedSkill)}</div>
+            {selectedDescription ? (
               <p className="text-xs text-muted-foreground">
                 {selectedDescription}
               </p>
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center justify-end gap-2">

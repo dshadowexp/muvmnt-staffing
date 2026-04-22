@@ -29,7 +29,7 @@ import { Check, CircleDashed } from "lucide-react";
 import { formatPhoneToE164 } from "@/lib/formatters";
 import posthog from "posthog-js";
 import { ConfirmationResult, linkWithCredential, PhoneAuthProvider, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { auth } from "@/services/firebase/client";
+import { auth } from "@/services/firebase/auth";
 
 type PhoneStep = "input" | "otp" | "done";
 

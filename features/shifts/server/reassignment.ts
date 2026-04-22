@@ -88,7 +88,7 @@ export async function processShiftTransferJob(
     }
 
     const replacementUserId = await findReplacementUserIdForShiftWindow({
-        clientUserId: sr.client_id,
+        ring: [  ],
         dateYmd: win.dateYmd,
         startHHmm: win.startHHmm,
         endHHmm: win.endHHmm,

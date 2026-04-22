@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fetchToken } from "@/services/firebase/messaging";
-import { onMessage, Unsubscribe } from "firebase/messaging";
+import { MessagePayload, onMessage, Unsubscribe } from "firebase/messaging";
 import { messaging } from "@/services/firebase/messaging";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
@@ -28,44 +28,120 @@ async function getNotificationPermissionAndToken() {
 export const useFcmToken = () => {
     const router = useRouter();
     const [notificationPermissionStatus, setNotificationPermissionStatus] = useState<NotificationPermission | null>(null);
+    const [isSupported, setIsSupported] = useState<boolean | null>(null);
     const [token, setToken] = useState<string | null>(null);
-    const retryLoadToken = useRef(0);
     const isLoading = useRef(false);
 
-    const loadToken = async () => {
+    const loadToken = async (byPass = false) => {
         if (isLoading.current) return;
         isLoading.current = true;
-        const token = await getNotificationPermissionAndToken();
 
-        if (Notification.permission === 'denied') {
-            setNotificationPermissionStatus('denied');
-            isLoading.current = false;
-            return;
-        }
+        try {
+            const MAX_RETRIES = 3;
 
-        if (!token) {
-            if (retryLoadToken.current >= 3) {
-                alert("Unable to load FCM token. Please refresh the browser.");
-                isLoading.current = false;
-                return;
+            for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                const token = await getNotificationPermissionAndToken();
+
+                if (Notification.permission === 'denied') {
+                    if (byPass) alert("Please enable notifications in your browser settings.");
+                    setNotificationPermissionStatus('denied');
+                    isLoading.current = false;
+                    return;
+                }
+
+                if (token) {
+                    setNotificationPermissionStatus(Notification.permission);
+                    setToken(token);
+                    isLoading.current = false;
+                    return;
+                }
+
+                if (attempt < MAX_RETRIES - 1) {
+                    await new Promise(res => setTimeout(res, 500 * (attempt + 1)));
+                }
             }
 
-            retryLoadToken.current++;
+            alert("Unable to setup notifications. Please refresh the browser.");
+        } finally {
             isLoading.current = false;
-            await loadToken();
-            return;
         }
-
-        setNotificationPermissionStatus(Notification.permission);
-        setToken(token);
-        isLoading.current = false;
     }
 
+    const showSystemNotification = (payload: MessagePayload) => {
+        const title = payload.notification?.title || "New notification";
+        const body = payload.notification?.body || "This is a new notification";
+        const link = payload.fcmOptions?.link || payload.data?.link;
+
+        if (!link) {
+            toast.info(
+                title,
+                {
+                    description: body,
+                }
+            )
+        } else {
+            toast.info(
+                title,
+                {
+                    description: body,
+                    action: {
+                        label: "View",
+                        onClick: () => {
+                            if (link) {
+                                router.push(link);
+                            }
+                        },
+                    },
+                }
+            )
+        }
+
+        // Show system notification
+        const notification = new Notification(
+            title,
+            {
+                body: body,
+                icon: "/web-app-manifest-192x192.png",
+                badge: "/badge-72x72.png",
+                requireInteraction: true,
+                data: { url: link },
+            }
+        );
+    
+        // Handle notification click
+        notification.onclick = (event) => {
+            event.preventDefault(); 
+            window.focus();
+            const link = (event.target as Notification).data.url;
+            if (link) {
+                router.push(link);
+            }
+
+            notification.close();
+        };
+    };
+
+    // Check browser support on mount
     useEffect(() => {
-        if ("Notification" in window) {
+        const checkSupport = () => {
+            if (
+                typeof window !== "undefined" &&
+                "serviceWorker" in navigator &&
+                "PushManager" in window
+            ) {
+                return true;
+            }
+            return false;
+        };
+    
+        setIsSupported(checkSupport());
+    }, []);
+
+    useEffect(() => {
+        if ("Notification" in window && isSupported) {
             loadToken();
         }
-    }, []);
+    }, [isSupported]);
 
     useEffect(() => {
         const setupListener = async() => {
@@ -75,48 +151,11 @@ export const useFcmToken = () => {
             if (!m) return;
 
             const unsubscribe = onMessage(m, async (payload) => {
-                console.log("Message received:", payload);
-                if (Notification.permission !== 'granted') return;
-
-                const link = payload.fcmOptions?.link || payload.data?.link;
-                if (!link) {
-                    toast.info(
-                        `${payload.notification?.title}: ${payload.notification?.body}`,
-                    )
-                } else {
-                    toast.info(
-                        `${payload.notification?.title}: ${payload.notification?.body}`,
-                        {
-                            action: {
-                                label: "Visit",
-                                onClick: () => {
-                                    const link = payload.fcmOptions?.link || payload.data?.link;
-                                    if (link) {
-                                        router.push(link);
-                                    }
-                                },
-                            },
-                        }
-                    )
+                console.log("Message received in the foreground:", payload);
+                if ("Notification" in window && Notification.permission === 'granted') {
+                    console.log("Showing system notification");
+                    showSystemNotification(payload);
                 }
-
-                const n = new Notification(
-                    payload.notification?.title || "New message",
-                    {
-                        body: payload.notification?.body || "This is a new message",
-                        data: link ? { url: link } : undefined,
-                    }
-                );
-
-                n.onclick = (event) => {
-                    event.preventDefault();
-                    const link = (event.target as Notification).data?.url;
-                    if (link) {
-                        router.push(link);
-                    } else {
-                        console.log("No link found in notification payload");
-                    }
-                };
             });
 
             return unsubscribe;
@@ -133,7 +172,8 @@ export const useFcmToken = () => {
     }, [token, router, toast]);
 
     return {
-        notificationPermissionStatus,
         token,
+        notificationPermissionStatus,
+        handleEnableNotifications: loadToken,
     };
 }

@@ -9,15 +9,9 @@ export type WorkAuthorization =
   | "Closed Work Permit"
   | "Study Permit (with work authorization)";
 
-export type ProfessionalRole =
-  | "RN"
-  | "RPN"
-  | "PSW"
-  | "Healthcare Support Worker"
-  | "Allied Health Practitioner"
-  | "DSW"
-  | "Cook / Dietary Aide"
-  | "Other";
+import type { ProfessionalRole } from "@/lib/professions";
+
+export type { ProfessionalRole } from "@/lib/professions";
 
 export type Province =
   | "Ontario"

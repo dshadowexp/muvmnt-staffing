@@ -13,7 +13,7 @@ export function dalLoginRedirect<T, E extends DalError>(
   dalReturn: DalReturn<T, E>,
 ) {
   if (dalReturn.success) return dalReturn;
-  if (dalReturn.error.type === "no-user") return redirect("/login");
+  if (dalReturn.error.type === "no-user") return redirect("/sign-in");
 
   return dalReturn as DalReturn<T, Exclude<E, { type: "no-user" }>>;
 }

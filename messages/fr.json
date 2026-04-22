@@ -14,6 +14,93 @@
     "openGraphImageAlt": "ReadyKare Inc."
   },
 
+  "professions": {
+    "rn": "Infirmière autorisée (IA)",
+    "rpn": "Infirmière auxiliaire autorisée (IAA)",
+    "psw": "Préposé aux services de soutien personnel (PAB)",
+    "healthcare_support_worker": "Travailleur de soutien en santé",
+    "allied_health_practitioner": "Professionnel en santé connexe",
+    "dsw": "Travailleur en services de développement (TSD)",
+    "cook": "Cuisinier / aide en alimentation",
+    "other": "Autre"
+  },
+
+  "compliance": {
+    "cpr": "RCP",
+    "first_aid": "Premiers soins",
+    "n95_mask_fit_test": "Test d'ajustement masque N95",
+    "covid_19_vaccination": "Vaccination Covid-19",
+    "vulnerable_sector_check": "Vérification du secteur vulnérable",
+    "tb_test": "Test de tuberculose",
+    "immunization_record": "Carnet de vaccination",
+    "wes": "WES",
+    "drivers_license": "Permis de conduire",
+    "diploma_degree": "Diplôme / grade"
+  },
+
+  "complianceDesc": {
+    "cpr": "Réanimation cardiopulmonaire — compressions, ventilation de secours et DAE en urgence cardiaque.",
+    "first_aid": "Intervention face aux blessures, saignements, brûlures et malaises en attendant les secours.",
+    "n95_mask_fit_test": "Test d'ajustement du respirateur pour joint étanche au N95 lors de procédures à risque.",
+    "covid_19_vaccination": "Preuve de vaccination COVID-19 exigée dans plusieurs milieux de soins.",
+    "vulnerable_sector_check": "Filtrage renforcé pour travailler auprès d'enfants, aînés ou adultes vulnérables.",
+    "tb_test": "Test cutané de tuberculose en deux étapes ou équivalent médical.",
+    "immunization_record": "Preuve de vaccins à jour (ROUG, dTca, varicelle, hépatite B, grippe).",
+    "wes": "Évaluation des titres de scolarité internationale par World Education Services.",
+    "drivers_license": "Permis de conduire provincial valide pour déplacements ou transport de clients.",
+    "diploma_degree": "Plus haut diplôme pertinent pour le rôle (ex. BScN, certificat PAB)."
+  },
+
+  "skills": {
+    "medi_admin": "Administration des médicaments",
+    "vital_signs_monitoring": "Surveillance des signes vitaux",
+    "blood_glucose_monitoring": "Surveillance de la glycémie",
+    "wound_care": "Soins des plaies",
+    "patient_bathing": "Bain au patient",
+    "grooming_assistance": "Aide à la toilette personnelle",
+    "toileting_assistance": "Aide à la toilette",
+    "feeding_assistance": "Aide à l'alimentation",
+    "mobility_assistance": "Aide à la mobilité",
+    "patient_transfers": "Transferts de patients",
+    "repositioning_patients": "Repositionnement des patients",
+    "fall_prevention_monitoring": "Surveillance prévention des chutes",
+    "one_to_one_observation": "Observation 1:1",
+    "dementia_care_support": "Soins de soutien à la démence",
+    "meal_distribution": "Distribution des repas",
+    "room_cleaning_sanitation": "Nettoyage et salubrité",
+    "stocking_medical_supplies": "Réapprovisionnement du matériel",
+    "wheelchair_transport": "Transport en fauteuil roulant",
+    "electronic_charting": "Documentation électronique",
+    "shift_handover_reporting": "Passage de consignes",
+    "infection_control_protocols": "Protocoles de contrôle des infections",
+    "emergency_response_assistance": "Soutien en situation d'urgence"
+  },
+
+  "skillsDesc": {
+    "medi_admin": "Manipulation sécuritaire des médicaments : les cinq bons droits, documentation et administration dans le champ de pratique.",
+    "vital_signs_monitoring": "Surveillance et enregistrement des signes vitaux selon le protocole.",
+    "blood_glucose_monitoring": "Glycémies capillaires et communication des résultats.",
+    "wound_care": "Changements de pansements et évaluation des plaies dans le champ de pratique.",
+    "patient_bathing": "Aide au bain et à l'hygiène personnelle.",
+    "grooming_assistance": "Soins capillaires, ongles et bouche.",
+    "toileting_assistance": "Toilette sécuritaire et soutien à la continence.",
+    "feeding_assistance": "Aide aux repas et suivi alimentaire.",
+    "mobility_assistance": "Marche et utilisation d'aides à la mobilité.",
+    "patient_transfers": "Transferts et levées sécuritaires.",
+    "repositioning_patients": "Retournements et positionnement pour prévenir les lésions de pression.",
+    "fall_prevention_monitoring": "Observation et sécurité de l'environnement face au risque de chute.",
+    "one_to_one_observation": "Observation dédiée pour sécurité ou comportement.",
+    "dementia_care_support": "Approches de soins pour troubles cognitifs.",
+    "meal_distribution": "Service des repas et suivi des apports.",
+    "room_cleaning_sanitation": "Nettoyage des milieux de soins.",
+    "stocking_medical_supplies": "Réassortiment du matériel et équipement.",
+    "wheelchair_transport": "Déplacement des patients en fauteuil ou équivalent.",
+    "electronic_charting": "Documentation au dossier de santé électronique.",
+    "shift_handover_reporting": "Transmission structurée entre équipes.",
+    "infection_control_protocols": "EPI, isolement et prévention des infections.",
+    "emergency_response_assistance": "Soutien en urgence jusqu'à l'arrivée des secours spécialisés."
+  },
+
   "common": {
     "home": "Accueil",
     "continue": "Continuer",
@@ -175,6 +262,7 @@
     "form": {
       "addressTitle": "Adresse du site",
       "addressDescription": "Les demandes seront appariées à des travailleurs près de ce lieu.",
+      "addressRequired": "Sélectionnez une adresse avant de continuer.",
       "positions": "Combien de personnes?",
       "startDate": "Date de début",
       "endDate": "Date de fin",
@@ -569,7 +657,7 @@
     "password": {
       "show": "Afficher le mot de passe",
       "hide": "Masquer le mot de passe",
-      "minHint": "Minimum 6 caractères",
+      "minHint": "Minimum 8 caractères",
       "strength": {
         "weak": "Faible",
         "fair": "Moyen",
@@ -639,7 +727,35 @@
           "title": "Configuration de la paie",
           "description": "Connectez votre compte de versement pour recevoir le paiement de vos quarts complétés.",
           "startError": "Impossible de démarrer la configuration de la paie. Réessayez ou ouvrez Paie depuis le menu du compte."
+        },
+        "shiftRequests": {
+          "sectionTitle": "Demandes de quarts",
+          "shiftCount": "{count, plural, one {# quart à confirmer} other {# quarts à confirmer}}",
+          "timerRemaining": "Répondre sous {time}",
+          "timerExpired": "Délai écoulé",
+          "openRequestAria": "Ouvrir la demande : {profession}"
         }
+      },
+      "requestDetail": {
+        "backTitle": "Tableau de bord",
+        "requestLabel": "Demande de personnel",
+        "yourEarningsTitle": "Votre rémunération (cette demande)",
+        "hourlyRateLabel": "Taux horaire : {range}",
+        "siteTitle": "Lieu",
+        "siteNone": "Non renseigné",
+        "shiftsTitle": "Vos quarts",
+        "shiftsDescription": "Quarts qui vous sont assignés pour cette demande.",
+        "accept": "Accepter la demande",
+        "accepting": "Acceptation…",
+        "acceptSuccess": "Vous avez accepté les quarts de cette demande.",
+        "decline": "Refuser",
+        "declining": "Refus…",
+        "declineSuccess": "Vous avez refusé les quarts en attente.",
+        "declineConfirm": "Refuser tous les quarts en attente pour cette demande ? Le client pourra assigner quelqu'un d'autre.",
+        "actionsTitle": "Actions",
+        "acceptCardDescription": "Confirmez tous les quarts assignés pour cette demande et fixez votre horaire.",
+        "declineCardDescription": "Refusez les quarts en attente. Le client pourra les proposer à quelqu'un d'autre.",
+        "declineDialogTitle": "Refuser les quarts en attente ?"
       },
       "shifts": {
         "title": "Quarts",
@@ -647,7 +763,9 @@
       },
       "availability": {
         "title": "Disponibilités",
-        "subtitle": "Les moments où vous êtes disponible pour des quarts."
+        "subtitle": "Les moments où vous êtes disponible pour des quarts.",
+        "addressTitle": "Votre emplacement actuel",
+        "addressDescription": "Vous serez apparié à des quarts près de cette adresse."     
       },
       "payroll": {
         "title": "Paie",
@@ -711,7 +829,7 @@
         "title": "Vos demandes",
         "newRequest": "Nouvelle demande",
         "staffRequestId": "Demande de personnel {id}",
-        "emptyPrefix": "Vous n'avez encore aucune demande de personnel confirmée. Créez-en une avec",
+        "emptyPrefix": "Vous n'avez pas encore de demandes de personnel. Créez-en une avec",
         "emptyAction": "Nouvelle demande",
         "emptySuffix": "."
       },
@@ -1419,9 +1537,25 @@
     },
     "wizard": {
       "step1Title": "Planifier la demande",
-      "step1Description": "Indiquez le nombre de membres du personnel, les dates et les heures de quart.",
+      "step1Description": "Indiquez le nombre de {profession} requis, les dates et les heures de quart.",
       "step2Title": "Choisir le palier",
       "step2Description": "Sélectionnez le palier qui convient le mieux à votre demande.",
+      "preferencesTitle": "Détails de la demande",
+      "preferencesDescription": "La profession, les compétences et la conformité influencent les tarifs de base et l’appariement. Les changements s’appliquent lorsque vous soumettez l’horaire ci-dessous.",
+      "preferencesSave": "Enregistrer",
+      "preferencesCancel": "Annuler",
+      "preferencesSaved": "Détails de la demande mis à jour.",
+      "preferencesOpenAria": "Modifier profession, compétences et conformité",
+      "preferencesNeedDraftHint": "Enregistrez votre horaire une fois pour activer ces paramètres",
+      "professionLabel": "Profession",
+      "skillsLabel": "Compétences",
+      "skillsHint": "Facultatif. Les travailleurs peuvent être filtrés selon les compétences évaluées.",
+      "skillsPlaceholder": "Ajouter des compétences…",
+      "requirementsLabel": "Conformité supplémentaire",
+      "requirementsLockedHint": "Ces éléments sont toujours exigés pour chaque demande.",
+      "requirementsExtraPlaceholder": "Ajouter d’autres exigences de conformité…",
+      "searchPlaceholder": "Rechercher…",
+      "searchEmpty": "Aucun résultat.",
       "requestSummaryTitle": "Résumé de la demande",
       "requestSummaryStaff": "{count, plural, one {# membre du personnel} other {# membres du personnel}}",
       "requestSummaryHours": "{hours, number, ::.##} h au total",
@@ -1459,10 +1593,18 @@
       "yrsExpShort": "{years} ans d'exp.",
       "moreAssigned": "{count, plural, one {# autre assigné} other {# autres assignés}}",
       "hourlyRate": "Taux horaire",
-      "total": "Total",
-      "fullScheduleEstimate": "L'horaire complet coûterait environ {amount} si chaque plage était couverte.",
-      "step2BaseRateNotice": "Ces tarifs horaires sont des taux de base. Le total est une estimation — il peut changer après l'association des travailleurs et la finalisation de la couverture.",
-      "billedWeeklyNotice": "Aucun montant n'est prélevé aujourd'hui. La couverture est facturée chaque semaine selon les heures réellement travaillées par votre personnel.",
+      "agreedHourlyRate": "Taux horaire convenu",
+      "amountDueToday": "Montant dû aujourd’hui",
+      "estimatedTotalOnCompletion": "Total estimé à l'achèvement",
+      "paymentMethodOnFileTitle": "Mode de paiement enregistré",
+      "paymentMethodPickDefaultHint": "Choisissez une carte dans la liste pour définir votre mode de paiement par défaut pour ce débit.",
+      "choosePaymentMethodTitle": "Choisir le mode de paiement",
+      "choosePaymentMethodDescription": "La carte sélectionnée est enregistrée comme mode de paiement par défaut et servira pour cette demande et les débits futurs.",
+      "paymentMethodPickerBackToList": "Retour aux modes de paiement",
+      "setupPaymentMethodCardTitle": "Configurer le mode de paiement par défaut",
+      "setupPaymentMethodCardDescription": "Ajoutez une carte pour payer sur dossier. La facturation est hebdomadaire à l’achèvement de la couverture.",
+      "step2BaseRateNotice": "Le palier choisi fixe le tarif horaire de base convenu pour cette couverture.",
+      "billedWeeklyNotice": "Aucun frais à cette étape. La facturation est hebdomadaire, selon les heures réellement travaillées, au tarif de base sélectionné.",
       "baseRateChip": "de base",
       "workersAvailable": "{count, plural, =0 {aucun travailleur} one {# travailleur} other {# travailleurs}} disponible(s)",
       "matchStarting": "Début de l'association de la couverture",
@@ -1490,11 +1632,11 @@
       "priceLockNote": "Votre tarif sélectionné est maintenu pendant la mise en relation. Les tarifs varient selon la demande régionale.",
       "pulse": {
         "label": "Pulse",
-        "tagline": "Tarif du marché en direct"
+        "tagline": "Pool de personnel principal"
       },
       "vetted": {
         "label": "Vérifié",
-        "tagline": "Formation supérieure et vérifié"
+        "tagline": "Personnel les plus performants"
       },
       "veteran": {
         "label": "Vétéran",

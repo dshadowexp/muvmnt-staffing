@@ -6,12 +6,11 @@ import {
   ShieldCheck,
   Stethoscope,
   Timer,
-  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { FindStaffForm } from "./_form";
+import { Card } from "@/components/ui/card";
+import { LandingAuthCtas } from "../_components/landing-auth-ctas";
+import { FindStaffLeadCard } from "./_form";
 
 export async function generateMetadata({
   params,
@@ -69,26 +68,10 @@ export default async function FindStaffPage() {
 
           <div className="mx-auto w-full max-w-3xl">
             <Card className="overflow-hidden rounded-2xl p-0 shadow-2xl">
-              <div className="relative overflow-hidden bg-primary px-7 py-6">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_100%_at_100%_100%,rgba(255,255,255,0.12)_0%,transparent_60%)]" />
-                <div className="relative z-10 flex items-center gap-3">
-                  <div className="bg-primary-foreground/15 flex size-10 shrink-0 items-center justify-center rounded-xl">
-                    <Users className="text-primary-foreground size-5" />
-                  </div>
-                  <div>
-                    <h1 className="text-primary-foreground font-[var(--font-display)] text-lg font-extrabold leading-tight">
-                      {t("card.title")}
-                    </h1>
-                    <p className="text-primary-foreground/70 text-[0.82rem] font-light">
-                      {t("card.subtitle")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <CardContent className="p-7">
-                <FindStaffForm />
-              </CardContent>
+              <FindStaffLeadCard
+                cardTitle={t("card.title")}
+                cardSubtitle={t("card.subtitle")}
+              />
             </Card>
           </div>
         </div>
@@ -163,17 +146,12 @@ export default async function FindStaffPage() {
                 {t("account.description")}
               </p>
             </div>
-            <div className="flex shrink-0 flex-wrap items-center gap-3">
-              <Button size="lg" asChild>
-                <Link href="/sign-up?as=client">{t("account.ctaCreate")}</Link>
-              </Button>
-              <Link
-                href="/sign-in"
-                className="text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
-              >
-                {t("account.ctaSignIn")}
-              </Link>
-            </div>
+            <LandingAuthCtas
+              signUpHref="/sign-up?as=client"
+              ctaCreateLabel={t("account.ctaCreate")}
+              ctaSignInLabel={t("account.ctaSignIn")}
+              variant="onLight"
+            />
           </div>
         </div>
       </section>

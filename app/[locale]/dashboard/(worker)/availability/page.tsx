@@ -3,11 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getWorkerAvailabilityInitial } from "@/features/availability/dal/queries";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
+import { getAddressLocation } from "@/features/geo/dal/queries";
 import { defaultWeekSchedule } from "@/features/availability/lib/week-state";
+import { SectionCardSkeleton } from "@/features/profile/components/worker-account-profile";
 import {
   AvailabilitySummaryCard,
   AvailabilitySummaryCardSkeleton,
 } from "./_summary";
+import { WorkerAvailabilityAddressCard } from "./_address-card";
 
 async function SummarySection() {
   const data = await getWorkerAvailabilityInitial();
@@ -25,6 +28,9 @@ export default async function AvailabilityPage() {
 
   const t = await getTranslations("dashboard.worker.availability");
 
+  const locationPromise = getAddressLocation().then((l) => l ?? null);
+  locationPromise.catch(() => undefined);
+
   return (
     <div className="flex w-full max-w-5xl flex-col gap-6">
       <header>
@@ -35,6 +41,9 @@ export default async function AvailabilityPage() {
       </header>
       <Suspense fallback={<AvailabilitySummaryCardSkeleton />}>
         <SummarySection />
+      </Suspense>
+      <Suspense fallback={<SectionCardSkeleton lines={2} />}>
+        <WorkerAvailabilityAddressCard locationPromise={locationPromise} />
       </Suspense>
     </div>
   );

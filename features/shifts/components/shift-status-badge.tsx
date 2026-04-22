@@ -5,8 +5,11 @@ function normalizeStatus(status: string | null | undefined): string {
   return (status ?? "scheduled").trim().toLowerCase() || "scheduled";
 }
 
-function statusLabel(status: string | null | undefined): string {
-  if (!status?.trim()) return "Scheduled";
+function statusLabel(
+  status: string | null | undefined,
+  scheduledLabel: string,
+): string {
+  if (!status?.trim()) return scheduledLabel;
   const s = normalizeStatus(status);
   const labels: Record<string, string> = {
     scheduled: "Scheduled",
@@ -45,7 +48,7 @@ export function ShiftStatusBadge({
 
   return (
     <Badge variant={variant} className={cn("normal-case", className)}>
-      {statusLabel(status)}
+      {statusLabel(status, "Scheduled")}
     </Badge>
   );
 }

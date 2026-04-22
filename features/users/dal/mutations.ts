@@ -4,6 +4,15 @@ import type { Database } from "@/services/supabase/types/database";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 
 
+// import arcjet, { validateEmail } from "@/services/arcjet/client";
+
+// const aj = arcjet.withRule(
+//     validateEmail({
+//         mode: "LIVE",
+//         deny: ["INVALID", "DISPOSABLE", "NO_MX_RECORDS", "NO_GRAVATAR"],
+//     })
+// )
+
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
 
 export async function updateUserIsActive(id: string, isActive: boolean) {
@@ -76,18 +85,21 @@ export async function findOrCreateUser(params: {
 
     await enqueueNotification({
         userId: newUser.id,
-        channels: ["email"],
-        subject: "A few quick next steps",
-        template: "welcome-followup",
-        data: {
-            firstName: null,
-            isWorker: newUser.role === "worker",
-            dashboardUrl: `${baseUrl}/dashboard`,
-            previewText: "A few quick next steps",
-            unsubscribeUrl: `${baseUrl}/`,
-            privacyUrl: `${baseUrl}/`,
-        },
-        idempotencyKey: `welcome-followup-${newUser.id}`,
+        channels: [
+            {
+                channel:  "email",
+                subject: "A few quick next steps",
+                template: "welcome-followup",
+                data: {
+                    firstName: null,
+                    isWorker: newUser.role === "worker",
+                    dashboardUrl: `${baseUrl}/dashboard`,
+                    previewText: "A few quick next steps",
+                    unsubscribeUrl: `${baseUrl}/`,
+                    privacyUrl: `${baseUrl}/`,
+                },
+            },
+        ],
     });
 
     return newUser;

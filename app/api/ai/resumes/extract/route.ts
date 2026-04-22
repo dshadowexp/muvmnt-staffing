@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getPostHogClient } from "@/lib/posthog-server";
 import { streamResumeKeyPoints } from "@/services/ai/resumes/resume-extract";
+import arcjet, { fixedWindow } from "@/services/arcjet/client";
+
+const aj = arcjet.withRule(
+    fixedWindow({
+        mode: "LIVE",
+        window: "60s",
+        max: 10,
+    })
+)
+
 
 const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = [
@@ -12,6 +22,14 @@ const ALLOWED_TYPES = [
 ];
 
 export async function POST(req: Request) {
+  const decision = await aj.protect(req);
+  if (decision.isDenied()) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded", reason: decision.reason }, 
+      { status: 429 }
+    );
+  }
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

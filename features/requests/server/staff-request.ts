@@ -5,6 +5,8 @@ import { auth as triggerAuth, tasks } from "@trigger.dev/sdk/v3";
 import { createAdminClient } from "@/services/supabase/server";
 import type { matchCoverageTask } from "@/trigger/staff-requests";
 import {
+    DEFAULT_STAFF_REQUEST_PROFESSION,
+    mergePersistedStaffRequestRequirements,
     STAFF_REQUEST_PROFESSION_PLACEHOLDER,
     STAFF_REQUEST_STATUS_CONFIRMED,
     STAFF_REQUEST_STATUS_PENDING_COVERAGE,
@@ -12,6 +14,7 @@ import {
 } from "../constants";
 import {
     buildCandidatePool,
+    emptyMatchResult,
     filterCandidatesForTier,
     matchWorkersForStaffRequest,
     type DailyWindowMatch,
@@ -26,7 +29,10 @@ import {
     type PricingTier,
 } from "./pricing";
 import { totalCoveredHoursFromMatchSchedule } from "../pricing/staff-request-pricing";
-import { encodeLatLngToCellId } from "@/services/h3/client";
+import { getSession } from "@/lib/session";
+import { normalizeProfessionId } from "@/lib/professions";
+import { gridDiskDistances } from "h3-js";
+import { H3_K } from "@/lib/constants";
 
 const dailyWindowSchema = z.object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -43,8 +49,10 @@ const dailyWindowSchema = z.object({
 export const createDraftPayloadSchema = z.object({
     startDate: z.string().min(1),
     endDate: z.string().nullable().optional(),
+    cellId: z.string().min(1),
     positions: z.coerce.number().int().min(1),
     dailyWindows: z.array(dailyWindowSchema).min(1),
+    profession: z.string().min(1).default(DEFAULT_STAFF_REQUEST_PROFESSION),
     requirements: z.array(z.string()).default([]),
     tasks: z.array(z.string()).default([]),
     notes: z.string().optional().default(""),
@@ -54,11 +62,12 @@ export type CreateDraftPayload = z.infer<typeof createDraftPayloadSchema>;
 
 export type StaffRequestRow = {
     id: string;
-    client_id: string;
+    client_user_id: string;
     cell_id: string;
     start_date: string;
     end_date: string | null;
     daily_time_windows: { date: string; slots: { startTime: string; endTime: string }[] }[];
+    profession: string;
     requirements: string[];
     tasks: string[];
     positions: number;
@@ -70,6 +79,13 @@ export type StaffRequestRow = {
     coverage_data_at: string | null;
     payment_session_id: string | null;
 };
+
+/** Canonical profession id for pricing, matching, and estimates. */
+export function professionForStaffRequest(
+    row: Pick<StaffRequestRow, "profession">,
+): string {
+    return normalizeProfessionId(row.profession);
+}
 
 /** Cached coverage payload kept on `staff_requests.coverage_data` (jsonb). */
 export type CoverageDataCache = {
@@ -84,7 +100,7 @@ export type CoverageDataCache = {
     currency: "CAD";
 };
 
-export const COVERAGE_REFRESH_AFTER_MS = 30 * 60 * 1000;
+export const COVERAGE_REFRESH_AFTER_MS = 5 * 60 * 1000;
 
 export function isCoverageFresh(cachedAtIso: string | null): boolean {
     if (!cachedAtIso) return false;
@@ -93,7 +109,7 @@ export function isCoverageFresh(cachedAtIso: string | null): boolean {
     return Date.now() - t < COVERAGE_REFRESH_AFTER_MS;
 }
 
-async function getRowOrFail(requestId: string, clientUserId: string) {
+async function getRowOrFail(requestId: string) {
     const supabase = await createAdminClient();
     const { data, error } = await supabase
         .from("staff_requests")
@@ -103,14 +119,18 @@ async function getRowOrFail(requestId: string, clientUserId: string) {
     if (error || !data) {
         return { ok: false as const, message: error?.message ?? "Request not found" };
     }
-    if (data.client_id !== clientUserId) {
-        return { ok: false as const, message: "Not authorized" };
-    }
+
     return { ok: true as const, row: data as unknown as StaffRequestRow };
 }
 
-export async function getStaffRequestRow(requestId: string, clientUserId: string) {
-    return getRowOrFail(requestId, clientUserId);
+export async function getStaffRequestRow(requestId: string) {
+    const session = await getSession();
+    if (!session) return { ok: false, message: "Unauthenticated" };
+    if (session.role !== "client") return { ok: false, message: "Unauthorized" };
+    const clientUserId = session.userId;
+    const result = await getRowOrFail(requestId);
+    if (!result.ok) return result;
+    return { ok: true, data: result.row };
 }
 
 /**
@@ -118,20 +138,27 @@ export async function getStaffRequestRow(requestId: string, clientUserId: string
  * Used to resume `/client/requests/new` without creating duplicates on each submit.
  */
 export async function getPendingPricingStaffRequestForClient(
-    clientUserId: string,
-): Promise<StaffRequestRow | null> {
+): Promise<{ ok: true; data: StaffRequestRow } | { ok: false; message: string }> {
+    const session = await getSession();
+    if (!session) return { ok: false, message: "Unauthenticated" };
+    if (session.role !== "client") return { ok: false, message: "Unauthorized" };
+
+    const clientUserId = session.userId;
     const supabase = await createAdminClient();
     const { data, error } = await supabase
         .from("staff_requests")
         .select("*")
-        .eq("client_id", clientUserId)
-        .eq("status", STAFF_REQUEST_STATUS_PENDING_PRICING)
+        .eq("client_user_id", clientUserId)
+        .in("status", [
+            STAFF_REQUEST_STATUS_PENDING_PRICING,
+            STAFF_REQUEST_STATUS_PENDING_COVERAGE,
+        ])
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
-    if (error || !data) return null;
-    return data as unknown as StaffRequestRow;
+    if (error || !data) return { ok: false, message: error?.message ?? "SupabaseError" };
+    return { ok: true, data: data as unknown as StaffRequestRow };
 }
 
 export async function createStaffRequestDraft(
@@ -142,30 +169,17 @@ export async function createStaffRequestDraft(
     | { ok: false; message: string }
 > {
     const supabase = await createAdminClient();
-    const { data: loc, error: locErr } = await supabase
-        .from("locations")
-        .select("lat, lng")
-        .eq("user_id", clientUserId)
-        .single();
-
-    if (locErr || !loc?.lat || !loc?.lng) {
-        return {
-            ok: false,
-            message:
-                locErr?.message ??
-                "Add your business address before creating a staff request.",
-        };
-    }
-
-    const cellId = encodeLatLngToCellId(loc.lat, loc.lng);
 
     const { data, error } = await supabase
         .from("staff_requests")
         .insert({
-            client_id: clientUserId,
-            cell_id: cellId,
+            client_user_id: clientUserId,
+            cell_id: payload.cellId,
+            profession: normalizeProfessionId(payload.profession),
             positions: payload.positions,
-            requirements: payload.requirements,
+            requirements: mergePersistedStaffRequestRequirements(
+                payload.requirements,
+            ),
             tasks: payload.tasks,
             notes: payload.notes,
             start_date: payload.startDate,
@@ -186,55 +200,75 @@ export async function createStaffRequestDraft(
 }
 
 export async function updateStaffRequestDraft(
-    clientUserId: string,
     requestId: string,
     payload: CreateDraftPayload,
 ): Promise<{ ok: true; requestId: string } | { ok: false; message: string }> {
     const supabase = await createAdminClient();
-    const rowCheck = await getRowOrFail(requestId, clientUserId);
+    const rowCheck = await getRowOrFail(requestId);
     if (!rowCheck.ok) return { ok: false, message: rowCheck.message };
-    if (rowCheck.row.status !== STAFF_REQUEST_STATUS_PENDING_PRICING) {
+    if (rowCheck.row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
         return {
             ok: false,
             message: "This request can no longer be edited from the schedule step.",
         };
     }
 
-    const { data: loc, error: locErr } = await supabase
-        .from("locations")
-        .select("lat, lng")
-        .eq("user_id", clientUserId)
-        .single();
-
-    if (locErr || !loc?.lat || !loc?.lng) {
-        return {
-            ok: false,
-            message:
-                locErr?.message ??
-                "Add your business address before updating a staff request.",
-        };
-    }
-
-    const cellId = encodeLatLngToCellId(loc.lat, loc.lng);
-
     const { error } = await supabase
         .from("staff_requests")
         .update({
-            cell_id: cellId,
+            cell_id: payload.cellId,
+            profession: normalizeProfessionId(payload.profession),
             positions: payload.positions,
-            requirements: payload.requirements,
+            requirements: mergePersistedStaffRequestRequirements(
+                payload.requirements,
+            ),
             tasks: payload.tasks,
             notes: payload.notes,
             start_date: payload.startDate,
             end_date: payload.endDate ?? null,
             daily_time_windows: payload.dailyWindows,
         })
-        .eq("id", requestId)
-        .eq("client_id", clientUserId)
-        .eq("status", STAFF_REQUEST_STATUS_PENDING_PRICING);
+        .eq("id", requestId);
 
     if (error) return { ok: false, message: error.message };
     return { ok: true, requestId };
+}
+
+export async function updateStaffRequestJobProfile(
+    clientUserId: string,
+    requestId: string,
+    input: { profession: string; tasks: string[]; requirements: string[] },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+    const rowCheck = await getRowOrFail(requestId);
+    if (!rowCheck.ok) return { ok: false, message: rowCheck.message };
+    if (rowCheck.row.client_user_id !== clientUserId) {
+        return { ok: false, message: "Not authorized" };
+    }
+    if (rowCheck.row.status !== STAFF_REQUEST_STATUS_PENDING_PRICING) {
+        return {
+            ok: false,
+            message: "Job details can only be changed while choosing a pricing tier.",
+        };
+    }
+
+    const requirements = mergePersistedStaffRequestRequirements(
+        input.requirements,
+    );
+
+    const supabase = await createAdminClient();
+    const { error } = await supabase
+        .from("staff_requests")
+        .update({
+            profession: normalizeProfessionId(input.profession),
+            tasks: input.tasks,
+            requirements,
+        })
+        .eq("id", requestId)
+        .eq("client_user_id", clientUserId)
+        .eq("status", STAFF_REQUEST_STATUS_PENDING_PRICING);
+
+    if (error) return { ok: false, message: error.message };
+    return { ok: true };
 }
 
 export async function persistPricingTier(args: {
@@ -252,7 +286,7 @@ export async function persistPricingTier(args: {
             status: STAFF_REQUEST_STATUS_PENDING_COVERAGE,
         })
         .eq("id", args.requestId)
-        .eq("client_id", args.clientUserId);
+        .eq("client_user_id", args.clientUserId);
     if (error) return { ok: false, message: error.message };
     return { ok: true };
 }
@@ -270,22 +304,7 @@ export async function persistCoverageCache(args: {
             coverage_data_at: new Date().toISOString(),
         })
         .eq("id", args.requestId)
-        .eq("client_id", args.clientUserId);
-    if (error) return { ok: false, message: error.message };
-    return { ok: true };
-}
-
-export async function persistCheckoutSession(args: {
-    requestId: string;
-    clientUserId: string;
-    sessionId: string;
-}): Promise<{ ok: true } | { ok: false; message: string }> {
-    const supabase = await createAdminClient();
-    const { error } = await supabase
-        .from("staff_requests")
-        .update({ payment_session_id: args.sessionId })
-        .eq("id", args.requestId)
-        .eq("client_id", args.clientUserId);
+        .eq("client_user_id", args.clientUserId);
     if (error) return { ok: false, message: error.message };
     return { ok: true };
 }
@@ -321,7 +340,7 @@ export async function abandonStaffRequestDraft(args: {
         .from("staff_requests")
         .delete()
         .eq("id", args.requestId)
-        .eq("client_id", args.clientUserId)
+        .eq("client_user_id", args.clientUserId)
         .neq("status", STAFF_REQUEST_STATUS_CONFIRMED);
     if (error) return { ok: false, message: error.message };
     return { ok: true };
@@ -342,7 +361,7 @@ export async function buildPricingQuoteForRequest(args: {
     const quote = await quoteStaffRequest({
         requestId: args.requestId,
         cellId: row.cell_id,
-        profession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
+        profession: professionForStaffRequest(row),
         positions: row.positions,
         dailyWindows,
     });
@@ -367,45 +386,60 @@ export async function runMatchForStaffRequest(args: {
     if (!row) return { ok: false, message: "Request not found" };
 
     const dailyWindows = (row.daily_time_windows ?? []) as DailyWindowMatch[];
-    const tier = row.pricing_tier ?? "standard";
-
-    const startYmd = ymdFromIsoOrYmd(row.start_date);
-    const endYmd = row.end_date ? ymdFromIsoOrYmd(row.end_date) : null;
-
-    const pool = await buildCandidatePool({
-        clientUserId: row.client_id,
-        startDate: startYmd,
-        endDate: endYmd,
-        progress: args.progress,
-    });
-
-    const allCandidates: MatchCandidate[] = pool.ok ? pool.candidates : [];
-
-    const filtered = await filterCandidatesForTier(
-        allCandidates,
-        tier,
-        STAFF_REQUEST_PROFESSION_PLACEHOLDER,
+    const tier = row.pricing_tier ?? "pulse";
+    const profession = professionForStaffRequest(row);
+    const requirements = mergePersistedStaffRequestRequirements(
         row.requirements ?? [],
     );
 
-    await args.progress?.({
-        kind: "filter",
-        tierId: tier,
-        remaining: filtered.length,
-        before: allCandidates.length,
-    });
+    const rings = gridDiskDistances(row.cell_id, H3_K);
 
-    const result = await matchWorkersForStaffRequest({
-        clientUserId: row.client_id,
-        startDate: startYmd,
-        endDate: endYmd,
-        dailyWindows,
-        pricingTierId: tier,
-        profession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
-        requirements: row.requirements ?? [],
-        progress: args.progress,
-        poolOverride: pool,
-    });
+    let result: MatchResult = emptyMatchResult;
+    for (let i = 0; i < rings.length; i++) {
+        const ring = rings[i];
+        const pool = await buildCandidatePool({
+            dailyWindows,
+            ring,
+            progress: args.progress,
+        });
+        
+        console.log("ring", i);
+        console.log("pool", pool.ok ? pool.candidates : 0);
+
+        const allCandidates: MatchCandidate[] = pool.ok ? pool.candidates : [];
+
+        const filtered = await filterCandidatesForTier(
+            allCandidates,
+            tier,
+            profession,
+            requirements,
+        );
+
+        console.log("filtered", filtered.length);
+
+        await args.progress?.({
+            kind: "filter",
+            tierId: tier,
+            remaining: filtered.length,
+            before: allCandidates.length,
+        });
+
+        result = await matchWorkersForStaffRequest({
+            ring,
+            dailyWindows,
+            pricingTierId: tier,
+            profession,
+            requirements,
+            progress: args.progress,
+            filteredCandidates: filtered,
+            existingMatchResult: result,
+        });
+
+        if (result.fullyCovered) {
+            console.log("fully covered", i);
+            break;
+        }
+    }
 
     const cache: CoverageDataCache = {
         schedule: result.schedule,
@@ -421,9 +455,11 @@ export async function runMatchForStaffRequest(args: {
 
     await persistCoverageCache({
         requestId: args.requestId,
-        clientUserId: row.client_id,
+        clientUserId: row.client_user_id,
         cache,
     });
+
+    await args.progress?.({ kind: "done", result });
 
     return { ok: true, cache };
 }
@@ -448,11 +484,6 @@ export async function dispatchCoverageMatchRun(requestId: string) {
     return { runId: handle.id, publicAccessToken };
 }
 
-function ymdFromIsoOrYmd(value: string): string {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-    return value.slice(0, 10);
-}
-
 export function estimatedCoverageTotalCents(
     schedule: MatchResult["schedule"],
     rate: number,
@@ -464,9 +495,7 @@ export function estimatedScheduleTotalCents(
     dailyWindows: DailyWindowMatch[],
     positions: number,
     rate: number,
+    profession: string = STAFF_REQUEST_PROFESSION_PLACEHOLDER,
 ): number {
-    return estimatedTotalCents(
-        { profession: "_", positions, dailyWindows },
-        rate,
-    );
+    return estimatedTotalCents({ profession, positions, dailyWindows }, rate);
 }

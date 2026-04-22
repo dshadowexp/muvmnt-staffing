@@ -41,7 +41,7 @@ export function SignInForm() {
     () =>
       z.object({
         email: z.email(tValidation("emailInvalid")),
-        password: z.string().min(6, tValidation("passwordMin")),
+        password: z.string().min(8, tValidation("passwordMin")),
       }),
     [tValidation],
   );

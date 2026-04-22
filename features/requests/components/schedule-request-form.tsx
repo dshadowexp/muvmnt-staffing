@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { enCA, frCA } from "date-fns/locale";
 import { ArrowRight, CalendarIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,7 @@ import {
     buildStaffRequestScheduleSchema,
     type StaffRequestScheduleValues,
 } from "../schema";
-import { calendarDayStrings } from "../lib/calendar-day-strings";
-import { reconcileDailyWindows } from "../lib/daily-windows-sync";
+import { reconcileDailyWindowsToRange } from "../lib/daily-windows-sync";
 import { coerceStaffRequestWindowsForTodayLead } from "../lib/coerce-staff-request-windows-lead";
 import { StaffRequestDailyTimeRows } from "./staff-request-daily-time-rows";
 
@@ -110,14 +110,32 @@ export function ScheduleRequestForm({
             }
             return;
         }
-        const days = calendarDayStrings(startDateVal, endDateVal);
         const prev = getValues("dailyWindows") ?? [];
-        const next = reconcileDailyWindows(prev, days);
+        const next = reconcileDailyWindowsToRange(prev, startDateVal, endDateVal);
         const coerced = coerceStaffRequestWindowsForTodayLead(next);
         if (JSON.stringify(prev) !== JSON.stringify(coerced)) {
             setValue("dailyWindows", coerced, { shouldValidate: true });
         }
     }, [startDateVal, endDateVal, getValues, setValue]);
+
+    function handleDailyWindowsChange(next: StaffRequestScheduleValues["dailyWindows"]) {
+        const coerced = coerceStaffRequestWindowsForTodayLead(next);
+        setValue("dailyWindows", coerced, { shouldValidate: true });
+        if (coerced.length === 0) return;
+        const sorted = [...coerced].sort((a, b) => a.date.localeCompare(b.date));
+        const minStr = sorted[0]!.date;
+        const maxStr = sorted[sorted.length - 1]!.date;
+        setValue("startDate", parseISO(`${minStr}T12:00:00`), {
+            shouldValidate: true,
+        });
+        if (minStr === maxStr) {
+            setValue("endDate", null, { shouldValidate: true });
+        } else {
+            setValue("endDate", parseISO(`${maxStr}T12:00:00`), {
+                shouldValidate: true,
+            });
+        }
+    }
 
     const submitText = submitLabel ?? t("submitSchedule");
 
@@ -228,9 +246,7 @@ export function ScheduleRequestForm({
                         <StaffRequestDailyTimeRows
                             windows={dailyWindowsVal ?? []}
                             disabled={isSubmitting}
-                            onChange={(next) =>
-                                setValue("dailyWindows", next, { shouldValidate: true })
-                            }
+                            onChange={handleDailyWindowsChange}
                         />
                         <FieldError>{errors.dailyWindows?.message}</FieldError>
                     </div>

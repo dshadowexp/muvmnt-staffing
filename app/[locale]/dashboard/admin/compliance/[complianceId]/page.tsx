@@ -15,7 +15,10 @@ import { getAdminComplianceReview } from "@/features/admin/dal/queries";
 import { Link } from "@/i18n/navigation";
 import { format } from "date-fns";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { normalizeProfessionId } from "@/lib/professions";
+import { complianceLabelEn } from "@/lib/labels-en";
 
 type PageProps = { params: Promise<{ complianceId: string }> };
 
@@ -25,7 +28,9 @@ export async function generateMetadata({
   const { complianceId } = await params;
   const data = await getAdminComplianceReview(complianceId);
   if (!data) return { title: "Compliance | Admin" };
-  return { title: `${data.compliance.name} | Compliance | Admin` };
+  return {
+    title: `${complianceLabelEn(data.compliance.name)} | Compliance | Admin`,
+  };
 }
 
 export default async function AdminCompliancePage({ params }: PageProps) {
@@ -37,6 +42,12 @@ export default async function AdminCompliancePage({ params }: PageProps) {
   const workerName = worker
     ? `${worker.first_name} ${worker.last_name}`.trim()
     : null;
+  const locale = await getLocale();
+  const tProf = await getTranslations({ locale, namespace: "professions" });
+  const professionLabel = worker
+    ? tProf(normalizeProfessionId(worker.profession))
+    : "—";
+  const complianceTitle = complianceLabelEn(compliance.name);
 
   return (
     <div className="flex w-full max-w-4xl flex-col gap-6">
@@ -44,7 +55,7 @@ export default async function AdminCompliancePage({ params }: PageProps) {
         backHref="/admin/compliance"
         backLabel="Back to compliance"
         eyebrow="Compliance document"
-        title={compliance.name}
+        title={complianceTitle}
         meta={`Uploaded ${format(
           new Date(compliance.created_at),
           "MMM d, yyyy",
@@ -78,11 +89,8 @@ export default async function AdminCompliancePage({ params }: PageProps) {
                 )
               }
             />
-            <AdminDetailRow
-              label="Profession"
-              value={worker?.profession ?? "—"}
-            />
-            <AdminDetailRow label="Document" value={compliance.name} />
+            <AdminDetailRow label="Profession" value={professionLabel} />
+            <AdminDetailRow label="Document" value={complianceTitle} />
           </dl>
         </CardContent>
       </Card>

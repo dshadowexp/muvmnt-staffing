@@ -1,31 +1,44 @@
 {{#> email-base previewText=previewText}}
   {{#*inline "body"}}
-    <p class="label">Staff request</p>
-    <h1>Booking<br>confirmed.</h1>
-    <p>Hi {{clientFirstName}}, your staff request is booked and workers have been notified.</p>
+    <p class="label">Shift assignment</p>
+    <h1>New shift<br>assigned.</h1>
+    <p>Hi {{workerFirstName}}, you have been assigned {{shiftCount}} new shift{{#if multipleShifts}}s{{/if}} from <strong>{{clientName}}</strong>. Please confirm or decline within <strong>30 minutes</strong> or the shift{{#if multipleShifts}}s{{/if}} will be reassigned.</p>
 
     <div class="details">
       <div class="detail-row">
-        <span class="detail-key">Schedule</span>
-        <span class="detail-value" style="text-align:right;max-width:60%">{{scheduleLine}}</span>
+        <span class="detail-key">Location</span>
+        <span class="detail-value" style="text-align:right;max-width:60%">{{address}}</span>
       </div>
       <div class="detail-row">
-        <span class="detail-key">Shifts</span>
-        <span class="detail-value">{{shiftsLine}}</span>
+        <span class="detail-key">Rate</span>
+        <span class="detail-value">{{rateLine}}</span>
       </div>
+      {{#if requirements}}
       <div class="detail-row">
-        <span class="detail-key">Amount charged</span>
-        <span class="detail-value">{{amountLine}}</span>
+        <span class="detail-key">Requirements</span>
+        <span class="detail-value" style="text-align:right;max-width:60%">{{requirements}}</span>
       </div>
+      {{/if}}
+      {{#if tasks}}
       <div class="detail-row">
-        <span class="detail-key">Reference</span>
-        <span class="detail-value" style="font-size:13px;word-break:break-all">{{requestId}}</span>
+        <span class="detail-key">Tasks</span>
+        <span class="detail-value" style="text-align:right;max-width:60%">{{tasks}}</span>
       </div>
+      {{/if}}
     </div>
 
-    <p style="margin-top:28px;margin-bottom:8px;font-size:14px;color:#666">View your request:</p>
-    <a href="{{requestUrl}}" class="btn">Open request</a>
+    <p style="margin-top:28px;margin-bottom:12px;font-size:14px;color:#666">Your shifts:</p>
+    {{#each shifts}}
+    <div style="padding:10px 0;border-bottom:1px solid #f0f0f0">
+      <span style="font-weight:600;font-size:14px">{{this.dateLine}}</span>
+      <span style="color:#666;font-size:14px;margin-left:8px">{{this.timeLine}}</span>
+    </div>
+    {{/each}}
 
-    <p style="margin-top:32px;font-size:13px;color:#888">You’ll receive updates as workers confirm their shifts.</p>
+    <p style="margin-top:28px;margin-bottom:8px;font-size:14px;color:#666">Respond within 30 minutes:</p>
+    <a href="{{acceptUrl}}" class="btn">Accept</a>
+    <a href="{{declineUrl}}" class="btn btn-outline" style="margin-left:12px">Decline</a>
+
+    <p style="margin-top:32px;font-size:13px;color:#888">Links expire in 30 minutes. If the buttons do not work, copy the URL into your browser.</p>
   {{/inline}}
 {{/email-base}}

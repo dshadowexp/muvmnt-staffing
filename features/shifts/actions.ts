@@ -6,7 +6,9 @@ import {
     checkInWorkerShift,
     checkOutWorkerShift,
     confirmWorkerShift,
+    confirmWorkerShiftsForRequest,
     declineWorkerShift,
+    declineWorkerShiftsForRequest,
     requestWorkerShiftTransfer,
 } from "./server/worker-actions";
 import { completeClientShift } from "./server/client-actions";
@@ -66,6 +68,22 @@ export async function declineWorkerShiftAction(
     const auth = await requireWorker();
     if (!auth.ok) return { error: auth.error };
     return toResult(await declineWorkerShift(auth.userId, shiftId));
+}
+
+export async function confirmWorkerShiftsForRequestAction(
+    requestId: string,
+): Promise<ShiftActionResult> {
+    const auth = await requireWorker();
+    if (!auth.ok) return { error: auth.error };
+    return toResult(await confirmWorkerShiftsForRequest(auth.userId, requestId));
+}
+
+export async function declineWorkerShiftsForRequestAction(
+    requestId: string,
+): Promise<ShiftActionResult> {
+    const auth = await requireWorker();
+    if (!auth.ok) return { error: auth.error };
+    return toResult(await declineWorkerShiftsForRequest(auth.userId, requestId));
 }
 
 export async function cancelWorkerShiftAction(
