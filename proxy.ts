@@ -110,7 +110,7 @@ export async function proxy(req: NextRequest) {
     }
 
     if (!session) {
-        const authRoute = pathHasPrefix(pathForRules, '/sign-up') ? '/sign-up' : '/sign-in';
+        const authRoute = '/sign-up';
         const signinUrl = new URL(authRoute, req.url);
         signinUrl.searchParams.set('redirect', pathname + search);
         return NextResponse.redirect(signinUrl);

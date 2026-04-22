@@ -105,22 +105,9 @@ function FindStaffForm({ jobProfile }: FindStaffFormProps) {
                     };
 
                     if (isClient) {
-                        const created = await createStaffRequestDraftAction({
-                            startDate: payload.startDate,
-                            endDate: payload.endDate,
-                            positions: payload.positions,
-                            dailyWindows: payload.dailyWindows,
-                            cellId: payload.cellId,
-                            profession: payload.profession,
-                            tasks: payload.tasks,
-                            requirements: payload.requirements,
-                        });
-                        if (created.error) {
-                            toast.error(created.message);
-                            return;
-                        }
+                        
                         router.push(
-                            `/dashboard/requests/${created.requestId}/pricing` as Parameters<
+                            `/dashboard/requests/new` as Parameters<
                                 typeof router.push
                             >[0],
                         );
