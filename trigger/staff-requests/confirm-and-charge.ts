@@ -17,8 +17,12 @@ import {
     type InsertedWorkerShift,
 } from "@/features/requests/server/shifts";
 import { createAdminClient } from "@/services/supabase/server";
+import { parseShiftLocationFromStaffRequestLocation } from "@/features/requests/lib/staff-request-location-json";
 import { STAFF_REQUEST_STATUS_CONFIRMED } from "@/features/requests/constants";
+import type { Json } from "@/services/supabase/types/database";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
+import { createShiftResponseToken } from "@/features/shifts/lib/shift-response-token";
+import { env } from "@/data/env/server";
 
 export const confirmAndChargePayloadSchema = z.object({
     requestId: z.string().min(1),
@@ -31,7 +35,14 @@ export type ConfirmAndChargeProgress = {
     detail?: string;
 };
 
-async function loadLocation(clientUserId: string): Promise<ShiftLocationPayload | null> {
+async function loadLocation(
+    clientUserId: string,
+    staffRequestLocation: Json,
+): Promise<ShiftLocationPayload | null> {
+    const fromRequest =
+        parseShiftLocationFromStaffRequestLocation(staffRequestLocation);
+    if (fromRequest) return fromRequest;
+
     const supabase = await createAdminClient();
     const { data } = await supabase
         .from("locations")
@@ -153,7 +164,12 @@ export const confirmAndChargeTask = schemaTask({
         if (!row)                    throw new Error("Staff request not found");
         if (row.pricing_rate == null) throw new Error("Pricing tier not selected");
         if (row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-            throw new Error("Staff request already confirmed");
+            await metadata.set("progress", {
+                step:   "done",
+                label:  "Confirmed",
+                detail: "Staff request already confirmed",
+            } satisfies ConfirmAndChargeProgress);
+            return;
         }
 
         const cache = row.coverage_data as CoverageDataCache | null;
@@ -167,6 +183,7 @@ export const confirmAndChargeTask = schemaTask({
             detail: `${(amountCents / 100).toFixed(2)} CAD`,
         } satisfies ConfirmAndChargeProgress);
 
+        // Create invoice here
         // const charge = await chargeStaffRequestOffSession({
         //     requestId: payload.requestId,
         //     amountCents,
@@ -185,7 +202,7 @@ export const confirmAndChargeTask = schemaTask({
         } satisfies ConfirmAndChargeProgress);
 
         const [location, clientName] = await Promise.all([
-            loadLocation(row.client_user_id),
+            loadLocation(row.client_user_id, row.location),
             loadClientName(row.client_user_id),
         ]);
 
@@ -246,8 +263,21 @@ export const confirmAndChargeTask = schemaTask({
         // One email + push per worker, grouped by all their shifts
         if (inserted.ok) {
             for (const [workerUserId, shifts] of inserted.workerShifts) {
-                const acceptUrl  = `${process.env.NEXT_PUBLIC_APP_URL}/requests/respond?action=accept&workerId=${workerUserId}&requestId=${payload.requestId}`;
-                const declineUrl = `${process.env.NEXT_PUBLIC_APP_URL}/requests/respond?action=decline&workerId=${workerUserId}&requestId=${payload.requestId}`;
+                const [acceptToken, declineToken] = await Promise.all([
+                    createShiftResponseToken({
+                        workerId:  workerUserId,
+                        requestId: payload.requestId,
+                        action:    "accept",
+                    }),
+                    createShiftResponseToken({
+                        workerId:  workerUserId,
+                        requestId: payload.requestId,
+                        action:    "decline",
+                    }),
+                ]);
+            
+                const acceptUrl  = `${env.APP_URL}/api/shifts/respond?token=${acceptToken}`;
+                const declineUrl = `${env.APP_URL}/api/shifts/respond?token=${declineToken}`;
             
                 notifyAll.push(
                     enqueueNotification({
@@ -271,7 +301,7 @@ export const confirmAndChargeTask = schemaTask({
                                 template: "shift-assigned",
                                 data: {
                                     count: shifts.length,
-                                    link:  `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${payload.requestId}`,
+                                    link:  `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/shifts/requests/${payload.requestId}`,
                                 },
                             },
                         ],

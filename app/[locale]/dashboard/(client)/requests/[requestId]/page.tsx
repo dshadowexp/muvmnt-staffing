@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { getSession } from "@/lib/get-session";
 import {
@@ -7,35 +7,28 @@ import {
 } from "@/features/requests/constants";
 import { getStaffRequest } from "@/features/requests/dal/queries";
 import { StaffRequestClientDetail } from "@/features/requests/components/staff-request-client-detail";
-import { StaffRequestWorkerDetail } from "@/features/requests/components/staff-request-worker-detail";
-import { getWorkerIdByUserId } from "@/features/shifts/dal/queries";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
 export default async function StaffRequestPage({
   params,
 }: {
   params: Promise<{ requestId: string }>;
 }) {
+  const locale = await getLocale();
   const { requestId: id } = await params;
   const session = await getSession();
-  if (!session) redirect("/sign-in");
+  if (!session) return redirect({ href: "/dashboard", locale });
 
-  if (session.role === "worker") {
-    const workerId = await getWorkerIdByUserId(session.userId);
-    if (!workerId) notFound();
-    return <StaffRequestWorkerDetail requestId={id} workerId={workerId} />;
+
+  const resume = await getStaffRequest(id);
+  if (resume.error || resume.data == null) notFound();
+
+  const staffRequest = resume.data;
+  if (staffRequest.status !== STAFF_REQUEST_STATUS_CONFIRMED) {
+    return redirect({ href: clientStaffRequestHref(staffRequest), locale });
   }
 
-  if (session.role === "client") {
-    const resume = await getStaffRequest(id);
-    if (resume.error || resume.data == null) notFound();
+  return <StaffRequestClientDetail staffRequest={staffRequest} />;
 
-    const staffRequest = resume.data;
-    if (staffRequest.status !== STAFF_REQUEST_STATUS_CONFIRMED) {
-      redirect(clientStaffRequestHref(staffRequest));
-    }
-
-    return <StaffRequestClientDetail staffRequest={staffRequest} />;
-  }
-
-  redirect("/dashboard");
 }

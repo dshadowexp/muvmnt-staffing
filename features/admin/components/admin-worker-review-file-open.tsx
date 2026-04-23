@@ -12,7 +12,7 @@ import {
 } from "./admin-file-review-dialog";
 
 type AuthRow = {
-  id: number;
+  id: string;
   type: string;
   file_url: string;
   is_verified: boolean;

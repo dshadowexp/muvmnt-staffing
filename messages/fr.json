@@ -534,6 +534,11 @@
           ]
         },
         {
+          "id": "stripe-services",
+          "title": "Conditions générales d'utilisation Stripe",
+          "html": "<p>Les services de paiement pour les professionnels et établissements de santé sur ReadyKare sont fournis par Stripe et sont soumis au <a href=\"https://stripe.com/connect-account/legal/full\" target=\"_blank\" rel=\"noopener noreferrer\">Stripe Connected Account Agreement</a> (accord sur les comptes connectés Stripe), qui inclut les <a href=\"https://stripe.com/fr/legal/ssa\" target=\"_blank\" rel=\"noopener noreferrer\">Modalités de service de Stripe</a> (ensemble, les &laquo;&nbsp;Conditions générales d'utilisation Stripe&nbsp;&raquo; ou &laquo;&nbsp;Stripe Services Agreement&nbsp;&raquo;). En acceptant les présentes Conditions d'utilisation ou en continuant à utiliser ReadyKare en tant que professionnel ou établissement de santé, vous acceptez d'être lié par les Conditions générales d'utilisation Stripe, lesquelles peuvent être modifiées par Stripe de temps à autre. Dans la mesure où ReadyKare permet d'effectuer les paiements par l'intermédiaire de Stripe, vous acceptez de fournir à ReadyKare des renseignements exacts et complets sur vous et votre activité, et vous autorisez ReadyKare à les communiquer, ainsi que les renseignements sur les transactions liées à votre utilisation des services de traitement des paiements fournis par Stripe.</p>"
+        },
+        {
           "id": "disclaimers",
           "title": "Avertissements et limites",
           "paragraphs": [
@@ -656,7 +661,7 @@
       "tooManyRequests": "Trop de tentatives depuis cet appareil. Réessayez plus tard.",
       "networkRequest": "Erreur réseau. Vérifiez votre connexion et réessayez.",
       "generic": "Quelque chose s'est mal passé. Veuillez réessayer.",
-      "accountExistsDifferentCredential": "Un compte avec ce courriel existe déjà avec une autre méthode de connexion. Utilisez le fournisseur associé à ce courriel.",
+      "accountExistsDifferentCredential": "Un compte avec cette adresse courriel existe déjà. Veuillez utiliser une autre adresse courriel.",
       "captchaCheckFailed": "La vérification de sécurité a échoué. Actualisez la page et réessayez.",
       "codeExpired": "Ce code SMS a expiré. Demandez un nouveau code.",
       "credentialAlreadyInUse": "Cette méthode de connexion est déjà liée à un autre compte.",
@@ -857,9 +862,9 @@
         "subtitle": "Voici un aperçu de votre activité.",
         "shiftsCompleted": "Quarts terminés",
         "totalTimeCovered": "Temps total couvert",
-        "makeRequest": "Créer une demande",
+        "makeRequest": "Passer une demande",
         "makeRequestSubtitle": "Créez une nouvelle demande de personnel pour commencer.",
-        "newStaffRequest": "Nouvelle demande de personnel",
+        "newStaffRequest": "Demander du nouveau personnel",
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
         "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui."
@@ -873,8 +878,12 @@
         "emptySuffix": "."
       },
       "billing": {
-        "title": "Facturation",
-        "subtitle": "Modes de paiement et historique des paiements.",
+        "title": "Compte de facturation",
+        "subtitle": "Gérez les modes de paiement et l'historique des factures.",
+        "portalCardTitle": "Votre facturation",
+        "portalCardDescription": "Gérez les modes de paiement et l'historique des factures.",
+        "manageBilling": "Gérer la facturation",
+        "manageBillingPending": "Ouverture…",
         "cardsTitle": "Cartes de crédit/débit",
         "cardsDescription": "Gérez les cartes utilisées pour les paiements. Vous pouvez enregistrer jusqu'à trois cartes et choisir celle utilisée par défaut pour les prélèvements.",
         "addCardAria": "Ajouter un autre mode de paiement",
@@ -1099,7 +1108,7 @@
         },
         "billing": {
           "title": "Facturation",
-          "description": "Ajoutez un mode de paiement pour autoriser les placements de personnel."
+          "description": "Configurez votre compte de facturation pour autoriser les placements de personnel."
         }
       },
       "errors": {
@@ -1218,7 +1227,8 @@
           "verificationStatusPending": "En attente de révision",
           "none": "—",
           "saving": "Enregistrement…",
-          "removeFileFailed": "Échec de la suppression du fichier dans le stockage."
+          "removeFileFailed": "Échec de la suppression du fichier dans le stockage.",
+          "documentUploadFailed": "Impossible de téléverser le document. Veuillez réessayer."
         },
         "compliance": {
           "intro": "Téléversez les documents de conformité que vous possédez. Vous pouvez passer les éléments manquants et les ajouter plus tard depuis votre tableau de bord.",
@@ -1299,8 +1309,11 @@
           "somethingWentWrong": "Une erreur s'est produite"
         },
         "billing": {
+          "begin": "Commencer la configuration",
+          "complete": "Mode de paiement ajouté",
           "finish": "Terminer",
           "save": "Enregistrer",
+          "somethingWentWrong": "Une erreur s'est produite",
           "loadFailed": "Échec du chargement du formulaire de paiement.",
           "loadFailedInline": "Échec du chargement du formulaire de paiement",
           "paymentFailed": "Paiement refusé",
@@ -1387,7 +1400,7 @@
     "interview": {
       "candidateFallback": "Candidat",
       "setup": {
-        "durationNotice": "Cet entretien dure 10 minutes. Activez les deux appareils avant de commencer.",
+        "durationNotice": "Cet entretien dure {minutes, plural, one {# minute} other {# minutes}}. Activez les deux appareils avant de commencer.",
         "cameraOff": "Caméra désactivée",
         "cameraLabel": "Caméra",
         "cameraDenied": "Accès à la caméra refusé.",
@@ -1415,12 +1428,12 @@
       },
       "profession": {
         "title": "Entretien professionnel — {profession}",
-        "description": "Un entretien vocal de 10 minutes mené par l'IA, adapté à votre rôle de {profession}. Vous serez interrogé(e) sur vos connaissances cliniques, votre expérience et vos compétences professionnelles.",
+        "description": "Un entretien vocal de {minutes, plural, one {# minute} other {# minutes}} mené par l'IA, adapté à votre rôle de {profession}. Vous serez interrogé(e) sur vos connaissances cliniques, votre expérience et vos compétences professionnelles.",
         "fallbackProfession": "Professionnel de la santé"
       },
       "resume": {
         "uploadTitle": "Entretien basé sur le CV",
-        "uploadDescription": "Téléversez votre CV pour commencer. Nous mènerons un entretien comportemental de 10 minutes basé sur votre CV.",
+        "uploadDescription": "Téléversez votre CV pour commencer. Nous mènerons un entretien comportemental de {minutes, plural, one {# minute} other {# minutes}} basé sur votre CV.",
         "fileLabel": "CV",
         "fileHint": "PDF, Word ou texte brut — 10 Mo maximum.",
         "scanning": "Analyse du CV…",
@@ -1428,7 +1441,7 @@
         "scanFailed": "Échec de l'analyse du CV",
         "genericError": "Une erreur est survenue",
         "interviewTitle": "Entretien comportemental basé sur le CV",
-        "interviewDescription": "Un entretien comportemental de 10 minutes mené par l'IA basé sur votre CV. Vous serez interrogé(e) sur des situations et expériences en utilisant la méthode STAR."
+        "interviewDescription": "Un entretien comportemental de {minutes, plural, one {# minute} other {# minutes}} mené par l'IA basé sur votre CV. Vous serez interrogé(e) sur des situations et expériences en utilisant la méthode STAR."
       },
       "review": {
         "back": "Retour aux évaluations",
@@ -1635,6 +1648,10 @@
       "agreedHourlyRate": "Taux horaire convenu",
       "amountDueToday": "Montant dû aujourd’hui",
       "estimatedTotalOnCompletion": "Total estimé à l'achèvement",
+      "coverageBillingInvoiceTitle": "Facturation",
+      "coverageBillingInvoiceDescription": "Nous enverrons les factures au compte enregistré pour les heures complétées. Aucun débit n'est effectué à cette étape.",
+      "coverageSetupBillingTitle": "Configurer la facturation",
+      "coverageSetupBillingDescription": "Ajoutez un mode de paiement par défaut dans le portail pour continuer.",
       "paymentMethodOnFileTitle": "Mode de paiement enregistré",
       "paymentMethodPickDefaultHint": "Choisissez une carte dans la liste pour définir votre mode de paiement par défaut pour ce débit.",
       "choosePaymentMethodTitle": "Choisir le mode de paiement",

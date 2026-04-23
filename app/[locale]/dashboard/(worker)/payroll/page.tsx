@@ -7,7 +7,6 @@ import {
 } from "@/features/payments/payroll/dal/queries";
 import { CompletePayrollSetupButton } from "@/features/payments/payroll/components/complete-payroll-setup-button";
 import { WorkerPayrollBalances } from "@/features/payments/payroll/components/worker-payroll-balances";
-import { TransfersTable } from "./_transfers-table";
 import { TipsTable } from "./_tips-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,11 +67,6 @@ function TransfersSkeleton() {
   );
 }
 
-async function TransferHistory() {
-  const transfers = await getTransfersForWorker();
-  return <TransfersTable transfers={transfers} />;
-}
-
 async function TipHistory() {
   const tips = await getTipsForWorker();
   return <TipsTable tips={tips} />;
@@ -91,18 +85,6 @@ export default async function WorkerPayrollPage() {
       <Suspense fallback={<PayrollSkeleton />}>
         <PayrollContent />
       </Suspense>
-
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">
-          {t("transferHistory")}
-        </h2>
-        <p className="text-muted-foreground mt-1 mb-4 text-sm">
-          {t("transferHistorySubtitle")}
-        </p>
-        <Suspense fallback={<TransfersSkeleton />}>
-          <TransferHistory />
-        </Suspense>
-      </div>
 
       <div>
         <h2 className="text-lg font-semibold tracking-tight">{t("tips")}</h2>

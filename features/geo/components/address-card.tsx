@@ -180,7 +180,7 @@ export function AddressCard({
             <div className="flex h-8 w-8 shrink-0 items-center justify-center">
               {resolving ? (
                 <CircleDashedIcon
-                  className="size-4 text-muted-foreground"
+                  className="size-4 text-muted-foreground animate-spin"
                   aria-label={t("updatingAddress")}
                 />
               ) : (

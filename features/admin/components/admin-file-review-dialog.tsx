@@ -39,7 +39,7 @@ export type AdminFileReviewOpen =
   | (ReviewBase & {
       isVerified: boolean;
       verifyKind: "authorization";
-      recordId: number;
+      recordId: string;
     });
 
 function isVerifiable(

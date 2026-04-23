@@ -13,6 +13,8 @@ import {
 export type LegalSection = {
   id: string;
   title: string;
+  /** Static HTML for inline links (e.g. third-party legal). Supersedes paragraphs/bullets/groups/note when set. */
+  html?: string;
   paragraphs?: string[];
   bullets?: string[];
   groups?: { heading: string; bullets: string[] }[];
@@ -162,6 +164,15 @@ function MetaChip({ label, value }: { label: string; value: string }) {
 }
 
 function SectionBody({ section }: { section: LegalSection }) {
+  if (section.html) {
+    return (
+      <div
+        className="space-y-3 [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2"
+        dangerouslySetInnerHTML={{ __html: section.html }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-3">
       {section.paragraphs?.map((p, i) => (

@@ -50,7 +50,7 @@ export type AdminShiftRow = {
 };
 
 export type AdminAuthorizationRow = {
-  id: number;
+  id: string;
   user_id: string;
   type: string;
   is_verified: boolean;
@@ -607,7 +607,7 @@ export type AdminAuthorizationReview = {
 
 export const getAdminAuthorizationReview = cache(
   async (
-    authorizationId: number,
+    authorizationId: string,
   ): Promise<AdminAuthorizationReview | null> => {
     await requireAdminSession();
     const supabase = await createAdminClient();

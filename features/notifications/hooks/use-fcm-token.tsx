@@ -41,6 +41,7 @@ export const useFcmToken = () => {
 
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
                 const token = await getNotificationPermissionAndToken();
+                console.log("token", token);
 
                 if (Notification.permission === 'denied') {
                     if (byPass) alert("Please enable notifications in your browser settings.");

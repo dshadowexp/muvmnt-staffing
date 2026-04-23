@@ -138,7 +138,7 @@ export function WorkerAssessmentsHub({
               Complete assessments to boost your profile and get selected for shifts faster.
             </p>
           </div>
-          <Button
+          {/* <Button
             type="button"
             size="lg"
             className="text-muted-foreground hover:text-foreground inline-flex w-fit shrink-0 items-center gap-2 rounded-lg border border-dashed border-border bg-muted/15 px-3 py-2 text-sm font-medium transition-colors hover:border-primary/40 hover:bg-muted/30"
@@ -146,7 +146,7 @@ export function WorkerAssessmentsHub({
           >
             <PlusIcon className="size-4" />
             Add skill
-          </Button>
+          </Button> */}
         </div>
 
         <div className="grid gap-4 p-1 sm:grid-cols-2 xl:grid-cols-3">
@@ -162,13 +162,13 @@ export function WorkerAssessmentsHub({
             <InterviewSlot type="resume" promise={resumeInterviewPromise} />
           </Suspense>
 
-          <Suspense fallback={<SkillsGridSkeleton />}>
+          {/* <Suspense fallback={<SkillsGridSkeleton />}>
             <SkillsGridSlot promise={skillsPromise} setAddOpen={setAddOpen} />
-          </Suspense>
+          </Suspense> */}
         </div>
       </div>
 
-      <Dialog open={addOpen} onOpenChange={handleAddDialogChange}>
+      {/* <Dialog open={addOpen} onOpenChange={handleAddDialogChange}>
         <DialogContent
           className="flex max-h-[min(90vh,720px)] max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton
@@ -189,7 +189,7 @@ export function WorkerAssessmentsHub({
             </React.Suspense>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 }

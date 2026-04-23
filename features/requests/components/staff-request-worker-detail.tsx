@@ -28,6 +28,7 @@ import {
   type StaffRequestSiteRow,
 } from "@/features/requests/dal/worker-request-queries";
 import { WorkerStaffRequestActions } from "@/features/requests/components/worker-staff-request-actions";
+import { AssignmentResponseTimer } from "@/features/shifts/components/assignment-response-timer";
 import { ShiftsTable } from "@/features/shifts/components/shifts-table";
 import { listShiftsForWorkerOnRequest } from "@/features/shifts/dal/queries";
 import { attachResolvedWorkerPhotos } from "@/features/shifts/lib/resolve-worker-photo-url";
@@ -108,6 +109,25 @@ function hourlyLineFromRates(rates: number[]): string {
   return `${formatJobHourlyRateLine(min)} – ${formatJobHourlyRateLine(max)}`;
 }
 
+/** Earliest `shifts.created_at` among scheduled shifts (same basis as home “shift request” cards). */
+function earliestScheduledAssignmentCreatedAt(
+  shifts: Awaited<ReturnType<typeof listShiftsForWorkerOnRequest>>,
+): string | null {
+  let earliest: string | null = null;
+  for (const s of shifts) {
+    if (normalizeShiftStatus(s.status) !== SHIFT_STATUS_SCHEDULED) continue;
+    const created = s.created_at;
+    if (typeof created !== "string" || !created) continue;
+    if (
+      earliest === null ||
+      new Date(created).getTime() < new Date(earliest).getTime()
+    ) {
+      earliest = created;
+    }
+  }
+  return earliest;
+}
+
 async function SiteTile({
   requestId,
   workerId,
@@ -123,7 +143,14 @@ async function SiteTile({
   return (
     <InfoTile icon={MapPinIcon} title={t("siteTitle")}>
       {addressLine ? (
-        <p className="text-foreground text-sm">{addressLine}</p>
+        <div className="space-y-1">
+          <p className="text-foreground text-sm">{addressLine}</p>
+          {res.location?.instructions ? (
+            <p className="text-muted-foreground text-xs leading-snug">
+              {res.location.instructions}
+            </p>
+          ) : null}
+        </div>
       ) : (
         <p className="text-muted-foreground text-sm">{t("siteNone")}</p>
       )}
@@ -292,21 +319,23 @@ export async function StaffRequestWorkerDetail({
   const hasScheduled = shiftsForActions.some(
     (s) => normalizeShiftStatus(s.status) === SHIFT_STATUS_SCHEDULED,
   );
+  const scheduledAssignedAtIso =
+    earliestScheduledAssignmentCreatedAt(shiftsForActions);
 
   return (
     <div className="w-full max-w-5xl space-y-8">
-      <BackLink backHref="/dashboard" title={t("backTitle")} />
+      <BackLink backHref="/dashboard/shifts" title={t("backTitle")} />
 
       <header className="space-y-3">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-              {t("requestLabel")}
+              {t("requestLabel")} #{staffRequest.id.substring(0, 8)}
             </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
-              #{staffRequest.id.substring(0, 8)}
-            </h1>
           </div>
+          {scheduledAssignedAtIso ? (
+            <AssignmentResponseTimer assignedAtIso={scheduledAssignedAtIso} />
+          ) : null}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

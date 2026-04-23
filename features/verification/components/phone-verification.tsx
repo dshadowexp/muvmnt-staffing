@@ -29,7 +29,7 @@ import { Check, CircleDashed } from "lucide-react";
 import { formatPhoneToE164 } from "@/lib/formatters";
 import posthog from "posthog-js";
 import { ConfirmationResult, linkWithCredential, PhoneAuthProvider, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { auth } from "@/services/firebase/auth";
+import { auth, getAuthErrorKey } from "@/services/firebase/auth";
 
 type PhoneStep = "input" | "otp" | "done";
 
@@ -60,6 +60,7 @@ export function PhoneVerification() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const t = useTranslations("kyc.onboarding.forms.verification");
   const tVal = useTranslations("kyc.onboarding.validation");
+  const tErrors = useTranslations("auth.errors");
   const phoneSchema = useMemo(
     () => buildPhoneSchema(tVal, country),
     [tVal, country],
@@ -147,8 +148,9 @@ export function PhoneVerification() {
       setStep("otp");
       startCooldown();
     } catch (e) {
+      const key = getAuthErrorKey(e);
       setError("phone", {
-        message: e instanceof Error ? e.message : t("phoneSendFailed"),
+        message: key ? tErrors(key) : t("phoneSendFailed"),
       });
     } finally {
       setSending(false);
@@ -172,7 +174,6 @@ export function PhoneVerification() {
       return;
     }
 
-
     setVerifying(true);
     try {
       const credential = PhoneAuthProvider.credential(
@@ -187,8 +188,9 @@ export function PhoneVerification() {
         setStep("done");
     } catch (e) {
       console.error(e);
+      const key = getAuthErrorKey(e);
       setError("code", {
-        message: e instanceof Error ? e.message : t("verifyFailed"),
+        message: key ? tErrors(key) : t("verifyFailed"),
       });
     } finally {
       setVerifying(false);
@@ -223,7 +225,7 @@ export function PhoneVerification() {
           <CircleDashed className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
         </div>
       ) : isVerified ? (
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {verifiedPhone ?? user?.phoneNumber ?? t("numberConfirmed")}
         </p>
       ) : step === "input" ? (

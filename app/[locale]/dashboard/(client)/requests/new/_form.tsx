@@ -148,7 +148,6 @@ export function NewStaffRequestForm({
             toast.error(message);
             return;
         }
-        toast.success(message);
         router.refresh();
     }
 
@@ -192,6 +191,14 @@ export function NewStaffRequestForm({
                         profession: jobProfile.profession,
                         tasks: jobProfile.tasks,
                         requirements: jobProfile.requirements,
+                        location: {
+                            lat: initialLocation.lat,
+                            lng: initialLocation.lng,
+                            address: initialLocation.address,
+                            postal_code: initialLocation.postalCode,
+                            address_line_2: initialLocation.addressLine2,
+                            instructions: initialLocation.instructions,
+                        },
                         ...(resumeRequestId ? { requestId: resumeRequestId } : {}),
                     });
 

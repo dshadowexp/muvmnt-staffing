@@ -1,7 +1,9 @@
+import "server-only";
 import { createAdminClient } from "@/services/supabase/server";
 import type { UserRole } from "@/types/auth";
 import type { Database } from "@/services/supabase/types/database";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
+import { env } from "@/data/env/server";
 
 
 // import arcjet, { validateEmail } from "@/services/arcjet/client";
@@ -81,7 +83,7 @@ export async function findOrCreateUser(params: {
 
     // First-time sign-up — schedule a follow-up nudge 10 minutes from now.
     // Idempotent on user id, so retries / double-clicks collapse.
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+    const baseUrl = env.APP_URL;
 
     await enqueueNotification({
         userId: newUser.id,

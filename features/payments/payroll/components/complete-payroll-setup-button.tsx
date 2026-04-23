@@ -20,8 +20,6 @@ export function CompletePayrollSetupButton() {
           ? error.message
           : "Could not start payroll setup.",
       );
-    } finally {
-      setPending(false);
     }
   }
 

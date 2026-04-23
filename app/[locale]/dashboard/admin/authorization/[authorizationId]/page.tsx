@@ -25,8 +25,8 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { authorizationId } = await params;
-  const id = Number(authorizationId);
-  if (!Number.isFinite(id)) return { title: "Authorization | Admin" };
+  const id = authorizationId;
+  if (!id) return { title: "Authorization | Admin" };
   const data = await getAdminAuthorizationReview(id);
   if (!data) return { title: "Authorization | Admin" };
   return { title: `${data.authorization.type} | Authorization | Admin` };
@@ -34,8 +34,8 @@ export async function generateMetadata({
 
 export default async function AdminAuthorizationPage({ params }: PageProps) {
   const { authorizationId } = await params;
-  const id = Number(authorizationId);
-  if (!Number.isFinite(id)) notFound();
+  const id = authorizationId;
+  if (!id) notFound();
 
   const data = await getAdminAuthorizationReview(id);
   if (!data) notFound();

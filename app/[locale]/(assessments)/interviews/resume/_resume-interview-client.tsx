@@ -5,6 +5,7 @@ import { VoiceProvider } from "@humeai/voice-react";
 import { useLocale, useTranslations } from "next-intl";
 import { InterviewShell } from "../_components/interview-shell";
 import { ResumeUpload } from "./_resume-upload";
+import { INTERVIEW_DURATION_SECS } from "@/lib/constants";
 import type { InterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import type { InterviewRow } from "@/features/interviews/dal/queries";
 
@@ -48,14 +49,16 @@ export function ResumeInterviewClient({
       <InterviewShell
         accessToken={accessToken}
         subject="resume"
-        interviewId={existingInterview?.id ?? undefined}
+        interviewId={ready.interviewId}
         subjectRef={{
           key: ready.ref.key,
           body: ready.ref.body.slice(0, 4000),
           limit: ready.ref.limit,
         }}
         title={t("interviewTitle")}
-        description={t("interviewDescription")}
+        description={t("interviewDescription", {
+          minutes: INTERVIEW_DURATION_SECS / 60,
+        })}
         sessionVariables={{
           language: locale,
           candidate_name: userName,

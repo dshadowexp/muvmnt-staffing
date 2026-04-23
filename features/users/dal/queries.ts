@@ -1,6 +1,6 @@
+import "server-only";
 import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
-
 
 export async function getCurrentUser() {
     const session = await getSession();

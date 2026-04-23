@@ -25,17 +25,28 @@ export function AssignmentResponseTimer({
     return start + RESPONSE_WINDOW_MS;
   }, [assignedAtIso]);
 
-  const [now, setNow] = React.useState(() => Date.now());
+  /** `null` until after mount so SSR + first client paint match (avoids Date.now hydration mismatch). */
+  const [now, setNow] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     if (deadlineMs == null) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    const tick = () => setNow(Date.now());
+    tick();
+    const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
   }, [deadlineMs]);
 
   if (deadlineMs == null) {
     return (
       <span className="text-muted-foreground text-xs tabular-nums">—</span>
+    );
+  }
+
+  if (now === null) {
+    return (
+      <span className="text-amber-600 dark:text-amber-500 text-xs font-medium tabular-nums">
+        —
+      </span>
     );
   }
 

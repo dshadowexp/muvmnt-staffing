@@ -176,7 +176,7 @@ export function AddressInput({
                 aria-label="Loading suggestions"
                 role="status"
               >
-                <CircleDashedIcon className="size-4 text-muted-foreground" />
+                <CircleDashedIcon className="size-4 text-muted-foreground animate-spin" />
               </span>
             ) : (
               suffix

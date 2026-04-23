@@ -534,6 +534,11 @@
           ]
         },
         {
+          "id": "stripe-services",
+          "title": "Stripe Services Agreement",
+          "html": "<p>Payment processing services for healthcare professionals and facilities on ReadyKare are provided by Stripe and are subject to the <a href=\"https://stripe.com/connect-account/legal/full\" target=\"_blank\" rel=\"noopener noreferrer\">Stripe Connected Account Agreement</a>, which includes the <a href=\"https://stripe.com/legal/ssa\" target=\"_blank\" rel=\"noopener noreferrer\">Stripe Terms of Service</a> (collectively, the &ldquo;Stripe Services Agreement&rdquo;). By agreeing to these Terms of Use or continuing to operate as a healthcare professional or facility on ReadyKare, you agree to be bound by the Stripe Services Agreement, as the same might be modified by Stripe from time to time. As a condition of ReadyKare enabling payment processing services through Stripe, you agree to provide ReadyKare accurate and complete information about you and your business, and you authorize ReadyKare to share it and transaction information related to your use of the payment processing services provided by Stripe.</p>"
+        },
+        {
           "id": "disclaimers",
           "title": "Disclaimers & limits",
           "paragraphs": [
@@ -656,7 +661,7 @@
       "tooManyRequests": "Too many attempts from this device. Please try again later.",
       "networkRequest": "Network error. Check your connection and try again.",
       "generic": "Something went wrong. Please try again.",
-      "accountExistsDifferentCredential": "An account with this email already exists with a different sign-in method. Use the provider linked to this email.",
+      "accountExistsDifferentCredential": "An account with this contact already exists. Please use a different contact.",
       "captchaCheckFailed": "Security verification failed. Refresh the page and try again.",
       "codeExpired": "That SMS code has expired. Request a new code.",
       "credentialAlreadyInUse": "This sign-in method is already linked to a different account.",
@@ -857,9 +862,9 @@
         "subtitle": "Here's a snapshot of your activity.",
         "shiftsCompleted": "Shifts completed",
         "totalTimeCovered": "Total time covered",
-        "makeRequest": "Make request",
+        "makeRequest": "Place request",
         "makeRequestSubtitle": "Create a new staff request to get started.",
-        "newStaffRequest": "New staff request",
+        "newStaffRequest": "Request new staff",
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today."
@@ -873,8 +878,12 @@
         "emptySuffix": "."
       },
       "billing": {
-        "title": "Billing",
-        "subtitle": "Payment methods and payment history.",
+        "title": "Billing account",
+        "subtitle": "Manage payment methods and invoice history.",
+        "portalCardTitle": "Your billing",
+        "portalCardDescription": "Manage payment methods and invoice history.",
+        "manageBilling": "Manage billing",
+        "manageBillingPending": "Opening…",
         "cardsTitle": "Credit/debit cards",
         "cardsDescription": "Manage cards that will be used for payments. You can save up to three cards and choose which one is the default for charges.",
         "addCardAria": "Add another payment method",
@@ -1099,7 +1108,7 @@
         },
         "billing": {
           "title": "Billing",
-          "description": "Add a payment method to authorize staffing placements."
+          "description": "Setup your billing account to authorize seamless staffing placements."
         }
       },
       "errors": {
@@ -1218,7 +1227,8 @@
           "verificationStatusPending": "Pending review",
           "none": "—",
           "saving": "Saving…",
-          "removeFileFailed": "Failed to remove file from storage."
+          "removeFileFailed": "Failed to remove file from storage.",
+          "documentUploadFailed": "Could not upload your document. Please try again."
         },
         "compliance": {
           "intro": "Upload any compliance documents you have on file. You can skip items you don't have yet and add them later from your dashboard.",
@@ -1299,8 +1309,11 @@
           "somethingWentWrong": "Something went wrong"
         },
         "billing": {
+          "begin": "Begin setup",
+          "complete": "Payment method added",
           "finish": "Finish",
           "save": "Save",
+          "somethingWentWrong": "Something went wrong",
           "loadFailed": "Failed to load payment form.",
           "loadFailedInline": "Failed to load payment form",
           "paymentFailed": "Payment failed",
@@ -1387,7 +1400,7 @@
     "interview": {
       "candidateFallback": "Candidate",
       "setup": {
-        "durationNotice": "This interview is 10 minutes. Enable both devices before starting.",
+        "durationNotice": "This interview is {minutes, plural, one {# minute} other {# minutes}}. Enable both devices before starting.",
         "cameraOff": "Camera off",
         "cameraLabel": "Camera",
         "cameraDenied": "Camera access denied.",
@@ -1415,12 +1428,12 @@
       },
       "profession": {
         "title": "{profession} Professional Interview",
-        "description": "A 10-minute AI-led voice interview tailored to your role as a {profession}. You will be asked questions about your clinical knowledge, experience, and professional competencies.",
+        "description": "A {minutes}-minute AI-led voice interview tailored to your role as a {profession}. You will be asked questions about your clinical knowledge, experience, and professional competencies.",
         "fallbackProfession": "Healthcare Professional"
       },
       "resume": {
         "uploadTitle": "Resume Interview",
-        "uploadDescription": "Upload your resume to begin. We will conduct a 10-minute behavioural interview based on your resume.",
+        "uploadDescription": "Upload your resume to begin. We will conduct a {minutes}-minute behavioural interview based on your resume.",
         "fileLabel": "Resume",
         "fileHint": "PDF, Word, or plain text — max 10 MB.",
         "scanning": "Scanning resume…",
@@ -1428,7 +1441,7 @@
         "scanFailed": "Failed to scan resume",
         "genericError": "Something went wrong",
         "interviewTitle": "Resume Behavioural Interview",
-        "interviewDescription": "A 10-minute AI-led behavioural interview based on your resume. You will be asked situational and experience-based questions using the STAR method."
+        "interviewDescription": "A {minutes}-minute AI-led behavioural interview based on your resume. You will be asked situational and experience-based questions using the STAR method."
       },
       "review": {
         "back": "Back to assessments",
@@ -1635,6 +1648,10 @@
       "agreedHourlyRate": "Agreed hourly rate",
       "amountDueToday": "Amount due today",
       "estimatedTotalOnCompletion": "Estimated total on completion",
+      "coverageBillingInvoiceTitle": "Invoicing",
+      "coverageBillingInvoiceDescription": "We will send invoices to your account on file for completed hours. No charge is taken on this step.",
+      "coverageSetupBillingTitle": "Set up billing",
+      "coverageSetupBillingDescription": "Add a default payment method in the portal to continue.",
       "paymentMethodOnFileTitle": "Payment method on file",
       "paymentMethodPickDefaultHint": "Choose a card in the list to set your default for this charge.",
       "choosePaymentMethodTitle": "Choose payment method",

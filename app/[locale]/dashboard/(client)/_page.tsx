@@ -163,7 +163,6 @@ export default async function ClientHomePage() {
           <StatsCards />
         </Suspense>
       </div>
-      
 
       <div>
         <h1 className="text-xl font-semibold tracking-tight">

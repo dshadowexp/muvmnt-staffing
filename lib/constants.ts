@@ -4,70 +4,53 @@ import type {
   WorkAuthorization,
 } from "@/types";
 import { PROFESSION_IDS, type ProfessionalRole } from "@/lib/professions";
+import { UserRole } from "@/types/auth";
+import { env } from "@/data/env/client";
 
 // ── Site ─────────────────────────────────────────────────────────────────────
 // Brand / contact data. Localized copy lives in messages/{locale}.json.
 export const SITE_NAME  = "ReadyKare";
 export const SITE_PHONE = "1-437-979-7797";
 export const SITE_EMAIL = "info@readykare.ca";
-export const PUBLIC_PATHS: string[] = [
+// ─── Public (no session required) ────────────────────────────────────────────
+
+export const PUBLIC_PATHS = new Set([
   "/",
   "/find-staff",
   "/find-work",
   "/faq",
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
   "/privacy",
   "/terms",
-];
-export const NON_ORG_PREFIXES: string[] = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-  "/find-staff",
-  "/find-work",
-  "/privacy",
-  "/terms",
+]);
+
+export const PUBLIC_PREFIXES: string[] = [
   "/refer",
+  "/shifts/respond",   // ← email action outcome pages
 ];
+
+// ─── Auth pages (redirect away if already signed in) ─────────────────────────
+
+export const AUTH_PATHS = new Set([
+  "/sign-in",
+  "/sign-up",
+  "/forgot-password",
+]);
+
+// ─── Inactive / onboarding (confined to these when isActive = false) ─────────
+
 export const INACTIVE_PREFIXES: string[] = [
   "/onboarding",
   "/review",
 ];
 
-export const WORKER_DASHBOARD_PREFIXES: string[] = [
-  "/dashboard",
-  "/dashboard/shifts",
-  "/dashboard/requests",
-  "/dashboard/availability",
-  "/dashboard/profile",
-  "/dashboard/assessments",
-  "/dashboard/compliance",
-  "/dashboard/payroll",
-  "/dashboard/referrals",
-  "/interviews",
-  "/quizes",
-];
+// ─── Role-based dashboard roots ───────────────────────────────────────────────
+// Only the root prefix is needed — startsWith handles all sub-routes
 
-export const CLIENT_DASHBOARD_PREFIXES: string[] = [
-  "/dashboard",
-  "/dashboard/requests",
-  "/dashboard/account",
-  "/dashboard/billing",
-  "/dashboard/referrals",
-];
-
-export const ADMIN_DASHBOARD_PREFIXES: string[] = [
-  "/dashboard/admin",
-  "/dashboard/admin/requests",
-  "/dashboard/admin/shifts",
-  "/dashboard/admin/authorization",
-  "/dashboard/admin/compliance",
-  "/dashboard/admin/clients",
-  "/dashboard/admin/workers",
-  "/dashboard/referrals",
-];
+export const DASHBOARD_PREFIXES: Record<UserRole, string[]> = {
+  worker: ["/dashboard", "/interviews", ], // "/quiizes feature is implemented
+  client: ["/dashboard"],
+  admin:  ["/dashboard/admin", "/dashboard/referrals"],
+};
 
 // ── Professional (Find Work) ──────────────────────────────────────────────────
 export const WORK_AUTHORIZATION_TYPES: WorkAuthorization[] = [
@@ -184,3 +167,6 @@ export const TRUST_LOGOS = [
 
 export const H3_K = 20;
 export const H3_RESOLUTION = 8;
+
+export const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 3 * 60 : 8 * 60;
+export const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 1.5 * 60 : 2.5 * 60;

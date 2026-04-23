@@ -93,7 +93,7 @@ export function AdminWorkerStatusEditor({
     }
     setSaving(true);
     try {
-      const res = await updateAdminWorkerStatus(workerId, status);
+      const res = await updateAdminWorkerStatus(workerId, true);
       if (!res.ok) {
         toast.error(res.message);
         return;

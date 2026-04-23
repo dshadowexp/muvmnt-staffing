@@ -81,11 +81,11 @@ export async function tipClientShift(
     if (!billing) {
         return { ok: false, message: "No billing account on file" };
     }
-    if (!billing.defaultPaymentMethodId) {
+    if (!billing.stripeCustomerId) {
         return {
             ok: false,
-            code: "no_payment_method",
-            message: "No saved payment method — add a card first",
+            code: "no_stripe_customer_id",
+            message: "No Stripe customer ID — add a card first",
         };
     }
 
@@ -107,35 +107,6 @@ export async function tipClientShift(
 
     const stripe = getStripeServer();
 
-    // Re-validate the saved card is still attached to avoid a confusing
-    // off-session decline downstream.
-    let pm: Stripe.PaymentMethod;
-    try {
-        pm = await stripe.customers.retrievePaymentMethod(
-            billing.stripeCustomerId,
-            billing.defaultPaymentMethodId,
-        );
-    } catch (err) {
-        if (
-            err instanceof Stripe.errors.StripeInvalidRequestError &&
-            err.code === "resource_missing"
-        ) {
-            return {
-                ok: false,
-                code: "no_payment_method",
-                message: "Saved card is no longer available",
-            };
-        }
-        return { ok: false, message: "Could not load saved payment method" };
-    }
-    if (pm.type !== "card") {
-        return {
-            ok: false,
-            code: "unsupported_payment_method",
-            message: "Only card payment methods can be used for tips",
-        };
-    }
-
     let intent: Stripe.PaymentIntent;
     try {
         intent = await stripe.paymentIntents.create(
@@ -143,7 +114,6 @@ export async function tipClientShift(
                 amount: input.amountCents,
                 currency: "cad",
                 customer: billing.stripeCustomerId,
-                payment_method: billing.defaultPaymentMethodId,
                 confirm: true,
                 off_session: true,
                 transfer_data: { destination: payout.stripeAccountId },

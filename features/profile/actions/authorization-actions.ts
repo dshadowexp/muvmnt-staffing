@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
+import { getOnboardingCompletionStatus } from "@/features/onboarding/dal/queries";
 import {
   authorizationSchema,
   canEditSocialNumber,
@@ -57,10 +58,14 @@ export async function upsertWorkAuthorizationAction(
   }
 
   if (existing) {
-    const editable = canEditSocialNumber({
-      socialNumber: existing.social_number,
-      socialNumberExpiry: existing.social_number_expiry,
-    });
+    const { is_completed: onboardingCompleted } =
+      await getOnboardingCompletionStatus(userId);
+    const editable =
+      !onboardingCompleted ||
+      canEditSocialNumber({
+        socialNumber: existing.social_number,
+        socialNumberExpiry: existing.social_number_expiry,
+      });
 
     const sinChanged =
       normalizeSocialNumber(existing.social_number) !== incomingSin;

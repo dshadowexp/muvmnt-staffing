@@ -3,13 +3,7 @@
  * Labels: `messages` → `skills`; long copy: `skillsDesc`.
  */
 
-/** Skills workers can add and assess via quiz (expand as you add quizzes). */
-export const WORKER_SKILL_IDS = ["medi_admin"] as const;
-export type WorkerSkillId = (typeof WORKER_SKILL_IDS)[number];
-
-export const WORKER_SKILL_IDS_SET = new Set<string>(WORKER_SKILL_IDS);
-
-/** Task/skill ids for staff request job profiles (schedule step). */
+/** Task/skill ids for staff request job profiles (preferences dialog on requests). */
 export const STAFF_REQUEST_SKILL_IDS = [
     "vital_signs_monitoring",
     "medi_admin",
@@ -40,3 +34,8 @@ export type StaffRequestSkillId = (typeof STAFF_REQUEST_SKILL_IDS)[number];
 export const STAFF_REQUEST_SKILL_IDS_SET = new Set<string>(
     STAFF_REQUEST_SKILL_IDS,
 );
+
+/** Same ids as {@link STAFF_REQUEST_SKILL_IDS} — used on assessments “Add skill”. */
+export const WORKER_SKILL_IDS = STAFF_REQUEST_SKILL_IDS;
+export type WorkerSkillId = StaffRequestSkillId;
+export const WORKER_SKILL_IDS_SET = STAFF_REQUEST_SKILL_IDS_SET;

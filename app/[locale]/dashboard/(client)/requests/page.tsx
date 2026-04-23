@@ -96,10 +96,11 @@ function formatStaffRequestDateRange(
 }
 
 async function StaffRequests() {
-  const [requests, t, tProf] = await Promise.all([
+  const [requests, t, tProf, tHome] = await Promise.all([
     getStaffRequests(),
     getTranslations("dashboard.client.requests"),
     getTranslations("professions"),
+    getTranslations("dashboard.client.home"),
   ]);
 
   if (requests.error) {
@@ -111,11 +112,18 @@ async function StaffRequests() {
   const staffRequests = requests.data;
   if (staffRequests == null || staffRequests.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">
-        {t("emptyPrefix")}{" "}
-        <span className="font-medium text-foreground">{t("emptyAction")}</span>
-        {t("emptySuffix")}
-      </p>
+      <Link
+        className="transition-opacity block"
+        href="/dashboard/requests/new"
+        prefetch={true}
+      >
+        <Card className="flex h-full min-h-[8.5rem] items-center justify-center border-dashed border-3 bg-transparent shadow-none transition-colors hover:border-primary/50">
+          <div className="text-lg flex items-center gap-2">
+            <PlusIcon className="size-6 shrink-0" aria-hidden />
+            {tHome("newStaffRequest")}
+          </div>
+        </Card>
+      </Link>
     );
   }
 

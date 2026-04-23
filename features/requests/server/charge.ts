@@ -13,18 +13,6 @@ export type StaffRequestPaymentMethodCardSnapshot = {
     exp_year: number;
 };
 
-function cardSnapshotFromPaymentMethod(
-    pm: Stripe.PaymentMethod,
-): StaffRequestPaymentMethodCardSnapshot | null {
-    if (pm.type !== "card" || pm.card == null) return null;
-    return {
-        brand: pm.card.brand,
-        last4: pm.card.last4,
-        exp_month: pm.card.exp_month,
-        exp_year: pm.card.exp_year,
-    };
-}
-
 export type StaffRequestChargeResult =
     | { ok: true; paymentIntentId: string; amountCents: number }
     | { ok: false; message: string; code?: string };
@@ -76,7 +64,6 @@ function mapStripeChargeError(err: unknown): { message: string; code?: string } 
 async function insertStaffRequestPayment(row: {
     requestId: string;
     stripePaymentIntentId: string;
-    paymentMethod: StaffRequestPaymentMethodCardSnapshot;
     amountCents: number;
     currency: string;
     status: string;
@@ -85,7 +72,6 @@ async function insertStaffRequestPayment(row: {
     const { error } = await supabase.from("payments").insert({
         request_id: row.requestId,
         stripe_payment_id: row.stripePaymentIntentId,
-        payment_method: row.paymentMethod,
         amount_cents: row.amountCents,
         currency: row.currency,
         status: row.status,
@@ -116,37 +102,7 @@ export async function chargeStaffRequestOffSession(params: {
         code: "no_billing_account",
     };
 
-    if (!account.defaultPaymentMethodId) return {
-        ok: false,
-        message: " No default payment method found. Add a card and try again.",
-        code: "no_default_payment_method",
-    };
-
     const stripe = getStripeServer();
-
-    let pm: Stripe.PaymentMethod;
-    try {
-        pm = await stripe.customers.retrievePaymentMethod(
-            account.customerId,
-            account.defaultPaymentMethodId,
-        );
-    } catch (err) {
-        const msg =
-            err instanceof Stripe.errors.StripeInvalidRequestError &&
-            err.code === "resource_missing"
-                ? "This payment method is no longer available. Add a card and try again."
-                : "Could not load the selected payment method.";
-        return { ok: false, message: msg, code: "payment_method_unavailable" };
-    }
-
-    const snapshot = cardSnapshotFromPaymentMethod(pm);
-    if (!snapshot) {
-        return {
-            ok: false,
-            message: "Only card payment methods can be used for this charge.",
-            code: "unsupported_payment_method",
-        };
-    }
 
     try {
         const intent = await stripe.paymentIntents.create(
@@ -154,7 +110,6 @@ export async function chargeStaffRequestOffSession(params: {
                 amount: params.amountCents,
                 currency: "cad",
                 customer: account.customerId,
-                payment_method: account.defaultPaymentMethodId,
                 confirm: true,
                 off_session: true,
                 transfer_group: params.requestId,
@@ -172,7 +127,6 @@ export async function chargeStaffRequestOffSession(params: {
         const saved = await insertStaffRequestPayment({
             requestId: params.requestId,
             stripePaymentIntentId: intent.id,
-            paymentMethod: snapshot,
             amountCents: params.amountCents,
             currency: "cad",
             status: "succeeded",
@@ -216,16 +170,10 @@ export async function recordCheckoutPayment(params: {
                     : "Could not load checkout session payment method.",
         };
     }
-    const snapshot = cardSnapshotFromPaymentMethod(pm) ?? {
-        brand: pm.type ?? "card",
-        last4: "****",
-        exp_month: 0,
-        exp_year: 0,
-    };
+
     return insertStaffRequestPayment({
         requestId: params.requestId,
         stripePaymentIntentId: params.paymentIntentId,
-        paymentMethod: snapshot,
         amountCents: params.amountCents,
         currency: params.currency,
         status: "succeeded",

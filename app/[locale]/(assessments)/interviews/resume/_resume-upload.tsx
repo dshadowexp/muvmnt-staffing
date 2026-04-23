@@ -38,6 +38,7 @@ import {
   uploadFileToStorage,
   getFilenameFromKey,
 } from "@/features/storage/components/file-input";
+import { INTERVIEW_DURATION_SECS } from "@/lib/constants";
 import { deleteFile } from "@/features/storage/dal/mutations";
 import {
   parseInterviewSubjectRef,
@@ -326,7 +327,9 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
             <CardHeader>
               <CardTitle className="text-xl">{t("uploadTitle")}</CardTitle>
               <CardDescription className="text-balance">
-                {t("uploadDescription")}
+                {t("uploadDescription", {
+                  minutes: INTERVIEW_DURATION_SECS / 60,
+                })}
               </CardDescription>
             </CardHeader>
             <CardContent>

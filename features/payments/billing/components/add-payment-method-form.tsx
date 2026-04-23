@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { syncDefaultPaymentMethodAfterSetupIntent } from "@/features/payments/billing/dal/mutations";
 import {
     PaymentElement,
     useElements,
@@ -57,20 +56,6 @@ export function AddPaymentMethodForm({
             return;
         }
 
-        if (setupIntent?.status === "succeeded" && setupIntent.id) {
-            const res = await syncDefaultPaymentMethodAfterSetupIntent(
-                setupIntent.id,
-                {
-                    setAsDefault,
-                },
-            );
-            if (res.error) {
-                toast.error(res.error);
-            } else {
-                toast.success(t("paymentMethodSaved"));
-                onSuccess();
-            }
-        }
         setIsSubmitting(false);
     };
 

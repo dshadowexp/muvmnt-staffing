@@ -3,6 +3,7 @@ import z from "zod"
 
 export const env = createEnv({
     server: {
+        NODE_ENV: z.string().min(1),
         APP_URL: z.string().min(1),
         AWS_ACCESS_KEY_ID: z.string().min(1),
         AWS_SECRET_ACCESS_KEY: z.string().min(1),
@@ -19,6 +20,7 @@ export const env = createEnv({
         FIREBASE_PRIVATE_KEY: z.string().min(1),
         RESEND_API_KEY: z.string().min(1),
         ARCJET_KEY: z.string().min(1),
+        SHIFT_RESPONSE_TOKEN_SECRET: z.string().min(1),
     },
     createFinalSchema: env => {
         return z.object(env).transform(val => {

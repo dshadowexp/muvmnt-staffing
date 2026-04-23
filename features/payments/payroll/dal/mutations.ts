@@ -6,6 +6,7 @@ import { getStripeServer } from "@/services/stripe/server";
 import { calendarPartsFromYyyyMmDd } from "@/lib/formatters";
 import { env } from "@/data/env/server";
 import { getCurrentUser } from "@/features/users/dal/queries";
+import { professionLabelEn } from "@/lib/labels-en";
 
 export async function createConnectedAccountLink() {
   const user = await getCurrentUser();
@@ -39,6 +40,10 @@ export async function createConnectedAccountLink() {
   if (!locationData) return { error: "Your location is not completed" };
 
   let stripeAccountId;
+  const dobParts = calendarPartsFromYyyyMmDd(workerProfileData.date_of_birth);
+    if (!dobParts) {
+      return { error: "Invalid date of birth" };
+    }
   if (!payrollRow) {
     const account = await getStripeServer().accounts.create({
       type: 'express',
@@ -52,11 +57,28 @@ export async function createConnectedAccountLink() {
       business_profile: {
         mcc: '7361',
         name: `${workerProfileData.first_name} ${workerProfileData.last_name}`,
-        product_description: 'Temporary staffing agency',
+        ...(env.NODE_ENV === "production" ? { url: env.APP_URL } : { url: "https://readykare.com" }),
+        product_description: `Healthcare Professional, ${professionLabelEn(workerProfileData.profession)}`,
         support_email: user.email,
       },
-      tos_acceptance: {
-        service_agreement: 'recipient',
+      individual: {
+        first_name: workerProfileData.first_name,
+        last_name: workerProfileData.last_name,
+        dob: dobParts,
+        gender: workerProfileData.gender,
+        email: user.email,
+        phone: user.phone_number,
+        address: {
+            line1: locationData.address_line_1?.trim() ?? "",
+            line2: locationData.address_line_2?.trim() ?? "",
+            city: locationData.city?.trim() ?? "",
+            state: locationData.admin_area?.trim() ?? "",
+            postal_code: locationData.postal_code?.trim() ?? "",
+            country: locationData.country_code?.trim().toUpperCase(),
+        },
+        relationship: {
+          title: 'Healthcare Professional',
+        }
       }
     });
 
@@ -66,30 +88,6 @@ export async function createConnectedAccountLink() {
     });
 
     stripeAccountId = account.id;
-
-    const dobParts = calendarPartsFromYyyyMmDd(workerProfileData.date_of_birth);
-    if (!dobParts) {
-      return { error: "Invalid date of birth" };
-    }
-
-    await getStripeServer().accounts.createPerson(stripeAccountId, {
-      first_name: workerProfileData.first_name,
-      last_name: workerProfileData.last_name,
-      dob: dobParts,
-      email: user.email,
-      phone: user.phone_number,
-      address: {
-          line1: locationData.address_line_1?.trim() ?? "",
-          line2: locationData.address_line_2?.trim() ?? "",
-          city: locationData.city?.trim() ?? "",
-          state: locationData.admin_area?.trim() ?? "",
-          postal_code: locationData.postal_code?.trim() ?? "",
-          country: locationData.country_code?.trim().toUpperCase(),
-      },
-      relationship: {
-          representative: true,
-      }
-    });
   } else {
     stripeAccountId = payrollRow.stripe_account_id;
   }
@@ -136,9 +134,8 @@ export async function createPayrollBalancesAccountSession(): Promise<
         balances: {
           enabled: true,
           features: {
-            instant_payouts: true,
+            // instant_payouts: true,
             standard_payouts: true,
-            edit_payout_schedule: true,
             external_account_collection: true,
           },
         },

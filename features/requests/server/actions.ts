@@ -231,62 +231,6 @@ export async function confirmStaffRequestAction(requestId: string) {
         runId: handle.id,
         publicAccessToken,
     };
-
-    // // const billing = await getBillingAccount();
-    // // const account = "data" in billing ? billing.data : null;
-
-    // // if (account?.customerId && account.defaultPaymentMethodId) {
-        
-    // }
-
-    // // No saved card → Stripe Checkout Session.
-    // const stripe = getStripeServer();
-    // const totalCents = totalFromCache(cache, row.data.pricing_rate);
-
-    // const successUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}?checkout=success`;
-    // const cancelUrl = `${env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}/coverage?checkout=cancelled`;
-
-    // const checkout = await stripe.checkout.sessions.create({
-    //     mode: "payment",
-    //     customer: account?.customerId,
-    //     line_items: [
-    //         {
-    //             quantity: 1,
-    //             price_data: {
-    //                 currency: "cad",
-    //                 unit_amount: totalCents,
-    //                 product_data: {
-    //                     name: "Staff request coverage",
-    //                     description: `Request ${requestId}`,
-    //                 },
-    //             },
-    //         },
-    //     ],
-    //     payment_intent_data: {
-    //         setup_future_usage: "off_session",
-    //         metadata: { staff_request_id: requestId, client_id: session.userId },
-    //     },
-    //     metadata: {
-    //         staff_request_id: requestId,
-    //         client_id: session.userId,
-    //         kind: "staff_request",
-    //     },
-    //     success_url: successUrl,
-    //     cancel_url: cancelUrl,
-    // });
-
-    // if (!checkout.url) {
-    //     return {
-    //         error: true as const,
-    //         message: "Stripe did not return a checkout URL — try again.",
-    //     };
-    // }
-
-    // return {
-    //     error: false as const,
-    //     mode: "checkout" as const,
-    //     url: checkout.url,
-    // };
 }
 
 function totalFromCache(cache: CoverageDataCache, rate: number): number {

@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/services/supabase/server";
 import type { Tables } from "@/services/supabase/types/database";
+import { parseSiteRowFromStaffRequestLocation } from "../lib/staff-request-location-json";
 
 export type StaffRequestSiteRow = {
   address: string;
@@ -11,6 +12,7 @@ export type StaffRequestSiteRow = {
   admin_area: string | null;
   postal_code: string | null;
   country_code: string | null;
+  instructions: string | null;
 };
 
 /** Worker-visible slice of a staff request (no client pricing tier / rate on the page). */
@@ -71,11 +73,14 @@ export async function getStaffRequestSiteForWorker(
   const supabase = await createAdminClient();
   const { data: sr, error: srErr } = await supabase
     .from("staff_requests")
-    .select("client_user_id")
+    .select("client_user_id, location")
     .eq("id", requestId)
     .single();
 
   if (srErr || sr == null) return null;
+
+  const fromRequest = parseSiteRowFromStaffRequestLocation(sr.location);
+  if (fromRequest) return { location: fromRequest };
 
   const { data: loc, error: locErr } = await supabase
     .from("locations")
@@ -86,5 +91,9 @@ export async function getStaffRequestSiteForWorker(
     .maybeSingle();
 
   if (locErr) throw new Error(locErr.message);
-  return { location: loc };
+  return {
+    location: loc
+      ? { ...loc, instructions: null as string | null }
+      : null,
+  };
 }

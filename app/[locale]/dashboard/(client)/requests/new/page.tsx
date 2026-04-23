@@ -13,6 +13,7 @@ import { normalizeProfessionId } from "@/lib/professions";
 
 import type { ExistingScheduleDraft } from "./_form";
 import { NewStaffRequestPageClient } from "./_form";
+import { parseStaffRequestDailyWindows } from "@/features/requests/lib/parse-staff-request-daily-windows";
 
 const getPendingStaffRequestDraftCached = cache(getPendingPricingStaffRequestForClient);
 
@@ -91,7 +92,9 @@ async function NewStaffRequestPageContent() {
             start_date: data.start_date,
             end_date: data.end_date,
             positions: data.positions,
-            daily_time_windows: data.daily_time_windows ?? [],
+            daily_time_windows: parseStaffRequestDailyWindows(
+                data.daily_time_windows,
+            ),
         };
         initialJobProfile = {
             profession: normalizeProfessionId(data.profession),

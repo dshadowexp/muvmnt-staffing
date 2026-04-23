@@ -6,7 +6,7 @@ import {
   onboardingStepRawError,
 } from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
-import { getBillingAccount } from "@/features/payments/billing/dal/queries";
+import { hasPaymentMethod } from "@/features/payments/billing/dal/queries";
 import { updateUserIsActive } from "@/features/users/dal/mutations";
 import { getSession } from "@/lib/session";
 
@@ -17,8 +17,13 @@ export const billingAction = async (
   const session = await getSession();
   if (!session) return onboardingStepError("userNotFound");
 
-  const billingAccount = await getBillingAccount();
-  if (!billingAccount) return onboardingStepError("billingSetupIncomplete");
+  const paymentMethods = await hasPaymentMethod();
+  if (paymentMethods.error) {
+    return onboardingStepRawError(paymentMethods.error);
+  }
+  if (!paymentMethods.data) {
+    return onboardingStepError("billingSetupIncomplete");
+  }
 
   const persist = await completeOnboardingStep("billing", {
     markOnboardingCompleted: true,

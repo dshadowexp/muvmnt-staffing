@@ -20,7 +20,7 @@ export class EmailChannel {
         const html = renderEmail(template, data);
 
         await this.resend.emails.send({
-            from: `Karren <karren@readykare.com>`,
+            from: `Diana @ReadyKare <diana@readykare.com>`,
             to,
             subject,
             html,

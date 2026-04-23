@@ -10,6 +10,7 @@ import { STAFF_REQUEST_STATUS_CONFIRMED } from "@/features/requests/constants";
 import { PricingTierPicker } from "@/features/requests/components/pricing-tier-picker";
 import { StaffRequestLocationCard } from "@/features/requests/components/staff-request-location-card";
 import { StaffRequestScheduleSummaryCard } from "@/features/requests/components/staff-request-schedule-summary-card";
+import { parseStaffRequestDailyWindows } from "@/features/requests/lib/parse-staff-request-daily-windows";
 
 type PageProps = {
     params: Promise<{ requestId: string; locale: string }>;
@@ -66,7 +67,9 @@ export default async function PricingStepPage({ params }: PageProps) {
                 positions={data.positions}
                 startDate={data.start_date}
                 endDate={data.end_date}
-                dailyWindows={data.daily_time_windows ?? []}
+                dailyWindows={parseStaffRequestDailyWindows(
+                    data.daily_time_windows,
+                )}
                 profession={data.profession}
                 tasks={data.tasks ?? []}
                 requirements={data.requirements ?? []}

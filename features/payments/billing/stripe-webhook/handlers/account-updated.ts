@@ -15,7 +15,6 @@ export async function handleAccountUpdated(account: Stripe.Account): Promise<voi
     const userId = account.metadata?.user_id ?? account.metadata?.userId;
 
     const supabase = await createAdminClient();
-
     const updatePayload = {
         stripe_account_id: stripeAccountId,
         payouts_enabled: account.payouts_enabled ?? false,
@@ -33,9 +32,8 @@ export async function handleAccountUpdated(account: Stripe.Account): Promise<voi
     if (byAccount.data?.length) return;
 
     if (!userId) {
-        throw new Error(
-            `account.updated for ${stripeAccountId} has no metadata.user_id; cannot reconcile payroll_accounts`,
-        );
+        console.error(`account.updated for ${stripeAccountId} has no metadata.user_id; cannot reconcile payroll_accounts`);
+        return;
     }
 
     const byUser = await supabase

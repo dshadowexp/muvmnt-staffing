@@ -93,11 +93,8 @@ function StaffRequestHeader({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-            Staff request
+            Staff request #{staffRequest.id.substring(0, 8)}
           </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
-            #{staffRequest.id.substring(0, 8)}
-          </h1>
         </div>
       </div>
 
@@ -144,7 +141,14 @@ async function SiteAndBillingSection({ requestId }: { requestId: string }) {
     <section className="grid gap-3 md:grid-cols-2">
       <InfoTile icon={MapPinIcon} title="Site">
         {addressLine ? (
-          <p className="text-foreground text-sm">{addressLine}</p>
+          <div className="space-y-1">
+            <p className="text-foreground text-sm">{addressLine}</p>
+            {data.location?.instructions ? (
+              <p className="text-muted-foreground text-xs leading-snug">
+                {data.location.instructions}
+              </p>
+            ) : null}
+          </div>
         ) : (
           <p className="text-muted-foreground text-sm">Not on file</p>
         )}
@@ -171,11 +175,6 @@ async function SiteAndBillingSection({ requestId }: { requestId: string }) {
                     p.currency.toUpperCase(),
                   )}
                 </span>
-                {p.card_display ? (
-                  <span className="text-muted-foreground text-xs">
-                    {p.card_display}
-                  </span>
-                ) : null}
                 <span className="text-muted-foreground text-xs capitalize">
                   {p.status}
                 </span>

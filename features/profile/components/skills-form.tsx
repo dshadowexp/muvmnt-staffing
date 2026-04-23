@@ -92,33 +92,38 @@ export function SkillsForm({ initialSkills = [], onSaved }: SkillsFormProps) {
             </PopoverTrigger>
             <PopoverContent
               align="start"
-              className="w-[var(--radix-popover-trigger-width)] max-h-80 overflow-y-auto p-0"
+              className="w-[var(--radix-popover-trigger-width)] gap-0 p-0"
             >
-              <ul className="py-1">
-                {available.length === 0 ? (
-                  <li className="px-3 py-2 text-sm text-muted-foreground">
-                    All skills already added
-                  </li>
-                ) : (
-                  available.map((id) => (
-                    <li key={id}>
-                      <button
-                        type="button"
-                        className="w-full px-3 py-2 text-left hover:bg-muted"
-                        onClick={() => {
-                          setSelectedSkill(id);
-                          setPopoverOpen(false);
-                        }}
-                      >
-                        <div className="text-sm font-medium">{tSkills(id)}</div>
-                        <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                          {tSkillsDesc(id)}
-                        </div>
-                      </button>
+              {/* Inner scrollport: avoids flex `min-height:auto` on the list blocking overflow on the popover shell. */}
+              <div
+                className="max-h-[min(20rem,var(--radix-popper-available-height,20rem))] overflow-y-auto overscroll-contain"
+              >
+                <ul className="py-1">
+                  {available.length === 0 ? (
+                    <li className="px-3 py-2 text-sm text-muted-foreground">
+                      All skills already added
                     </li>
-                  ))
-                )}
-              </ul>
+                  ) : (
+                    available.map((id) => (
+                      <li key={id}>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 text-left hover:bg-muted"
+                          onClick={() => {
+                            setSelectedSkill(id);
+                            setPopoverOpen(false);
+                          }}
+                        >
+                          <div className="text-sm font-medium">{tSkills(id)}</div>
+                          <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                            {tSkillsDesc(id)}
+                          </div>
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
             </PopoverContent>
           </Popover>
           <p className="mt-1 text-xs text-muted-foreground">

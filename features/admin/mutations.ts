@@ -16,14 +16,14 @@ function revalidateAdminWorkerPaths(workerId: string) {
 
 export async function updateAdminWorkerStatus(
   workerId: string,
-  status: string,
+  status: boolean,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   await requireAdminSession();
   const supabase = await createAdminClient();
 
   const { error } = await supabase
     .from("workers")
-    .update({ status: status.trim() || undefined })
+    .update({ live: status })
     .eq("id", workerId);
 
   if (error) {
@@ -77,7 +77,7 @@ export async function verifyAdminCompliance(
 }
 
 export async function verifyAdminWorkAuthorization(
-  authorizationId: number,
+  authorizationId: string,
   workerId: string,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   await requireAdminSession();

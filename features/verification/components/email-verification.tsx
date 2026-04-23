@@ -106,7 +106,7 @@ export function EmailVerification() {
         </div>
       ) : (
         <>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {user?.email ?? ""}
           </p>
 

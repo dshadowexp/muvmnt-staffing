@@ -31,8 +31,11 @@ interface FileInputProps {
   onUploaded?: (file: UploadedFile) => void;
   /** Called when a local file is selected/cleared in deferred mode. */
   onSelectedFile?: (file: File | null) => void;
+  /** Called after a stored file (`initialFileKey`) is removed from cloud storage. */
+  onExistingRemoved?: () => void;
   onFileChange?: (hasFile: boolean) => void;
   error?: string;
+  disabled?: boolean;
 }
 
 /** Extract display filename from S3 key: {folder}/{ownerId}/{timestamp}-{filename}. */
@@ -100,8 +103,10 @@ export function FileInput({
   uploadToCloud = true,
   onUploaded,
   onSelectedFile,
+  onExistingRemoved,
   onFileChange,
   error: externalError,
+  disabled = false,
 }: FileInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<UploadedFile | null>(null);
@@ -118,7 +123,7 @@ export function FileInput({
   const displayError = externalError ?? error;
 
   async function removeSelectedFile(fileId: string) {
-    if (!file) return;
+    if (disabled || !file) return;
     setFile((prev) =>
       prev?.id === fileId ? { ...prev, isDeleting: true } : prev,
     );
@@ -155,11 +160,14 @@ export function FileInput({
   }
 
   async function removeExistingFile() {
-    if (!initialFileKey) return;
+    if (disabled || !initialFileKey) return;
     setRemovingExisting(true);
     try {
       await deleteFile(initialFileKey);
-      queueMicrotask(() => onFileChange?.(false));
+      queueMicrotask(() => {
+        onExistingRemoved?.();
+        onFileChange?.(false);
+      });
       toast.success("File removed successfully");
     } catch {
       toast.error("Failed to remove file from storage.");
@@ -212,6 +220,7 @@ export function FileInput({
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (disabled) return;
     const selected = e.target.files?.[0];
     if (!selected) return;
 
@@ -242,9 +251,15 @@ export function FileInput({
     <Field data-invalid={!!displayError || hasError} className="flex flex-col gap-2">
       <div
         role="button"
-        tabIndex={0}
-        onClick={() => !file && !hasExisting && inputRef.current?.click()}
+        tabIndex={disabled ? -1 : 0}
+        onClick={() =>
+          !disabled &&
+          !file &&
+          !hasExisting &&
+          inputRef.current?.click()
+        }
         onKeyDown={(e) =>
+          !disabled &&
           !file &&
           !hasExisting &&
           (e.key === "Enter" || e.key === " ") &&
@@ -253,10 +268,15 @@ export function FileInput({
         className={cn(
           "flex min-h-10 items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-colors",
           "border-input bg-input/30",
-          !file && !hasExisting && "cursor-pointer hover:border-primary/50",
+          !file &&
+            !hasExisting &&
+            !disabled &&
+            "cursor-pointer hover:border-primary/50",
           done && "border-primary/25 bg-primary/5",
           hasError && "border-destructive/50",
+          disabled && "pointer-events-none cursor-not-allowed opacity-60",
         )}
+        aria-disabled={disabled}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {(uploading || isDeleting || removingExisting) && (
@@ -296,6 +316,7 @@ export function FileInput({
               type="button"
               variant="ghost"
               size="icon-sm"
+              disabled={disabled}
               onClick={(e) => {
                 e.stopPropagation();
                 removeSelectedFile(file.id);
@@ -311,6 +332,7 @@ export function FileInput({
               type="button"
               variant="ghost"
               size="icon-sm"
+              disabled={disabled}
               onClick={(e) => {
                 e.stopPropagation();
                 removeExistingFile();
@@ -346,6 +368,7 @@ export function FileInput({
         type="file"
         accept={accept.join(",")}
         className="sr-only"
+        disabled={disabled}
         onChange={handleFileChange}
       />
     </Field>

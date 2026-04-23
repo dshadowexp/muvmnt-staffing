@@ -2,8 +2,8 @@
 
 import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
-import { STAFF_REQUEST_STATUS_CONFIRMED } from "../constants";
 import { cardDisplayFromPaymentMethodJson } from "../lib/payment-method-card-display";
+import { parseSiteRowFromStaffRequestLocation } from "../lib/staff-request-location-json";
 
 export async function getStaffRequest(id: string) {
     const session = await getSession();
@@ -32,6 +32,7 @@ export type StaffRequestSiteAndPayments = {
     admin_area: string | null;
     postal_code: string | null;
     country_code: string | null;
+    instructions: string | null;
   } | null;
   payments: {
     id: string;
@@ -51,7 +52,7 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
   const supabase = await createAdminClient();
   const { data: sr, error: srError } = await supabase
     .from("staff_requests")
-    .select("client_user_id, cell_id")
+    .select("client_user_id, cell_id, location")
     .eq("id", requestId)
     .single();
 
@@ -60,6 +61,32 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
   }
   if (sr.client_user_id !== userId) {
     return { error: true as const, message: "Not found" };
+  }
+
+  const fromRequest = parseSiteRowFromStaffRequestLocation(sr.location);
+  if (fromRequest) {
+    const { data: payResData, error: payErr } = await supabase
+      .from("payments")
+      .select("id, amount_cents, currency, status, created_at")
+      .eq("request_id", requestId)
+      .order("created_at", { ascending: false });
+    if (payErr) {
+      return { error: true as const, message: payErr.message };
+    }
+    const payments: StaffRequestSiteAndPayments["payments"] = (payResData ?? []).map(
+      (row) => ({
+        id: row.id,
+        amount_cents: row.amount_cents,
+        currency: row.currency,
+        status: row.status,
+        created_at: row.created_at,
+        card_display: null
+      }),
+    );
+    return {
+      error: false as const,
+      data: { location: fromRequest, payments },
+    };
   }
 
   const [locRes, payRes] = await Promise.all([
@@ -72,7 +99,7 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
       .maybeSingle(),
     supabase
       .from("payments")
-      .select("id, amount_cents, currency, status, created_at, payment_method")
+      .select("id, amount_cents, currency, status, created_at")
       .eq("request_id", requestId)
       .order("created_at", { ascending: false }),
   ]);
@@ -91,12 +118,18 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
       currency: row.currency,
       status: row.status,
       created_at: row.created_at,
-      card_display: cardDisplayFromPaymentMethodJson(row.payment_method),
+      card_display: null,
     }),
   );
 
+  const loc = locRes.data
+    ? {
+        ...locRes.data,
+        instructions: null as string | null,
+      }
+    : null;
   const data: StaffRequestSiteAndPayments = {
-    location: locRes.data,
+    location: loc,
     payments,
   };
   return { error: false as const, data };

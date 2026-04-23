@@ -732,21 +732,19 @@ export async function getClientBillingForTip(
 ): Promise<
     | {
           stripeCustomerId: string;
-          defaultPaymentMethodId: string | null;
       }
     | null
 > {
     const supabase = await createAdminClient();
     const { data, error } = await supabase
         .from("billing_accounts")
-        .select("stripe_customer_id, default_payment_method_id")
+        .select("stripe_customer_id")
         .eq("user_id", clientUserId)
         .maybeSingle();
     if (error && error.code !== "PGRST116") throw new Error(error.message);
     if (!data?.stripe_customer_id) return null;
     return {
         stripeCustomerId: data.stripe_customer_id,
-        defaultPaymentMethodId: data.default_payment_method_id ?? null,
     };
 }
 

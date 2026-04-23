@@ -13,6 +13,7 @@ import { normalizeProfessionId } from "@/lib/professions";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
 import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";
 import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
+import { INTERVIEW_DURATION_SECS } from "@/lib/constants";
 import { InterviewShell } from "../_components/interview-shell";
 
 export default async function ProfessionInterviewPage() {
@@ -75,7 +76,10 @@ async function SuspendedContent() {
         subject="profession"
         subjectRef={{ key: professionKey, body: context, limit: 0 }}
         title={t("profession.title", { profession: professionLabel })}
-        description={t("profession.description", { profession: professionLabel })}
+        description={t("profession.description", {
+          profession: professionLabel,
+          minutes: INTERVIEW_DURATION_SECS / 60,
+        })}
         sessionVariables={{
           language: locale,
           candidate_name: userName,

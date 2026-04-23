@@ -33,6 +33,11 @@ import { getSession } from "@/lib/session";
 import { normalizeProfessionId } from "@/lib/professions";
 import { gridDiskDistances } from "h3-js";
 import { H3_K } from "@/lib/constants";
+import type { Database, Json } from "@/services/supabase/types/database";
+import {
+    createDraftLocationSchema,
+    locationPayloadToJson,
+} from "../lib/staff-request-location-json";
 
 const dailyWindowSchema = z.object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -56,29 +61,12 @@ export const createDraftPayloadSchema = z.object({
     requirements: z.array(z.string()).default([]),
     tasks: z.array(z.string()).default([]),
     notes: z.string().optional().default(""),
+    location: createDraftLocationSchema,
 });
 
 export type CreateDraftPayload = z.infer<typeof createDraftPayloadSchema>;
 
-export type StaffRequestRow = {
-    id: string;
-    client_user_id: string;
-    cell_id: string;
-    start_date: string;
-    end_date: string | null;
-    daily_time_windows: { date: string; slots: { startTime: string; endTime: string }[] }[];
-    profession: string;
-    requirements: string[];
-    tasks: string[];
-    positions: number;
-    notes: string | null;
-    pricing_rate: number | null;
-    pricing_tier: string | null;
-    status: string;
-    coverage_data: unknown;
-    coverage_data_at: string | null;
-    payment_session_id: string | null;
-};
+export type StaffRequestRow = Database["public"]["Tables"]["staff_requests"]["Row"];
 
 /** Canonical profession id for pricing, matching, and estimates. */
 export function professionForStaffRequest(
@@ -120,7 +108,7 @@ async function getRowOrFail(requestId: string) {
         return { ok: false as const, message: error?.message ?? "Request not found" };
     }
 
-    return { ok: true as const, row: data as unknown as StaffRequestRow };
+    return { ok: true as const, row: data as StaffRequestRow };
 }
 
 export async function getStaffRequestRow(requestId: string) {
@@ -158,7 +146,7 @@ export async function getPendingPricingStaffRequestForClient(
         .maybeSingle();
 
     if (error || !data) return { ok: false, message: error?.message ?? "SupabaseError" };
-    return { ok: true, data: data as unknown as StaffRequestRow };
+    return { ok: true, data: data as StaffRequestRow };
 }
 
 export async function createStaffRequestDraft(
@@ -186,6 +174,7 @@ export async function createStaffRequestDraft(
             end_date: payload.endDate ?? null,
             daily_time_windows: payload.dailyWindows,
             status: STAFF_REQUEST_STATUS_PENDING_PRICING,
+            location: locationPayloadToJson(payload.location) as Json,
         })
         .select("*")
         .single();
@@ -196,7 +185,7 @@ export async function createStaffRequestDraft(
             message: error?.message ?? "Could not create staff request draft.",
         };
     }
-    return { ok: true, requestId: data.id, row: data as unknown as StaffRequestRow };
+    return { ok: true, requestId: data.id, row: data as StaffRequestRow };
 }
 
 export async function updateStaffRequestDraft(
@@ -227,6 +216,7 @@ export async function updateStaffRequestDraft(
             start_date: payload.startDate,
             end_date: payload.endDate ?? null,
             daily_time_windows: payload.dailyWindows,
+            location: locationPayloadToJson(payload.location) as Json,
         })
         .eq("id", requestId);
 
@@ -328,7 +318,7 @@ export async function getStaffRequestById(requestId: string) {
         .eq("id", requestId)
         .single();
     if (error || !data) return null;
-    return data as unknown as StaffRequestRow;
+    return data as StaffRequestRow;
 }
 
 export async function abandonStaffRequestDraft(args: {

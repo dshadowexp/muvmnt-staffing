@@ -19,8 +19,8 @@ import { CoverageMatchTracker } from "@/features/requests/components/coverage-ma
 import { SelectedPricingTierCard } from "@/features/requests/components/selected-pricing-tier-card";
 import { StaffRequestLocationCard } from "@/features/requests/components/staff-request-location-card";
 import { StaffRequestScheduleSummaryCard } from "@/features/requests/components/staff-request-schedule-summary-card";
-import { FinalizeSavedPaymentMethod } from "@/features/payments/billing/components/finalize-saved-payment-method";
-import { getPaymentMethods } from "@/features/payments/billing/dal/queries";
+import { parseStaffRequestDailyWindows } from "@/features/requests/lib/parse-staff-request-daily-windows";
+import { hasPaymentMethod } from "@/features/payments/billing/dal/queries";
 
 type PageProps = {
     params: Promise<{ requestId: string; locale: string }>;
@@ -56,7 +56,6 @@ export default async function CoverageStepPage({ params }: PageProps) {
 
     return (
         <div className="w-full max-w-3xl space-y-6">
-            <FinalizeSavedPaymentMethod />
             <header className="space-y-2">
                 <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                     {t("step3Title")}
@@ -74,14 +73,16 @@ export default async function CoverageStepPage({ params }: PageProps) {
                     <Skeleton className="h-[3.25rem] w-full rounded-xl" />
                 }
             >
-                <StaffRequestLocationCard />
+                <StaffRequestLocationCard requestLocation={data.location} />
             </Suspense>
 
             <StaffRequestScheduleSummaryCard
                 positions={data.positions}
                 startDate={data.start_date}
                 endDate={data.end_date}
-                dailyWindows={data.daily_time_windows ?? []}
+                dailyWindows={parseStaffRequestDailyWindows(
+                    data.daily_time_windows,
+                )}
                 profession={data.profession}
                 tasks={data.tasks ?? []}
                 requirements={data.requirements ?? []}
@@ -111,15 +112,15 @@ async function CoverageBody({
 }) {
     const cache = row.coverage_data as CoverageDataCache | null;
     if (cache?.schedule && isCoverageFresh(row.coverage_data_at)) {
-        const pmResult = await getPaymentMethods();
-        const initialPaymentMethods =
-            "error" in pmResult ? [] : (pmResult.data ?? []);
+        const pmResult = await hasPaymentMethod();
+        const hasPaymentMethods =
+            "error" in pmResult ? false : (pmResult.data ?? false);
 
         return (
             <CoverageConfirmPanel
                 requestId={requestId}
                 cache={cache}
-                initialPaymentMethods={initialPaymentMethods}
+                hasPaymentMethods={hasPaymentMethods}
                 cachedAtIso={row.coverage_data_at}
             />
         );

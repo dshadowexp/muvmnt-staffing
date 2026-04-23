@@ -52,7 +52,6 @@ export type Database = {
       billing_accounts: {
         Row: {
           created_at: string
-          default_payment_method_id: string | null
           id: string
           stripe_customer_id: string
           updated_at: string | null
@@ -60,7 +59,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          default_payment_method_id?: string | null
           id?: string
           stripe_customer_id: string
           updated_at?: string | null
@@ -68,7 +66,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          default_payment_method_id?: string | null
           id?: string
           stripe_customer_id?: string
           updated_at?: string | null
@@ -340,7 +337,6 @@ export type Database = {
           created_at: string
           currency: string
           id: string
-          payment_method: Json
           request_id: string
           status: string
           stripe_payment_id: string
@@ -350,7 +346,6 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
-          payment_method?: Json
           request_id: string
           status?: string
           stripe_payment_id: string
@@ -360,7 +355,6 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
-          payment_method?: Json
           request_id?: string
           status?: string
           stripe_payment_id?: string
@@ -594,6 +588,39 @@ export type Database = {
           },
         ]
       }
+      shift_response_tokens: {
+        Row: {
+          action: string
+          created_at: string
+          expires_at: string
+          id: string
+          request_id: string
+          token: string
+          used_at: string | null
+          worker_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          request_id: string
+          token: string
+          used_at?: string | null
+          worker_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          request_id?: string
+          token?: string
+          used_at?: string | null
+          worker_id?: string
+        }
+        Relationships: []
+      }
       shift_tips: {
         Row: {
           amount_cents: number
@@ -777,6 +804,8 @@ export type Database = {
           daily_time_windows: Json
           end_date: string | null
           id: string
+          invoice_id: string | null
+          location: Json
           notes: string | null
           payment_session_id: string | null
           positions: number
@@ -799,6 +828,8 @@ export type Database = {
           daily_time_windows?: Json
           end_date?: string | null
           id?: string
+          invoice_id?: string | null
+          location: Json
           notes?: string | null
           payment_session_id?: string | null
           positions?: number
@@ -821,6 +852,8 @@ export type Database = {
           daily_time_windows?: Json
           end_date?: string | null
           id?: string
+          invoice_id?: string | null
+          location?: Json
           notes?: string | null
           payment_session_id?: string | null
           positions?: number
@@ -930,7 +963,7 @@ export type Database = {
         Row: {
           created_at: string
           file_url: string
-          id: number
+          id: string
           is_verified: boolean
           social_number: string | null
           social_number_expiry: string | null
@@ -941,7 +974,7 @@ export type Database = {
         Insert: {
           created_at?: string
           file_url: string
-          id?: number
+          id?: string
           is_verified?: boolean
           social_number?: string | null
           social_number_expiry?: string | null
@@ -952,7 +985,7 @@ export type Database = {
         Update: {
           created_at?: string
           file_url?: string
-          id?: number
+          id?: string
           is_verified?: boolean
           social_number?: string | null
           social_number_expiry?: string | null
@@ -1004,7 +1037,6 @@ export type Database = {
           profession: string
           rating_avg?: number | null
           rating_count?: number | null
-          status?: string | null
           user_id: string
           years_exp: number
         }
@@ -1023,7 +1055,6 @@ export type Database = {
           profession?: string
           rating_avg?: number | null
           rating_count?: number | null
-          status?: string | null
           user_id?: string
           years_exp?: number
         }

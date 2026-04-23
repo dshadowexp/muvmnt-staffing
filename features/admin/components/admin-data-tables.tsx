@@ -326,7 +326,7 @@ export function AdminAuthorizationsTable({
   const pagination = useTablePagination(items);
   const rows = preview ? items : pagination.rows;
 
-  function go(authorizationId: number) {
+  function go(authorizationId: string) {
     router.push(`/admin/authorization/${authorizationId}`);
   }
 

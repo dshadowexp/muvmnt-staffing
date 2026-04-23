@@ -71,7 +71,7 @@ export async function WorkerPendingShiftRequestCards({
           return (
             <Link
               key={a.requestId}
-              href={`/dashboard/requests/${a.requestId}`}
+              href={`/dashboard/shifts/requests/${a.requestId}`}
               className="group block rounded-lg outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-ring hover:opacity-95"
               aria-label={t("openRequestAria", { profession: professionLabel })}
             >

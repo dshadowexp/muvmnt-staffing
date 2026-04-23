@@ -39,9 +39,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { BackLink } from "@/components/back-link";
 import { Logo } from "@/components/logo";
-
-const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 3 * 60 : 5 * 60;
-const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 1.5 * 60 : 2.5 * 60;
+import { INTERVIEW_DURATION_SECS, MIN_DURATION_FOR_COMPLETED_AT_SECS } from "@/lib/constants";
 
 function parseDurationToSeconds(ts: string | null | undefined): number {
   if (!ts) return 0;
@@ -334,7 +332,9 @@ function DeviceSetupCard({
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
             <p className="text-xs text-muted-foreground">
-              {t("durationNotice")}
+              {t("durationNotice", {
+                minutes: INTERVIEW_DURATION_SECS / 60,
+              })}
             </p>
 
             <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
@@ -409,6 +409,7 @@ function DeviceSetupCard({
                 camStreamRef.current?.getTracks().forEach((track) => track.stop());
                 camStreamRef.current = null;
                 await onStart();
+                setStarting(false);
               }}
               className="w-full"
             >
@@ -604,7 +605,7 @@ export function InterviewShell({
         type: "session_settings",
         variables: {
           ...sessionVariables,
-          duration: INTERVIEW_DURATION_SECS.toString(),
+          duration: INTERVIEW_DURATION_SECS / 60,
         },
       },
       resumedChatGroupId: chatGroupId ?? undefined,

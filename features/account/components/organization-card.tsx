@@ -101,14 +101,15 @@ export function OrganizationCard({
               className="contents"
             >
               <ClientProfileForm form={form} />
-              <div className="flex gap-2">
+
+              <div className="flex gap-2 mt-5 justify-end">
+                <Button type="button" variant="ghost" onClick={cancelEdit}>
+                  Cancel
+                </Button>
                 <Button type="submit" disabled={!isDirty || isSubmitting}>
                   <LoadingSwap isLoading={isSubmitting}>
                     Save changes
                   </LoadingSwap>
-                </Button>
-                <Button type="button" variant="ghost" onClick={cancelEdit}>
-                  Cancel
                 </Button>
               </div>
             </fieldset>

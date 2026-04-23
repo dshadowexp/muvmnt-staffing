@@ -110,7 +110,7 @@ export const matchCoverageTask = task({
             requestId: payload.requestId,
         });
 
-        metadata.set("progress", {
+        await metadata.set("progress", {
             step: "queued",
             label: "Starting coverage matching",
         } satisfies MatchCoverageProgress);
@@ -118,12 +118,12 @@ export const matchCoverageTask = task({
         const result = await runMatchForStaffRequest({
             requestId: payload.requestId,
             progress: async (event) => {
-                metadata.set("progress", describe(event));
+                await metadata.set("progress", describe(event));
             },
         });
 
         if (!result.ok) {
-            metadata.set("progress", {
+            await metadata.set("progress", {
                 step: "done",
                 label: "Coverage failed",
                 detail: result.message,
