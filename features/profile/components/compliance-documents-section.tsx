@@ -217,7 +217,7 @@ export function ComplianceDocumentsSection({
       />
 
       <div className="space-y-2">
-        <p className="text-muted-foreground text-xs">{t("picker.helper")}</p>
+        <p className="text-muted-foreground text-xs mb-2">{t("picker.helper")}</p>
         <Select key={selectNonce} onValueChange={handlePickType}>
           <SelectTrigger
             className="w-full"

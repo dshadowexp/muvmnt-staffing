@@ -760,11 +760,11 @@
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today.",
         "professionInterview": {
           "title": "Profession interview",
-          "description": "Complete the interview so clients can match you to shifts."
+          "description": "Quick AI-led interview to match you to the right shifts."
         },
         "resumeInterview": {
           "title": "Resume interview",
-          "description": "Walk us through your experience to finish onboarding."
+          "description": "Walk us through your resume in 8 minutes to finish onboarding." 
         },
         "workAuth": {
           "title": "Work authorization",
@@ -826,7 +826,7 @@
       "payroll": {
         "title": "Payroll",
         "subtitle": "View your Stripe Connect balance and manage payouts.",
-        "loadError": "We couldn't load your payroll details. You can still complete or resume setup below.",
+        "loadError": "We couldn't load your payroll details. Please report to support.",
         "needSetup": "Set up your payroll account to view your balance and manage payouts.",
         "transferHistory": "Transfer history",
         "transferHistorySubtitle": "Payments received for completed shifts.",

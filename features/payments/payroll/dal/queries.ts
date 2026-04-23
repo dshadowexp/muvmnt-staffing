@@ -174,7 +174,7 @@ export async function retrieveConnectedAccount() {
         .select('*')
         .eq('user_id', userId) 
         .single();
-    if (error) return { error: error.message };
+    if (error && error.code !== "PGRST116") return { error: error.message };
     if (!data) return { error: null, data: null };
 
     return { data: {

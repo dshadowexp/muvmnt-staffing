@@ -86,7 +86,7 @@ export default async function WorkerPayrollPage() {
         <PayrollContent />
       </Suspense>
 
-      <div>
+      {/* <div>
         <h2 className="text-lg font-semibold tracking-tight">{t("tips")}</h2>
         <p className="text-muted-foreground mt-1 mb-4 text-sm">
           {t("tipsSubtitle")}
@@ -94,7 +94,7 @@ export default async function WorkerPayrollPage() {
         <Suspense fallback={<TransfersSkeleton />}>
           <TipHistory />
         </Suspense>
-      </div>
+      </div> */}
     </div>
   );
 }

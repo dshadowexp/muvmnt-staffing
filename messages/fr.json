@@ -760,11 +760,11 @@
         "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui.",
         "professionInterview": {
           "title": "Entrevue professionnelle",
-          "description": "Complétez l'entrevue pour que les clients puissent vous jumeler à des quarts."
+          "description": "Entrevue AI-guidée rapide pour vous jumeler aux quarts appropriés."
         },
         "resumeInterview": {
           "title": "Entrevue sur votre CV",
-          "description": "Présentez-nous votre expérience pour terminer l'intégration."
+          "description": "Présentez-nous votre CV en 8 minutes pour terminer l'intégration."
         },
         "workAuth": {
           "title": "Autorisation de travail",
@@ -826,7 +826,7 @@
       "payroll": {
         "title": "Paie",
         "subtitle": "Consultez votre solde Stripe Connect et gérez vos versements.",
-        "loadError": "Impossible de charger vos détails de paie. Vous pouvez quand même démarrer ou reprendre la configuration ci-dessous.",
+        "loadError": "Impossible de charger vos détails de paie. Veuillez contacter le support.",
         "needSetup": "Configurez votre compte de paie pour voir votre solde et gérer vos versements.",
         "transferHistory": "Historique des versements",
         "transferHistorySubtitle": "Paiements reçus pour les quarts terminés.",
