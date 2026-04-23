@@ -10,6 +10,8 @@ import { useTranslations } from "next-intl";
 import { payrollAction } from "./_action";
 import { setupPayrollAction } from "@/features/payments/payroll/actions";
 import { Check, InfoIcon } from "lucide-react";
+import { useOnboardingSkip } from "@/features/onboarding/hooks/use-onboarding-skip";
+
 
 type PayrollInitialSnapshot = {
   accountId: string;
@@ -26,6 +28,7 @@ export function PayrollClient({
   useOnboardingFormNavigate(state);
   const [loading, setLoading] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.payroll");
+  const { skipForm, skip } = useOnboardingSkip();
 
   const isStripeComplete =
     initialPayroll != null && initialPayroll.completed && initialPayroll.enabled;
@@ -57,18 +60,22 @@ export function PayrollClient({
           />
         </form>
       ) : (
-        <form onSubmit={handleSetup} className="space-y-6">
-          {showFinishOnboarding && initialPayroll && !initialPayroll.enabled && (
-            <div className="flex items-start gap-2 rounded-md border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
-              <InfoIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
-              <p>{t("identityCheckNotice")}</p>
-            </div>
-          )}
-          <ContinueButton
-            text={showFinishOnboarding ? t("finishOnboarding") : t("begin")}
-            pending={loading}
-          />
-        </form>
+        <>
+          {skipForm}  
+          <form onSubmit={handleSetup} className="space-y-6">
+            {showFinishOnboarding && initialPayroll && !initialPayroll.enabled && (
+              <div className="flex items-start gap-2 rounded-md border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
+                <InfoIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+                <p>{t("identityCheckNotice")}</p>
+              </div>
+            )}
+            <ContinueButton
+              text={showFinishOnboarding ? t("finishOnboarding") : t("begin")}
+              pending={loading}
+              skip={skip}
+            />
+          </form>
+        </>
       )}
     </>
   );
