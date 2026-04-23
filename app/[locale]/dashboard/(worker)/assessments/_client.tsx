@@ -218,7 +218,7 @@ function InterviewSlot({
       type === "profession" ? "/interviews/profession" : "/interviews/resume";
     const description =
       type === "profession"
-        ? `AI-led voice and video session about your role${profession ? `: ${profession}` : ""}.`
+        ? `AI-led voice and video session about general health knowledge and professional competencies.`
         : "AI-led voice and video walkthrough of your resume and experience.";
     return (
       <Link
@@ -245,7 +245,7 @@ function InterviewSlot({
   const decision: "PASS" | "FAIL" | "PENDING" =
     parsedFeedback?.decision ?? "PENDING";
 
-  const description =
+  const description = !interview.reviewed ? "Your interview feedback is under review." :
     decision === "PENDING"
       ? type === "profession"
         ? `Your ${profession} interview is complete — feedback is being prepared.`

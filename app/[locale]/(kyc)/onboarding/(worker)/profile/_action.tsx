@@ -8,19 +8,19 @@ import {
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { upsertWorkerAction } from "@/features/profile/actions/worker-actions";
 import {
-  workerUpsertWithPhotoSchema,
-  type WorkerUpsertWithPhotoValues,
+  workerSchema,
+  type WorkerProfileValues,
 } from "@/features/profile/schemas/worker";
 import { getSession } from "@/lib/session";
 
 export async function profileAction(
-  input: WorkerUpsertWithPhotoValues,
+  input: WorkerProfileValues,
 ): Promise<OnboardingStepFormState> {
   const session = await getSession();
   if (!session) return onboardingStepError("userNotFound");
   if (session.role !== "worker") return onboardingStepError("userNotAuthorized");
 
-  const { success, data } = workerUpsertWithPhotoSchema.safeParse(input);
+  const { success, data } = workerSchema.safeParse(input);
   if (!success) return onboardingStepError("invalidWorkerData");
 
   const { error, message } = await upsertWorkerAction(data);

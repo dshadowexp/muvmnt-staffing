@@ -1021,7 +1021,7 @@ export type Database = {
           id: string
           last_name: string
           live: boolean
-          photo_url: string
+          photo_url: string | null
           profession: string
           rating_avg: number | null
           rating_count: number | null
@@ -1039,7 +1039,7 @@ export type Database = {
           id?: string
           last_name: string
           live?: boolean
-          photo_url: string
+          photo_url?: string | null
           profession: string
           rating_avg?: number | null
           rating_count?: number | null
@@ -1057,7 +1057,7 @@ export type Database = {
           id?: string
           last_name?: string
           live?: boolean
-          photo_url?: string
+          photo_url?: string | null
           profession?: string
           rating_avg?: number | null
           rating_count?: number | null

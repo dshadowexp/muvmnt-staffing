@@ -6,10 +6,7 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <ProfileClient
-        workerProfile={workerProfile ?? null}
-        initialPhotoKey={workerProfile?.photo_url ?? null}
-      />
+      <ProfileClient workerProfile={workerProfile ?? null} />
     </>
   );
 }

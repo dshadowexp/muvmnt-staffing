@@ -29,8 +29,7 @@ import {
   CheckCircle2Icon,
   ChevronRightIcon,
   FileTextIcon,
-  CircleDashedIcon,
-  ShieldCheckIcon,
+  CameraIcon,
   StethoscopeIcon,
   WalletIcon,
 } from "lucide-react";
@@ -134,7 +133,13 @@ type PendingAction = {
   badge?: { label: string; icon?: ReactNode };
 };
 
-async function PendingActions({ userId }: { userId: string }) {
+async function PendingActions({
+  userId,
+  photoUrl,
+}: {
+  userId: string;
+  photoUrl: string | null;
+}) {
   const [professionInterview, resumeInterview, workAuth, payrollOk, t] =
     await Promise.all([
       getInterviewBySubjectForUser("profession", userId),
@@ -145,6 +150,16 @@ async function PendingActions({ userId }: { userId: string }) {
     ]);
 
   const actions: PendingAction[] = [];
+
+  if (!photoUrl) {
+    actions.push({
+      id: "profile-photo",
+      title: t("photoCard.title"),
+      description: t("photoCard.description"),
+      icon: <CameraIcon className="size-5 text-primary" />,
+      href: "/dashboard/profile",
+    });
+  }
 
   if (!professionInterview?.completed_at) {
     actions.push({
@@ -327,7 +342,7 @@ export default async function WorkerHomePage() {
       </div>
 
       <Suspense fallback={<PendingActionsSkeleton />}>
-        <PendingActions userId={worker.user_id} />
+        <PendingActions userId={worker.user_id} photoUrl={worker.photo_url ?? null} />
       </Suspense>
 
       <Suspense fallback={<ShiftRequestCardsSkeleton />}>

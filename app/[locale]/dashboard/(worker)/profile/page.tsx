@@ -23,6 +23,7 @@ export default async function WorkerProfilePage() {
           gender: worker.gender,
           profession: worker.profession,
           years_exp: worker.years_exp,
+          photo_url: worker.photo_url,
         }}
       />
     </div>

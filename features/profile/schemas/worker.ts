@@ -73,13 +73,6 @@ export const workerSchema = buildWorkerSchema();
 
 export type WorkerProfileValues = z.infer<typeof workerSchema>;
 
-/** Onboarding profile step: worker fields + storage key for `workers.photo_url` (single upsert). */
-export const workerUpsertWithPhotoSchema = workerSchema.extend({
-  photoUrl: z.string().min(1),
-});
-
-export type WorkerUpsertWithPhotoValues = z.infer<typeof workerUpsertWithPhotoSchema>;
-
 /** Account settings: only profession and experience may be edited after onboarding. */
 export const workerProfessionExperienceSchema = z.object({
   profession: workerSchema.shape.profession,

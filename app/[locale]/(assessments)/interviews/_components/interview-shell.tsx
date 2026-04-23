@@ -488,12 +488,13 @@ export function InterviewShell({
   returnPath,
 }: InterviewShellProps) {
   const t = useTranslations("assessments.interview");
-  const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp } =
-    useVoice();
-  const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(initialInterviewId ?? null);
   const [interviewId, setInterviewId] = useState<string | null>(
     initialInterviewId ?? null,
   );
+  const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp } =
+    useVoice();
+  const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(interviewId);
+  
   const [finalizing, setFinalizing] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
@@ -703,15 +704,15 @@ export function InterviewShell({
             </div>
         </header>
         <main className="flex flex-1 justify-center p-6">
-        <div className="grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2 lg:items-start">
-                <InterviewInstructionsCard
-                  title={title}
-                  description={description}
-                />
-                <DeviceSetupCard
-                  onStart={handleStart}
-                />
-            </div>
+          <div className="grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2 lg:items-start">
+              <InterviewInstructionsCard
+                title={title}
+                description={description}
+              />
+              <DeviceSetupCard
+                onStart={handleStart}
+              />
+          </div>
         </main>
       </div>
     );

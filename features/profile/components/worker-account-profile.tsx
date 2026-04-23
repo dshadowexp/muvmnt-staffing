@@ -3,8 +3,11 @@
 import { Suspense, use, useState } from "react";
 import { Pencil } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { WorkerAuthorizationForm } from "@/features/profile/components/worker-authorization-form";
 import { ProfessionExperienceCard } from "@/features/profile/components/profession-experience-card";
+import { PhotoUpload } from "@/features/storage/components/photo-upload";
+import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import {
   Card,
   CardContent,
@@ -15,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import { useRouter } from "@/i18n/navigation";
 
 type WorkerRow = {
   first_name: string;
@@ -23,6 +27,7 @@ type WorkerRow = {
   gender: string;
   profession: string;
   years_exp: number;
+  photo_url?: string | null;
 };
 
 export type WorkAuthData = {
@@ -40,6 +45,8 @@ export function WorkerAccountProfile({
 }) {
   return (
     <div className="flex flex-col gap-6">
+      <PhotoCard photoUrl={worker.photo_url ?? null} />
+
       <PersonalDetailsCard worker={worker} />
 
       <ContactDetailsCard />
@@ -49,6 +56,44 @@ export function WorkerAccountProfile({
         yearsExp={worker.years_exp}
       />
     </div>
+  );
+}
+
+function PhotoCard({ photoUrl }: { photoUrl: string | null }) {
+  const router = useRouter();
+
+  async function handleUploaded(key: string) {
+    const { error, message } = await updateWorkerPhotoAction(key);
+    if (error) {
+      toast.error(message);
+      return;
+    }
+    router.refresh();
+  }
+
+  async function handleRemoved() {
+    const { error, message } = await updateWorkerPhotoAction("");
+    if (error) toast.error(message);
+    else router.refresh();
+  }
+
+  return (
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle>Profile photo</CardTitle>
+        <CardDescription>
+          A clear, recent photo of your face helps clients recognize you.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <PhotoUpload
+          context="avatars"
+          initialFileKey={photoUrl ?? undefined}
+          onUploaded={({ key }) => { if (key) void handleUploaded(key); }}
+          onFileChange={(hasFile) => { if (!hasFile) void handleRemoved(); }}
+        />
+      </CardContent>
+    </Card>
   );
 }
 

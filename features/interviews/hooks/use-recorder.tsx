@@ -1,11 +1,18 @@
 import { createBunnyVideo } from "@/services/bunny/api";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { updateInterview } from "../actions";
 
 export function useRecorder(interviewId: string | null) {
     const chunksRef   = useRef<Blob[]>([]);
     const recorderRef = useRef<MediaRecorder | null>(null);
+    const interviewIdRef = useRef<string | null>(interviewId);
     const [uploading, setUploading] = useState(false);
+    const combinedRef = useRef<MediaStream | null>(null);
+
+    useEffect(() => {
+        interviewIdRef.current = interviewId;
+    }, [interviewId]);
+
 
     const start = useCallback(async (camStream: MediaStream | null) => {
         chunksRef.current = [];
@@ -18,6 +25,7 @@ export function useRecorder(interviewId: string | null) {
         ];
 
         const combined = new MediaStream(tracks);
+        combinedRef.current = combined; 
 
         // Pick the best supported format
         const mimeType = [
@@ -41,12 +49,19 @@ export function useRecorder(interviewId: string | null) {
     }, []);
 
     const stop = useCallback(async (): Promise<string | null> => {
-        const recorder = recorderRef.current;
+        const recorder    = recorderRef.current;
+        const currentId   = interviewIdRef.current; // ← always latest value
+
         if (!recorder || recorder.state === "inactive") return null;
-        if (!interviewId) return null;
+        if (!currentId) return null;
     
         return new Promise((resolve) => {
             recorder.onstop = async () => {
+                // Stop all recorder tracks to release mic/camera
+                combinedRef.current?.getTracks().forEach((t) => t.stop());
+                combinedRef.current = null;
+
+
                 const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
                 chunksRef.current = [];
     
@@ -55,7 +70,7 @@ export function useRecorder(interviewId: string | null) {
     
                     // 1. Get upload credentials from server (tiny request, no blob)
                     const { videoId, uploadUrl, accessKey, playbackUrl } =
-                        await createBunnyVideo(interviewId);
+                        await createBunnyVideo(currentId);
     
                     // 2. Upload blob DIRECTLY from browser → Bunny (bypasses Next.js entirely)
                     const uploadRes = await fetch(uploadUrl, {
@@ -67,7 +82,7 @@ export function useRecorder(interviewId: string | null) {
                     if (!uploadRes.ok) throw new Error("Bunny upload failed");
     
                     // 3. Save the playback URL to DB via server action (tiny string, fine)
-                    await updateInterview(interviewId, { recordingUrl: playbackUrl });
+                    await updateInterview(currentId, { recordingUrl: playbackUrl });
     
                     resolve(playbackUrl);
                 } catch (err) {
@@ -80,7 +95,7 @@ export function useRecorder(interviewId: string | null) {
     
             recorder.stop();
         });
-    }, [interviewId]);
+    }, []);
     
 
     return { start, stop, uploading };

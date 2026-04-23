@@ -3,14 +3,14 @@
 import {
   workerProfessionExperienceSchema,
   workerSchema,
-  type WorkerUpsertWithPhotoValues,
+  type WorkerProfileValues,
 } from "@/features/profile/schemas/worker";
 import { createAdminClient } from "@/services/supabase/server";
 import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { normalizeProfessionId } from "@/lib/professions";
 
-const workerPayload = (data: z.infer<typeof workerSchema>) => ({
+const workerPayload = (data: WorkerProfileValues) => ({
   first_name: data.firstName,
   last_name: data.lastName,
   date_of_birth: data.dateOfBirth,
@@ -19,14 +19,7 @@ const workerPayload = (data: z.infer<typeof workerSchema>) => ({
   years_exp: data.yearsExp,
 });
 
-function workerRowPayload(data: WorkerUpsertWithPhotoValues) {
-  return {
-    ...workerPayload(data),
-    photo_url: data.photoUrl,
-  };
-}
-
-export async function upsertWorkerAction(data: WorkerUpsertWithPhotoValues) {
+export async function upsertWorkerAction(data: WorkerProfileValues) {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
   const { userId } = session;
@@ -41,7 +34,7 @@ export async function upsertWorkerAction(data: WorkerUpsertWithPhotoValues) {
   if (existing) {
     const { error } = await supabase
       .from("workers")
-      .update(workerRowPayload(data))
+      .update(workerPayload(data))
       .eq("user_id", userId);
 
     if (error) {
@@ -51,7 +44,7 @@ export async function upsertWorkerAction(data: WorkerUpsertWithPhotoValues) {
   }
 
   const { error } = await supabase.from("workers").insert({
-    ...workerRowPayload(data),
+    ...workerPayload(data),
     user_id: userId,
   });
 

@@ -771,6 +771,10 @@
           "description": "Votre document est en cours d'examen par notre équipe.",
           "badge": "En cours d'examen"
         },
+        "photoCard": {
+          "title": "Ajouter une photo de profil",
+          "description": "Téléversez une photo claire de votre visage pour que les clients puissent vous reconnaître."
+        },
         "payrollOnboarding": {
           "title": "Configuration de la paie",
           "description": "Connectez votre compte de versement pour recevoir le paiement de vos quarts complétés.",

@@ -118,9 +118,9 @@ function CopyTimesPopover({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <Tooltip>
-          <TooltipTrigger asChild>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
             <Button
               type="button"
               variant="ghost"
@@ -131,10 +131,10 @@ function CopyTimesPopover({
             >
               <Copy className="size-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t("copyTimesTooltip")}</TooltipContent>
-        </Tooltip>
-      </PopoverTrigger>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{t("copyTimesTooltip")}</TooltipContent>
+      </Tooltip>
       <PopoverContent align="end" className="w-80 gap-0 p-0">
         <div className="border-border border-b px-4 py-3">
           <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">

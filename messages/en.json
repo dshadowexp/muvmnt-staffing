@@ -771,6 +771,10 @@
           "description": "Your document is being reviewed by our team.",
           "badge": "Pending"
         },
+        "photoCard": {
+          "title": "Add a profile photo",
+          "description": "Upload a clear photo of your face so clients can recognize you."
+        },
         "payrollOnboarding": {
           "title": "Payroll setup",
           "description": "Connect your payout account so you can get paid for completed shifts.",

@@ -48,6 +48,10 @@ import {
   type InterviewFeedbackParsed,
 } from "@/features/interviews/lib/interview-feedback-json";
 import type { Database } from "@/services/supabase/types/database";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/logo";
+import { BackLink } from "@/components/back-link";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
 
@@ -132,59 +136,68 @@ export function InterviewReviewClient({
         : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8">
-      <Button variant="ghost" size="sm" className="gap-1 px-0" asChild>
+    <div className="flex min-h-svh flex-col p-4">
+      {/* <Button variant="ghost" size="sm" className="gap-1 px-0" asChild>
         <Link href={backHref}>
           <ArrowLeftIcon className="size-4" />
           {t("back")}
         </Link>
-      </Button>
-
-      <Card>
-        <CardHeader className="gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1">
-              <CardTitle className="text-2xl">{subjectLabel}</CardTitle>
-              <CardDescription>
-                {t("completedOn", { date: interview.completedOnLabel })}
-              </CardDescription>
+      </Button> */}
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
+            <BackLink backHref="/dashboard/assessments" title="Assessments" />
+            <Logo href="/dashboard/assessments" />
+            <div className="flex items-center gap-2">
+                <LanguageSwitcher />
+                <ThemeToggle />
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {interview.duration && (
-                <Badge
-                  variant="outline"
-                  className="font-normal text-muted-foreground"
-                >
-                  <ClockIcon className="size-3.5" />
-                  {interview.duration}
-                </Badge>
-              )}
-              <MessagesDialogTrigger
-                messagesPromise={messagesPromise}
-                user={user}
-                subjectLabel={subjectLabel}
-              />
+        </header>
+        <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8">
+        <Card>
+          <CardHeader className="gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-1">
+                <CardTitle className="text-2xl">{subjectLabel}</CardTitle>
+                <CardDescription>
+                  {t("completedOn", { date: interview.completedOnLabel })}
+                </CardDescription>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {interview.duration && (
+                  <Badge
+                    variant="outline"
+                    className="font-normal text-muted-foreground"
+                  >
+                    <ClockIcon className="size-3.5" />
+                    {interview.duration}
+                  </Badge>
+                )}
+                <MessagesDialogTrigger
+                  messagesPromise={messagesPromise}
+                  user={user}
+                  subjectLabel={subjectLabel}
+                />
+              </div>
             </div>
-          </div>
-        </CardHeader>
-      </Card>
+          </CardHeader>
+        </Card>
 
-      <FeedbackSection
-        feedback={displayed}
-        persisted={persistedFeedback != null}
-        isStreaming={isStreaming}
-        hasAnyContent={hasAnyContent}
-        streamError={streamError?.message}
-        completedAt={interview.completedAt}
-        retakeAfterLabel={interview.retakeAfterLabel}
-        retakeHref={retakeHref}
-        canStreamFeedback={interview.canStreamFeedback}
-        reviewed={interview.reviewed}
-        onRetry={() => {
-          submittedRef.current = true;
-          submit(null);
-        }}
-      />
+        <FeedbackSection
+          feedback={displayed}
+          persisted={persistedFeedback != null}
+          isStreaming={isStreaming}
+          hasAnyContent={hasAnyContent}
+          streamError={streamError?.message}
+          completedAt={interview.completedAt}
+          retakeAfterLabel={interview.retakeAfterLabel}
+          retakeHref={retakeHref}
+          canStreamFeedback={interview.canStreamFeedback}
+          reviewed={interview.reviewed}
+          onRetry={() => {
+            submittedRef.current = true;
+            submit(null);
+          }}
+        />
+      </div>
     </div>
   );
 }
