@@ -10,17 +10,26 @@ import { verifyDetailsAction } from "./_action";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 
 export function VerificationClient() {
-    const [state, formAction] = useActionState(verifyDetailsAction, undefined);
-    useOnboardingFormNavigate(state);
-
     return (
         <div className="space-y-6">
             <EmailVerification />
             <Separator className="my-6" />
             <PhoneVerification />
-            <form action={formAction}>
-                <ContinueButton />
-            </form>
+            <VerificationForm />
         </div>
+    );
+}
+
+function VerificationForm() {
+    const { firebaseUser } = useAuth();
+    const [state, formAction] = useActionState(verifyDetailsAction, undefined);
+    useOnboardingFormNavigate(state);
+
+    if (!firebaseUser?.emailVerified || !firebaseUser?.phoneNumber) return null;
+
+    return (
+        <form action={formAction}>
+            <ContinueButton />
+        </form>
     );
 }

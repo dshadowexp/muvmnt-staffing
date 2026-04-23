@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import { useRouter } from "@/i18n/navigation";
 import {
   buildPhoneSchema,
   buildOtpSchema,
@@ -51,6 +52,7 @@ const COUNTRIES: ReadonlyArray<{
 
 export function PhoneVerification() {
   const { firebaseUser: user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [step, setStep] = useState<PhoneStep>("input");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -184,10 +186,11 @@ export function PhoneVerification() {
 
       const formatted = formatPhoneToE164(phone, selectedCountry.dialCode);
       posthog.capture("phone_verified");
-        setVerifiedPhone(formatted);
-        setStep("done");
+      setVerifiedPhone(formatted);
+      setStep("done");
+      router.refresh();
+      
     } catch (e) {
-      console.error(e);
       const key = getAuthErrorKey(e);
       setError("code", {
         message: key ? tErrors(key) : t("verifyFailed"),
