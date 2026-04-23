@@ -77,7 +77,6 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
     return [
       { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
       { title: t("requests"), url: "/dashboard/requests", icon: <ScanSearchIcon className="size-4" /> },
-      { title: t("billing"), url: "/dashboard/billing", icon: <CreditCardIcon className="size-4" /> },
       { title: t("account"), url: "/dashboard/account", icon: <UserIcon className="size-4" /> },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];

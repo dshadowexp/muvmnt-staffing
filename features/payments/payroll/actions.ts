@@ -8,7 +8,6 @@ export async function setupPayrollAction() {
     const { data, error } = await createConnectedAccountLink();
     if (error) throw new Error(error)
     if (!data?.onboardingUrl) throw new Error('Failed to create account link');
-    console.log('onboardingUrl', data.onboardingUrl);
     redirect(data.onboardingUrl);
 }
 

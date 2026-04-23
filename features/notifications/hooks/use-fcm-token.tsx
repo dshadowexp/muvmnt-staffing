@@ -9,7 +9,6 @@ import { toast } from "sonner";
 
 async function getNotificationPermissionAndToken() {
     if (!('Notification' in window)) {
-        console.log("This browser does not support notifications");
         return null;
     }
 
@@ -41,7 +40,6 @@ export const useFcmToken = () => {
 
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
                 const token = await getNotificationPermissionAndToken();
-                console.log("token", token);
 
                 if (Notification.permission === 'denied') {
                     if (byPass) alert("Please enable notifications in your browser settings.");
@@ -152,9 +150,7 @@ export const useFcmToken = () => {
             if (!m) return;
 
             const unsubscribe = onMessage(m, async (payload) => {
-                console.log("Message received in the foreground:", payload);
                 if ("Notification" in window && Notification.permission === 'granted') {
-                    console.log("Showing system notification");
                     showSystemNotification(payload);
                 }
             });

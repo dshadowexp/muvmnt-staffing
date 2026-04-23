@@ -41,9 +41,9 @@ export async function createConnectedAccountLink() {
 
   let stripeAccountId;
   const dobParts = calendarPartsFromYyyyMmDd(workerProfileData.date_of_birth);
-    if (!dobParts) {
-      return { error: "Invalid date of birth" };
-    }
+  if (!dobParts) {
+    return { error: "Invalid date of birth" };
+  }
   if (!payrollRow) {
     const account = await getStripeServer().accounts.create({
       type: 'express',
@@ -69,7 +69,7 @@ export async function createConnectedAccountLink() {
         email: user.email,
         phone: user.phone_number,
         address: {
-            line1: locationData.address_line_1?.trim() ?? "",
+            line1: locationData.address_line_1?.trim() ?? locationData.address,
             line2: locationData.address_line_2?.trim() ?? "",
             city: locationData.city?.trim() ?? "",
             state: locationData.admin_area?.trim() ?? "",
@@ -78,7 +78,7 @@ export async function createConnectedAccountLink() {
         },
         relationship: {
           title: 'Healthcare Professional',
-        }
+        },
       }
     });
 

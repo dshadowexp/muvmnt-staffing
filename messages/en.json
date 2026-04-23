@@ -672,7 +672,7 @@
       "missingAppCredential": "Phone verification needs a security check. Refresh and try again.",
       "invalidPhoneNumber": "Enter a valid phone number with country code (e.g. +1…).",
       "missingPhoneNumber": "Enter a phone number to receive the code.",
-      "invalidVerificationCode": "That verification code isn’t valid. Request a new code and try again.",
+      "invalidVerificationCode": "That verification code isn’t valid. Please try again.",
       "invalidVerificationId": "That verification session is invalid. Start phone sign-in again.",
       "missingVerificationCode": "Enter the verification code we sent you.",
       "missingVerificationId": "Start phone verification again from the beginning.",
@@ -900,7 +900,7 @@
         "paymentHistorySubtitle": "Completed payments across your staff requests."
       },
       "account": {
-        "title": "Account",
+        "title": "Account details",
         "subtitle": "Organization profile and address.",
         "address": {
           "cardTitle": "Address",

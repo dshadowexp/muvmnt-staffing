@@ -181,8 +181,6 @@ export async function buildCandidatePool(params: {
         .in("cell_id", params.ring)
         .eq("live", true);
 
-    console.log("workerRows", workerRows, params.ring.length);
-
     await params.progress?.({ kind: "workers", workerCount: workerRows?.length ?? 0 });
     if (!workerRows?.length) return fail(params.ring.length);
 

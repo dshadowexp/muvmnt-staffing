@@ -672,7 +672,7 @@
       "missingAppCredential": "La vérification par téléphone nécessite une vérification de sécurité. Actualisez et réessayez.",
       "invalidPhoneNumber": "Entrez un numéro valide avec l'indicatif pays (ex. +1…).",
       "missingPhoneNumber": "Entrez un numéro de téléphone pour recevoir le code.",
-      "invalidVerificationCode": "Ce code de vérification n'est pas valide. Demandez un nouveau code et réessayez.",
+      "invalidVerificationCode": "Ce code de vérification n'est pas valide. Veuillez réessayer.",
       "invalidVerificationId": "Cette session de vérification est invalide. Recommencez la connexion par téléphone.",
       "missingVerificationCode": "Entrez le code de vérification que nous vous avons envoyé.",
       "missingVerificationId": "Recommencez la vérification par téléphone depuis le début.",
@@ -900,7 +900,7 @@
         "paymentHistorySubtitle": "Paiements complétés sur l'ensemble de vos demandes de personnel."
       },
       "account": {
-        "title": "Compte",
+        "title": "Détails du compte",
         "subtitle": "Profil de l'organisation et adresse.",
         "address": {
           "cardTitle": "Adresse",

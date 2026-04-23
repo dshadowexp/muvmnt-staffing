@@ -7,8 +7,6 @@
 // const envContent = readFileSync(".env.production", "utf-8");
 // const parsed = parse(envContent);
 
-// console.log(process.env);
-
 // configure({
 //     // this is the default and if the `TRIGGER_SECRET_KEY` environment variable is set, can omit calling configure
 //     secretKey: process.env["TRIGGER_SECRET_KEY"],

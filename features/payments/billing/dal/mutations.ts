@@ -157,7 +157,7 @@ export async function createPortalSession(): Promise<
 
     const portalSession = await getStripeServer().billingPortal.sessions.create({
         customer: ensured.customerId,
-        return_url: `${env.APP_URL}${user.is_active ? "/dashboard/billing" : "/onboarding/billing"}`,
+        return_url: `${env.APP_URL}${user.is_active ? "/dashboard/account" : "/onboarding/billing"}`,
         flow_data: {
             type: "payment_method_update",
         },

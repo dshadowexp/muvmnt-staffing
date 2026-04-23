@@ -14,8 +14,6 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => { 
-    console.log('Message received in the background:', payload);
-
     // payload.fcmOptions?.link is from the backend
     // payload.data?.link is from the Firebase Console where link is the 'key'
     const link = payload.fcmOptions?.link || payload.data?.link;
@@ -36,7 +34,6 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 self.addEventListener('notificationclick', (event) => {
-    console.log("[firebase-messaging-sw.js] Notification clicked:", event);
     event.notification.close();
 
     event.waitUntil(
@@ -46,7 +43,6 @@ self.addEventListener('notificationclick', (event) => {
                 const currentUrl = new URL(self.location.href);
                 const targetUrl = new URL(event.notification.data.url, currentUrl.origin);
                 const navigationUrl = targetUrl.toString();
-                console.log("navigationUrl", navigationUrl);
 
                 for (const client of windowClients) {
                     if (client.url.includes(self.registration.scope) && client.url === navigationUrl && 'focus' in client) {
@@ -56,7 +52,6 @@ self.addEventListener('notificationclick', (event) => {
                 }
 
                 if (clients.openWindow) {
-                    console.log("OPENING WINDOW FOR:", navigationUrl);
                     clients.openWindow(navigationUrl);
                 }
             })

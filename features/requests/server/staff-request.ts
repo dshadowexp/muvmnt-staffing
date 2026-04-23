@@ -392,9 +392,6 @@ export async function runMatchForStaffRequest(args: {
             ring,
             progress: args.progress,
         });
-        
-        console.log("ring", i);
-        console.log("pool", pool.ok ? pool.candidates : 0);
 
         const allCandidates: MatchCandidate[] = pool.ok ? pool.candidates : [];
 
@@ -404,8 +401,6 @@ export async function runMatchForStaffRequest(args: {
             profession,
             requirements,
         );
-
-        console.log("filtered", filtered.length);
 
         await args.progress?.({
             kind: "filter",
@@ -426,7 +421,6 @@ export async function runMatchForStaffRequest(args: {
         });
 
         if (result.fullyCovered) {
-            console.log("fully covered", i);
             break;
         }
     }
