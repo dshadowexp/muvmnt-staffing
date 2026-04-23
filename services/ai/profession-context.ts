@@ -21,6 +21,16 @@ Focus areas for the interview:
 • Long-term care and community health settings experience
 • CNO standards and regulatory compliance`,
 
+    ien: `Internationally Educated Nurse (IEN) — This candidate holds (or is pursuing) an IEN license.
+Focus areas for the interview:
+• Clinical assessment, patient triage and critical thinking
+• Medication administration, IV therapy, and pharmacology knowledge
+• Care planning, nursing documentation, and electronic charting
+• Infection control procedures and emergency response protocols
+• Patient advocacy, communication with interdisciplinary teams
+• Experience with long-term care, acute care, or home care settings
+• Ontario College of Nurses standards and CNO regulations`,
+
     psw: `Personal Support Worker (PSW) — This candidate has completed (or is completing) a PSW certificate program.
 Focus areas for the interview:
 • Assistance with bathing, grooming, dressing, toileting, and feeding
@@ -68,18 +78,9 @@ Focus areas for the interview:
 • Understanding of nutritional requirements for elderly or ill populations
 • Teamwork in institutional kitchen environments
 • Dietary documentation and tray accuracy`,
-
-    other: `Healthcare Professional — General interview for a healthcare role.
-Focus areas for the interview:
-• Relevant certifications and training
-• Clinical or practical experience
-• Communication and teamwork skills
-• Patient safety and infection control awareness
-• Professionalism, punctuality, and reliability
-• Adaptability in diverse healthcare settings`,
 };
 
 export function getProfessionContext(profession: string): string {
     const id = normalizeProfessionId(profession);
-    return PROFESSION_CONTEXTS[id] ?? PROFESSION_CONTEXTS.other;
+    return PROFESSION_CONTEXTS[id];
 }
