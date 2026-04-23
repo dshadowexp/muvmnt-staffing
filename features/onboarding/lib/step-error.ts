@@ -14,6 +14,7 @@ export const ONBOARDING_ERROR_FALLBACKS = {
   profileMissing: "Please complete your profile.",
   photoMissing: "Please upload a profile photo.",
   workAuthorizationMissing: "Please upload your work authorization.",
+  workAuthorizationTypeRequired: "Please select your work authorization type.",
   socialNumberMissing: "Please enter your Social Insurance Number.",
   socialNumberExpiryMissing: "Please enter the expiry date for your Social Insurance Number.",
   invalidSubmission: "Invalid submission.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon, CheckCircle2, CircleDashed, Lock } from "lucide-react";
+import { CalendarIcon, CheckCircle2, Lock } from "lucide-react";
 import {
   forwardRef,
   useEffect,
@@ -25,11 +25,7 @@ import {
   requiresSinExpiry,
   type AuthorizationFormValues,
 } from "@/features/profile/schemas/authorization";
-import {
-  upsertWorkAuthorizationAction,
-  deleteWorkAuthorizationAction,
-} from "@/features/profile/actions/authorization-actions";
-import { deleteFile } from "@/features/storage/dal/mutations";
+import { upsertWorkAuthorizationAction } from "@/features/profile/actions/authorization-actions";
 import {
   Field,
   FieldDescription,
@@ -52,10 +48,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  FileInput,
-  uploadFileToStorage,
-} from "@/features/storage/components/file-input";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -63,7 +55,7 @@ import { useAuth } from "@/features/auth/providers/auth-provider";
 
 interface InitialWorkAuthorization {
   type: string;
-  file_url: string;
+  file_url?: string | null;
   social_number?: string | null;
   social_number_expiry?: string | null;
 }
@@ -86,11 +78,6 @@ interface WorkerAuthorizationFormProps {
   isEditing?: boolean;
   /** Called when the user cancels edit (profile only). */
   onCancelEdit?: () => void;
-  /**
-   * When true (worker onboarding), the document stays local until Continue;
-   * upload + DB write run in {@link WorkerAuthorizationFormHandle.prepareForContinue}.
-   */
-  deferAuthorizationDocumentUpload?: boolean;
   /** Disables inputs while the parent form is submitting (e.g. onboarding Continue). */
   submitting?: boolean;
 }
@@ -116,17 +103,11 @@ export const WorkerAuthorizationForm = forwardRef<
     profileEditMode = false,
     isEditing = false,
     onCancelEdit,
-    deferAuthorizationDocumentUpload = false,
     submitting = false,
   },
   ref,
 ) {
   const { loading: authLoading } = useAuth();
-  const [fileKey, setFileKey] = useState<string | null>(
-    initialWorkAuthorization?.file_url ?? null,
-  );
-  const [pendingAuthorizationFile, setPendingAuthorizationFile] =
-    useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [expiryOpen, setExpiryOpen] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.authorization");
@@ -165,9 +146,6 @@ export const WorkerAuthorizationForm = forwardRef<
     });
 
   const hasType = !!workAuthorization;
-  const hasFile =
-    !!fileKey ||
-    (!!pendingAuthorizationFile && deferAuthorizationDocumentUpload);
   const hasValidSin = socialNumber.length === 9;
   const hasValidExpiry = !needsExpiry || (() => {
     if (!socialNumberExpiry) return false;
@@ -181,17 +159,13 @@ export const WorkerAuthorizationForm = forwardRef<
     );
     return parsed >= todayStart;
   })();
-  const canSave = hasType && hasFile && hasValidSin && hasValidExpiry;
+  const canSave = hasType && hasValidSin && hasValidExpiry;
 
   const isUnchanged =
     initialWorkAuthorization &&
     workAuthorization === initialWorkAuthorization.type &&
-    fileKey === initialWorkAuthorization.file_url &&
     socialNumber === initialSin &&
-    (socialNumberExpiry ?? "") === (initialExpiry ?? "") &&
-    !(
-      deferAuthorizationDocumentUpload && pendingAuthorizationFile !== null
-    );
+    (socialNumberExpiry ?? "") === (initialExpiry ?? "");
 
   /** Profile: editable UI only while editing. Onboarding: always editable when not verified. */
   const inEditUI =
@@ -214,26 +188,6 @@ export const WorkerAuthorizationForm = forwardRef<
         const fieldsValid = await trigger(undefined, { shouldFocus: true });
         if (!fieldsValid) return false;
 
-        let storageKey = fileKey?.trim() ?? "";
-
-        if (deferAuthorizationDocumentUpload && pendingAuthorizationFile) {
-          try {
-            const { key } = await uploadFileToStorage({
-              file: pendingAuthorizationFile,
-              context: "compliance",
-            });
-            storageKey = key;
-          } catch {
-            toast.error(t("documentUploadFailed"));
-            return false;
-          }
-        }
-
-        if (!storageKey) {
-          toast.error(tOnboardingErrors("workAuthorizationMissing"));
-          return false;
-        }
-
         const type = getValues("workAuthorization") as WorkAuthorization;
         const sn = normalizeSocialNumber(getValues("socialNumber"));
         const exp = getValues("socialNumberExpiry") ?? "";
@@ -241,7 +195,6 @@ export const WorkerAuthorizationForm = forwardRef<
 
         const { error, message } = await upsertWorkAuthorizationAction({
           type,
-          fileUrl: storageKey,
           socialNumber: sn,
           socialNumberExpiry: expRequired ? exp : null,
         });
@@ -249,8 +202,6 @@ export const WorkerAuthorizationForm = forwardRef<
           toast.error(message);
           return false;
         }
-        setFileKey(storageKey);
-        setPendingAuthorizationFile(null);
         return true;
       },
     }),
@@ -259,16 +210,10 @@ export const WorkerAuthorizationForm = forwardRef<
       inEditUI,
       trigger,
       getValues,
-      tOnboardingErrors,
-      deferAuthorizationDocumentUpload,
-      pendingAuthorizationFile,
-      fileKey,
-      t,
     ],
   );
 
   useEffect(() => {
-    if (deferAuthorizationDocumentUpload) return;
     if (!inEditUI) return;
     if (workAuthorizationVerified) return;
     if (!canSave || isUnchanged) return;
@@ -278,7 +223,6 @@ export const WorkerAuthorizationForm = forwardRef<
       setSaving(true);
       const { error, message } = await upsertWorkAuthorizationAction({
         type: workAuthorization,
-        fileUrl: fileKey!,
         socialNumber,
         socialNumberExpiry: needsExpiry ? socialNumberExpiry : null,
       });
@@ -295,13 +239,11 @@ export const WorkerAuthorizationForm = forwardRef<
       cancelled = true;
     };
   }, [
-    deferAuthorizationDocumentUpload,
     inEditUI,
     workAuthorizationVerified,
     canSave,
     isUnchanged,
     workAuthorization,
-    fileKey,
     socialNumber,
     socialNumberExpiry,
     needsExpiry,
@@ -313,8 +255,6 @@ export const WorkerAuthorizationForm = forwardRef<
       profileEditMode && isEditing && !wasEditingRef.current;
     wasEditingRef.current = isEditing;
     if (!enteredEdit) return;
-    setPendingAuthorizationFile(null);
-    setFileKey(initialWorkAuthorization?.file_url ?? null);
     setValue(
       "workAuthorization",
       (initialWorkAuthorization?.type ?? "") as WorkAuthorization,
@@ -326,69 +266,16 @@ export const WorkerAuthorizationForm = forwardRef<
     profileEditMode,
     isEditing,
     initialWorkAuthorization?.type,
-    initialWorkAuthorization?.file_url,
     initialSin,
     initialExpiry,
     setValue,
   ]);
 
-  function handleFileUploaded(file: { key?: string }) {
-    if (file.key) {
-      setFileKey(file.key);
-    }
-  }
-
-  function handleDeferredFileSelected(file: File | null) {
-    setPendingAuthorizationFile(file);
-  }
-
-  async function handleExistingAuthorizationRemoved() {
-    setFileKey(null);
-    setPendingAuthorizationFile(null);
-    const { error, message } = await deleteWorkAuthorizationAction();
-    if (error) toast.error(message);
-  }
-
-  async function handleFileRemoved() {
-    setFileKey(null);
-    const { error, message } = await deleteWorkAuthorizationAction();
-    if (error) toast.error(message);
-  }
-
-  function handleComplianceFilePresenceChange(hasFile: boolean) {
-    if (deferAuthorizationDocumentUpload) {
-      if (!hasFile) setPendingAuthorizationFile(null);
-      return;
-    }
-    if (!hasFile) void handleFileRemoved();
-  }
-
-  async function handleTypeChange(values: string[]) {
+  function handleTypeChange(values: string[]) {
     const newType = (values[0] ?? "") as WorkAuthorization;
-    const prevType = workAuthorization;
-
     setValue("workAuthorization", newType, { shouldValidate: true });
-
     if (!requiresSinExpiry(newType)) {
       setValue("socialNumberExpiry", "", { shouldValidate: true });
-    }
-
-    if (newType === prevType) return;
-
-    setPendingAuthorizationFile(null);
-
-    if (fileKey) {
-      const keyToDelete = fileKey;
-      setFileKey(null);
-
-      try {
-        await deleteFile(keyToDelete);
-      } catch {
-        toast.error(t("removeFileFailed"));
-      }
-
-      const { error, message } = await deleteWorkAuthorizationAction();
-      if (error) toast.error(message);
     }
   }
 
@@ -411,12 +298,6 @@ export const WorkerAuthorizationForm = forwardRef<
           <FieldLabel>{t("typeLabel")}</FieldLabel>
           <p className="text-sm">
             {initialWorkAuthorization?.type ?? t("none")}
-          </p>
-        </Field>
-        <Field>
-          <FieldLabel>{t("documentLabel")}</FieldLabel>
-          <p className="text-sm">
-            {fileKey ? t("documentOnFile") : t("none")}
           </p>
         </Field>
         <Field>
@@ -447,15 +328,10 @@ export const WorkerAuthorizationForm = forwardRef<
   }
 
   if (profileEditMode && !inEditUI) {
-    const hasDoc = !!initialWorkAuthorization?.file_url;
     return (
       <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(8rem,10rem)_1fr] sm:gap-x-4">
         <dt className="text-muted-foreground font-medium">{t("typeLabel")}</dt>
         <dd>{initialWorkAuthorization?.type || "—"}</dd>
-        <dt className="text-muted-foreground font-medium">
-          {t("documentLabel")}
-        </dt>
-        <dd>{hasDoc ? t("documentOnFile") : t("none")}</dd>
         <dt className="text-muted-foreground font-medium">
           {t("socialNumberLabel")}
         </dt>
@@ -468,22 +344,6 @@ export const WorkerAuthorizationForm = forwardRef<
             <dd>{format(parseLocalDate(initialExpiry), "PPP")}</dd>
           </>
         ) : null}
-        <dt className="text-muted-foreground font-medium">
-          {t("verificationLabel")}
-        </dt>
-        <dd>
-          {hasDoc ? (
-            <span className="inline-flex items-center gap-2">
-              <CircleDashed
-                className="size-4 shrink-0 animate-spin text-muted-foreground"
-                aria-hidden
-              />
-              <span>{t("verificationStatusPending")}</span>
-            </span>
-          ) : (
-            t("none")
-          )}
-        </dd>
       </dl>
     );
   }
@@ -516,39 +376,6 @@ export const WorkerAuthorizationForm = forwardRef<
             {formState.errors.workAuthorization?.message}
           </FieldError>
         </Field>
-
-        {hasType && (
-          <Field>
-            <FieldDescription>
-              {t("uploadDescription", { type: workAuthorization })}
-            </FieldDescription>
-            <FileInput
-              key={workAuthorization}
-              context="compliance"
-              initialFileKey={fileKey ?? undefined}
-              uploadToCloud={!deferAuthorizationDocumentUpload}
-              onUploaded={
-                deferAuthorizationDocumentUpload
-                  ? undefined
-                  : handleFileUploaded
-              }
-              onSelectedFile={
-                deferAuthorizationDocumentUpload
-                  ? handleDeferredFileSelected
-                  : undefined
-              }
-              onExistingRemoved={
-                deferAuthorizationDocumentUpload
-                  ? () => {
-                      void handleExistingAuthorizationRemoved();
-                    }
-                  : undefined
-              }
-              onFileChange={handleComplianceFilePresenceChange}
-              disabled={inputsDisabled}
-            />
-          </Field>
-        )}
 
         <Field data-invalid={!!formState.errors.socialNumber}>
           <FieldLabel htmlFor="worker-sin">{t("socialNumberLabel")}</FieldLabel>
@@ -667,8 +494,6 @@ export const WorkerAuthorizationForm = forwardRef<
             variant="ghost"
             disabled={inputsDisabled}
             onClick={() => {
-              setPendingAuthorizationFile(null);
-              setFileKey(initialWorkAuthorization?.file_url ?? null);
               setValue(
                 "workAuthorization",
                 (initialWorkAuthorization?.type ?? "") as WorkAuthorization,

@@ -23,8 +23,8 @@ export const authorizationAction = async (
 
   const workAuthorization = await getWorkAuthorization();
   if (!workAuthorization) return onboardingStepError("workAuthorizationMissing");
-  if (!workAuthorization.file_url)
-    return onboardingStepError("workAuthorizationMissing");
+  if (!workAuthorization.type)
+    return onboardingStepError("workAuthorizationTypeRequired");
   if (!workAuthorization.social_number)
     return onboardingStepError("socialNumberMissing");
 

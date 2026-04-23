@@ -12,7 +12,7 @@ import {
 
 type UpsertWorkAuthorizationInput = {
   type: string;
-  fileUrl: string;
+  fileUrl?: string | null;
   socialNumber: string;
   socialNumberExpiry?: string | null;
 };
@@ -35,10 +35,7 @@ export async function upsertWorkAuthorizationAction(
     return { error: true, message };
   }
 
-  const fileUrl = input.fileUrl?.trim();
-  if (!fileUrl) {
-    return { error: true, message: "Authorization document is required" };
-  }
+  const fileUrl = input.fileUrl?.trim() || null;
 
   const incomingSin = parsed.data.socialNumber;
   const incomingExpiry = requiresSinExpiry(parsed.data.workAuthorization)
@@ -87,7 +84,7 @@ export async function upsertWorkAuthorizationAction(
       .from("work_authorizations")
       .update({
         type: parsed.data.workAuthorization,
-        file_url: fileUrl,
+        ...(fileUrl !== null && { file_url: fileUrl }),
         social_number: finalSin,
         social_number_expiry: finalExpiry,
         updated_at: new Date().toISOString(),
@@ -101,7 +98,7 @@ export async function upsertWorkAuthorizationAction(
     const { error } = await supabase.from("work_authorizations").insert({
       user_id: userId,
       type: parsed.data.workAuthorization,
-      file_url: fileUrl,
+      ...(fileUrl !== null && { file_url: fileUrl }),
       social_number: incomingSin,
       social_number_expiry: incomingExpiry,
       is_verified: false,

@@ -968,7 +968,7 @@ export type Database = {
       work_authorizations: {
         Row: {
           created_at: string
-          file_url: string
+          file_url: string | null
           id: string
           is_verified: boolean
           social_number: string | null
@@ -979,7 +979,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          file_url: string
+          file_url?: string | null
           id?: string
           is_verified?: boolean
           social_number?: string | null
@@ -990,7 +990,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          file_url?: string
+          file_url?: string | null
           id?: string
           is_verified?: boolean
           social_number?: string | null

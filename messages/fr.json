@@ -1128,6 +1128,7 @@
         "profileMissing": "Veuillez compléter votre profil.",
         "photoMissing": "Veuillez téléverser une photo de profil.",
         "workAuthorizationMissing": "Veuillez téléverser votre autorisation de travail.",
+        "workAuthorizationTypeRequired": "Veuillez sélectionner votre type d'autorisation de travail.",
         "socialNumberMissing": "Veuillez saisir votre numéro d'assurance sociale (NAS).",
         "socialNumberExpiryMissing": "Veuillez saisir la date d'expiration de votre numéro d'assurance sociale.",
         "invalidSubmission": "Soumission invalide.",

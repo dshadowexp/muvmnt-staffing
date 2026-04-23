@@ -26,7 +26,7 @@ type WorkerRow = {
 
 type WorkAuthData = {
   type: string;
-  file_url: string;
+  file_url?: string | null;
   social_number?: string | null;
   social_number_expiry?: string | null;
   is_verified: boolean;

@@ -14,7 +14,7 @@ import {
 type AuthRow = {
   id: string;
   type: string;
-  file_url: string;
+  file_url?: string | null;
   is_verified: boolean;
   created_at: string;
 };
@@ -97,25 +97,31 @@ export function AdminWorkerAuthorizationsFileOpen({
               <Badge variant={a.is_verified ? "default" : "secondary"}>
                 {a.is_verified ? "Verified" : "Unverified"}
               </Badge>
-              <Button
-                type="button"
-                variant="link"
-                className="text-primary h-auto p-0 text-sm underline-offset-4 hover:underline"
-                onClick={() =>
-                  setDoc({
-                    fileUrl: a.file_url,
-                    headline: "Work authorization",
-                    subline: a.type,
-                    createdAt: a.created_at,
-                    workerId,
-                    isVerified: a.is_verified,
-                    verifyKind: "authorization",
-                    recordId: a.id,
-                  })
-                }
-              >
-                View file
-              </Button>
+              {a.file_url ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="text-primary h-auto p-0 text-sm underline-offset-4 hover:underline"
+                  onClick={() =>
+                    setDoc({
+                      fileUrl: a.file_url as string,
+                      headline: "Work authorization",
+                      subline: a.type,
+                      createdAt: a.created_at,
+                      workerId,
+                      isVerified: a.is_verified,
+                      verifyKind: "authorization",
+                      recordId: a.id,
+                    })
+                  }
+                >
+                  View file
+                </Button>
+              ) : (
+                <span className="text-muted-foreground text-xs italic">
+                  No document uploaded
+                </span>
+              )}
             </div>
           </li>
         ))}

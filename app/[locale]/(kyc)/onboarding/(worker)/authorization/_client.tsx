@@ -12,7 +12,7 @@ import { authorizationAction } from "./_action";
 interface AuthorizationClientProps {
   initialWorkAuthorization?: {
     type: string;
-    file_url: string;
+    file_url?: string | null;
     social_number?: string | null;
     social_number_expiry?: string | null;
   } | null;
@@ -53,7 +53,6 @@ export function AuthorizationClient({
         initialWorkAuthorization={initialWorkAuthorization}
         workAuthorizationVerified={workAuthorizationVerified}
         enforcePersistedSocialNumberLock={false}
-        deferAuthorizationDocumentUpload
         submitting={preparingContinue || isContinuePending}
       />
       <ContinueButton pending={isContinuePending || preparingContinue} />
