@@ -645,7 +645,7 @@
     "validation": {
       "emailInvalid": "Please enter a valid email address.",
       "passwordMin": "Password must be at least 8 characters.",
-      "passwordLength": "Use 8+ characters for a stronger password.",
+      "passwordLength": "Use 9+ characters for a stronger password.",
       "passwordUpper": "Include at least one uppercase letter.",
       "passwordNumber": "Include at least one number.",
       "passwordSpecial": "Include at least one special character."

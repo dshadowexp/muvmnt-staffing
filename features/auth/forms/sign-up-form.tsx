@@ -60,8 +60,8 @@ export function SignUpForm() {
         email: z.email(tValidation("emailInvalid")),
         password: z
           .string()
-          .min(6, tValidation("passwordMin"))
-          .refine((p) => p.length >= 8, tValidation("passwordLength"))
+          .min(8, tValidation("passwordMin"))
+          .refine((p) => p.length >= 9, tValidation("passwordLength"))
           .refine((p) => /[A-Z]/.test(p), tValidation("passwordUpper"))
           .refine((p) => /[0-9]/.test(p), tValidation("passwordNumber"))
           .refine(
