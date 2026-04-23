@@ -37,6 +37,11 @@ export async function generateMetadata({
     description: tMeta("description"),
     keywords: [
       "healthcare staffing",
+      "shift coverage",
+      "healthcare shift coverage",
+      "healthcare shift coverage in under 5 minutes",
+      "healthcare shift coverage in under 5 minutes",
+      "shifts near me",
       "temp healthcare staff",
       "home care staffing",
       "nursing staffing",
