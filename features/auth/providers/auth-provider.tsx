@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 await runTokenExchange(firebaseUser);
             } catch (err) {
-                toast.error("First sign up to create your account");
+                toast.info("First sign up to create your account");
                 await logout();
                 await deleteSession();  
                 router.push("/sign-up");

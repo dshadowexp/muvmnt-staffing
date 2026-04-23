@@ -11,11 +11,6 @@ import {
 } from "@/app/[locale]/dashboard/_components/user-account-dropdown-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,24 +19,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
 import { InstallPrompt } from "@/features/notifications/components/install-prompt";
 import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
 
-function initialsFromName(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`.toUpperCase();
-}
-
 type SiteHeaderProps = {
   /** When set (e.g. admin shell), overrides Firebase user for this menu + avatar. */
   menuUser?: UserAccountMenuUser;
+  /** Resolved avatar URL (e.g. presigned S3 URL for workers). Takes precedence over Firebase photoURL. */
+  avatarSrc?: string | null;
 };
 
-export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
+export function SiteHeader({ menuUser: menuUserProp, avatarSrc }: SiteHeaderProps = {}) {
   const { authUser, firebaseUser, loading } = useAuth();
   const tAccount = useTranslations("dashboard.accountMenu");
   const role = authUser?.role ?? null;
@@ -53,10 +44,8 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
     ({
       name: firebaseUser?.displayName?.trim() || tAccount("defaultName"),
       email: firebaseUser?.email ?? "",
-      avatar: firebaseUser?.photoURL ?? "",
+      avatar: avatarSrc ?? firebaseUser?.photoURL ?? "",
     } satisfies UserAccountMenuUser);
-
-  const initials = initialsFromName(menuUser.name);
 
   return (
     <header className="sticky top-0 z-30 flex h-(--header-height) shrink-0 items-center gap-2 border-b border-border/20 bg-transparent backdrop-blur-xl supports-[backdrop-filter]:bg-background/[0.04] dark:supports-[backdrop-filter]:bg-background/[0.08]">
@@ -88,14 +77,12 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
                 aria-label={tAccount("accountMenuAria")}
                 disabled={loading && !menuUserProp}
               >
-                <Avatar className="size-8 rounded-full">
-                  {menuUser.avatar ? (
-                    <AvatarImage src={menuUser.avatar} alt={menuUser.name} />
-                  ) : null}
-                  <AvatarFallback className="rounded-full text-xs">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  src={menuUser.avatar}
+                  name={menuUser.name}
+                  className="size-8 rounded-full"
+                  fallbackClassName="rounded-full text-xs"
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

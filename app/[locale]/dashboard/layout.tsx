@@ -2,22 +2,33 @@ import { AppSidebar } from "@/app/[locale]/dashboard/_components/app-sidebar";
 import { PushTokenRegistrar } from "@/features/notifications/components/push-token-registrar";
 import { SiteHeader } from "@/app/[locale]/dashboard/_components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { getSession } from "@/lib/session";
+import { getWorkerProfile } from "@/features/profile/dal/queries";
+import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
 
 const shellStyle = {
     "--sidebar-width": "calc(var(--spacing) * 72)",
     "--header-height": "calc(var(--spacing) * 12)",
 } as React.CSSProperties;
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const session = await getSession();
+    let avatarSrc: string | null = null;
+
+    if (session?.role === "worker") {
+        const profile = await getWorkerProfile();
+        avatarSrc = await resolveWorkerPhotoSrc(profile?.photo_url);
+    }
+
     return (
         <SidebarProvider
             style={shellStyle}
             className="h-svh min-h-0 overflow-hidden"
         >
             <PushTokenRegistrar />
-            <AppSidebar variant="inset" />
+            <AppSidebar variant="inset" avatarSrc={avatarSrc} />
             <SidebarInset className="min-h-0 flex-1 overflow-hidden">
-                <SiteHeader />
+                <SiteHeader avatarSrc={avatarSrc} />
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
                     <div className="@container/main flex w-full min-w-0 flex-1 flex-col items-stretch gap-6 px-4 pb-10 pt-4 md:px-6 md:pt-5 [&>*]:!max-w-none">
                         {children}

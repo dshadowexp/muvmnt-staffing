@@ -1310,7 +1310,7 @@
           "complete": "Complet",
           "finish": "Terminer",
           "begin": "Commencer la configuration",
-          "finishOnboarding": "Compléter la configuration",
+          "finishOnboarding": "Finaliser la configuration",
           "somethingWentWrong": "Une erreur s'est produite"
         },
         "billing": {

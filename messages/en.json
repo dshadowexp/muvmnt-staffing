@@ -1310,7 +1310,7 @@
           "complete": "Complete",
           "finish": "Finish",
           "begin": "Begin setup",
-          "finishOnboarding": "Complete setup",
+          "finishOnboarding": "Finalize setup",
           "somethingWentWrong": "Something went wrong"
         },
         "billing": {

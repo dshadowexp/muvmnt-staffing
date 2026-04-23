@@ -17,8 +17,8 @@ const POLL_INTERVAL_MS = 4000;
 const COOLDOWN_SECONDS = 60;
 
 export function EmailVerification() {
-  const { firebaseUser: user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { firebaseUser: user, loading: authLoading } = useAuth();
   const [sending, setSending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [sent, setSent] = useState(false);
