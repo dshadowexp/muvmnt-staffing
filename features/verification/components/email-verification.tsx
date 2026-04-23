@@ -5,6 +5,7 @@ import { sendEmailVerification } from "firebase/auth";
 import { useTranslations } from "next-intl";
 import { auth } from "@/services/firebase/auth";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { FieldLabel } from "@/components/ui/field";
 import { LoadingSwap } from "@/components/ui/loading-swap";
@@ -17,13 +18,38 @@ const COOLDOWN_SECONDS = 60;
 
 export function EmailVerification() {
   const { firebaseUser: user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [sending, setSending] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mountedRef = useRef(true);
   const t = useTranslations("kyc.onboarding.forms.verification");
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (pollRef.current) clearInterval(pollRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const handleVerified = useCallback(() => {
+    if (!mountedRef.current) return;
+    posthog.capture("email_verified");
+    router.refresh();
+  }, [router]);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
 
   const startPolling = useCallback(() => {
     if (pollRef.current) return;
@@ -32,14 +58,15 @@ export function EmailVerification() {
       await auth.currentUser.reload();
       if (auth.currentUser.emailVerified) {
         clearInterval(id);
-        pollRef.current = null;
-        posthog.capture("email_verified");
+        if (mountedRef.current) pollRef.current = null;
+        handleVerified();
       }
     }, POLL_INTERVAL_MS);
     pollRef.current = id;
-  }, []);
+  }, [handleVerified]);
 
   const startCooldown = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
     setCooldown(COOLDOWN_SECONDS);
     timerRef.current = setInterval(() => {
       setCooldown((n) => {
@@ -58,7 +85,7 @@ export function EmailVerification() {
     setError("");
     try {
       await sendEmailVerification(auth.currentUser, {
-        url: `${env.NEXT_PUBLIC_APP_URL}/verify-email`
+        url: `${env.NEXT_PUBLIC_APP_URL}/onboarding/verification`,
       });
       posthog.capture("email_verification_sent");
       setSent(true);
@@ -71,12 +98,24 @@ export function EmailVerification() {
     }
   }, [startCooldown, startPolling, t]);
 
-  useEffect(() => {
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
+  const handleCheckAgain = useCallback(async () => {
+    if (!auth.currentUser) return;
+    setChecking(true);
+    setError("");
+    try {
+      stopPolling();
+      await auth.currentUser.reload();
+      if (auth.currentUser.emailVerified) {
+        handleVerified();
+      } else {
+        startPolling();
+      }
+    } catch {
+      setError(t("emailSendFailed"));
+    } finally {
+      if (mountedRef.current) setChecking(false);
+    }
+  }, [handleVerified, startPolling, stopPolling, t]);
 
   const disabled = sending || cooldown > 0;
   const needsVerification = !user?.emailVerified;
@@ -145,9 +184,17 @@ export function EmailVerification() {
                   </LoadingSwap>
                 </Button>
 
-                {sent && !user?.emailVerified ? (
-                  <Button variant="ghost" size="sm" type="button" onClick={startPolling}>
-                    {t("checkAgain")}
+                {sent ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    disabled={checking}
+                    onClick={handleCheckAgain}
+                  >
+                    <LoadingSwap isLoading={checking}>
+                      <span>{t("checkAgain")}</span>
+                    </LoadingSwap>
                   </Button>
                 ) : null}
               </div>
