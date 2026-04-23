@@ -25,7 +25,6 @@ import {
   requiresSinExpiry,
   type AuthorizationFormValues,
 } from "@/features/profile/schemas/authorization";
-import { upsertWorkAuthorizationAction } from "@/features/profile/actions/authorization-actions";
 import {
   Field,
   FieldDescription,
@@ -48,9 +47,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LoadingSwap } from "@/components/ui/loading-swap";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 
 interface InitialWorkAuthorization {
@@ -82,9 +79,18 @@ interface WorkerAuthorizationFormProps {
   submitting?: boolean;
 }
 
-/** Onboarding Continue: validate, persist, then run the step server action. */
+export type WorkerAuthorizationValues = {
+  type: string;
+  socialNumber: string;
+  socialNumberExpiry?: string | null;
+};
+
+/**
+ * Onboarding Continue: validate the form and return the current values.
+ * Returns `null` if validation fails.
+ */
 export type WorkerAuthorizationFormHandle = {
-  prepareForContinue: () => Promise<boolean>;
+  prepareForContinue: () => Promise<WorkerAuthorizationValues | null>;
 };
 
 function parseLocalDate(dateStr: string): Date {
@@ -108,12 +114,10 @@ export const WorkerAuthorizationForm = forwardRef<
   ref,
 ) {
   const { loading: authLoading } = useAuth();
-  const [saving, setSaving] = useState(false);
   const [expiryOpen, setExpiryOpen] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.authorization");
   const tCommon = useTranslations("common");
   const tVal = useTranslations("kyc.onboarding.validation");
-  const tOnboardingErrors = useTranslations("kyc.onboarding.errors");
   const schema = useMemo(() => buildAuthorizationSchema(tVal), [tVal]);
 
   const initialSin = normalizeSocialNumber(
@@ -136,7 +140,6 @@ export const WorkerAuthorizationForm = forwardRef<
   const socialNumberRaw = watch("socialNumber") ?? "";
   const socialNumberExpiry = watch("socialNumberExpiry") ?? "";
 
-  const socialNumber = normalizeSocialNumber(socialNumberRaw);
   const needsExpiry = requiresSinExpiry(workAuthorization);
   const sinLocked =
     enforcePersistedSocialNumberLock &&
@@ -145,34 +148,12 @@ export const WorkerAuthorizationForm = forwardRef<
       socialNumberExpiry: initialExpiry || null,
     });
 
-  const hasType = !!workAuthorization;
-  const hasValidSin = socialNumber.length === 9;
-  const hasValidExpiry = !needsExpiry || (() => {
-    if (!socialNumberExpiry) return false;
-    const parsed = parseLocalDate(socialNumberExpiry);
-    if (Number.isNaN(parsed.getTime())) return false;
-    const today = new Date();
-    const todayStart = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-    );
-    return parsed >= todayStart;
-  })();
-  const canSave = hasType && hasValidSin && hasValidExpiry;
-
-  const isUnchanged =
-    initialWorkAuthorization &&
-    workAuthorization === initialWorkAuthorization.type &&
-    socialNumber === initialSin &&
-    (socialNumberExpiry ?? "") === (initialExpiry ?? "");
-
   /** Profile: editable UI only while editing. Onboarding: always editable when not verified. */
   const inEditUI =
     !workAuthorizationVerified && (!profileEditMode || isEditing);
 
   const inputsDisabled =
-    inEditUI && (saving || submitting || authLoading);
+    inEditUI && (submitting || authLoading);
 
   useEffect(() => {
     if (inputsDisabled) setExpiryOpen(false);
@@ -182,72 +163,26 @@ export const WorkerAuthorizationForm = forwardRef<
     ref,
     () => ({
       async prepareForContinue() {
-        if (workAuthorizationVerified) return true;
-        if (!inEditUI) return true;
+        if (workAuthorizationVerified) return null;
+        if (!inEditUI) return null;
 
         const fieldsValid = await trigger(undefined, { shouldFocus: true });
-        if (!fieldsValid) return false;
+        if (!fieldsValid) return null;
 
         const type = getValues("workAuthorization") as WorkAuthorization;
         const sn = normalizeSocialNumber(getValues("socialNumber"));
         const exp = getValues("socialNumberExpiry") ?? "";
         const expRequired = requiresSinExpiry(type);
 
-        const { error, message } = await upsertWorkAuthorizationAction({
+        return {
           type,
           socialNumber: sn,
           socialNumberExpiry: expRequired ? exp : null,
-        });
-        if (error) {
-          toast.error(message);
-          return false;
-        }
-        return true;
+        };
       },
     }),
-    [
-      workAuthorizationVerified,
-      inEditUI,
-      trigger,
-      getValues,
-    ],
+    [workAuthorizationVerified, inEditUI, trigger, getValues],
   );
-
-  useEffect(() => {
-    if (!inEditUI) return;
-    if (workAuthorizationVerified) return;
-    if (!canSave || isUnchanged) return;
-
-    let cancelled = false;
-    async function save() {
-      setSaving(true);
-      const { error, message } = await upsertWorkAuthorizationAction({
-        type: workAuthorization,
-        socialNumber,
-        socialNumberExpiry: needsExpiry ? socialNumberExpiry : null,
-      });
-      if (cancelled) return;
-      setSaving(false);
-      if (error) {
-        toast.error(message);
-      } else {
-        toast.success(message);
-      }
-    }
-    save();
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    inEditUI,
-    workAuthorizationVerified,
-    canSave,
-    isUnchanged,
-    workAuthorization,
-    socialNumber,
-    socialNumberExpiry,
-    needsExpiry,
-  ]);
 
   const wasEditingRef = useRef(false);
   useEffect(() => {
@@ -510,15 +445,6 @@ export const WorkerAuthorizationForm = forwardRef<
           </Button>
         </div>
       ) : null}
-
-      {inEditUI && (saving || submitting || authLoading) && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <LoadingSwap isLoading>
-            <span />
-          </LoadingSwap>
-          {t("saving")}
-        </div>
-      )}
     </>
   );
 });

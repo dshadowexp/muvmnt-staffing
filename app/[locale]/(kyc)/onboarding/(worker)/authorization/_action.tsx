@@ -6,42 +6,49 @@ import {
   onboardingStepRawError,
 } from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
-import { getWorkAuthorization, getWorkerProfile } from "@/features/profile/dal/queries";
+import { getWorkerProfile } from "@/features/profile/dal/queries";
+import { upsertWorkAuthorizationAction } from "@/features/profile/actions/authorization-actions";
+import {
+  buildAuthorizationSchema,
+  normalizeSocialNumber,
+} from "@/features/profile/schemas/authorization";
 import { getSession } from "@/lib/session";
 
+export type AuthorizationActionInput = {
+  type: string;
+  socialNumber: string;
+  socialNumberExpiry?: string | null;
+};
+
+const authorizationInputSchema = buildAuthorizationSchema();
+
 export const authorizationAction = async (
-  _prevState: OnboardingStepFormState | undefined,
-  _formData: FormData,
+  input: AuthorizationActionInput,
 ): Promise<OnboardingStepFormState> => {
   const session = await getSession();
   if (!session) return onboardingStepError("userNotFound");
   if (session.role !== "worker") return onboardingStepError("userNotAuthorized");
 
+  const parsed = authorizationInputSchema.safeParse({
+    workAuthorization: input.type,
+    socialNumber: input.socialNumber,
+    socialNumberExpiry: input.socialNumberExpiry ?? "",
+  });
+  if (!parsed.success) {
+    const message = parsed.error.issues[0]?.message ?? "Invalid authorization details";
+    return onboardingStepRawError(message);
+  }
+
   const profile = await getWorkerProfile();
   if (!profile) return onboardingStepError("profileMissing");
   if (profile.photo_url === null) return onboardingStepError("photoMissing");
 
-  const workAuthorization = await getWorkAuthorization();
-  if (!workAuthorization) return onboardingStepError("workAuthorizationMissing");
-  if (!workAuthorization.type)
-    return onboardingStepError("workAuthorizationTypeRequired");
-  if (!workAuthorization.social_number)
-    return onboardingStepError("socialNumberMissing");
-
-  const requiresExpiry = (
-    [
-      "Open Work Permit",
-      "Closed Work Permit",
-      "Study Permit (with work authorization)",
-    ] as const
-  ).includes(
-    workAuthorization.type as
-      | "Open Work Permit"
-      | "Closed Work Permit"
-      | "Study Permit (with work authorization)",
-  );
-  if (requiresExpiry && !workAuthorization.social_number_expiry)
-    return onboardingStepError("socialNumberExpiryMissing");
+  const upsert = await upsertWorkAuthorizationAction({
+    type: parsed.data.workAuthorization,
+    socialNumber: normalizeSocialNumber(parsed.data.socialNumber),
+    socialNumberExpiry: parsed.data.socialNumberExpiry ?? null,
+  });
+  if (upsert.error) return onboardingStepRawError(upsert.message);
 
   const persist = await completeOnboardingStep("authorization");
   if (persist.error) {

@@ -17,12 +17,12 @@
   "professions": {
     "rn": "Infirmière autorisée (IA)",
     "rpn": "Infirmière auxiliaire autorisée (IAA)",
+    "ien": "Infirmière formée à l'étranger (IFE)",
     "psw": "Préposé aux services de soutien personnel (PAB)",
     "healthcare_support_worker": "Travailleur de soutien en santé",
     "allied_health_practitioner": "Professionnel en santé connexe",
     "dsw": "Travailleur en services de développement (TSD)",
-    "cook": "Cuisinier / aide en alimentation",
-    "other": "Autre"
+    "cook": "Cuisinier / Aide en alimentation"
   },
 
   "compliance": {
@@ -1104,7 +1104,7 @@
         },
         "payroll": {
           "title": "Paie",
-          "description": "Configurez votre compte de paie pour recevoir vos paiements."
+          "description": "Connectez votre compte de versement pour recevoir vos paiements pour les quarts que vous complétez."
         },
         "details": {
           "title": "Compte",
@@ -1311,7 +1311,8 @@
           "finish": "Terminer",
           "begin": "Commencer la configuration",
           "finishOnboarding": "Finaliser la configuration",
-          "somethingWentWrong": "Une erreur s'est produite"
+          "somethingWentWrong": "Une erreur s'est produite",
+          "identityCheckNotice": "Finalisez les vérifications d'identité en attente. Une fois terminé, actualisez cette page pour les mises à jour."
         },
         "billing": {
           "begin": "Commencer la configuration",

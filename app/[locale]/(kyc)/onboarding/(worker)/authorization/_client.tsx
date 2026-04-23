@@ -1,8 +1,11 @@
 "use client";
 
-import { useActionState, useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "@/i18n/navigation";
+import { useOnboarding } from "@/features/onboarding/onboarding-provider";
+import { useTranslatedStepError } from "@/features/onboarding/lib/use-translated-step-error";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
-import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboarding-form-navigate";
 import {
   WorkerAuthorizationForm,
   type WorkerAuthorizationFormHandle,
@@ -23,11 +26,11 @@ export function AuthorizationClient({
   initialWorkAuthorization,
   workAuthorizationVerified,
 }: AuthorizationClientProps) {
+  const router = useRouter();
+  const { applyStepsFromServer } = useOnboarding();
+  const resolveError = useTranslatedStepError();
   const authFormRef = useRef<WorkerAuthorizationFormHandle>(null);
-  const [preparingContinue, setPreparingContinue] = useState(false);
-  const [isContinuePending, startTransition] = useTransition();
-  const [state, formAction] = useActionState(authorizationAction, undefined);
-  useOnboardingFormNavigate(state);
+  const [isPending, setIsPending] = useState(false);
 
   return (
     <form
@@ -35,15 +38,32 @@ export function AuthorizationClient({
       onSubmit={(e) => {
         e.preventDefault();
         void (async () => {
-          setPreparingContinue(true);
+          setIsPending(true);
           try {
-            const ok = await authFormRef.current?.prepareForContinue();
-            if (ok !== true) return;
-            startTransition(() => {
-              formAction(new FormData());
-            });
+            let values = await authFormRef.current?.prepareForContinue();
+
+            // When already verified, the form shows a static summary and
+            // prepareForContinue returns null — use the initial data as-is.
+            if (!values && workAuthorizationVerified && initialWorkAuthorization?.type) {
+              values = {
+                type: initialWorkAuthorization.type,
+                socialNumber: initialWorkAuthorization.social_number ?? "",
+                socialNumberExpiry: initialWorkAuthorization.social_number_expiry,
+              };
+            }
+
+            if (!values) return;
+
+            const result = await authorizationAction(values);
+            if (!result.ok) {
+              toast.error(resolveError(result));
+              return;
+            }
+
+            applyStepsFromServer(result.steps);
+            router.push(result.redirectTo);
           } finally {
-            setPreparingContinue(false);
+            setIsPending(false);
           }
         })();
       }}
@@ -53,9 +73,9 @@ export function AuthorizationClient({
         initialWorkAuthorization={initialWorkAuthorization}
         workAuthorizationVerified={workAuthorizationVerified}
         enforcePersistedSocialNumberLock={false}
-        submitting={preparingContinue || isContinuePending}
+        submitting={isPending}
       />
-      <ContinueButton pending={isContinuePending || preparingContinue} />
+      <ContinueButton pending={isPending} />
     </form>
   );
 }

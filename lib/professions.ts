@@ -4,12 +4,12 @@
 export const PROFESSION_IDS = [
     "rn",
     "rpn",
+    "ien",
     "psw",
     "healthcare_support_worker",
     "allied_health_practitioner",
     "dsw",
     "cook",
-    "other",
 ] as const;
 
 export type ProfessionalRole = (typeof PROFESSION_IDS)[number];

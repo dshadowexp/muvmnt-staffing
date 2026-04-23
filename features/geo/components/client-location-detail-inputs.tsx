@@ -11,9 +11,15 @@ import { Textarea } from "@/components/ui/textarea";
 type ClientLocationDetailInputsProps = {
   location: AddressLocation | null;
   /**
-   * Persist updated location; return true when save succeeded.
+   * Persist updated location to the DB; return true when save succeeded.
+   * Used in the dashboard profile context.
    */
-  onPersist: (next: AddressLocation) => Promise<boolean>;
+  onPersist?: (next: AddressLocation) => Promise<boolean>;
+  /**
+   * Called with the updated location without DB persistence.
+   * Used in onboarding where submission is deferred to the Continue action.
+   */
+  onChange?: (next: AddressLocation) => void;
   disabled?: boolean;
 };
 
@@ -23,6 +29,7 @@ type ClientLocationDetailInputsProps = {
 export function ClientLocationDetailInputs({
   location,
   onPersist,
+  onChange,
   disabled,
 }: ClientLocationDetailInputsProps) {
   const baseId = useId();
@@ -61,8 +68,15 @@ export function ClientLocationDetailInputs({
       instructions: field === "instructions" ? trimmed || null : location.instructions,
     };
 
-    const ok = await onPersist(next);
-    if (ok) startTransition(() => router.refresh());
+    if (onChange) {
+      onChange(next);
+      return;
+    }
+
+    if (onPersist) {
+      const ok = await onPersist(next);
+      if (ok) startTransition(() => router.refresh());
+    }
   }
 
   if (!location) return null;

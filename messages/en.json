@@ -17,12 +17,12 @@
   "professions": {
     "rn": "Registered Nurse (RN)",
     "rpn": "Registered Practical Nurse (RPN)",
+    "ien": "Internationally Educated Nurse (IEN)",
     "psw": "Personal Support Worker (PSW)",
     "healthcare_support_worker": "Healthcare Support Worker",
     "allied_health_practitioner": "Allied Health Practitioner",
     "dsw": "Developmental Services Worker (DSW)",
-    "cook": "Cook / Dietary Aide",
-    "other": "Other"
+    "cook": "Cook / Dietary Aide"
   },
 
   "compliance": {
@@ -1104,7 +1104,7 @@
         },
         "payroll": {
           "title": "Payroll",
-          "description": "Set up your payroll account to receive payments."
+          "description": "Setup your payroll so you can get paid for completed shifts."
         },
         "details": {
           "title": "Account",
@@ -1311,7 +1311,8 @@
           "finish": "Finish",
           "begin": "Begin setup",
           "finishOnboarding": "Finalize setup",
-          "somethingWentWrong": "Something went wrong"
+          "somethingWentWrong": "Something went wrong",
+          "identityCheckNotice": "Finalize any pending identity checks. Once done, refresh this page for updates."
         },
         "billing": {
           "begin": "Begin setup",

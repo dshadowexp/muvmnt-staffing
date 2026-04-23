@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { payrollAction } from "./_action";
 import { setupPayrollAction } from "@/features/payments/payroll/actions";
-import { Check } from "lucide-react";
+import { Check, InfoIcon } from "lucide-react";
 
 type PayrollInitialSnapshot = {
   accountId: string;
@@ -59,6 +59,12 @@ export function PayrollClient({
         </form>
       ) : (
         <form onSubmit={handleSetup} className="space-y-6">
+          {showFinishOnboarding && initialPayroll && !initialPayroll.enabled && (
+            <div className="flex items-start gap-2 rounded-md border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
+              <InfoIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <p>{t("identityCheckNotice")}</p>
+            </div>
+          )}
           <ContinueButton
             text={showFinishOnboarding ? t("finishOnboarding") : t("begin")}
             pending={loading}
