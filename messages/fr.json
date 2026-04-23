@@ -1546,7 +1546,15 @@
       }
     }
   },
+  "installPrompt": {
+    "installApp": "Installer l'application",
+    "installDevice": "Installez cette application sur votre appareil",
+    "iosShareIcon": "icône de partage",
+    "iosPlusIcon": "icône plus",
+    "iosInstructions": "Pour installer, appuyez sur le bouton Partager ⎋ puis « Ajouter à l'écran d'accueil » ➕"
+  },
   "feedback": {
+    "giveFeedback": "Donner un avis",
     "dialog": {
       "title": "Envoyer des commentaires",
       "description": "Aidez-nous à améliorer votre expérience.",

@@ -1546,7 +1546,15 @@
       }
     }
   },
+  "installPrompt": {
+    "installApp": "Install app",
+    "installDevice": "Install this app on your device",
+    "iosShareIcon": "share icon",
+    "iosPlusIcon": "plus icon",
+    "iosInstructions": "To install, tap the Share button ⎋ then \"Add to Home Screen\" ➕"
+  },
   "feedback": {
+    "giveFeedback": "Give feedback",
     "dialog": {
       "title": "Send feedback",
       "description": "Help us improve your experience.",

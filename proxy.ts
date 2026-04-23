@@ -11,13 +11,14 @@ import {
 import { UserAuth, UserRole } from "./types/auth";
 import arcjet, { detectBot, shield, slidingWindow } from "@/services/arcjet/client";
 
-const aj = arcjet
+const ajBase = arcjet
     .withRule(shield({ mode: "LIVE" }))
-    .withRule(detectBot({
-        mode: "LIVE",
-        allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR", "CATEGORY:PREVIEW", "STRIPE_WEBHOOK", "STRIPE_CRAWLER", ],
-    }))
     .withRule(slidingWindow({ mode: "LIVE", interval: "1m", max: 100 }));
+
+const ajWithBot = ajBase.withRule(detectBot({
+    mode: "LIVE",
+    allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR", "CATEGORY:PREVIEW", "STRIPE_WEBHOOK", "STRIPE_CRAWLER"],
+}));
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -76,6 +77,9 @@ function isAllowedForRole(pathname: string, role: UserRole): boolean {
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
 export async function proxy(req: NextRequest) {
+    const userAgent = req.headers.get("user-agent");
+    const aj = userAgent ? ajWithBot : ajBase;
+
     const decision = await aj.protect(req);
     if (decision.isDenied()) {
         return NextResponse.json(

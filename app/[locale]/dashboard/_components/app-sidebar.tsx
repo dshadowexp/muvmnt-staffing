@@ -103,7 +103,6 @@ export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar> & { admin?: { user: AppSidebarAdminUser } }) {
   const { authUser, firebaseUser, loading } = useAuth();
-  const tNav = useTranslations("dashboard.nav");
   const tAccount = useTranslations("dashboard.accountMenu");
 
   const role = admin ? "admin" : authUser?.role ?? null;
@@ -111,8 +110,6 @@ export function AppSidebar({
   const homeHref = homeHrefForRole(role);
   const accountHref = dashboardAccountHrefForRole(role);
   const accountLabel = tAccount(dashboardAccountLabelKeyForRole(role));
-  const isClientOrWorker = role?.toLowerCase() === "client" || role?.toLowerCase() === "worker";
-  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
 
   const user =
     admin != null
@@ -146,28 +143,12 @@ export function AppSidebar({
         {loading && !admin ? <CircleDashedIcon className="size-4 animate-spin" /> : <NavMain items={navMain} />}
       </SidebarContent>
       <SidebarFooter className="gap-2">
-        {isClientOrWorker ? (
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip={tNav("feedback")}
-                onClick={() => setFeedbackOpen(true)}
-              >
-                <MessageSquareIcon className="size-4" />
-                <span>{tNav("feedback")}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        ) : null}
         <NavUser
           user={user}
           accountHref={accountHref}
           accountLabel={accountLabel}
         />
       </SidebarFooter>
-      {isClientOrWorker && (
-        <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
-      )}
     </Sidebar>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Download } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export function InstallPrompt() {
+  const t = useTranslations("installPrompt");
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -54,7 +56,7 @@ export function InstallPrompt() {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Install app"
+            aria-label={t("installApp")}
             onClick={!isIOS ? handleInstallClick : undefined}
           >
             <Download className="h-5 w-5" />
@@ -62,14 +64,9 @@ export function InstallPrompt() {
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-xs text-center">
           {isIOS ? (
-            <p>
-              To install, tap the Share button{" "}
-              <span role="img" aria-label="share icon">⎋</span>{" "}
-              then "Add to Home Screen"{" "}
-              <span role="img" aria-label="plus icon">➕</span>
-            </p>
+            <p>{t("iosInstructions")}</p>
           ) : (
-            <p>Install this app on your device</p>
+            <p>{t("installDevice")}</p>
           )}
         </TooltipContent>
       </Tooltip>

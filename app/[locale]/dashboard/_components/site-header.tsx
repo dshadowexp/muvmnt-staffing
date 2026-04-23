@@ -27,6 +27,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
 import { InstallPrompt } from "@/features/notifications/components/install-prompt";
+import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -70,6 +71,7 @@ export function SiteHeader({ menuUser: menuUserProp }: SiteHeaderProps = {}) {
         <div className="flex shrink-0 items-center gap-0.5">
           <InstallPrompt />
           <NotificationsBell />
+          <FeedbackIcon />
           <LanguageSwitcher variant="ghost" />
           <ThemeToggle />
           <Separator
