@@ -21,6 +21,8 @@ export const env = createEnv({
         RESEND_API_KEY: z.string().min(1),
         ARCJET_KEY: z.string().min(1),
         SHIFT_RESPONSE_TOKEN_SECRET: z.string().min(1),
+        BUNNY_STREAM_API_KEY: z.string().min(1),
+        BUNNY_STREAM_LIBRARY_ID: z.string().min(1),
     },
     createFinalSchema: env => {
         return z.object(env).transform(val => {

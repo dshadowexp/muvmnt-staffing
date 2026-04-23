@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { BackLink } from "@/components/back-link";
 import { Logo } from "@/components/logo";
 import { INTERVIEW_DURATION_SECS, MIN_DURATION_FOR_COMPLETED_AT_SECS } from "@/lib/constants";
+import { useRecorder } from "@/features/interviews/hooks/use-recorder";
 
 function parseDurationToSeconds(ts: string | null | undefined): number {
   if (!ts) return 0;
@@ -73,6 +74,71 @@ type InterviewShellProps = {
 const MIC_THRESHOLD = 0.12;
 const MIC_SUSTAIN_MS = 700;
 
+function InterviewInstructionsCard({
+  title,
+  description,
+}: {
+  title:       string;
+  description: string;
+}) {
+  const t = useTranslations("assessments.interview.instructions");
+
+  const steps: { icon: React.ReactNode; title: string; body: string }[] = [
+      {
+          icon:  <MicIcon className="size-4" />,
+          title: t("step1.title"),
+          body:  t("step1.body"),
+      },
+      {
+          icon:  <VideoIcon className="size-4" />,
+          title: t("step2.title"),
+          body:  t("step2.body"),
+      },
+      {
+          icon:  <CircleDashedIcon className="size-4" />,
+          title: t("step3.title"),
+          body:  t("step3.body"),
+      },
+      {
+          icon:  <CheckCircle2Icon className="size-4" />,
+          title: t("step4.title"),
+          body:  t("step4.body"),
+      },
+  ];
+
+  return (
+      <Card className="w-full max-w-lg">
+          <CardHeader>
+              <CardTitle className="text-xl">{title}</CardTitle>
+              <CardDescription className="text-balance">
+                  {description}
+              </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                  {steps.map((step, i) => (
+                      <div key={i} className="flex gap-3">
+                          <div className="flex size-7 shrink-0 items-center justify-center rounded-full border bg-muted text-muted-foreground">
+                              {step.icon}
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                              <p className="text-sm font-medium">{step.title}</p>
+                              <p className="text-xs text-muted-foreground">{step.body}</p>
+                          </div>
+                      </div>
+                  ))}
+              </div>
+
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900 dark:bg-amber-950/30">
+                  <p className="text-xs text-amber-800 dark:text-amber-400">
+                      {t("notice", { minutes: INTERVIEW_DURATION_SECS / 60 })}
+                  </p>
+              </div>
+          </CardContent>
+      </Card>
+  );
+}
+
 /**
  * Opens the mic, exposes a normalized level (0-1) and a `passed` flag once the
  * user has spoken above {@link MIC_THRESHOLD} for {@link MIC_SUSTAIN_MS}
@@ -86,11 +152,9 @@ function useMicCheck(enabled: boolean) {
     if (!enabled) {
       setLevel(0);
       setPassed(false);
+      return;
     }
-  }, [enabled]);
-
-  useEffect(() => {
-    if (!enabled || passed) return;
+    if (passed) return;
 
     let cancelled = false;
     let stream: MediaStream | null = null;
@@ -106,6 +170,7 @@ function useMicCheck(enabled: boolean) {
           return;
         }
         ctx = new AudioContext();
+        if (ctx.state === "suspended") await ctx.resume();
         const src = ctx.createMediaStreamSource(stream);
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
@@ -238,12 +303,8 @@ function MicCheckMeter({
 }
 
 function DeviceSetupCard({
-  title,
-  description,
   onStart,
 }: {
-  title: string;
-  description: string;
   onStart: () => Promise<void>;
 }) {
   const t = useTranslations("assessments.interview.setup");
@@ -313,23 +374,8 @@ function DeviceSetupCard({
   const canStart = camOn && micOn && micPassed;
 
   return (
-    <div className="flex min-h-svh flex-col p-4">
-      <div className="flex items-center justify-between">
-        <BackLink backHref="/dashboard/assessments" title="Assessments" />
-        <Logo href="/dashboard/assessments" />
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </div>
-      </div>
-      <div className="flex flex-1 items-center justify-center">
+    
         <Card className="w-full max-w-lg">
-          <CardHeader>
-            <CardTitle className="text-xl">{title}</CardTitle>
-            <CardDescription className="text-balance">
-              {description}
-            </CardDescription>
-          </CardHeader>
           <CardContent className="flex flex-col gap-5">
             <p className="text-xs text-muted-foreground">
               {t("durationNotice", {
@@ -424,8 +470,6 @@ function DeviceSetupCard({
             </Button>
           </CardContent>
         </Card>
-      </div>
-    </div>
   );
 }
 
@@ -446,10 +490,10 @@ export function InterviewShell({
   const t = useTranslations("assessments.interview");
   const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp } =
     useVoice();
+  const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(initialInterviewId ?? null);
   const [interviewId, setInterviewId] = useState<string | null>(
     initialInterviewId ?? null,
   );
-  const [cameraEnabled, setCameraEnabled] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
@@ -457,6 +501,9 @@ export function InterviewShell({
   const streamRef = useRef<MediaStream | null>(null);
   const closeTriggeredRef = useRef(false);
   const lastSyncedChatIdRef = useRef<string | null>(null);
+  const startingRef = useRef(false);
+  const disconnectRef = useRef(disconnect);
+  const disconnectedRef = useRef<boolean>(false);
   const router = useRouter();
 
   // Only keep the latest non-null values so disconnect resets don't wipe them
@@ -486,11 +533,12 @@ export function InterviewShell({
         video: { facingMode: "user", width: 640, height: 480 },
         audio: false,
       });
+      stream.getVideoTracks().forEach((track) => {
+        track.onended = () => stopCamera();
+      });
       streamRef.current = stream;
-      if (videoRef.current) {
+      if (videoRef.current)
         videoRef.current.srcObject = stream;
-      }
-      setCameraEnabled(true);
     } catch {
       toast.error(t("controls.cameraDenied"));
     }
@@ -500,14 +548,13 @@ export function InterviewShell({
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
-    setCameraEnabled(false);
   }, []);
 
-  const toggleCamera = useCallback(() => {
-    if (cameraEnabled) stopCamera();
-    else void startCamera();
-  }, [cameraEnabled, startCamera, stopCamera]);
+  useEffect(() => {
+    disconnectRef.current = disconnect;
+  }, [disconnect]);
 
+  // Cleanup: stop camera stream when component unmounts
   useEffect(() => {
     return () => stopCamera();
   }, [stopCamera]);
@@ -540,9 +587,11 @@ export function InterviewShell({
   useEffect(() => {
     if (interviewId == null) return;
     if (remaining <= 0 && elapsed > 0) {
-      disconnect();
+        if (disconnectedRef.current) return;
+        disconnectedRef.current = true;
+        disconnectRef.current();
     }
-  }, [remaining, elapsed, disconnect, interviewId]);
+  }, [remaining, elapsed, interviewId]);
 
   // On disconnect: save final state, then redirect to the per-interview review
   // page where feedback is streamed in. The feedback generation itself lives
@@ -550,7 +599,6 @@ export function InterviewShell({
   useEffect(() => {
     if (readyState !== VoiceReadyState.CLOSED) return;
     if (closeTriggeredRef.current) return;
-
     if (interviewId == null) {
       toast.error(t("interviewNotFound"));
       router.push(returnPath);
@@ -564,64 +612,108 @@ export function InterviewShell({
 
     (async () => {
       setFinalizing(true);
-      const chatSeconds = parseDurationToSeconds(finalDuration);
-      const patch: {
-        duration?: string;
-        humeChatId?: string;
-        completedAt?: string;
-      } = {};
-      if (finalDuration) patch.duration = finalDuration;
-      if (finalChatId) patch.humeChatId = finalChatId;
-      if (chatSeconds > MIN_DURATION_FOR_COMPLETED_AT_SECS) {
-        patch.completedAt = new Date().toISOString();
-      }
+      // Stop + upload recording in parallel with DB patch
+      try {
+        // Run recording upload + DB patch in parallel
+        const chatSeconds = parseDurationToSeconds(finalDuration);
 
-      await updateInterview(interviewId, patch);
-      stopCamera();
-      router.push(`/interviews/${interviewId}`);
+        const patch: {
+          duration?:    string;
+          humeChatId?:  string;
+          completedAt?: string;
+        } = {};
+        if (finalDuration) patch.duration = finalDuration;
+        if (finalChatId)   patch.humeChatId = finalChatId;
+        if (chatSeconds > MIN_DURATION_FOR_COMPLETED_AT_SECS) {
+          patch.completedAt = new Date().toISOString();
+        }
+
+        // Fully await both before navigating
+        await Promise.all([
+          stopRecording(),
+          updateInterview(interviewId, patch),
+        ]);
+      } catch (err) {
+          console.error("Finalizing error", err);
+      } finally {
+          stopCamera();
+          // Navigate only after everything is settled
+          router.push(`/interviews/${interviewId}`);
+      }
     })();
-  }, [interviewId, readyState, router, returnPath, stopCamera]);
+  }, [readyState]);
 
   const handleStart = async () => {
-    await startCamera();
+    if (startingRef.current) return;
+    startingRef.current = true;
+    disconnectedRef.current = false;
 
-    let activeInterviewId = interviewId;
-    if (activeInterviewId == null) {
-      const res = await createAssessmentInterview({ subject, subjectRef });
-      if (res.error) {
-        return errorToast(res.message);
+    try {
+      await startCamera();
+
+      let activeInterviewId = interviewId;
+      if (activeInterviewId == null) {
+        const res = await createAssessmentInterview({ subject, subjectRef });
+        if (res.error) {
+          return errorToast(res.message);
+        }
+        activeInterviewId = res.id;
+        setInterviewId(activeInterviewId);
       }
-      activeInterviewId = res.id;
-      setInterviewId(activeInterviewId);
-    }
 
-    connect({
-      auth: { type: "accessToken", value: accessToken },
-      configId:
-        subject === "profession"
-          ? env.NEXT_PUBLIC_HUME_CONFIG_ID_PROFESSION
-          : env.NEXT_PUBLIC_HUME_CONFIG_ID_RESUME,
-      sessionSettings: {
-        type: "session_settings",
-        variables: {
-          ...sessionVariables,
-          duration: INTERVIEW_DURATION_SECS / 60,
+      // Start recording — pass camera stream if available
+      await startRecording(streamRef.current);
+
+      connect({
+        auth: { type: "accessToken", value: accessToken },
+        configId:
+          subject === "profession"
+            ? env.NEXT_PUBLIC_HUME_CONFIG_ID_PROFESSION
+            : env.NEXT_PUBLIC_HUME_CONFIG_ID_RESUME,
+        sessionSettings: {
+          type: "session_settings",
+          variables: {
+            ...sessionVariables,
+            duration: INTERVIEW_DURATION_SECS / 60,
+          },
         },
-      },
-      resumedChatGroupId: chatGroupId ?? undefined,
-    }).catch((error) => {
-      console.error("error connecting", error);
-      errorToast(error.message);
-    });
+        resumedChatGroupId: chatGroupId ?? undefined,
+      }).catch((error) => {
+        console.error("error connecting", error);
+        errorToast(error.message);
+      });
+    } catch (err) {
+      stopCamera();
+      errorToast("Failed to start interview");
+    } finally {
+      startingRef.current = false;
+    }
+    
   };
 
   if (readyState === VoiceReadyState.IDLE) {
     return (
-      <DeviceSetupCard
-        title={title}
-        description={description}
-        onStart={handleStart}
-      />
+      <div className="flex min-h-svh flex-col p-4">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
+            <BackLink backHref="/dashboard/assessments" title="Assessments" />
+            <Logo href="/dashboard/assessments" />
+            <div className="flex items-center gap-2">
+                <LanguageSwitcher />
+                <ThemeToggle />
+            </div>
+        </header>
+        <main className="flex flex-1 justify-center p-6">
+        <div className="grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2 lg:items-start">
+                <InterviewInstructionsCard
+                  title={title}
+                  description={description}
+                />
+                <DeviceSetupCard
+                  onStart={handleStart}
+                />
+            </div>
+        </main>
+      </div>
     );
   }
 
@@ -631,7 +723,7 @@ export function InterviewShell({
         <CircleDashedIcon className="size-10 animate-spin" />
         <p className="text-lg font-medium">{t("completed.title")}</p>
         <p className="text-sm text-muted-foreground">
-          {t("completed.wrappingUp")}
+          {uploadingRecording ? "Saving interview..." : t("completed.wrappingUp")}
         </p>
       </div>
     );
@@ -639,7 +731,7 @@ export function InterviewShell({
 
   if (
     readyState === VoiceReadyState.CONNECTING ||
-    readyState === VoiceReadyState.CLOSED
+    readyState === VoiceReadyState.CLOSED // TODO: remove closed
   ) {
     return (
       <div className="flex min-h-svh items-center justify-center">
@@ -658,21 +750,17 @@ export function InterviewShell({
 
       <div className="shrink-0 flex justify-center px-4 pb-6">
         <Controls
-          cameraEnabled={cameraEnabled}
           remaining={remaining}
-          onToggleCamera={toggleCamera}
         />
       </div>
 
-      {cameraEnabled && (
-        <video
+      <video
           ref={attachVideoEl}
           autoPlay
           playsInline
           muted
           className="fixed bottom-24 right-4 z-50 h-32 w-44 rounded-lg border bg-black object-cover shadow-lg"
         />
-      )}
     </div>
   );
 }
@@ -684,9 +772,10 @@ function Messages({ user }: { user: { name: string; imageUrl: string } }) {
     [messages],
   );
   const maxFft = useMemo(
-    () => (fft.length > 0 ? Math.max(...fft) : 0),
+    () => fft.length > 0 ? fft.reduce((a, b) => Math.max(a, b), 0) : 0,
     [fft],
   );
+
 
   // Auto-scroll to the latest message whenever the message list grows.
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -708,13 +797,9 @@ function Messages({ user }: { user: { name: string; imageUrl: string } }) {
 }
 
 function Controls({
-  cameraEnabled,
   remaining,
-  onToggleCamera,
 }: {
-  cameraEnabled: boolean;
   remaining: number;
-  onToggleCamera: () => void;
 }) {
   const t = useTranslations("assessments.interview.controls");
   const { disconnect, isMuted, mute, unmute, micFft } = useVoice();
@@ -737,15 +822,8 @@ function Controls({
         </span>
       </Button>
 
-      <Button variant="ghost" size="icon" onClick={onToggleCamera}>
-        {cameraEnabled ? (
-          <VideoIcon />
-        ) : (
-          <VideoOffIcon className="text-destructive" />
-        )}
-        <span className="sr-only">
-          {cameraEnabled ? t("disableCamera") : t("enableCamera")}
-        </span>
+      <Button variant="ghost" size="icon" >
+        <VideoIcon />
       </Button>
 
       <div className="self-stretch">

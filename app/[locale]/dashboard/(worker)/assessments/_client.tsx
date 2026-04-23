@@ -56,6 +56,7 @@ export type StartedInterview = {
   feedback: Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
   duration: string | null;
   completedAt: string | null;
+  reviewed: boolean;
 };
 
 type Props = {
@@ -80,7 +81,7 @@ function AiInterviewBadge() {
         className="border-violet-500/40 bg-violet-500/10 font-normal text-violet-950 dark:border-violet-400/35 dark:bg-violet-500/15 dark:text-violet-100"
       >
         <MicIcon className="size-3.5" aria-hidden />
-        AI voice
+        AI
       </Badge>
       <Badge
         variant="outline"
@@ -267,6 +268,7 @@ function InterviewSlot({
         description={description}
         duration={interview.duration}
         decision={decision}
+        reviewed={interview.reviewed}
       />
     </Link>
   );
@@ -604,13 +606,15 @@ function CompletedInterviewCard({
   description,
   duration,
   decision,
+  reviewed
 }: {
   title: string;
   description: string;
   duration: string | null;
   decision: "PASS" | "FAIL" | "PENDING";
+  reviewed: boolean;
 }) {
-  const cardTone =
+  const cardTone = !reviewed ? "border-muted/25 bg-muted/10 group-hover:border-muted/40" :
     decision === "PASS"
       ? "border-emerald-500/25 bg-gradient-to-br from-emerald-500/[0.06] via-transparent to-sky-500/[0.04] group-hover:border-emerald-500/40 dark:border-emerald-400/20 dark:from-emerald-500/10 dark:group-hover:border-emerald-400/35"
       : decision === "FAIL"
@@ -632,7 +636,7 @@ function CompletedInterviewCard({
     >
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <DecisionBadge decision={decision} />
+          <DecisionBadge decision={decision} reviewed={reviewed} />
           {duration && (
             <Badge variant="outline" className="font-normal text-muted-foreground">
               <ClockIcon className="size-3" aria-hidden />
@@ -653,10 +657,24 @@ function CompletedInterviewCard({
 }
 
 function DecisionBadge({
+  reviewed,
   decision,
 }: {
   decision: "PASS" | "FAIL" | "PENDING";
+  reviewed: boolean;
 }) {
+  if (!reviewed) {
+    return (
+      <Badge
+        variant="outline"
+        className="border-violet-500/40 bg-violet-500/10 font-normal text-violet-950 dark:border-violet-400/35 dark:bg-violet-500/15 dark:text-violet-100"
+      >
+        <CircleDashedIcon className="size-3.5 animate-spin" aria-hidden />
+        Under review
+      </Badge>
+    );
+  }
+
   if (decision === "PASS") {
     return (
       <Badge

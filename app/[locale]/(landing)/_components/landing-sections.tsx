@@ -51,7 +51,8 @@ export async function HeroSection() {
             </div>
 
             <h1 className="mb-6 animate-fade-up-1 font-[var(--font-display)] text-[clamp(2.8rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tighter text-white">
-              {t("titleLead")}{" "}
+              {t("titleLead")}
+              <br />
               <span className="text-[var(--teal-mid)]">{t("titleAccent")}</span>
               <br />
               <span className="relative inline-block">
@@ -329,7 +330,7 @@ export async function TestimonialsSection() {
             <Link href="/find-staff">{t("ctaRequest")}</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/sign-up?as=worker">{t("ctaFindWork")}</Link>
+            <Link href="/find-work">{t("ctaFindWork")}</Link>
           </Button>
         </div>
       </div>

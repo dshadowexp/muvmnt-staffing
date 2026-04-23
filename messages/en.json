@@ -1,17 +1,17 @@
 {
   "site": {
-    "name": "ReadyKare",
+    "name": "readykare",
     "tagline": "Healthcare Staffing in Under 5 Min",
     "phone": "1-437-979-7797",
-    "email": "info@readykare.com",
-    "countries": "Canada, USA, UK",
-    "copyright": "© {year} ReadyKare Inc. All rights reserved."
+    "email": "support@readykare.com",
+    "countries": "Canada",
+    "copyright": "© {year} readykare Inc. All rights reserved."
   },
 
   "meta": {
-    "description": "ReadyKare connects healthcare facilities with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief.",
+    "description": "readykare connects healthcare facilities and families with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief.",
     "openGraphDescription": "Fill staffing gaps in under 5 minutes with AI-powered, real-time matching to vetted, prescreened healthcare professionals nearby.",
-    "openGraphImageAlt": "ReadyKare Inc."
+    "openGraphImageAlt": "readykare Inc."
   },
 
   "professions": {
@@ -184,16 +184,16 @@
   "landing": {
     "hero": {
       "badge": "Healthcare staffing, simplified",
-      "titleLead": "Coverage",
+      "titleLead": "Cover shifts",
       "titleAccent": "in less than",
       "titleTail": "5 minutes.",
-      "subtitle": "ReadyKare connects healthcare teams with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
+      "subtitle": "readykare connects healthcare teams and families with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
-        { "value": "93+", "label": "Facilities served" },
+        { "value": "50+", "label": "Facilities served" },
         { "value": "98%", "label": "Shift fill rate" },
-        { "value": "<3m", "label": "Avg. response" }
+        { "value": "<5m", "label": "Avg. response" }
       ]
     },
     "trust": {
@@ -201,11 +201,11 @@
     },
     "how": {
       "overline": "How it works",
-      "title": "Post, match, confirm.",
+      "title": "Request, match, confirm.",
       "subtitle": "From request to placement in hours, not days.",
       "steps": [
-        { "num": "01", "title": "Post your shift", "description": "Tell us the dates and hours. Takes under two minutes." },
-        { "num": "02", "title": "We match fast", "description": "Our roster of credentialed professionals is ready to cover shifts day or night." },
+        { "num": "01", "title": "Request your shift", "description": "Tell us the dates and hours. Takes under three minutes." },
+        { "num": "02", "title": "We match fast", "description": "Our roster of credentialed and vetted professionals is ready to cover shifts day or night." },
         { "num": "03", "title": "Confirm coverage", "description": "Review matched workers, accept the tier that fits your budget, and lock it in." },
         { "num": "04", "title": "Shift runs smoothly", "description": "Staff clock in, you approve hours, we handle payouts and follow-up." }
       ],
@@ -213,9 +213,9 @@
       "ctaJoin": "Join as a professional"
     },
     "why": {
-      "overline": "Why ReadyKare",
+      "overline": "Why readykare",
       "title": "We move at the speed of care.",
-      "subtitle": "Healthcare can't wait. Neither can we. ReadyKare was built for the pressures Canadian teams face every day.",
+      "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the pressures Canadian teams face every day.",
       "points": [
         { "icon": "Zap", "title": "Fast coverage", "description": "Most requests are matched the same day — including emergency relief." },
         { "icon": "BadgeCheck", "title": "Vetted professionals", "description": "Every worker is credentialed, reference-checked, and compliance-verified." },
@@ -223,9 +223,9 @@
         { "icon": "MessageCircle", "title": "Real support", "description": "A dedicated team that knows your facility — no tickets, no chatbots." }
       ],
       "statCards": [
-        { "title": "93+ facilities", "subtitle": "Trust ReadyKare across Ontario" },
+        { "title": "50+ facilities", "subtitle": "Trust readykare across Ontario" },
         { "title": "98% fill rate", "subtitle": "Across all shift types" },
-        { "title": "<3m response", "subtitle": "For emergency coverage" }
+        { "title": "<5m response", "subtitle": "For emergency coverage" }
       ]
     },
     "testimonials": {
@@ -256,7 +256,7 @@
     "rolesLabel": "We place",
     "roles": ["RN", "RPN", "PSW", "DSW", "Allied", "Support"],
     "card": {
-      "title": "Find staff nearby",
+      "title": "Request shift coverage",
       "subtitle": "Get matched with staff instantly."
     },
     "form": {
@@ -299,23 +299,23 @@
   "findWork": {
     "meta": {
       "title": "Find healthcare work",
-      "description": "Join ReadyKare's network of nurses, PSWs, and allied health professionals. Create a free account and get matched to shifts that fit your life.",
-      "ogDescription": "Pick the shifts that fit your life. ReadyKare matches credentialed professionals to local healthcare jobs across Canada."
+      "description": "Join readykare's network of nurses, PSWs, and allied health professionals. Create a free account and get matched to shifts that fit your life.",
+      "ogDescription": "Pick the shifts that fit your life. readykare matches credentialed professionals to local healthcare jobs across Canada."
     },
     "breadcrumb": "Find work",
     "badge": "For healthcare professionals",
     "titleLead": "Your next",
     "titleAccent": "shift",
     "titleTail": "is one click away.",
-    "subtitle": "Create a free ReadyKare account and get matched with shifts that fit your skills, schedule, and preferred settings — across Ontario and beyond.",
+    "subtitle": "Create a free readykare account and get matched with shifts that fit your skills, schedule, and preferred settings — across Ontario.",
     "ctaCreate": "Create free account →",
     "ctaSignIn": "Already have an account? Sign in",
-    "perksOverline": "Why ReadyKare",
+    "perksOverline": "Why readykare",
     "perksTitle": "Built for the way you actually work.",
     "perks": [
-      { "icon": "Zap", "title": "Pick your shifts", "description": "Choose days, nights, weekends, or relief work — whatever fits your life." },
+      { "icon": "Zap", "title": "Own your time", "description": "Choose days, nights, weekends, or relief work — whatever fits your life." },
       { "icon": "CalendarClock", "title": "Fast matching", "description": "Get notified the moment a shift that fits your skills opens nearby." },
-      { "icon": "DollarSign", "title": "Fair, clear pay", "description": "See rates upfront. Hours are tracked and paid out weekly." },
+      { "icon": "DollarSign", "title": "Fair, clear pay", "description": "See rates upfront. Hours are tracked and paid out bi-weekly." },
       { "icon": "Headset", "title": "Human support", "description": "A real person handles your file — no bots, no black holes." }
     ],
     "rolesOverline": "Roles we place",
@@ -334,20 +334,20 @@
   "faq": {
     "meta": {
       "title": "FAQ",
-      "description": "Common questions about ReadyKare — healthcare staffing for facilities and professionals in Canada."
+      "description": "Common questions about readykare — healthcare staffing for facilities and professionals in Canada."
     },
     "breadcrumb": "FAQ",
     "title": "Frequently asked questions",
-    "subtitle": "Quick answers about how ReadyKare works for healthcare teams and professionals.",
+    "subtitle": "Quick answers about how readykare works for healthcare teams and professionals.",
     "items": [
-      { "id": "what-is-readykare", "question": "What is ReadyKare?", "answer": "ReadyKare connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles." },
-      { "id": "who-can-use", "question": "Who can use ReadyKare?", "answer": "Healthcare organizations and facilities can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability." },
+      { "id": "what-is-readykare", "question": "What is readykare?", "answer": "readykare connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles." },
+      { "id": "who-can-use", "question": "Who can use readykare?", "answer": "Healthcare organizations, facilities, and families can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability." },
       { "id": "how-matching", "question": "How does matching work?", "answer": "Facilities describe the role, dates, and requirements. We surface candidates from our vetted pool based on credentials, experience, and availability. Workers can also browse and apply to open roles that fit their preferences." },
-      { "id": "cost", "question": "Is there a cost to create an account?", "answer": "You can create an account and explore the platform at no upfront cost. Pricing for facilities and optional upgrades for professionals are described in our pricing section when you sign in." },
+      { "id": "cost", "question": "Is there a cost to create an account?", "answer": "You can create an account and explore the platform at no upfront cost. Only pay for the shifts you cover." },
       { "id": "credentials", "question": "How are credentials verified?", "answer": "We collect and verify professional licenses, certifications, and other requirements according to your role and provincial rules. Exact steps are shown during onboarding so you always know what's needed." },
       { "id": "data-privacy", "question": "How is my data protected?", "answer": "We handle personal information in line with Canadian privacy law (including PIPEDA where applicable). We only share what's necessary for placements, and you can read more in our Privacy Policy." },
       { "id": "ontario", "question": "Do you operate outside Ontario?", "answer": "We're focused on Ontario healthcare staffing today. If you're elsewhere in Canada, you can still reach out — we'll let you know when coverage expands." },
-      { "id": "support", "question": "How do I get help?", "answer": "Use the contact options in the footer or email us at info@readykare.ca. For account-specific issues, sign in and use in-app support where available." }
+      { "id": "support", "question": "How do I get help?", "answer": "Use the contact options in the footer or email us at support@readykare.com. For account-specific issues, sign in and use in-app support where available." }
     ],
     "cta": {
       "title": "Ready to get started?",
@@ -368,14 +368,14 @@
     "privacy": {
       "meta": {
         "title": "Privacy Policy",
-        "description": "How ReadyKare collects, uses, and protects personal information for temporary healthcare staffing in Canada."
+        "description": "How readykare collects, uses, and protects personal information for temporary healthcare staffing in Canada."
       },
       "title": "Privacy Policy",
-      "subtitle": "A short, plain-language summary of how ReadyKare handles personal information as we match healthcare facilities with temporary staff.",
+      "subtitle": "A short, plain-language summary of how readykare handles personal information as we match healthcare facilities with temporary staff.",
       "effective": "April 20, 2026",
       "updated": "April 20, 2026",
       "related": { "label": "Terms of Use", "href": "/terms" },
-      "contactEmail": "privacy@readykare.ca",
+      "contactEmail": "support@readykare.com",
       "sections": [
         {
           "id": "overview",
@@ -449,7 +449,7 @@
           "title": "Your rights",
           "paragraphs": [
             "You can access, correct, or delete your personal information and withdraw consent where it applies.",
-            "Email privacy@readykare.ca and we will respond within 30 days."
+            "Email support@readykare.com and we will respond within 30 days."
           ]
         },
         {
@@ -478,13 +478,13 @@
       "effective": "April 20, 2026",
       "updated": "April 20, 2026",
       "related": { "label": "Privacy Policy", "href": "/privacy" },
-      "contactEmail": "legal@readykare.ca",
+      "contactEmail": "support@readykare.com",
       "sections": [
         {
           "id": "agreement",
           "title": "Your agreement with us",
           "paragraphs": [
-            "These Terms govern your use of readykare.ca and our staffing services (the \"Services\"). By using the Services, you agree to these Terms and our Privacy Policy.",
+            "These Terms govern your use of readykare.com and our staffing services (the \"Services\"). By using the Services, you agree to these Terms and our Privacy Policy.",
             "If you are accepting on behalf of an organization, you confirm you have authority to bind it. If you don't agree to these Terms, please don't use the Services."
           ]
         },
@@ -567,7 +567,7 @@
           "id": "contact",
           "title": "Contact",
           "paragraphs": [
-            "Questions about these Terms? Email legal@readykare.ca."
+            "Questions about these Terms? Email support@readykare.com."
           ]
         }
       ]
@@ -1399,8 +1399,27 @@
     },
     "interview": {
       "candidateFallback": "Candidate",
+      "instructions": {
+        "step1": {
+            "title": "Enable your microphone",
+            "body": "Allow microphone access when prompted. Speak clearly and at a normal pace."
+        },
+        "step2": {
+            "title": "Enable your camera",
+            "body": "Your video helps provide a more complete assessment. Ensure good lighting."
+        },
+        "step3": {
+            "title": "Answer naturally",
+            "body": "The AI interviewer will ask questions relevant to your experience. Take your time."
+        },
+        "step4": {
+            "title": "Complete the session",
+            "body": "Your responses are recorded and reviewed. Results are shared shortly after."
+        },
+        "notice": "This interview lasts {minutes} minutes. Once started, the timer cannot be paused."
+      },
       "setup": {
-        "durationNotice": "This interview is {minutes, plural, one {# minute} other {# minutes}}. Enable both devices before starting.",
+        "durationNotice": "Please enable both devices for the entire {minutes, plural, one {# minute} other {# minutes}} of the interview.",
         "cameraOff": "Camera off",
         "cameraLabel": "Camera",
         "cameraDenied": "Camera access denied.",
@@ -1469,6 +1488,7 @@
         "notReadyDescription": "This interview has not been completed, so no feedback can be generated.",
         "completeInterview": "Complete interview",
         "errorTitle": "Couldn't generate feedback",
+        "underReview": "Under review",
         "retry": "Try again",
         "retakeAvailable": "You did not pass. You can retake this interview now.",
         "retake": "Start new interview",

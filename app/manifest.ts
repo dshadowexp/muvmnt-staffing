@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'ReadyKare',
-        short_name: 'ReadyKare',
+        name: 'readykare',
+        short_name: 'readykare',
         description: 'Emergency Healthcare Staffing in Under 5 Min',
         start_url: '/',
         display: 'standalone',

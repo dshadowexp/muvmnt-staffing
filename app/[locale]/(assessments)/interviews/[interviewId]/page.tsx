@@ -61,6 +61,7 @@ export default async function InterviewReviewPage({
         feedback: interview.feedback,
         canStreamFeedback:
           interview.hume_chat_id != null && interview.feedback == null,
+        reviewed: interview.reviewed
       }}
       user={{ name: userName, imageUrl: worker?.photo_url ?? "" }}
       messagesPromise={messagesPromise}

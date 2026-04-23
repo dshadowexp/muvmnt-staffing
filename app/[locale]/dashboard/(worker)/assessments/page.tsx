@@ -28,6 +28,7 @@ export default async function WorkerAssessmentsPage() {
             feedback: i.feedback,
             duration: i.duration,
             completedAt: i.completed_at,
+            reviewed: i.reviewed,
           }
         : null,
     );
@@ -42,6 +43,7 @@ export default async function WorkerAssessmentsPage() {
             feedback: i.feedback,
             duration: i.duration,
             completedAt: i.completed_at,
+            reviewed: i.reviewed,
           }
         : null,
     );

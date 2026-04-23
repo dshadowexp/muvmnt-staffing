@@ -196,6 +196,8 @@ export type Database = {
           feedback: Json | null
           hume_chat_id: string | null
           id: string
+          recording_url: string | null
+          reviewed: boolean
           subject: string
           subject_ref: Json | null
           updated_at: string
@@ -209,6 +211,8 @@ export type Database = {
           feedback?: Json | null
           hume_chat_id?: string | null
           id?: string
+          recording_url?: string | null
+          reviewed?: boolean
           subject: string
           subject_ref?: Json | null
           updated_at?: string
@@ -222,6 +226,8 @@ export type Database = {
           feedback?: Json | null
           hume_chat_id?: string | null
           id?: string
+          recording_url?: string | null
+          reviewed?: boolean
           subject?: string
           subject_ref?: Json | null
           updated_at?: string

@@ -61,6 +61,7 @@ export type InterviewReviewClientProps = {
     retakeAfterLabel: string | null;
     feedback: FeedbackSource;
     canStreamFeedback: boolean;
+    reviewed: boolean;
   };
   user: { name: string; imageUrl: string };
   messagesPromise: Promise<{ isUser: boolean; content: string[] }[]>;
@@ -178,6 +179,7 @@ export function InterviewReviewClient({
         retakeAfterLabel={interview.retakeAfterLabel}
         retakeHref={retakeHref}
         canStreamFeedback={interview.canStreamFeedback}
+        reviewed={interview.reviewed}
         onRetry={() => {
           submittedRef.current = true;
           submit(null);
@@ -194,6 +196,7 @@ export function InterviewReviewClient({
 function FeedbackSection({
   feedback,
   persisted,
+  reviewed,
   isStreaming,
   hasAnyContent,
   streamError,
@@ -205,6 +208,7 @@ function FeedbackSection({
 }: {
   feedback: Partial<InterviewFeedbackParsed>;
   persisted: boolean;
+  reviewed: boolean;
   isStreaming: boolean;
   hasAnyContent: boolean;
   streamError?: string;
@@ -272,10 +276,10 @@ function FeedbackSection({
         <div className="flex flex-wrap items-center gap-3">
           {decision ? (
             <Badge
-              variant={decision === "PASS" ? "default" : "destructive"}
+              variant={!reviewed ? "outline" : decision === "PASS" ? "default" : "destructive"}
               className="text-xs"
             >
-              {decision}
+              {!reviewed ? t("underReview") : decision}
             </Badge>
           ) : (
             <Skeleton className="h-5 w-16 rounded-full" />

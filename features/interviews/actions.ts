@@ -78,6 +78,7 @@ export async function updateInterview(
     chatGroupId?: string;
     feedback?: InterviewUpdate["feedback"];
     completedAt?: string | null;
+    recordingUrl?: string;
   },
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
@@ -91,7 +92,8 @@ export async function updateInterview(
   if (data.duration !== undefined) patch.duration = data.duration;
   if (data.feedback !== undefined) patch.feedback = data.feedback;
   if (data.completedAt !== undefined) patch.completed_at = data.completedAt;
-
+  if (data.recordingUrl !== undefined) patch.recording_url = data.recordingUrl;
+  
   if (Object.keys(patch).length === 0) {
     return { error: false };
   }

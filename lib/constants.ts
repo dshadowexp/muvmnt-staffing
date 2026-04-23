@@ -9,9 +9,9 @@ import { env } from "@/data/env/client";
 
 // ── Site ─────────────────────────────────────────────────────────────────────
 // Brand / contact data. Localized copy lives in messages/{locale}.json.
-export const SITE_NAME  = "ReadyKare";
+export const SITE_NAME  = "readykare";
 export const SITE_PHONE = "1-437-979-7797";
-export const SITE_EMAIL = "info@readykare.ca";
+export const SITE_EMAIL = "support@readykare.com";
 // ─── Public (no session required) ────────────────────────────────────────────
 
 export const PUBLIC_PATHS = new Set([
@@ -168,5 +168,5 @@ export const TRUST_LOGOS = [
 export const H3_K = 20;
 export const H3_RESOLUTION = 8;
 
-export const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 3 * 60 : 8 * 60;
-export const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 1.5 * 60 : 2.5 * 60;
+export const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 1 * 60 : 8 * 60;
+export const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 0.5 * 60 : 2.5 * 60;
