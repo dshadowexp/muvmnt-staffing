@@ -64,17 +64,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
        
         setAuthUser(authUser);
         await setSession(authUser);
-        pendingRoleRef.current = null;
+        
+        // Capture refs before nulling them
+        const pendingReferral = pendingReferralCodeRef.current;
+        const pendingRole     = pendingRoleRef.current;
 
-        if (pendingReferralCodeRef.current && pendingRoleRef.current) { 
-            recordReferralAction().then(({ success, error }) => {
-                if (success) {
-                    toast.success("Referral recorded successfully");
-                } else {
-                    toast.error("Failed to record referral");
-                }
-            })
-            pendingReferralCodeRef.current = null;
+        pendingRoleRef.current         = null;
+        pendingReferralCodeRef.current = null;
+
+        if (pendingReferral && pendingRole) {
+            recordReferralAction().then(({ success }) => {
+                if (success) toast.success("Referral recorded successfully");
+                else         toast.error("Failed to record referral");
+            });
         }
     }
 
@@ -107,9 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 await runTokenExchange(firebaseUser);
             } catch (err) {
                 toast.error("First sign up to create your account");
-                await clearAuth();
                 await logout();
-                setLoading(false);
+                await deleteSession();  
                 router.push("/sign-up");
                 return;
             }

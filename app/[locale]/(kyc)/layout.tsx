@@ -1,7 +1,8 @@
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { LogoutButton } from "@/features/auth/components/logout-button";
+import { LogoutActionButton } from "@/features/auth/components/logout-action-button";
+import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
 
 export default function OnboardingFlowGroupLayout({
   children,
@@ -14,9 +15,10 @@ export default function OnboardingFlowGroupLayout({
         <div className="flex w-full shrink-0 items-center justify-between">
           <Logo href="/onboarding" />
           <div className="flex items-center gap-2">
+            <FeedbackIcon />
             <LanguageSwitcher />
             <ThemeToggle />
-            <LogoutButton />
+            <LogoutActionButton />
           </div>
         </div>
         {children}

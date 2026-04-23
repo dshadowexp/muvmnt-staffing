@@ -739,6 +739,10 @@
       "accountLabel": "Compte",
       "profileLabel": "Profil",
       "logout": "Se déconnecter",
+      "logoutAria": "Se déconnecter",
+      "logoutConfirmTitle": "Se déconnecter?",
+      "logoutConfirmDescription": "Vous serez redirigé vers la page de connexion.",
+      "cancel": "Annuler",
       "accountMenuAria": "Menu du compte",
       "notifications": "Notifications",
       "defaultName": "Compte"

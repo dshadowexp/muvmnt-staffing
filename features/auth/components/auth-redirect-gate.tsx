@@ -12,27 +12,34 @@ export function AuthRedirectGate({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { redirectTo } = useAuthRedirect();
 
+    const isAuthPage =
+        pathname?.includes("sign-in") ||
+        pathname?.includes("sign-up") ||
+        pathname?.includes("forgot-password");
+
     useEffect(() => {
         if (loading) return;
         if (!firebaseUser) return;
         if (!authUser) return;
+        if (!isAuthPage) return;
 
-        const isAuthPage =
-            pathname?.includes("sign-in") ||
-            pathname?.includes("sign-up") ||
-            pathname?.includes("forgot-password");
+        router.replace(redirectTo);
+    }, [loading, firebaseUser, authUser, isAuthPage, redirectTo, router]);
 
-        if (isAuthPage) router.replace(redirectTo);
-    }, [loading, firebaseUser, authUser, pathname, redirectTo, router]);
-
-    if (firebaseUser || authUser) {
+    if (!loading && firebaseUser && authUser && isAuthPage) {
         return (
             <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-                <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-                    <CircleDashedIcon className="size-10 animate-spin" />
-                </div>
+                <CircleDashedIcon className="size-10 animate-spin" />
             </div>
-        )
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="flex min-h-svh flex-col items-center justify-center gap-4">
+                <CircleDashedIcon className="size-10 animate-spin" />
+            </div>
+        );
     }
 
     return <>{children}</>;

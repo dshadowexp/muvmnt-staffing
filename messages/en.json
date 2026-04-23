@@ -739,6 +739,10 @@
       "accountLabel": "Account",
       "profileLabel": "Profile",
       "logout": "Log out",
+      "logoutAria": "Log out",
+      "logoutConfirmTitle": "Log out?",
+      "logoutConfirmDescription": "You will be redirected to the sign in page.",
+      "cancel": "Cancel",
       "accountMenuAria": "Account menu",
       "notifications": "Notifications",
       "defaultName": "Account"
