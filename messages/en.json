@@ -813,7 +813,15 @@
         "title": "Availability",
         "subtitle": "Times when you are available for shifts.",
         "addressTitle": "Your current location",
-        "addressDescription": "You will be matched to shifts near this address location."
+        "addressDescription": "You will be matched to shifts near this address location.",
+        "summary": {
+          "editAria": "Edit availability",
+          "cardTitle": "Available working hours",
+          "defaultBadge": "Default",
+          "noHours": "No working hours set",
+          "autoConfirmEnabled": "Auto confirm enabled",
+          "autoConfirmDisabled": "Auto confirm disabled"
+        }
       },
       "payroll": {
         "title": "Payroll",

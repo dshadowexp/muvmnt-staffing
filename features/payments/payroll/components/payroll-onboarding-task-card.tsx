@@ -52,7 +52,7 @@ export function PayrollOnboardingTaskCard({
           </div>
           <div className="min-w-0 flex-1 space-y-1">
             <p className="font-semibold">{title}</p>
-            <p className="text-muted-foreground line-clamp-2 text-sm">
+            <p className="text-muted-foreground line-clamp-3 text-sm">
               {description}
             </p>
           </div>

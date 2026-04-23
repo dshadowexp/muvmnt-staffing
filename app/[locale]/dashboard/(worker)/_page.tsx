@@ -179,15 +179,15 @@ async function PendingActions({ userId }: { userId: string }) {
   //   });
   // }
 
-  if (!payrollOk.ok) {
-    actions.push({
-      id: "payroll-onboarding",
-      title: t("payrollOnboarding.title"),
-      description: t("payrollOnboarding.description"),
-      icon: <WalletIcon className="size-5 text-primary" />,
-      href: "/dashboard/payroll",
-    });
-  }
+  // if (!payrollOk.ok) {
+  //   actions.push({
+  //     id: "payroll-onboarding",
+  //     title: t("payrollOnboarding.title"),
+  //     description: t("payrollOnboarding.description"),
+  //     icon: <WalletIcon className="size-5 text-primary" />,
+  //     href: "/dashboard/payroll",
+  //   });
+  // }
 
   if (actions.length === 0) return null;
 
@@ -242,7 +242,7 @@ function PendingActionCard({ action }: { action: PendingAction }) {
               </Badge>
             ) : null}
           </div>
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-muted-foreground line-clamp-3 text-sm">
             {action.description}
           </p>
         </div>

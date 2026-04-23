@@ -1,4 +1,5 @@
 import { ChevronRight, Globe, Zap, ZapOff } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,11 +11,12 @@ import {
   summarizeWeek,
 } from "@/features/availability/lib/summarize-week";
 
-export function AvailabilitySummaryCard({
+export async function AvailabilitySummaryCard({
   data,
 }: {
   data: WorkerAvailabilityInitial;
 }) {
+  const t = await getTranslations("dashboard.worker.availability.summary");
   const groups = summarizeWeek(data.week);
   const showDefault =
     isDefaultWeek(data.week) && data.timezone === "America/Toronto";
@@ -22,17 +24,17 @@ export function AvailabilitySummaryCard({
   return (
     <Link
       href="/dashboard/availability/edit"
-      aria-label="Edit availability"
+      aria-label={t("editAria")}
       className="block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <Card className="border-border/80 transition-colors hover:border-primary/40 hover:bg-muted/30">
         <CardContent className="flex items-center justify-between gap-4">
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-semibold">Available working hours</p>
+              <p className="font-semibold">{t("cardTitle")}</p>
               {showDefault ? (
                 <Badge variant="secondary" className="text-xs">
-                  Default
+                  {t("defaultBadge")}
                 </Badge>
               ) : null}
             </div>
@@ -44,7 +46,7 @@ export function AvailabilitySummaryCard({
                   </p>
                 ))
               ) : (
-                <p>No working hours set</p>
+                <p>{t("noHours")}</p>
               )}
             </div>
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -58,7 +60,7 @@ export function AvailabilitySummaryCard({
                 <ZapOff className="size-3.5" />
               )}
               <span>
-                Auto confirm {data.autoConfirm ? "enabled" : "disabled"}
+                {data.autoConfirm ? t("autoConfirmEnabled") : t("autoConfirmDisabled")}
               </span>
             </div>
           </div>

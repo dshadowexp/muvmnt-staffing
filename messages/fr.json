@@ -813,7 +813,15 @@
         "title": "Disponibilités",
         "subtitle": "Les moments où vous êtes disponible pour des quarts.",
         "addressTitle": "Votre emplacement actuel",
-        "addressDescription": "Vous serez apparié à des quarts près de cette adresse."     
+        "addressDescription": "Vous serez apparié à des quarts près de cette adresse.",
+        "summary": {
+          "editAria": "Modifier les disponibilités",
+          "cardTitle": "Heures de travail disponibles",
+          "defaultBadge": "Par défaut",
+          "noHours": "Aucune heure de travail définie",
+          "autoConfirmEnabled": "Confirmation automatique activée",
+          "autoConfirmDisabled": "Confirmation automatique désactivée"
+        }
       },
       "payroll": {
         "title": "Paie",

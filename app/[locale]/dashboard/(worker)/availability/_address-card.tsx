@@ -35,16 +35,19 @@ export function WorkerAvailabilityAddressCard({
   }
 
   return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>{t("addressTitle")}</CardTitle>
-        <CardDescription>{t("addressDescription")}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <AddressCard
-          value={location ?? undefined}
-          onChange={handleAddressChange}
-        />
+    <Card className="border-border/80 transition-colors hover:border-primary/40 hover:bg-muted/30">
+      <CardContent className="flex items-center justify-between gap-4">
+        <div className="min-w-0 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold">{t("addressTitle")}</p>
+          </div>
+          <div className="space-y-0.5 text-sm text-muted-foreground mt-3">
+            <AddressCard
+              value={location ?? undefined}
+              onChange={handleAddressChange}
+            />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
