@@ -40,7 +40,6 @@ export function PayrollClient({
     } catch (error) {
       unstable_rethrow(error);
       toast.error(error instanceof Error ? error.message : t("somethingWentWrong"));
-    } finally {
       setLoading(false);
     }
   };

@@ -32,7 +32,6 @@ export function BillingClient({
       toast.error(
         error instanceof Error ? error.message : t("somethingWentWrong"),
       );
-    } finally {
       setLoading(false);
     }
   };

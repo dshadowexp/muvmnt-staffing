@@ -137,59 +137,61 @@ export function CoverageConfirmPanel({
                 candidateCount={cache.candidateCount}
             />
 
-            <div
-                className={cn(
-                    "rounded-2xl border-2 p-5 sm:p-6",
-                    coverageTotalCents != null
-                        ? "border-primary/45 bg-primary/5 shadow-sm"
-                        : "border-border bg-muted/20",
-                )}
-                aria-live="polite"
-            >
-                <div className="space-y-5">
-                    <div className="flex flex-wrap items-baseline justify-between gap-3">
-                        <p className="text-muted-foreground text-sm font-medium">
-                            {t("agreedHourlyRate")}
-                        </p>
-                        {Number.isFinite(rate) && rate > 0 ? (
-                            <p className="text-foreground text-right text-2xl font-bold tracking-tight tabular-nums">
-                                {formatMoney(Math.round(rate * 100), currency)}
-                                <span className="text-muted-foreground ml-1.5 text-lg font-semibold">
-                                    {t("perHour")}
-                                </span>
+            {canConfirm ? (
+                <div
+                    className={cn(
+                        "rounded-2xl border-2 p-5 sm:p-6",
+                        coverageTotalCents != null
+                            ? "border-primary/45 bg-primary/5 shadow-sm"
+                            : "border-border bg-muted/20",
+                    )}
+                    aria-live="polite"
+                >
+                    <div className="space-y-5">
+                        <div className="flex flex-wrap items-baseline justify-between gap-3">
+                            <p className="text-muted-foreground text-sm font-medium">
+                                {t("agreedHourlyRate")}
                             </p>
-                        ) : (
-                            <p className="text-muted-foreground text-2xl font-bold tabular-nums">
-                                —
+                            {Number.isFinite(rate) && rate > 0 ? (
+                                <p className="text-foreground text-right text-2xl font-bold tracking-tight tabular-nums">
+                                    {formatMoney(Math.round(rate * 100), currency)}
+                                    <span className="text-muted-foreground ml-1.5 text-lg font-semibold">
+                                        {t("perHour")}
+                                    </span>
+                                </p>
+                            ) : (
+                                <p className="text-muted-foreground text-2xl font-bold tabular-nums">
+                                    —
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-border/60 pt-5">
+                            <p className="text-muted-foreground text-sm font-medium">
+                                {t("amountDueToday")}
                             </p>
-                        )}
-                    </div>
-
-                    <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-border/60 pt-5">
-                        <p className="text-muted-foreground text-sm font-medium">
-                            {t("amountDueToday")}
-                        </p>
-                        <p className="text-foreground text-right text-sm font-semibold tracking-tight tabular-nums sm:text-sm">
-                            {formatMoney(0, currency)}
-                        </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-border/60 pt-5">
-                        <p className="text-muted-foreground text-sm font-medium">
-                            {t("estimatedTotalOnCompletion")}
-                        </p>
-                        {coverageTotalCents != null ? (
                             <p className="text-foreground text-right text-sm font-semibold tracking-tight tabular-nums sm:text-sm">
-                                {formatMoney(coverageTotalCents, currency)}
+                                {formatMoney(0, currency)}
                             </p>
-                        ) : (
-                            <p className="text-muted-foreground text-2xl font-bold tabular-nums">
-                                —
+                        </div>
+
+                        <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-border/60 pt-5">
+                            <p className="text-muted-foreground text-sm font-medium">
+                                {t("estimatedTotalOnCompletion")}
                             </p>
-                        )}
+                            {coverageTotalCents != null ? (
+                                <p className="text-foreground text-right text-sm font-semibold tracking-tight tabular-nums sm:text-sm">
+                                    {formatMoney(coverageTotalCents, currency)}
+                                </p>
+                            ) : (
+                                <p className="text-muted-foreground text-2xl font-bold tabular-nums">
+                                    —
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+               ) : null}
 
             {cachedAtIso ? (
                 <p className="text-muted-foreground text-xs">

@@ -6,8 +6,11 @@ import { logout } from "@/services/firebase/auth";
 import { LogOutIcon } from "lucide-react";
 import { posthog } from "posthog-js";
 import { useTranslations } from "next-intl";
+import { useAuth } from "../providers/auth-provider";
+import { LoadingSwap } from "@/components/ui/loading-swap";
 
 export function LogoutActionButton() {
+    const { loading, firebaseUser } = useAuth();
     const router = useRouter();
     const tAccount = useTranslations("dashboard.accountMenu");
     const tErrors = useTranslations("auth.errors");
@@ -23,9 +26,11 @@ export function LogoutActionButton() {
             return { error: true, message: tErrors("generic") };
         }
     };
+
     return (
         <>
             <ActionButton
+                disabled={loading || !firebaseUser} 
                 action={handleLogout}
                 requireAreYouSure
                 areYouSureTitle={tAccount("logoutConfirmTitle")}
@@ -36,7 +41,9 @@ export function LogoutActionButton() {
                 size="icon"
                 aria-label={tAccount("logoutAria")}
             >
-                <LogOutIcon className="size-4" />
+                <LoadingSwap isLoading={loading}>
+                    <LogOutIcon className="size-4" />
+                </LoadingSwap>
             </ActionButton>
         </>
     );

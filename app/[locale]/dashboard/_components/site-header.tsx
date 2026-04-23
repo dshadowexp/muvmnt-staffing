@@ -30,9 +30,10 @@ type SiteHeaderProps = {
   menuUser?: UserAccountMenuUser;
   /** Resolved avatar URL (e.g. presigned S3 URL for workers). Takes precedence over Firebase photoURL. */
   avatarSrc?: string | null;
+  displayName?: string | null;  
 };
 
-export function SiteHeader({ menuUser: menuUserProp, avatarSrc }: SiteHeaderProps = {}) {
+export function SiteHeader({ menuUser: menuUserProp, avatarSrc, displayName }: SiteHeaderProps = {}) {
   const { authUser, firebaseUser, loading } = useAuth();
   const tAccount = useTranslations("dashboard.accountMenu");
   const role = authUser?.role ?? null;
@@ -42,7 +43,7 @@ export function SiteHeader({ menuUser: menuUserProp, avatarSrc }: SiteHeaderProp
   const menuUser: UserAccountMenuUser =
     menuUserProp ??
     ({
-      name: firebaseUser?.displayName?.trim() || tAccount("defaultName"),
+      name: displayName ?? firebaseUser?.displayName?.trim() ?? tAccount("defaultName"),
       email: firebaseUser?.email ?? "",
       avatar: avatarSrc ?? firebaseUser?.photoURL ?? "",
     } satisfies UserAccountMenuUser);

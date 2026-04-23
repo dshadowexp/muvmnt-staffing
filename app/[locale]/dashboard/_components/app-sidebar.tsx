@@ -101,10 +101,12 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
 export function AppSidebar({
   admin,
   avatarSrc,
+  displayName,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   admin?: { user: AppSidebarAdminUser };
   avatarSrc?: string | null;
+  displayName?: string | null;
 }) {
   const { authUser, firebaseUser, loading } = useAuth();
   const tAccount = useTranslations("dashboard.accountMenu");
@@ -123,7 +125,7 @@ export function AppSidebar({
           avatar: admin.user.avatar ?? "",
         }
       : {
-          name: firebaseUser?.displayName?.trim() || tAccount("defaultName"),
+          name: displayName ?? firebaseUser?.displayName?.trim() ?? tAccount("defaultName"),
           email: firebaseUser?.email ?? "",
           avatar: avatarSrc ?? firebaseUser?.photoURL ?? "",
         };

@@ -10,8 +10,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/features/auth/providers/auth-provider";
+import { LoadingSwap } from "@/components/ui/loading-swap";
 
 export function FeedbackIcon() {
+  const { loading } = useAuth();
   const [open, setOpen] = useState(false);
   const t = useTranslations("feedback");
 
@@ -22,10 +25,13 @@ export function FeedbackIcon() {
           <Button
             variant="ghost"
             size="icon"
+            disabled={loading}
             onClick={() => setOpen(true)}
             aria-label={t("giveFeedback")}
           >
-            <MessageSquareIcon className="size-4" />
+            <LoadingSwap isLoading={loading}>
+              <MessageSquareIcon className="size-4" />
+            </LoadingSwap>
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t("giveFeedback")}</TooltipContent>

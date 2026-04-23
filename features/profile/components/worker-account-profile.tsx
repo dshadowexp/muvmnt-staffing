@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 
 type WorkerRow = {
   first_name: string;
@@ -42,6 +43,8 @@ export function WorkerAccountProfile({
   return (
     <div className="flex flex-col gap-6">
       <PersonalDetailsCard worker={worker} />
+
+      <ContactDetailsCard />
 
       <ProfessionExperienceCard
         profession={worker.profession}
@@ -86,6 +89,29 @@ function PersonalDetailsCard({ worker }: { worker: WorkerRow }) {
           </dd>
           <dt className="text-muted-foreground font-medium">Gender</dt>
           <dd>{genderLabel}</dd>
+        </dl>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ContactDetailsCard() {
+  const { firebaseUser } = useAuth();
+
+  return (
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle>Contact details</CardTitle>
+        <CardDescription>
+          To update your email or phone number, contact support.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(8rem,10rem)_1fr] sm:gap-x-4">
+          <dt className="text-muted-foreground font-medium">Email</dt>
+          <dd>{firebaseUser?.email ?? "—"}</dd>
+          <dt className="text-muted-foreground font-medium">Phone</dt>
+          <dd>{firebaseUser?.phoneNumber ?? "—"}</dd>
         </dl>
       </CardContent>
     </Card>
