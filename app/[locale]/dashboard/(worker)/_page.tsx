@@ -166,24 +166,26 @@ async function PendingActions({ userId }: { userId: string }) {
     });
   }
 
-  if (workAuth && workAuth.is_verified !== true) {
-    actions.push({
-      id: "work-authorization",
-      title: t("workAuth.title"),
-      description: t("workAuth.description"),
-      icon: <ShieldCheckIcon className="size-5 text-muted-foreground" />,
-      badge: {
-        label: t("workAuth.badge"),
-        icon: <CircleDashedIcon className="size-3 animate-spin" />,
-      },
-    });
-  }
+  // if (workAuth && workAuth.is_verified !== true) {
+  //   actions.push({
+  //     id: "work-authorization",
+  //     title: t("workAuth.title"),
+  //     description: t("workAuth.description"),
+  //     icon: <ShieldCheckIcon className="size-5 text-muted-foreground" />,
+  //     badge: {
+  //       label: t("workAuth.badge"),
+  //       icon: <CircleDashedIcon className="size-3 animate-spin" />,
+  //     },
+  //   });
+  // }
 
   if (!payrollOk.ok) {
     actions.push({
       id: "payroll-onboarding",
       title: t("payrollOnboarding.title"),
       description: t("payrollOnboarding.description"),
+      icon: <WalletIcon className="size-5 text-primary" />,
+      href: "/dashboard/payroll",
     });
   }
 
