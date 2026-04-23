@@ -22,12 +22,9 @@ export function ComplianceOnboardingClient({
   const rows = React.use(compliancesPromise);
   const [state, formAction] = useActionState(complianceAction, undefined);
   useOnboardingFormNavigate(state);
-  const { skipForm, skip } = useOnboardingSkip();
-  const t = useTranslations("kyc.onboarding.forms.compliance");
 
   return (
     <>
-      {skipForm}
       <form action={formAction} className="space-y-6">
         <div className="space-y-3">
           <ComplianceDocumentsSection
@@ -37,7 +34,7 @@ export function ComplianceOnboardingClient({
           />
         </div>
 
-        <ContinueButton skip={skip} />
+        <ContinueButton />
       </form>
     </>
   );

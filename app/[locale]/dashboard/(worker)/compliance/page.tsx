@@ -11,7 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/lib/session";
-import { getCompliances } from "@/features/profile/dal/queries";
+import {
+  getCompliances,
+  getWorkAuthorization,
+} from "@/features/profile/dal/queries";
 import { CompliancesClient, type CompliancesRow } from "./_client";
 
 export default async function WorkerCompliancePage() {
@@ -31,10 +34,26 @@ export default async function WorkerCompliancePage() {
   );
   compliancesPromise.catch(() => undefined);
 
+  const workAuthPromise = getWorkAuthorization().then((wa) =>
+    wa
+      ? {
+          type: wa.type,
+          file_url: wa.file_url,
+          social_number: wa.social_number,
+          social_number_expiry: wa.social_number_expiry,
+          is_verified: wa.is_verified === true,
+        }
+      : null,
+  );
+  workAuthPromise.catch(() => undefined);
+
   return (
     <div className="flex w-full max-w-4xl flex-col gap-6">
       <Suspense fallback={<CompliancePageSkeleton />}>
-        <CompliancesClient compliancesPromise={compliancesPromise} />
+        <CompliancesClient
+          compliancesPromise={compliancesPromise}
+          workAuthPromise={workAuthPromise}
+        />
       </Suspense>
     </div>
   );

@@ -596,7 +596,7 @@
       "passwordLabel": "Password",
       "passwordPlaceholder": "Your password",
       "forgotPassword": "Forgot password?",
-      "submit": "Sign in →",
+      "submit": "Continue with email→",
       "noAccount": "Don't have an account?",
       "createOne": "Create one"
     },
@@ -605,7 +605,7 @@
         "title": "Sign Up",
         "description": "Create your free ReadyKare account. Join as a healthcare worker or staffing facility."
       },
-      "overline": "Get started free",
+      "overline": "Create your readykare account",
       "referralBanner": "You've been referred! Sign up to get started.",
       "referralInvalidToast": "That referral link is invalid or has expired.",
       "roleLabel": "I am looking for",

@@ -1,8 +1,14 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { ComplianceDocumentsSection } from "@/features/profile/components/compliance-documents-section";
+import {
+  WorkAuthCardSlot,
+  SectionCardSkeleton,
+  type WorkAuthData,
+} from "@/features/profile/components/worker-account-profile";
 import type { ComplianceDocumentSavedRow } from "@/features/profile/types/compliance-documents";
 import { useRouter } from "@/i18n/navigation";
 
@@ -10,9 +16,10 @@ export type CompliancesRow = ComplianceDocumentSavedRow;
 
 type Props = {
   compliancesPromise: Promise<CompliancesRow[]>;
+  workAuthPromise: Promise<WorkAuthData>;
 };
 
-export function CompliancesClient({ compliancesPromise }: Props) {
+export function CompliancesClient({ compliancesPromise, workAuthPromise }: Props) {
   const router = useRouter();
   const rows = React.use(compliancesPromise);
   const t = useTranslations("dashboard.worker.compliance");
@@ -25,6 +32,10 @@ export function CompliancesClient({ compliancesPromise }: Props) {
           {t("subtitle")}
         </p>
       </div>
+
+      <Suspense fallback={<SectionCardSkeleton lines={3} />}>
+        <WorkAuthCardSlot workAuthPromise={workAuthPromise} />
+      </Suspense>
 
       <ComplianceDocumentsSection
         serverRows={rows}

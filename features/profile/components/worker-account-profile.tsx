@@ -25,7 +25,7 @@ type WorkerRow = {
   years_exp: number;
 };
 
-type WorkAuthData = {
+export type WorkAuthData = {
   type: string;
   file_url?: string | null;
   social_number?: string | null;
@@ -35,10 +35,8 @@ type WorkAuthData = {
 
 export function WorkerAccountProfile({
   worker,
-  workAuthPromise,
 }: {
   worker: WorkerRow;
-  workAuthPromise: Promise<WorkAuthData>;
 }) {
   return (
     <div className="flex flex-col gap-6">
@@ -50,10 +48,6 @@ export function WorkerAccountProfile({
         profession={worker.profession}
         yearsExp={worker.years_exp}
       />
-
-      <Suspense fallback={<SectionCardSkeleton lines={3} />}>
-        <WorkAuthCardSlot workAuthPromise={workAuthPromise} />
-      </Suspense>
     </div>
   );
 }
@@ -118,7 +112,7 @@ function ContactDetailsCard() {
   );
 }
 
-function WorkAuthCardSlot({
+export function WorkAuthCardSlot({
   workAuthPromise,
 }: {
   workAuthPromise: Promise<WorkAuthData>;
@@ -137,7 +131,7 @@ function WorkAuthCardSlot({
               Right-to-work document. Verified submissions are read-only.
             </CardDescription>
           </div>
-          {!verified && !isEditing ? (
+          {/* {!verified && !isEditing ? (
             <Button
               type="button"
               variant="outline"
@@ -148,7 +142,7 @@ function WorkAuthCardSlot({
             >
               <Pencil className="size-3.5" aria-hidden />
             </Button>
-          ) : null}
+          ) : null} */}
         </div>
       </CardHeader>
       <CardContent>

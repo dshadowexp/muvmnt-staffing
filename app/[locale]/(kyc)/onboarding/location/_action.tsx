@@ -48,6 +48,6 @@ export const locationAction = async (
   }
 
   const redirectTo =
-    session.role === "worker" ? "/onboarding/authorization" : "/onboarding/billing";
+    session.role === "worker" ? "/onboarding/availability" : "/onboarding/billing";
   return { ok: true, redirectTo, steps: persist.steps };
 };

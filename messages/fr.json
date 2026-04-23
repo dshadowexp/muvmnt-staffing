@@ -596,7 +596,7 @@
       "passwordLabel": "Mot de passe",
       "passwordPlaceholder": "Votre mot de passe",
       "forgotPassword": "Mot de passe oublié?",
-      "submit": "Se connecter →",
+      "submit": "Continuer avec le courriel →",
       "noAccount": "Vous n'avez pas de compte?",
       "createOne": "En créer un"
     },
@@ -605,7 +605,7 @@
         "title": "Inscription",
         "description": "Créez votre compte ReadyKare gratuit. Inscrivez-vous comme professionnel ou comme établissement."
       },
-      "overline": "Commencez gratuitement",
+      "overline": "Créez votre compte readykare",
       "referralBanner": "Vous avez été référé! Inscrivez-vous pour commencer.",
       "referralInvalidToast": "Ce lien de référence est invalide ou expiré.",
       "roleLabel": "Je cherche",
