@@ -12,7 +12,6 @@ export default function ReviewClient() {
   const router = useRouter();
   const t = useTranslations("kyc.review");
 
-
   useEffect(() => {
     async function runReloadToken() {
       await reloadToken();

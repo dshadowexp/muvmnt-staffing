@@ -964,6 +964,10 @@
           "description": "Connect your payout account so you can get paid for completed shifts.",
           "startError": "Could not start payroll setup. Try again or visit Payroll from your account menu."
         },
+        "processing": {
+          "title": "Reviewing application",
+          "description": "We're reviewing your application. Please check back soon."
+        },
         "shiftRequests": {
           "sectionTitle": "Shift requests",
           "shiftCount": "{count, plural, one {# shift to confirm} other {# shifts to confirm}}",

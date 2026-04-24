@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
-import { payrollAccountMeetsOnboardingRequirements } from "@/features/payments/payroll/dal/queries";
+import { getIdentityVerification, getWorkAuthorization, getWorkerProfile } from "@/features/profile/dal/queries";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -11,7 +11,8 @@ export type WorkerPendingActionId =
     | "resume-interview"
     | "payroll-onboarding"
     | "work-authorization"
-    | "identity-verification";
+    | "identity-verification"
+    | "processing";
 
 /**
  * A serializable pending action — no JSX, no ReactNode.
@@ -33,33 +34,50 @@ export type WorkerPendingAction = {
  * @param photoUrl - Current value of workers.photo_url; caller already has it
  *                   from the profile fetch so we avoid a redundant round-trip.
  */
-export async function getWorkerPendingActions(
-    userId:   string,
-    photoUrl: string | null,
-): Promise<WorkerPendingAction[]> {
-    const [professionInterview, resumeInterview, payrollOk] = await Promise.all([
-        getInterviewBySubjectForUser("profession", userId),
-        getInterviewBySubjectForUser("resume", userId),
-        payrollAccountMeetsOnboardingRequirements(userId),
-    ]);
+export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> {
+    const worker = await getWorkerProfile();
+    if (!worker) return [];
 
+    const { user_id, photo_url, stage } = worker;
     const actions: WorkerPendingAction[] = [];
 
-    if (!photoUrl) {
-        actions.push({ id: "profile-photo", href: "/dashboard/profile" });
-    }
+    if (stage === "picture") {
+        if (!photo_url) {
+            actions.push({ id: "profile-photo", href: "/dashboard/profile" });
+        }
+    } else if (stage === "interview") {
+        const [professionInterview, resumeInterview] = await Promise.all([
+            getInterviewBySubjectForUser("profession", user_id),
+            getInterviewBySubjectForUser("resume", user_id),
+        ]);
 
-    if (!professionInterview?.completed_at) {
-        actions.push({ id: "profession-interview", href: "/interviews/profession" });
-    }
+        if (!professionInterview?.completed_at) {
+            actions.push({ id: "profession-interview", href: "/interviews/profession" });
+        }
+    
+        if (!resumeInterview?.completed_at) {
+            actions.push({ id: "resume-interview", href: "/interviews/resume" });
+        }
+    } else if (stage === "compliance") {
+        const [workAuth, identityVerification] = await Promise.all([
+            getWorkAuthorization(),
+            getIdentityVerification(),
+        ]);
 
-    if (!resumeInterview?.completed_at) {
-        actions.push({ id: "resume-interview", href: "/interviews/resume" });
-    }
+        if (!workAuth) {
+            actions.push({ id: "work-authorization", href: "/dashboard/compliance" });
+        }
 
-    // if (!payrollOk.ok) {
-    //     actions.push({ id: "payroll-onboarding", href: "/dashboard/payroll" });
-    // }
+        if (!identityVerification?.verified) {
+            actions.push({ id: "identity-verification", href: "/dashboard/compliance" });
+        }
+
+        if (workAuth && identityVerification?.verified) {
+            actions.push({ id: "processing", href: "/dashboard" });
+        }
+    } else {
+        actions.push({ id: "processing", href: "/dashboard" });
+    }
 
     return actions;
 }

@@ -963,6 +963,10 @@
           "description": "Connectez votre compte de versement pour recevoir le paiement de vos quarts complétés.",
           "startError": "Impossible de démarrer la configuration de la paie. Réessayez ou ouvrez Paie depuis le menu du compte."
         },
+        "processing": {
+          "title": "Examen de la demande",
+          "description": "Nous examinons votre demande. Veuillez vérifier de retour."
+        },
         "shiftRequests": {
           "sectionTitle": "Demandes de quarts",
           "shiftCount": "{count, plural, one {# quart à confirmer} other {# quarts à confirmer}}",

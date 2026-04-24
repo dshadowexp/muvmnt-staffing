@@ -36,6 +36,7 @@ import {
   WalletIcon,
   ShieldCheckIcon,
   FingerprintIcon,
+  CircleDashedIcon,
 } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
@@ -136,101 +137,9 @@ type PendingAction = WorkerPendingAction & {
   badge?: { label: string; icon?: ReactNode };
 };
 
-async function PendingActions({
-  userId,
-  photoUrl,
-  stage,
-}: {
-  userId: string;
-  photoUrl: string | null;
-  stage?: string | null;
-}) {
+async function PendingActions() {
   const t = await getTranslations("dashboard.worker.home");
-  const isPictureStage = !stage || stage === "picture";
-  const isComplianceStage = stage === "compliance";
-
-  // ── Picture stage: worker hasn't uploaded a photo yet ──
-  if (isPictureStage) {
-    return (
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-sm text-muted-foreground font-semibold tracking-tight">
-            {t("importantTasksTitle")}
-          </h2>
-          <Badge variant="secondary" className="tabular-nums">1</Badge>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <PendingActionCard
-            action={{
-              id: "profile-photo",
-              href: "/dashboard/profile",
-              title: t("photoCard.title"),
-              description: t("photoCard.description"),
-              icon: <CameraIcon className="size-5 text-primary" />,
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // ── Compliance stage: link cards to /dashboard/compliance ──
-  if (isComplianceStage) {
-    const [workAuthRaw, identityVerificationRaw] = await Promise.all([
-      getWorkAuthorization(),
-      getIdentityVerification(),
-    ]);
-
-    const workAuthDone = workAuthRaw?.is_verified === true;
-    const identityDone = identityVerificationRaw?.verified === true;
-
-    if (workAuthDone && identityDone) return null;
-
-    const actions: PendingAction[] = [];
-
-    if (!workAuthDone) {
-      actions.push({
-        id: "work-authorization",
-        href: "/dashboard/compliance",
-        title: t("workAuthorization.title"),
-        description: t("workAuthorization.description"),
-        icon: <ShieldCheckIcon className="size-5 text-primary" />,
-      });
-    }
-
-    if (!identityDone) {
-      actions.push({
-        id: "identity-verification",
-        href: "/dashboard/compliance",
-        title: t("identityVerification.title"),
-        description: t("identityVerification.description"),
-        icon: <FingerprintIcon className="size-5 text-primary" />,
-      });
-    }
-
-    if (actions.length === 0) return null;
-
-    return (
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-sm text-muted-foreground font-semibold tracking-tight">
-            {t("importantTasksTitle")}
-          </h2>
-          <Badge variant="secondary" className="tabular-nums">
-            {actions.length}
-          </Badge>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {actions.map((a) => (
-            <PendingActionCard key={a.id} action={a} />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ── Interview stage: show outstanding interview / onboarding actions ──
-  const pending = await getWorkerPendingActions(userId, photoUrl);
+  const pending = await getWorkerPendingActions();
 
   if (pending.length === 0) return null;
 
@@ -251,10 +160,25 @@ async function PendingActions({
       description: t("resumeInterview.description"),
       icon:        <FileTextIcon className="size-5 text-primary" />,
     },
+    "work-authorization": {
+      title:       t("workAuthorization.title"),
+      description: t("workAuthorization.description"),
+      icon:        <ShieldCheckIcon className="size-5 text-primary" />,
+    },
+    "identity-verification": {
+      title:       t("identityVerification.title"),
+      description: t("identityVerification.description"),
+      icon:        <FingerprintIcon className="size-5 text-primary" />,
+    },
     "payroll-onboarding": {
       title:       t("payrollOnboarding.title"),
       description: t("payrollOnboarding.description"),
       icon:        <WalletIcon className="size-5 text-primary" />,
+    },
+    "processing": {
+      title:       t("processing.title"),
+      description: t("processing.description"),
+      icon:        <CircleDashedIcon className="size-5 text-primary animate-spin" />,
     },
   };
 
@@ -395,11 +319,7 @@ export default async function WorkerHomePage() {
       </div>
 
       <Suspense fallback={<PendingActionsSkeleton />}>
-        <PendingActions
-          userId={worker.user_id}
-          photoUrl={worker.photo_url ?? null}
-          stage={worker.stage ?? null}
-        />
+        <PendingActions />
       </Suspense>
 
       <Suspense fallback={<ShiftRequestCardsSkeleton />}>

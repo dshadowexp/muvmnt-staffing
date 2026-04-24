@@ -49,15 +49,6 @@ export async function skipOnboardingStepAction(
   }
 
   switch (stepId) {
-    case "compliance": {
-      const persist = await completeOnboardingStep("compliance");
-      if (persist.error) {
-        return persist.message
-          ? onboardingStepRawError(persist.message)
-          : onboardingStepError("persistFailed");
-      }
-      return { ok: true, redirectTo: "/onboarding/payroll", steps: persist.steps };
-    }
     case "billing": {
       const persist = await completeOnboardingStep("billing", {
         markOnboardingCompleted: true,
@@ -68,19 +59,6 @@ export async function skipOnboardingStepAction(
           : onboardingStepError("persistFailed");
       }
       await updateUserIsActive(session.userId, true);
-      return { ok: true, redirectTo: "/review", steps: persist.steps };
-    }
-    case "payroll": {
-      const persist = await completeOnboardingStep("payroll", {
-        markOnboardingCompleted: true,
-      });
-      if (persist.error) {
-        return persist.message
-          ? onboardingStepRawError(persist.message)
-          : onboardingStepError("persistFailed");
-      }
-      await updateUserIsActive(session.userId, true);
-
       return { ok: true, redirectTo: "/review", steps: persist.steps };
     }
     default:

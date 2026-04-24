@@ -10,6 +10,7 @@ import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { upsertLocationAction } from "@/features/geo/dal/mutations";
 import type { AddressLocation } from "@/features/geo/types";
 import { getSession } from "@/lib/session";
+import { updateUserIsActive } from "@/features/users/dal/mutations";
 
 const locationInputSchema = z.object({
   id: z.string().min(1),
@@ -49,6 +50,8 @@ export const locationAction = async (
         ? onboardingStepRawError(persist.message)
         : onboardingStepError("persistFailed");
     }
+
+    await updateUserIsActive(session.userId, true);
     return { ok: true, redirectTo: "/review", steps: persist.steps };
   } else {
     const persist = await completeOnboardingStep("location");
