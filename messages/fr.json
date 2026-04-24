@@ -832,6 +832,7 @@
         "subtitle": "Consultez votre solde Stripe Connect et gérez vos versements.",
         "loadError": "Impossible de charger vos détails de paie. Veuillez contacter le support.",
         "needSetup": "Configurez votre compte de paie pour voir votre solde et gérer vos versements.",
+        "completeTasksFirst": "Vous pouvez configurer la paie une fois que vous avez complété toutes les tâches importantes. Visitez la page d'accueil pour voir vos tâches importantes.",
         "transferHistory": "Historique des versements",
         "transferHistorySubtitle": "Paiements reçus pour les quarts terminés.",
         "tips": "Pourboires",
@@ -840,6 +841,17 @@
       "compliance": {
         "title": "Conformité",
         "subtitle": "Téléversez et gérez les documents dont un administrateur a besoin pour vous vérifier pour les quarts.",
+        "workAuth": {
+          "title": "Autorisation de travail",
+          "description": "Complétez d'abord toutes les tâches importantes. Visitez la page d'accueil pour voir vos tâches importantes."
+        },
+        "identityVerification": {
+          "title": "Vérification d'identité",
+          "description": "Complétez d'abord toutes les tâches importantes. Visitez la page d'accueil pour voir vos tâches importantes.",
+          "statusVerified": "Vérifié",
+          "statusNotVerified": "Non vérifié",
+          "verifiedAtLabel": "Vérifié le"
+        },
         "emptyState": "Aucun document de conformité pour le moment. Choisissez un type ci-dessus pour ajouter votre première ligne.",
         "columnDocument": "Document",
         "columnFile": "Fichier",
@@ -1427,17 +1439,33 @@
             "body": "Votre vidéo aide à fournir une évaluation plus complète. Assurez-vous un bon éclairage."
         },
         "step3": {
+            "title": "Montrez votre visage",
+            "body": "Assurez-vous de montrer votre visage à la caméra en tout temps durant l'entretien."
+        },
+        "step4": {
             "title": "Répondre naturellement",
             "body": "L'entretien vocal mené par l'IA vous posera des questions pertinentes pour votre expérience. Prenez votre temps."
         },
-        "step4": {
+        "step5": {
             "title": "Terminer la session",
             "body": "Vos réponses sont enregistrées et examinées. Les résultats sont partagés quelques instants après."
         },
-        "notice": "Cet entretien dure {minutes, plural, one {# minute} other {# minutes}}. Une fois commencé, le chronomètre ne peut pas être suspendu."
+        "step6": {
+            "title": "Faites attention à votre environnement",
+            "body": "Trouvez un endroit calme et bien éclairé, sans distractions, avant de commencer."
+        },
+        "step7": {
+            "title": "Cet entretien sera enregistré en vidéo",
+            "body": "L'intégralité de la session sera enregistrée en vidéo. Assurez-vous d'être à l'aise devant la caméra pour toute la durée."
+        },
+        "step8": {
+            "title": "Ne commencez que lorsque vous êtes prêt",
+            "body": "Ne démarrez pas avant d'être pleinement préparé. Vous ne pourrez pas mettre en pause ni recommencer une fois l'entretien lancé."
+        },
+        "notice": "Une fois commencé, le chronomètre ne peut pas être suspendu. Veuillez traiter ceci comme un entretien d'évaluation mené par un personne."  
       },
       "setup": {
-        "durationNotice": "Activez les deux appareils pour la durée totale de {minutes, plural, one {# minute} other {# minutes}} de l'entretien.",
+        "durationNotice": "Veuillez activer les deux appareils pour toute la durée de l'entretien.",
         "cameraOff": "Caméra désactivée",
         "cameraLabel": "Caméra",
         "cameraDenied": "Accès à la caméra refusé.",
@@ -1478,7 +1506,28 @@
         "scanFailed": "Échec de l'analyse du CV",
         "genericError": "Une erreur est survenue",
         "interviewTitle": "Entretien comportemental basé sur le CV",
-        "interviewDescription": "Un entretien comportemental de {minutes, plural, one {# minute} other {# minutes}} mené par l'IA basé sur votre CV. Vous serez interrogé(e) sur des situations et expériences en utilisant la méthode STAR."
+        "interviewDescription": "Un entretien comportemental de {minutes, plural, one {# minute} other {# minutes}} mené par l'IA basé sur votre CV. Vous serez interrogé(e) sur des situations et expériences en utilisant la méthode STAR.",
+        "backTitle": "Évaluations",
+        "dropzoneLabel": "Fichier CV",
+        "dropzoneHint": "Glissez-déposez votre CV ici, ou cliquez pour téléverser",
+        "dropzoneFormats": "PDF, Word ou texte brut · 10 Mo maximum",
+        "statusSelected": "Sélectionné",
+        "statusUploading": "Téléversement…",
+        "statusUploaded": "Téléversé",
+        "statusRemoving": "Suppression…",
+        "removeFile": "Retirer le fichier",
+        "proceedToInterview": "Passer à l'entretien",
+        "summaryLabel": "Résumé du CV",
+        "sectionSkills": "Compétences clés",
+        "sectionAchievements": "Réalisations notables",
+        "sectionProgression": "Progression de carrière",
+        "sectionEducation": "Formation",
+        "sectionCertifications": "Certifications",
+        "errorFileSize": "La taille du fichier dépasse la limite de 10 Mo",
+        "errorFileType": "Veuillez téléverser un PDF, un document Word ou un fichier texte",
+        "errorUploadFailed": "Échec du téléversement de votre CV. Veuillez réessayer.",
+        "errorRemoveFailed": "Échec de la suppression de votre CV. Veuillez réessayer.",
+        "limitReached": "Vous avez atteint le maximum de {limit} modifications de CV. Vous ne pouvez plus changer votre CV."
       },
       "review": {
         "back": "Retour aux évaluations",

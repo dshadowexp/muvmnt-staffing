@@ -85,24 +85,27 @@ export default async function Footer() {
           ))}
         </div>
 
-        <Separator className="bg-white/5" />
+        <Separator className="bg-white/10" />
 
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-8">
-          <span className="text-xs font-light text-white/25">
-            {tSite("copyright", { year: new Date().getFullYear() })}
-          </span>
-          <div className="flex items-center gap-6">
+        <div className="flex flex-col-reverse items-start gap-6 pt-8 md:flex-row md:items-center md:justify-between md:gap-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <span className="text-xs font-light text-white/30">
+              {tSite("copyright", { year: new Date().getFullYear() })}
+            </span>
             {legalLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-xs text-white/30 no-underline transition-colors hover:text-[var(--teal-mid)]"
+                className="text-xs text-white/40 no-underline transition-colors hover:text-[var(--teal-mid)]"
               >
                 {l.label}
               </Link>
             ))}
-            <LanguageSwitcher variant="outline" />
-            <ThemeToggle />
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <LanguageSwitcher tone="on-dark" />
+            <ThemeToggle tone="on-dark" />
           </div>
         </div>
       </div>

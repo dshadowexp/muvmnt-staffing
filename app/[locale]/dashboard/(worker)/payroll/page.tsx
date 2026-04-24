@@ -16,18 +16,21 @@ async function PayrollContent() {
     retrievePayrollAccountAction(),
     getTranslations("dashboard.worker.payroll"),
   ]);
-  const hasAccount = !error && data?.accountId;
+  // const hasAccount = !error && data?.accountId;
 
-  if (hasAccount) {
-    return <WorkerPayrollBalances />;
-  }
+  // if (hasAccount) {
+  //   return <WorkerPayrollBalances />;
+  // }
 
   return (
     <div className="border-border bg-card text-card-foreground rounded-xl border p-6 shadow-sm">
-      <p className="text-muted-foreground text-sm">
+      {/* <p className="text-muted-foreground text-sm">
         {error ? t("loadError") : t("needSetup")}
+      </p> */}
+      <p className="text-muted-foreground mt-3 text-sm">
+        {t("completeTasksFirst")}
       </p>
-      <CompletePayrollSetupButton />
+      {/* <CompletePayrollSetupButton /> */}
     </div>
   );
 }

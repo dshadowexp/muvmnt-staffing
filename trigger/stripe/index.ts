@@ -7,5 +7,4 @@
  */
 export { stripeAccountUpdatedTask } from "./account-updated";
 export { stripeCheckoutSessionCompletedTask } from "./checkout-session-completed";
-export { stripeSubscriptionUpdatedTask } from "./subscription-updated";
-export { stripeSubscriptionDeletedTask } from "./subscription-deleted";
+export { stripeIdentityVerificationSessionRequiresInputTask, stripeIdentityVerificationSessionVerifiedTask } from "./identity-verification-session";

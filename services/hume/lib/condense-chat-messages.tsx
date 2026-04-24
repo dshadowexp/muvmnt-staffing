@@ -1,5 +1,4 @@
 import { ConnectionMessage } from "@humeai/voice-react"
-// import { ReturnChatEvent, JsonMessage } from "hume/api/resources/empathicVoice";
 
 type Message = any | ConnectionMessage | any
 

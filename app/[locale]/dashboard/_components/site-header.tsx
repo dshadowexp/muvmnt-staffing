@@ -11,7 +11,6 @@ import {
 } from "@/app/[locale]/dashboard/_components/user-account-dropdown-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +23,7 @@ import { useAuth } from "@/features/auth/providers/auth-provider";
 import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
 import { InstallPrompt } from "@/features/notifications/components/install-prompt";
 import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
+import { controlIconButtonClassName } from "@/components/control-trigger";
 
 type SiteHeaderProps = {
   /** When set (e.g. admin shell), overrides Firebase user for this menu + avatar. */
@@ -58,33 +58,30 @@ export function SiteHeader({ menuUser: menuUserProp, avatarSrc, displayName }: S
             className="mx-2 shrink-0 data-[orientation=vertical]:h-4"
           />
         </div>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <InstallPrompt />
+        <div className="flex shrink-0 items-center gap-1.5">
           <NotificationsBell />
           <FeedbackIcon />
-          <LanguageSwitcher variant="ghost" />
+          <LanguageSwitcher />
           <ThemeToggle />
           <Separator
             orientation="vertical"
-            className="mx-1.5 shrink-0 data-[orientation=vertical]:h-4"
+            className="mx-1 shrink-0 data-[orientation=vertical]:h-5"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="size-9 shrink-0 rounded-full p-0"
+                className={`${controlIconButtonClassName} overflow-hidden p-0`}
                 aria-label={tAccount("accountMenuAria")}
                 disabled={loading && !menuUserProp}
               >
                 <UserAvatar
                   src={menuUser.avatar}
                   name={menuUser.name}
-                  className="size-8 rounded-full"
-                  fallbackClassName="rounded-full text-xs"
+                  className="size-[34px] rounded-full"
+                  fallbackClassName="rounded-full text-[11px] font-semibold"
                 />
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="min-w-56 rounded-lg"

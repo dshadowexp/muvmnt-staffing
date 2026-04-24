@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import { Outfit } from "next/font/google"
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getTranslations } from "next-intl/server";

@@ -6,8 +6,10 @@ import { useTranslations } from "next-intl";
 import { ComplianceDocumentsSection } from "@/features/profile/components/compliance-documents-section";
 import {
   WorkAuthCardSlot,
+  IdentityVerificationCardSlot,
   SectionCardSkeleton,
   type WorkAuthData,
+  type IdentityVerificationData,
 } from "@/features/profile/components/worker-account-profile";
 import type { ComplianceDocumentSavedRow } from "@/features/profile/types/compliance-documents";
 import { useRouter } from "@/i18n/navigation";
@@ -17,9 +19,10 @@ export type CompliancesRow = ComplianceDocumentSavedRow;
 type Props = {
   compliancesPromise: Promise<CompliancesRow[]>;
   workAuthPromise: Promise<WorkAuthData>;
+  identityVerificationPromise: Promise<IdentityVerificationData>;
 };
 
-export function CompliancesClient({ compliancesPromise, workAuthPromise }: Props) {
+export function CompliancesClient({ compliancesPromise, workAuthPromise, identityVerificationPromise }: Props) {
   const router = useRouter();
   const rows = React.use(compliancesPromise);
   const t = useTranslations("dashboard.worker.compliance");
@@ -35,6 +38,10 @@ export function CompliancesClient({ compliancesPromise, workAuthPromise }: Props
 
       <Suspense fallback={<SectionCardSkeleton lines={3} />}>
         <WorkAuthCardSlot workAuthPromise={workAuthPromise} />
+      </Suspense>
+
+      <Suspense fallback={<SectionCardSkeleton lines={2} />}>
+        <IdentityVerificationCardSlot identityVerificationPromise={identityVerificationPromise} />
       </Suspense>
 
       <ComplianceDocumentsSection

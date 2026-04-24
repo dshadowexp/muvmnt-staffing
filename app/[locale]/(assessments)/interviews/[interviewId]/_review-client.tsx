@@ -52,6 +52,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "@/components/logo";
 import { BackLink } from "@/components/back-link";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
 
 type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
 
@@ -76,7 +77,7 @@ export function InterviewReviewClient({
   interview,
   user,
   messagesPromise,
-  backHref,
+  backHref
 }: InterviewReviewClientProps) {
   const t = useTranslations("assessments.interview.review");
   const router = useRouter();
@@ -118,8 +119,9 @@ export function InterviewReviewClient({
   );
   const displayed = persistedFeedback ?? streamed;
   const hasAnyContent =
-    (displayed.decision ?? displayed.summary ?? displayed.scores?.length) !=
-    null;
+    displayed.decision != null ||
+    displayed.summary != null ||
+    (displayed.scores?.length ?? 0) > 0;
 
   const subjectLabel =
     interview.subject === "profession"
@@ -136,22 +138,16 @@ export function InterviewReviewClient({
         : undefined;
 
   return (
-    <div className="flex min-h-svh flex-col p-4">
-      {/* <Button variant="ghost" size="sm" className="gap-1 px-0" asChild>
-        <Link href={backHref}>
-          <ArrowLeftIcon className="size-4" />
-          {t("back")}
-        </Link>
-      </Button> */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
-            <BackLink backHref="/dashboard/assessments" title="Assessments" />
-            <Logo href="/dashboard/assessments" />
-            <div className="flex items-center gap-2">
-                <LanguageSwitcher />
-                <ThemeToggle />
-            </div>
-        </header>
-        <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8">
+    <div className="flex min-h-svh flex-col">
+       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
+          <BackLink backHref={backHref} title="Assessments" />
+          <div className="flex items-center gap-2">
+            <FeedbackIcon />
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+      </header>
+      <main className="flex-1 overflow-y-auto p-6 space-y-6">
         <Card>
           <CardHeader className="gap-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -193,11 +189,10 @@ export function InterviewReviewClient({
           canStreamFeedback={interview.canStreamFeedback}
           reviewed={interview.reviewed}
           onRetry={() => {
-            submittedRef.current = true;
             submit(null);
           }}
         />
-      </div>
+      </main>
     </div>
   );
 }
@@ -315,6 +310,7 @@ function FeedbackSection({
           completedAt={completedAt}
           retakeAfterLabel={retakeAfterLabel}
           retakeHref={retakeHref}
+          scores={feedback.scores}
         />
 
         <section className="space-y-2">
@@ -507,21 +503,20 @@ function RetakeNotice({
   completedAt,
   retakeAfterLabel,
   retakeHref,
+  scores,
 }: {
   decision?: "PASS" | "FAIL";
   completedAt: string | null;
   retakeAfterLabel: string | null;
   retakeHref?: string;
+  scores?: {label: string; score: number}[];
 }) {
   const t = useTranslations("assessments.interview.review");
 
   if (decision !== "FAIL") return null;
 
   const canRetake = canRetakeFailedInterview(
-    {
-      decision: "FAIL",
-      scores: [],
-    },
+    { decision: "FAIL", scores: scores ?? [] },
     completedAt,
   );
 
@@ -625,7 +620,7 @@ function MessagesBody({
 
 function MessagesFallback() {
   return (
-    <div className="space-y-3 py-4">
+    <div className="flex flex-col gap-3 py-4">
       <Skeleton className="h-16 w-3/4" />
       <Skeleton className="h-16 w-2/3 self-end" />
       <Skeleton className="h-24 w-4/5" />

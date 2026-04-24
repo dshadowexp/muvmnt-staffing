@@ -20,6 +20,10 @@ import {
   VideoOffIcon,
   AlertTriangleIcon,
   CircleDashedIcon,
+  EyeIcon,
+  CameraIcon,
+  PlayCircleIcon,
+  UserIcon,
 } from "lucide-react";
 import { condenseChatMessages } from "@/services/hume/lib/condense-chat-messages";
 import { CondensedMessages } from "@/services/hume/components/condensed-messages";
@@ -84,26 +88,46 @@ function InterviewInstructionsCard({
   const t = useTranslations("assessments.interview.instructions");
 
   const steps: { icon: React.ReactNode; title: string; body: string }[] = [
-      {
-          icon:  <MicIcon className="size-4" />,
-          title: t("step1.title"),
-          body:  t("step1.body"),
-      },
-      {
-          icon:  <VideoIcon className="size-4" />,
-          title: t("step2.title"),
-          body:  t("step2.body"),
-      },
-      {
-          icon:  <CircleDashedIcon className="size-4" />,
-          title: t("step3.title"),
-          body:  t("step3.body"),
-      },
-      {
-          icon:  <CheckCircle2Icon className="size-4" />,
-          title: t("step4.title"),
-          body:  t("step4.body"),
-      },
+    {
+      icon:  <EyeIcon className="size-4" />,
+      title: t("step6.title"),
+      body:  t("step6.body"),
+    },
+    {
+      icon:  <CameraIcon className="size-4" />,
+      title: t("step7.title"),
+      body:  t("step7.body"),
+    },
+    {
+      icon:  <PlayCircleIcon className="size-4" />,
+      title: t("step8.title"),
+      body:  t("step8.body"),
+    },
+    {
+      icon:  <MicIcon className="size-4" />,
+      title: t("step1.title"),
+      body:  t("step1.body"),
+    },
+    {
+      icon:  <VideoIcon className="size-4" />,
+      title: t("step2.title"),
+      body:  t("step2.body"),
+    },
+    {
+      icon:  <UserIcon className="size-4" />,
+      title: t("step3.title"),
+      body:  t("step3.body"),
+    },
+    {
+      icon:  <CircleDashedIcon className="size-4" />,
+      title: t("step4.title"),
+      body:  t("step4.body"),
+    },
+    {
+      icon:  <CheckCircle2Icon className="size-4" />,
+      title: t("step5.title"),
+      body:  t("step5.body"),
+    },
   ];
 
   return (
@@ -374,80 +398,78 @@ function DeviceSetupCard({
   const canStart = camOn && micOn && micPassed;
 
   return (
-    
-        <Card className="w-full max-w-lg">
-          <CardContent className="flex flex-col gap-5">
+        <Card className="w-full max-w-lg lg:h-full">
+          <CardContent className="flex h-full flex-col gap-5">
             <p className="text-xs text-muted-foreground">
-              {t("durationNotice", {
-                minutes: INTERVIEW_DURATION_SECS / 60,
-              })}
+              {t("durationNotice")}
             </p>
 
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
-              {camOn ? (
-                <video
-                  ref={previewRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                  <VideoOffIcon className="size-10 opacity-40" />
-                  <span className="text-xs">{t("cameraOff")}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <DeviceRow
-                switchId="cam-switch"
-                label={t("cameraLabel")}
-                checked={camOn}
-                onCheckedChange={setCamOn}
-                error={camError}
-                icon={
-                  camOn ? (
-                    <VideoIcon className="size-5 text-emerald-500" />
-                  ) : (
-                    <VideoOffIcon className="size-5 text-muted-foreground" />
-                  )
-                }
-              />
-
-              <DeviceRow
-                switchId="mic-switch"
-                label={t("microphoneLabel")}
-                checked={micOn}
-                onCheckedChange={handleMicToggle}
-                error={micError}
-                icon={
-                  micOn ? (
-                    <MicIcon
-                      className={cn(
-                        "size-5",
-                        micPassed ? "text-emerald-500" : "text-primary",
-                      )}
-                    />
-                  ) : (
-                    <MicOffIcon className="size-5 text-muted-foreground" />
-                  )
-                }
-              >
-                {micOn && (
-                  <MicCheckMeter
-                    level={micLevel}
-                    passed={micPassed}
-                    hint={t("micCheckHint")}
-                    listening={t("micCheckListening")}
-                    passedLabel={t("micCheckPassed")}
+            <div className="flex flex-1 flex-col items-center justify-center gap-5">
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+                {camOn ? (
+                  <video
+                    ref={previewRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="h-full w-full object-cover"
                   />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <VideoOffIcon className="size-10 opacity-40" />
+                    <span className="text-xs">{t("cameraOff")}</span>
+                  </div>
                 )}
-              </DeviceRow>
-            </div>
+              </div>
 
-            <Button
+              <div className="w-full space-y-3">
+                <DeviceRow
+                  switchId="cam-switch"
+                  label={t("cameraLabel")}
+                  checked={camOn}
+                  onCheckedChange={setCamOn}
+                  error={camError}
+                  icon={
+                    camOn ? (
+                      <VideoIcon className="size-5 text-emerald-500" />
+                    ) : (
+                      <VideoOffIcon className="size-5 text-muted-foreground" />
+                    )
+                  }
+                />
+
+                <DeviceRow
+                  switchId="mic-switch"
+                  label={t("microphoneLabel")}
+                  checked={micOn}
+                  onCheckedChange={handleMicToggle}
+                  error={micError}
+                  icon={
+                    micOn ? (
+                      <MicIcon
+                        className={cn(
+                          "size-5",
+                          micPassed ? "text-emerald-500" : "text-primary",
+                        )}
+                      />
+                    ) : (
+                      <MicOffIcon className="size-5 text-muted-foreground" />
+                    )
+                  }
+                >
+                  {micOn && (
+                    <MicCheckMeter
+                      level={micLevel}
+                      passed={micPassed}
+                      hint={t("micCheckHint")}
+                      listening={t("micCheckListening")}
+                      passedLabel={t("micCheckPassed")}
+                    />
+                  )}
+                </DeviceRow>
+              </div>
+
+              <Button
               size="lg"
               disabled={!canStart || starting}
               onClick={async () => {
@@ -468,6 +490,7 @@ function DeviceSetupCard({
                 t("start")
               )}
             </Button>
+            </div>
           </CardContent>
         </Card>
   );
@@ -487,6 +510,7 @@ export function InterviewShell({
   description,
   returnPath,
 }: InterviewShellProps) {
+  const router = useRouter();
   const t = useTranslations("assessments.interview");
   const [interviewId, setInterviewId] = useState<string | null>(
     initialInterviewId ?? null,
@@ -494,7 +518,6 @@ export function InterviewShell({
   const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp } =
     useVoice();
   const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(interviewId);
-  
   const [finalizing, setFinalizing] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
@@ -502,10 +525,11 @@ export function InterviewShell({
   const streamRef = useRef<MediaStream | null>(null);
   const closeTriggeredRef = useRef(false);
   const lastSyncedChatIdRef = useRef<string | null>(null);
+  const isNavigatingRef = useRef(false);
   const startingRef = useRef(false);
   const disconnectRef = useRef(disconnect);
   const disconnectedRef = useRef<boolean>(false);
-  const router = useRouter();
+  const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Only keep the latest non-null values so disconnect resets don't wipe them
   if (callDurationTimestamp) {
@@ -577,11 +601,13 @@ export function InterviewShell({
   // Persist duration to DB every 10 seconds
   useEffect(() => {
     if (interviewId == null) return;
-    const intervalId = setInterval(() => {
-      if (durationRef.current == null) return;
+    durationIntervalRef.current = setInterval(() => {
+      if (durationRef.current == null || isNavigatingRef.current) return; // ← guard
       updateInterview(interviewId, { duration: durationRef.current });
     }, 10000);
-    return () => clearInterval(intervalId);
+    return () => {
+      if (durationIntervalRef.current) clearInterval(durationIntervalRef.current);
+    };
   }, [interviewId]);
 
   // Auto-disconnect when time is up
@@ -637,9 +663,10 @@ export function InterviewShell({
       } catch (err) {
           console.error("Finalizing error", err);
       } finally {
-          stopCamera();
-          // Navigate only after everything is settled
-          router.push(`/interviews/${interviewId}`);
+        stopCamera();
+        isNavigatingRef.current = true;
+        if (durationIntervalRef.current) clearInterval(durationIntervalRef.current); // kill interval NOW
+        router.push(`/interviews/${interviewId}`);
       }
     })();
   }, [readyState]);
@@ -694,24 +721,18 @@ export function InterviewShell({
 
   if (readyState === VoiceReadyState.IDLE) {
     return (
-      <div className="flex min-h-svh flex-col p-4">
+      <div className="flex min-h-svh flex-col">  {/* remove p-4, it pushes content under sticky header */}
         <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
-            <BackLink backHref="/dashboard/assessments" title="Assessments" />
-            <Logo href="/dashboard/assessments" />
-            <div className="flex items-center gap-2">
-                <LanguageSwitcher />
-                <ThemeToggle />
-            </div>
+          <BackLink backHref="/dashboard/assessments" title="Assessments" />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </header>
-        <main className="flex flex-1 justify-center p-6">
-          <div className="grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2 lg:items-start">
-              <InterviewInstructionsCard
-                title={title}
-                description={description}
-              />
-              <DeviceSetupCard
-                onStart={handleStart}
-              />
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="mx-auto grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2">
+            <InterviewInstructionsCard title={title} description={description} />
+            <DeviceSetupCard onStart={handleStart} />
           </div>
         </main>
       </div>
@@ -760,7 +781,7 @@ export function InterviewShell({
           autoPlay
           playsInline
           muted
-          className="fixed bottom-24 right-4 z-50 h-32 w-44 rounded-lg border bg-black object-cover shadow-lg"
+          className="fixed right-4 top-4 z-50 h-32 w-44 rounded-lg border bg-black object-cover shadow-lg"
         />
     </div>
   );

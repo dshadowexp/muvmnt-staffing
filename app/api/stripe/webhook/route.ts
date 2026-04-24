@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 import { env } from "@/data/env/server";
 import { getStripeServer } from "@/services/stripe/server";
-import { dispatchStripeEvent } from "@/features/payments/billing/stripe-webhook/dispatch";
+import { dispatchStripeEvent } from "@/features/payments/stripe-webhook/dispatch";
 
 /**
  * Stripe webhook endpoint.

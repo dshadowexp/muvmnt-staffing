@@ -54,6 +54,7 @@ import {
 } from "@/features/interviews/actions";
 import { Logo } from "@/components/logo";
 import { BackLink } from "@/components/back-link";
+import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
 
 type SummaryShape = DeepPartial<ResumeSummary>;
 
@@ -126,8 +127,6 @@ function hydrateExisting(existingInterview: InterviewRow | null): {
     limit: ref.limit,
   };
 }
-
-const LIMIT_REACHED_MESSAGE = `You've reached the maximum of ${RESUME_UPLOAD_LIMIT} resume changes. You can no longer change your resume.`;
 
 export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
   const t = useTranslations("assessments.interview.resume");
@@ -207,12 +206,12 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
     if (file == null) return;
 
     if (file.size > MAX_BYTES) {
-      toast.error("File size exceeds 10MB limit");
+      toast.error(t("errorFileSize"));
       return;
     }
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      toast.error("Please upload a PDF, Word document, or text file");
+      toast.error(t("errorFileType"));
       return;
     }
 
@@ -238,7 +237,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
         const bumped = await bumpInterviewSubjectRefUpload(existingId, key);
         if (bumped.error) {
           if (bumped.reason === "limit_reached") {
-            toast.info(LIMIT_REACHED_MESSAGE);
+            toast.info(t("limitReached", { limit: RESUME_UPLOAD_LIMIT }));
           } else {
             toast.error(bumped.message);
           }
@@ -263,7 +262,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
         setUploadLimit(1);
       }
     } catch {
-      toast.error("Failed to upload your resume. Please try again.");
+      toast.error(t("errorUploadFailed"));
     } finally {
       setIsUploading(false);
     }
@@ -271,7 +270,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
 
   async function handleRemove() {
     if (uploadLimit >= RESUME_UPLOAD_LIMIT) {
-      toast.info(LIMIT_REACHED_MESSAGE);
+      toast.info(t("limitReached", { limit: RESUME_UPLOAD_LIMIT }));
       return;
     }
 
@@ -285,7 +284,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
         const res = await clearInterviewSubjectRefFile(idToDelete);
         if (res.error) {
           if (res.reason === "limit_reached") {
-            toast.info(LIMIT_REACHED_MESSAGE);
+            toast.info(t("limitReached", { limit: RESUME_UPLOAD_LIMIT }));
           } else {
             toast.error(res.message);
           }
@@ -303,19 +302,20 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
       setPinnedSummary(null);
       setIsUploading(false);
     } catch {
-      toast.error("Failed to remove file from storage.");
+      toast.error(t("errorRemoveFailed"));
     } finally {
       setIsRemoving(false);
     }
   }
 
   return (
-    <div className="flex min-h-svh flex-col p-4">
+    <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
 
       <div className="flex items-center justify-between">
-        <BackLink backHref="/dashboard/assessments" title="Assessments" />
+        <BackLink backHref="/dashboard/assessments" title={t("backTitle")} />
         <Logo href="/dashboard/assessments" />
         <div className="flex items-center gap-2">
+          <FeedbackIcon />
           <LanguageSwitcher />
           <ThemeToggle />
         </div>
@@ -385,7 +385,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
                 {!ready && !isRemoving && (
                   <CircleDashedIcon className="size-4 animate-spin" aria-hidden />
                 )}
-                Proceed to interview
+                {t("proceedToInterview")}
               </Button>
             </CardContent>
           </Card>
@@ -404,6 +404,8 @@ function Dropzone({
   setIsDragOver: (value: boolean) => void;
   onFile: (file: File | null) => void;
 }) {
+  const t = useTranslations("assessments.interview.resume");
+
   return (
     <div
       className={cn(
@@ -417,7 +419,7 @@ function Dropzone({
         setIsDragOver(true);
       }}
       onDragLeave={(e) => {
-        e.preventDefault();
+        if (e.currentTarget.contains(e.relatedTarget as Node)) return;
         setIsDragOver(false);
       }}
       onDrop={(e) => {
@@ -427,7 +429,7 @@ function Dropzone({
       }}
     >
       <label htmlFor="resume-upload" className="sr-only">
-        Resume file
+        {t("dropzoneLabel")}
       </label>
       <input
         id="resume-upload"
@@ -438,12 +440,8 @@ function Dropzone({
       />
       <div className="flex flex-col items-center justify-center gap-3 text-center">
         <UploadIcon className="size-10 text-muted-foreground" />
-        <p className="text-sm">
-          Drag and drop your resume here, or click to upload
-        </p>
-        <p className="text-xs text-muted-foreground">
-          PDF, Word, or plain text · up to 10 MB
-        </p>
+        <p className="text-sm">{t("dropzoneHint")}</p>
+        <p className="text-xs text-muted-foreground">{t("dropzoneFormats")}</p>
       </div>
     </div>
   );
@@ -466,44 +464,47 @@ function FileRow({
   isSummarizing: boolean;
   onRemove: () => void;
 }) {
+  const t = useTranslations("assessments.interview.resume");
+
   const status = isRemoving
-    ? "Removing…"
+    ? t("statusRemoving")
     : isUploading
-      ? "Uploading…"
+      ? t("statusUploading")
       : isUploaded
-        ? "Uploaded"
-        : "Selected";
+        ? t("statusUploaded")
+        : t("statusSelected");
   const sizeLabel = size != null ? `${formatBytes(size)} · ` : "";
 
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border bg-input/30 px-3 py-2.5",
+        "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border bg-input/30 px-3 py-2.5",
         isUploaded && "border-primary/25 bg-primary/5",
       )}
     >
-      <FileTextIcon className="size-5 shrink-0 text-muted-foreground" />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-medium">{name}</span>
-        <span className="text-xs text-muted-foreground">
-          {sizeLabel}
-          {status}
-        </span>
+      <FileTextIcon className="size-5 text-muted-foreground" />
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium">{name}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {sizeLabel}{status}
+        </p>
       </div>
-      {(isUploading || isRemoving) && (
-        <CircleDashedIcon className="size-4 shrink-0 animate-spin text-primary" />
-      )}
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        disabled={isRemoving || isUploading || isSummarizing}
-        onClick={onRemove}
-        title="Remove file"
-        aria-label="Remove file"
-      >
-        <Trash2Icon className="size-4" />
-      </Button>
+      <div className="flex items-center gap-1">
+        {(isUploading || isRemoving) && (
+          <CircleDashedIcon className="size-4 animate-spin text-primary" />
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          disabled={isRemoving || isUploading || isSummarizing}
+          onClick={onRemove}
+          title={t("removeFile")}
+          aria-label={t("removeFile")}
+        >
+          <Trash2Icon className="size-4" />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -546,39 +547,6 @@ type SectionConfig = {
   render: (summary: SummaryShape | null) => ReactNode;
 };
 
-const SUMMARY_SECTIONS: SectionConfig[] = [
-  {
-    id: "skills",
-    title: "Key skills",
-    hasContent: (s) => (s?.keySkills?.length ?? 0) > 0,
-    render: (s) => <TagList items={s?.keySkills} />,
-  },
-  {
-    id: "achievements",
-    title: "Notable achievements",
-    hasContent: (s) => (s?.notableAchievements?.length ?? 0) > 0,
-    render: (s) => <BulletList items={s?.notableAchievements} />,
-  },
-  {
-    id: "progression",
-    title: "Career progression",
-    hasContent: (s) => (s?.careerProgression?.length ?? 0) > 0,
-    render: (s) => <Paragraph value={s?.careerProgression} />,
-  },
-  {
-    id: "education",
-    title: "Education",
-    hasContent: (s) => (s?.education?.length ?? 0) > 0,
-    render: (s) => <Paragraph value={s?.education} />,
-  },
-  {
-    id: "certifications",
-    title: "Certifications",
-    hasContent: (s) => (s?.certifications?.length ?? 0) > 0,
-    render: (s) => <BulletList items={s?.certifications} />,
-  },
-];
-
 function SummaryAccordion({
   summary,
   isStreaming,
@@ -586,15 +554,50 @@ function SummaryAccordion({
   summary: SummaryShape | null;
   isStreaming: boolean;
 }) {
+  const t = useTranslations("assessments.interview.resume");
+
+  const sections: SectionConfig[] = [
+    {
+      id: "skills",
+      title: t("sectionSkills"),
+      hasContent: (s) => (s?.keySkills?.length ?? 0) > 0,
+      render: (s) => <TagList items={s?.keySkills} />,
+    },
+    {
+      id: "achievements",
+      title: t("sectionAchievements"),
+      hasContent: (s) => (s?.notableAchievements?.length ?? 0) > 0,
+      render: (s) => <BulletList items={s?.notableAchievements} />,
+    },
+    {
+      id: "progression",
+      title: t("sectionProgression"),
+      hasContent: (s) => (s?.careerProgression?.length ?? 0) > 0,
+      render: (s) => <Paragraph value={s?.careerProgression} />,
+    },
+    {
+      id: "education",
+      title: t("sectionEducation"),
+      hasContent: (s) => (s?.education?.length ?? 0) > 0,
+      render: (s) => <Paragraph value={s?.education} />,
+    },
+    {
+      id: "certifications",
+      title: t("sectionCertifications"),
+      hasContent: (s) => (s?.certifications?.length ?? 0) > 0,
+      render: (s) => <BulletList items={s?.certifications} />,
+    },
+  ];
+
   if (summary == null && !isStreaming) return null;
 
   return (
     <div className="flex flex-col gap-2">
       <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        Resume summary
+        {t("summaryLabel")}
       </span>
       <Accordion type="multiple" className="bg-card">
-        {SUMMARY_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <AccordionItem key={section.id} value={section.id}>
             <AccordionTrigger>
               <SectionTriggerLabel

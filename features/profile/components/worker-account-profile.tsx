@@ -3,6 +3,7 @@
 import { Suspense, use, useState } from "react";
 import { Pencil } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { WorkerAuthorizationForm } from "@/features/profile/components/worker-authorization-form";
 import { ProfessionExperienceCard } from "@/features/profile/components/profession-experience-card";
@@ -36,6 +37,11 @@ export type WorkAuthData = {
   social_number?: string | null;
   social_number_expiry?: string | null;
   is_verified: boolean;
+} | null;
+
+export type IdentityVerificationData = {
+  verified: boolean;
+  verified_at: string | null;
 } | null;
 
 export function WorkerAccountProfile({
@@ -165,16 +171,15 @@ export function WorkAuthCardSlot({
   const workAuth = use(workAuthPromise);
   const verified = workAuth?.is_verified === true;
   const [isEditing, setIsEditing] = useState(false);
+  const t = useTranslations("dashboard.worker.compliance");
 
   return (
     <Card size="sm">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle>Work authorization</CardTitle>
-            <CardDescription>
-              Right-to-work document. Verified submissions are read-only.
-            </CardDescription>
+            <CardTitle>{t("workAuth.title")}</CardTitle>
+            <CardDescription>{t("workAuth.description")}</CardDescription>
           </div>
           {/* {!verified && !isEditing ? (
             <Button
@@ -207,6 +212,46 @@ export function WorkAuthCardSlot({
           isEditing={isEditing}
           onCancelEdit={() => setIsEditing(false)}
         />
+      </CardContent>
+    </Card>
+  );
+}
+
+export function IdentityVerificationCardSlot({
+  identityVerificationPromise,
+}: {
+  identityVerificationPromise: Promise<IdentityVerificationData>;
+}) {
+  const data = use(identityVerificationPromise);
+  const t = useTranslations("dashboard.worker.compliance");
+
+  return (
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle>{t("identityVerification.title")}</CardTitle>
+        <CardDescription>{t("identityVerification.description")}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(8rem,10rem)_1fr] sm:gap-x-4">
+          <dt className="text-muted-foreground font-medium">
+            {t("columnStatus")}
+          </dt>
+          <dd>
+            {data === null
+              ? "—"
+              : data.verified
+                ? t("identityVerification.statusVerified")
+                : t("identityVerification.statusNotVerified")}
+          </dd>
+          {data?.verified && data.verified_at ? (
+            <>
+              <dt className="text-muted-foreground font-medium">
+                {t("identityVerification.verifiedAtLabel")}
+              </dt>
+              <dd>{format(new Date(data.verified_at), "MMM d, yyyy")}</dd>
+            </>
+          ) : null}
+        </dl>
       </CardContent>
     </Card>
   );

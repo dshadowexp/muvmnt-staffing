@@ -13,6 +13,7 @@ import {
 import { getSession } from "@/lib/session";
 import {
   getCompliances,
+  getIdentityVerification,
   getWorkAuthorization,
 } from "@/features/profile/dal/queries";
 import { CompliancesClient, type CompliancesRow } from "./_client";
@@ -47,12 +48,18 @@ export default async function WorkerCompliancePage() {
   );
   workAuthPromise.catch(() => undefined);
 
+  const identityVerificationPromise = getIdentityVerification().then((iv) =>
+    iv ? { verified: iv.verified, verified_at: iv.verified_at } : null,
+  );
+  identityVerificationPromise.catch(() => undefined);
+
   return (
     <div className="flex w-full max-w-4xl flex-col gap-6">
       <Suspense fallback={<CompliancePageSkeleton />}>
         <CompliancesClient
           compliancesPromise={compliancesPromise}
           workAuthPromise={workAuthPromise}
+          identityVerificationPromise={identityVerificationPromise}
         />
       </Suspense>
     </div>

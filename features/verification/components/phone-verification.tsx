@@ -315,7 +315,7 @@ export function PhoneVerification() {
 
           <Field data-invalid={!!errors.code} className="w-full max-w-full gap-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="w-full flex-1 sm:max-w-[240px]">
+              <div className="w-full flex-1 sm:w-auto sm:flex-initial">
                 <InputOTP
                   maxLength={6}
                   value={code}
@@ -328,7 +328,7 @@ export function PhoneVerification() {
                     }
                   }}
                 >
-                  <InputOTPGroup className="w-full justify-start">
+                  <InputOTPGroup className="justify-start">
                     {[...Array(6)].map((_, i) => (
                       <InputOTPSlot key={i} index={i} />
                     ))}

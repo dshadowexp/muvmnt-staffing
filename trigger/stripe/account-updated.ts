@@ -3,8 +3,8 @@ import type Stripe from "stripe";
 import {
     stripeWebhookJobSchema,
     type StripeWebhookJobPayload,
-} from "@/features/payments/billing/stripe-webhook/schemas";
-import { handleAccountUpdated } from "@/features/payments/billing/stripe-webhook/handlers/account-updated";
+} from "@/features/payments/stripe-webhook/schemas";
+import { handleAccountUpdated } from "@/features/payments/stripe-webhook/handlers/account-updated";
 
 /**
  * Background worker for Stripe `account.updated`.

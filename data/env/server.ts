@@ -12,6 +12,7 @@ export const env = createEnv({
         AWS_S3_BUCKET: z.string().min(1),
         STRIPE_SECRET_KEY: z.string().min(1),
         STRIPE_WEBHOOK_SECRET: z.string().min(1),
+        STRIPE_IDENTITY_VERIFICATION_FLOW_ID: z.string().min(1),
         HUME_API_KEY: z.string().min(1),
         HUME_SECRET_KEY: z.string().min(1),
         GEMINI_API_KEY: z.string().min(1),

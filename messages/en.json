@@ -832,6 +832,7 @@
         "subtitle": "View your Stripe Connect balance and manage payouts.",
         "loadError": "We couldn't load your payroll details. Please report to support.",
         "needSetup": "Set up your payroll account to view your balance and manage payouts.",
+        "completeTasksFirst": "You can onboard payroll when you complete all important tasks. Visit Home page to view your important tasks.",
         "transferHistory": "Transfer history",
         "transferHistorySubtitle": "Payments received for completed shifts.",
         "tips": "Tips",
@@ -840,6 +841,17 @@
       "compliance": {
         "title": "Compliance",
         "subtitle": "Upload and manage the documents an admin needs to verify you for shifts.",
+        "workAuth": {
+          "title": "Work authorization",
+          "description": "Complete important tasks first. Visit the Home page to view your important tasks."
+        },
+        "identityVerification": {
+          "title": "Identity verification",
+          "description": "Complete important tasks first. Visit the Home page to view your important tasks.",
+          "statusVerified": "Verified",
+          "statusNotVerified": "Not verified",
+          "verifiedAtLabel": "Verified on"
+        },
         "emptyState": "No compliance documents yet. Choose a type above to add your first row.",
         "columnDocument": "Document",
         "columnFile": "File",
@@ -1427,17 +1439,33 @@
             "body": "Your video helps provide a more complete assessment. Ensure good lighting."
         },
         "step3": {
+            "title": "Show your face",
+            "body": "Make sure to show your face to the camera at all times during the interview."
+        },
+        "step4": {
             "title": "Answer naturally",
             "body": "The AI interviewer will ask questions relevant to your experience. Take your time."
         },
-        "step4": {
+        "step5": {
             "title": "Complete the session",
             "body": "Your responses are recorded and reviewed. Results are shared shortly after."
         },
-        "notice": "This interview lasts {minutes} minutes. Once started, the timer cannot be paused."
+        "step6": {
+            "title": "Mind your environment",
+            "body": "Find a quiet, well-lit space free from distractions before starting."
+        },
+        "step7": {
+            "title": "This interview will be video recorded",
+            "body": "The entire session will be recorded on video. Ensure you are comfortable being on camera for the full duration."
+        },
+        "step8": {
+            "title": "Only begin when ready",
+            "body": "Do not start until you are fully prepared. You will not be able to pause or restart once the interview begins."
+        },
+        "notice": "Once started, the timer cannot be paused. Please treat this like you would a person-led assessment interview."
       },
       "setup": {
-        "durationNotice": "Please enable both devices for the entire {minutes, plural, one {# minute} other {# minutes}} of the interview.",
+        "durationNotice": "Please enable both devices for the entire duration of the interview.",
         "cameraOff": "Camera off",
         "cameraLabel": "Camera",
         "cameraDenied": "Camera access denied.",
@@ -1478,7 +1506,28 @@
         "scanFailed": "Failed to scan resume",
         "genericError": "Something went wrong",
         "interviewTitle": "Resume Behavioural Interview",
-        "interviewDescription": "A {minutes}-minute AI-led behavioural interview based on your resume. You will be asked situational and experience-based questions using the STAR method."
+        "interviewDescription": "A {minutes}-minute AI-led behavioural interview based on your resume. You will be asked situational and experience-based questions using the STAR method.",
+        "backTitle": "Assessments",
+        "dropzoneLabel": "Resume file",
+        "dropzoneHint": "Drag and drop your resume here, or click to upload",
+        "dropzoneFormats": "PDF, Word, or plain text · up to 10 MB",
+        "statusSelected": "Selected",
+        "statusUploading": "Uploading…",
+        "statusUploaded": "Uploaded",
+        "statusRemoving": "Removing…",
+        "removeFile": "Remove file",
+        "proceedToInterview": "Proceed to interview",
+        "summaryLabel": "Resume summary",
+        "sectionSkills": "Key skills",
+        "sectionAchievements": "Notable achievements",
+        "sectionProgression": "Career progression",
+        "sectionEducation": "Education",
+        "sectionCertifications": "Certifications",
+        "errorFileSize": "File size exceeds 10 MB limit",
+        "errorFileType": "Please upload a PDF, Word document, or text file",
+        "errorUploadFailed": "Failed to upload your resume. Please try again.",
+        "errorRemoveFailed": "Failed to remove your resume. Please try again.",
+        "limitReached": "You've reached the maximum of {limit} resume changes. You can no longer change your resume."
       },
       "review": {
         "back": "Back to assessments",

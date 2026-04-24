@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { Download } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { controlIconButtonClassName } from "@/components/control-trigger";
 
 export function InstallPrompt() {
   const t = useTranslations("installPrompt");
@@ -53,14 +53,14 @@ export function InstallPrompt() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
+            className={controlIconButtonClassName}
             aria-label={t("installApp")}
             onClick={!isIOS ? handleInstallClick : undefined}
           >
-            <Download className="h-5 w-5" />
-          </Button>
+            <Download className="size-[14px]" />
+          </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-xs text-center">
           {isIOS ? (

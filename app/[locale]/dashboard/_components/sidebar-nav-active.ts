@@ -52,42 +52,39 @@ export function resolveActiveNavHref(
   return null;
 }
 
-/** Shared transition for nav rows (single paint-friendly property bundle). */
-const navItemTransition =
-  "transition-[color,background-color,box-shadow,ring-color] duration-150 ease-out";
-
 /**
- * Kill sidebar default `ring-sidebar-ring` (brand/green) so rings use border only.
+ * Shared base for every dashboard sidebar row.
+ *
+ * - Unified height/padding/radius so rows line up cleanly.
+ * - Single `transition-colors` bundle for fast, paint-friendly hover.
+ * - Explicit focus ring tied to the `border` token (not the brand sidebar ring)
+ *   so keyboard focus reads as a neutral outline rather than a green glow.
  */
-const navItemRingNeutral = cn(
-  "outline-none ring-border/90 dark:ring-border/70",
-  "focus-visible:!ring-1 focus-visible:!ring-border/90 focus-visible:!ring-offset-0 dark:focus-visible:!ring-border/70",
+const navItemBase = cn(
+  "group/nav-item relative h-9 rounded-lg px-3 text-sm font-medium",
+  "transition-colors duration-150 ease-out",
+  "outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-0",
 );
 
-/**
- * Selected row look: current route uses this; idle rows use the same on hover
- * so interaction matches the earlier dashboard reference.
- */
-const navItemSelected = cn(
-  navItemTransition,
-  navItemRingNeutral,
-  "font-medium text-foreground [&_svg]:text-foreground",
-  "!bg-muted/95 shadow-sm !ring-1 dark:!bg-muted/55",
-);
-
+/** Idle row — muted text + icon, subtle hover fill. */
 const navItemInactive = cn(
-  navItemTransition,
-  navItemRingNeutral,
-  "!bg-transparent text-muted-foreground shadow-none !ring-0",
-  "[&_svg]:text-muted-foreground",
-  "hover:font-medium hover:text-foreground hover:[&_svg]:text-foreground hover:!bg-muted/95 hover:shadow-sm hover:!ring-1 dark:hover:!bg-muted/55",
-  "focus-visible:font-medium focus-visible:text-foreground focus-visible:[&_svg]:text-foreground focus-visible:!bg-muted/95 focus-visible:shadow-sm focus-visible:!ring-1 dark:focus-visible:!bg-muted/55",
-  "active:font-medium active:text-foreground active:[&_svg]:text-foreground active:!bg-muted/95 active:shadow-sm active:!ring-1 dark:active:!bg-muted/55",
+  navItemBase,
+  "!bg-transparent text-muted-foreground [&_svg]:text-muted-foreground",
+  "hover:!bg-muted/60 hover:text-foreground hover:[&_svg]:text-foreground",
+  "active:!bg-muted/80",
+  "dark:hover:!bg-muted/40",
 );
 
+/**
+ * Active row — primary-tinted fill with a leading accent bar on the left edge
+ * (via `::before`) for a modern, clearly-selected feel.
+ */
 const navItemActive = cn(
-  navItemSelected,
-  "hover:!bg-muted/90 hover:text-foreground dark:hover:!bg-muted/60",
+  navItemBase,
+  "!bg-primary/10 font-semibold text-primary [&_svg]:text-primary",
+  "hover:!bg-primary/15 hover:text-primary hover:[&_svg]:text-primary",
+  "dark:!bg-primary/15 dark:hover:!bg-primary/20",
+  "before:pointer-events-none before:absolute before:left-1 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-primary",
 );
 
 /**

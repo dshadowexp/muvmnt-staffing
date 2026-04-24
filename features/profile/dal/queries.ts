@@ -114,6 +114,22 @@ export async function getCompliances() {
   return data ?? [];
 }
 
+export async function getIdentityVerification() {
+  const session = await getSession();
+  if (!session) return redirect("/sign-in");
+
+  const { userId } = session;
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("identity_verification")
+    .select("verified, verified_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export async function getWorkAuthorization() {
   const session = await getSession();
   if (!session) return redirect("/sign-in");

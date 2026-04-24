@@ -70,7 +70,7 @@ export function MenuToggle() {
 
             <Separator />
 
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5 pt-1">
               <LanguageSwitcher />
               <ThemeToggle />
             </div>
