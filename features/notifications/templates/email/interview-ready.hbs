@@ -1,0 +1,18 @@
+{{#> email-base previewText="Your profile is set — time to complete your interviews"}}
+  {{#*inline "body"}}
+    <p class="label">Next step</p>
+    <h1>Time to complete your interviews</h1>
+    <p>Hi {{firstName}},</p>
+    <p>
+      Great — your profile photo has been saved. You&apos;re now ready to complete your two AI-led video interviews:
+    </p>
+    <ul style="margin:16px 0;padding-left:20px;line-height:1.8">
+      <li><strong>Profession interview</strong> — a session about your healthcare role and professional competencies</li>
+      <li><strong>Resume interview</strong> — a walkthrough of your experience and background</li>
+    </ul>
+    <p>
+      Both interviews are required before your application can move forward. Head to your assessments page to get started.
+    </p>
+    <a href="{{assessmentsUrl}}" class="btn">Go to Assessments</a>
+  {{/inline}}
+{{/email-base}}

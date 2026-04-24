@@ -30,6 +30,7 @@ import {
   WalletIcon,
   CheckIcon,
   CircleDashedIcon,
+  VideoIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
@@ -89,6 +90,7 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
       { title: t("shifts"), url: "/dashboard/admin/shifts", icon: <CalendarDays className="size-4" /> },
       { title: t("authorization"), url: "/dashboard/admin/authorization", icon: <BadgeCheckIcon className="size-4" /> },
       { title: t("compliance"), url: "/dashboard/admin/compliance", icon: <ShieldCheckIcon className="size-4" /> },
+      { title: t("interviews"), url: "/dashboard/admin/interviews", icon: <VideoIcon className="size-4" /> },
       { title: t("clients"), url: "/dashboard/admin/clients", icon: <Building2Icon className="size-4" /> },
       { title: t("workers"), url: "/dashboard/admin/workers", icon: <UsersIcon className="size-4" /> },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },

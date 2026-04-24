@@ -1,0 +1,18 @@
+{{#> email-base previewText="Your identity has been verified — you're all set"}}
+  {{#*inline "body"}}
+    <p class="label">Identity verification</p>
+    <h1>Identity verified ✓</h1>
+    <p>Hi {{firstName}},</p>
+    <p>
+      Great news — your identity has been successfully verified. This is one of the required steps before you can be placed on shifts.
+    </p>
+    <p>
+      Head back to your compliance page to check any remaining steps:
+    </p>
+    <a href="{{complianceUrl}}" class="btn">View compliance page</a>
+    <p style="margin-top:28px;font-size:13px;color:#888">
+      If the button does not work, copy this link into your browser:<br>
+      <a href="{{complianceUrl}}" style="color:#888">{{complianceUrl}}</a>
+    </p>
+  {{/inline}}
+{{/email-base}}

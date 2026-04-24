@@ -11,7 +11,6 @@ export const COMPLIANCE_IDS = [
     "tb_test",
     "immunization_record",
     "wes",
-    "drivers_license",
     "diploma_degree",
 ] as const;
 

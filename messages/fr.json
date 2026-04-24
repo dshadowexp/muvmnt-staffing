@@ -31,7 +31,6 @@
     "tb_test": "Test de tuberculose",
     "immunization_record": "Carnet de vaccination",
     "wes": "WES",
-    "drivers_license": "Permis de conduire",
     "diploma_degree": "Diplôme / grade"
   },
   "complianceDesc": {
@@ -890,6 +889,7 @@
       "account": "Compte",
       "billing": "Facturation",
       "authorization": "Autorisation",
+      "interviews": "Entretiens",
       "clients": "Clients",
       "workers": "Travailleurs",
       "settings": "Paramètres",
@@ -937,6 +937,23 @@
           "description": "Votre document est en cours d'examen par notre équipe.",
           "badge": "En cours d'examen"
         },
+        "workAuthorization": {
+          "title": "Autorisation de travail",
+          "description": "Téléversez votre document d'autorisation de travail pour que notre équipe puisse vérifier votre admissibilité.",
+          "descriptionVerified": "Votre autorisation de travail a été vérifiée par notre équipe.",
+          "descriptionPendingReview": "Votre document a été soumis et est en cours d'examen par notre équipe.",
+          "editAria": "Modifier l'autorisation de travail",
+          "save": "Enregistrer",
+          "saving": "Enregistrement…",
+          "savedSuccess": "Autorisation de travail enregistrée."
+        },
+        "identityVerification": {
+          "title": "Vérification d'identité",
+          "description": "Effectuez une vérification d'identité rapide pour confirmer qui vous êtes.",
+          "descriptionVerified": "Votre identité a été vérifiée.",
+          "beginVerification": "Commencer la vérification",
+          "beginning": "Redirection…"
+        },
         "photoCard": {
           "title": "Ajouter une photo de profil",
           "description": "Téléversez une photo claire de votre visage pour que les clients puissent vous reconnaître."
@@ -982,8 +999,10 @@
       "availability": {
         "title": "Disponibilités",
         "subtitle": "Les moments où vous êtes disponible pour des quarts.",
+        "lockedDescription": "Vous pourrez gérer vos disponibilités une fois vos entretiens et vos étapes de conformité terminés.",
         "addressTitle": "Votre emplacement actuel",
         "addressDescription": "Vous serez apparié à des quarts près de cette adresse.",
+        "addressLockedDescription": "Votre emplacement pourra être modifié une fois vos entretiens et vos étapes de conformité terminés.",
         "summary": {
           "editAria": "Modifier les disponibilités",
           "cardTitle": "Heures de travail disponibles",
@@ -1009,15 +1028,29 @@
         "subtitle": "Téléversez et gérez les documents dont un administrateur a besoin pour vous vérifier pour les quarts.",
         "workAuth": {
           "title": "Autorisation de travail",
-          "description": "Complétez d'abord toutes les tâches importantes. Visitez la page d'accueil pour voir vos tâches importantes."
+          "description": "Téléversez votre document d'autorisation de travail pour examen par notre équipe.",
+          "descriptionInterview": "Complétez d'abord vos entretiens. Visitez la page Évaluations pour les compléter.",
+          "descriptionCompliance": "Téléversez votre document d'autorisation de travail pour examen par notre équipe.",
+          "editAria": "Modifier l'autorisation de travail",
+          "descriptionPostCompliance": "Votre autorisation de travail a été soumise. Contactez le support si vous devez apporter des modifications."
         },
         "identityVerification": {
           "title": "Vérification d'identité",
-          "description": "Complétez d'abord toutes les tâches importantes. Visitez la page d'accueil pour voir vos tâches importantes.",
+          "description": "Vérifiez votre identité pour compléter vos exigences de conformité.",
+          "descriptionInterview": "Complétez d'abord vos entretiens. Visitez la page Évaluations pour les compléter.",
+          "descriptionCompliance": "Vérifiez votre identité pour compléter vos exigences de conformité.",
           "statusVerified": "Vérifié",
           "statusNotVerified": "Non vérifié",
-          "verifiedAtLabel": "Vérifié le"
+          "verifiedAtLabel": "Vérifié le",
+          "beginVerification": "Commencer la vérification",
+          "continueVerification": "Continuer la vérification",
+          "beginning": "Redirection…",
+          "startError": "Impossible de démarrer la vérification d'identité. Veuillez réessayer.",
+          "descriptionPostCompliance": "Votre statut de vérification d'identité est affiché ci-dessous."
         },
+        "documentsTitle": "Documents de conformité",
+        "documentsDescription": "Téléversez les documents requis pour chaque type de conformité.",
+        "documentsDescriptionInterview": "Complétez d'abord vos entretiens. Visitez la page Évaluations pour les terminer.",
         "emptyState": "Aucun document de conformité pour le moment. Choisissez un type ci-dessus pour ajouter votre première ligne.",
         "columnDocument": "Document",
         "columnFile": "Fichier",
@@ -1043,6 +1076,55 @@
           "helper": "Choisissez un type pour ajouter une ligne, puis téléversez un PDF ou une image depuis cette ligne.",
           "saveFailed": "Échec de l'enregistrement du document."
         }
+      },
+      "assessments": {
+        "title": "Évaluations",
+        "subtitle": "Complétez vos évaluations pour renforcer votre profil et être sélectionné plus rapidement.",
+        "aiBadge": "IA",
+        "videoBadge": "Vidéo",
+        "aiGuidedBadge": "Guidé par IA",
+        "multipleChoiceBadge": "Choix multiple",
+        "noPhotoDescription": "Vous devez téléverser une photo de profil avant de commencer cet entretien.",
+        "uploadPhotoFirst": "Téléverser une photo d'abord →",
+        "startInterview": "Commencer l'entretien →",
+        "professionTitle": "Entretien professionnel",
+        "professionDescription": "Session audio et vidéo guidée par IA sur les connaissances générales en santé et les compétences professionnelles.",
+        "resumeTitle": "Entretien de CV",
+        "resumeDescription": "Présentation audio et vidéo guidée par IA de votre CV et de votre expérience.",
+        "underReviewDescription": "Vos commentaires d'entretien sont en cours d'examen.",
+        "professionPendingDescription": "Votre entretien professionnel est terminé — les commentaires sont en cours de préparation.",
+        "professionPassDescription": "Vous avez réussi votre entretien professionnel.",
+        "professionFailDescription": "Votre entretien professionnel n'a pas satisfait aux critères requis.",
+        "resumePendingDescription": "Votre entretien de CV est terminé — les commentaires sont en cours de préparation.",
+        "resumePassDescription": "Vous avez réussi votre entretien de CV.",
+        "resumeFailDescription": "Votre entretien de CV n'a pas satisfait aux critères requis.",
+        "underReviewBadge": "En cours d'examen",
+        "passedBadge": "Réussi",
+        "failedBadge": "Échoué",
+        "awaitingFeedbackBadge": "En attente de commentaires",
+        "noSkillsTitle": "Aucune compétence pour l'instant",
+        "noSkillsDescription": "Utilisez « Ajouter une compétence » pour revendiquer une compétence et la vérifier avec un court quiz.",
+        "skillNotTakenDescription": "Évaluation à choix multiples chronométrée adaptée à cette compétence.",
+        "beginAssessment": "Commencer l'évaluation →",
+        "skillPassedBadge": "Réussi · {score} %",
+        "skillAssessedBadge": "Évalué",
+        "skillNeedsRetakeBadge": "À reprendre · {score} %",
+        "skillNeedsRetakeBadgeNoScore": "À reprendre",
+        "skillPassedDescription": "Évaluation terminée.",
+        "skillFailedDescription": "La dernière tentative n'a pas atteint la note de passage de 70 %.",
+        "viewDetails": "Voir les détails →",
+        "dialogTitle": "Évaluation — {name}",
+        "dialogDescription": "Quiz à choix multiples adapté à cette compétence.",
+        "dialogPassed": "Réussi",
+        "dialogScoreLabel": "Score :",
+        "dialogCompletedLabel": "Complété",
+        "dialogMarkedAssessed": "Cette compétence est marquée comme évaluée sur votre profil.",
+        "dialogMetRequirement": "Vous avez atteint l'exigence de 70 %. Pas besoin de reprendre cette évaluation.",
+        "dialogNotPassed": "Non réussi",
+        "dialogLastScorePrefix": "Votre dernier score était de",
+        "dialogLastScoreSuffix": ". Vous avez besoin de 70 % pour réussir et vérifier cette compétence.",
+        "dialogAttemptLabel": "Tentative :",
+        "dialogRetake": "Reprendre l'évaluation"
       },
       "profile": {
         "title": "Profil",
@@ -1420,6 +1502,7 @@
           "verificationStatusVerified": "Vérifié",
           "verificationStatusPending": "En attente de révision",
           "none": "—",
+          "save": "Sauvegarder les modifications",
           "saving": "Enregistrement…",
           "removeFileFailed": "Échec de la suppression du fichier dans le stockage.",
           "documentUploadFailed": "Impossible de téléverser le document. Veuillez réessayer."

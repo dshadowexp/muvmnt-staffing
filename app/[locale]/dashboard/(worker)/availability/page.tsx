@@ -12,19 +12,22 @@ import {
 } from "./_summary";
 import { WorkerAvailabilityAddressCard } from "./_address-card";
 
-async function SummarySection() {
+async function SummarySection({ locked }: { locked: boolean }) {
   const data = await getWorkerAvailabilityInitial();
   const initial = data ?? {
     timezone: "America/Toronto",
     week: defaultWeekSchedule(),
     autoConfirm: false,
   };
-  return <AvailabilitySummaryCard data={initial} />;
+  return <AvailabilitySummaryCard data={initial} locked={locked} />;
 }
 
 export default async function AvailabilityPage() {
   const worker = await getWorkerProfile();
   if (!worker) redirect("/onboarding/profile");
+
+  const stage = worker.stage ?? null;
+  const locked = !stage || stage === "picture" || stage === "interview" || stage === "compliance";
 
   const t = await getTranslations("dashboard.worker.availability");
 
@@ -40,10 +43,10 @@ export default async function AvailabilityPage() {
         </p>
       </header>
       <Suspense fallback={<AvailabilitySummaryCardSkeleton />}>
-        <SummarySection />
+        <SummarySection locked={locked} />
       </Suspense>
       <Suspense fallback={<SectionCardSkeleton lines={2} />}>
-        <WorkerAvailabilityAddressCard locationPromise={locationPromise} />
+        <WorkerAvailabilityAddressCard locationPromise={locationPromise} locked={locked} />
       </Suspense>
     </div>
   );

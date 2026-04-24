@@ -30,7 +30,6 @@
     "tb_test": "TB Test",
     "immunization_record": "Immunization Record",
     "wes": "WES",
-    "drivers_license": "Driver's License",
     "diploma_degree": "Diploma / Degree"
   },
   "complianceDesc": {
@@ -889,6 +888,7 @@
       "account": "Account",
       "billing": "Billing",
       "authorization": "Authorization",
+      "interviews": "Interviews",
       "clients": "Clients",
       "workers": "Workers",
       "settings": "Settings",
@@ -936,6 +936,25 @@
           "description": "Your document is being reviewed by our team.",
           "badge": "Pending"
         },
+        "workAuthorization": {
+          "title": "Work authorization",
+          "description": "Upload your work authorization document so our team can verify your eligibility.",
+          "descriptionVerified": "Your work authorization has been verified by our team.",
+          "descriptionPendingReview": "Your document has been submitted and is under review by our team.",
+          "editAria": "Edit work authorization",
+          "save": "Save",
+          "saving": "Saving…",
+          "savedSuccess": "Work authorization saved."
+        },
+        "identityVerification": {
+          "title": "Identity verification",
+          "description": "Complete a quick identity check to confirm who you are.",
+          "descriptionVerified": "Your identity has been verified.",
+          "beginVerification": "Begin verification",
+          "continueVerification": "Continue verification",
+          "beginning": "Redirecting…",
+          "startError": "Could not start identity verification. Please try again."
+        },
         "photoCard": {
           "title": "Add a profile photo",
           "description": "Upload a clear photo of your face so clients can recognize you."
@@ -981,8 +1000,10 @@
       "availability": {
         "title": "Availability",
         "subtitle": "Times when you are available for shifts.",
+        "lockedDescription": "You'll be able to manage your availability once you've completed your interviews and compliance steps.",
         "addressTitle": "Your current location",
         "addressDescription": "You will be matched to shifts near this address location.",
+        "addressLockedDescription": "Your location can be updated once you've completed your interviews and compliance steps.",
         "summary": {
           "editAria": "Edit availability",
           "cardTitle": "Available working hours",
@@ -1008,15 +1029,29 @@
         "subtitle": "Upload and manage the documents an admin needs to verify you for shifts.",
         "workAuth": {
           "title": "Work authorization",
-          "description": "Complete important tasks first. Visit the Home page to view your important tasks."
+          "description": "Upload your work authorization document for review by our team.",
+          "descriptionInterview": "Complete your interviews first. Visit the Assessments page to complete them.",
+          "descriptionCompliance": "Upload your work authorization document for review by our team.",
+          "editAria": "Edit work authorization",
+          "descriptionPostCompliance": "Your work authorization has been submitted. Contact support if you need to make changes."
         },
         "identityVerification": {
           "title": "Identity verification",
-          "description": "Complete important tasks first. Visit the Home page to view your important tasks.",
+          "description": "Verify your identity to complete your compliance requirements.",
+          "descriptionInterview": "Complete your interviews first. Visit the Assessments page to complete them.",
+          "descriptionCompliance": "Verify your identity to complete your compliance requirements.",
           "statusVerified": "Verified",
           "statusNotVerified": "Not verified",
-          "verifiedAtLabel": "Verified on"
+          "verifiedAtLabel": "Verified on",
+          "beginVerification": "Begin verification",
+          "continueVerification": "Continue verification",
+          "beginning": "Redirecting…",
+          "startError": "Could not start identity verification. Please try again.",
+          "descriptionPostCompliance": "Your identity verification status is shown below."
         },
+        "documentsTitle": "Compliance documents",
+        "documentsDescription": "Upload the required documents for each compliance type.",
+        "documentsDescriptionInterview": "Complete your interviews first. Visit the Assessments page to complete them.",
         "emptyState": "No compliance documents yet. Choose a type above to add your first row.",
         "columnDocument": "Document",
         "columnFile": "File",
@@ -1042,6 +1077,55 @@
           "helper": "Choose a type to add a row, then upload a PDF or image from that row.",
           "saveFailed": "Failed to save compliance."
         }
+      },
+      "assessments": {
+        "title": "Assessments",
+        "subtitle": "Complete assessments to boost your profile and get selected for shifts faster.",
+        "aiBadge": "AI",
+        "videoBadge": "Video",
+        "aiGuidedBadge": "AI-guided",
+        "multipleChoiceBadge": "Multiple choice",
+        "noPhotoDescription": "You need to upload a profile photo before you can start this interview.",
+        "uploadPhotoFirst": "Upload a photo first →",
+        "startInterview": "Start interview →",
+        "professionTitle": "Profession interview",
+        "professionDescription": "AI-led voice and video session about general health knowledge and professional competencies.",
+        "resumeTitle": "Resume interview",
+        "resumeDescription": "AI-led voice and video walkthrough of your resume and experience.",
+        "underReviewDescription": "Your interview feedback is under review.",
+        "professionPendingDescription": "Your profession interview is complete — feedback is being prepared.",
+        "professionPassDescription": "You passed your profession interview.",
+        "professionFailDescription": "Your profession interview did not meet the bar.",
+        "resumePendingDescription": "Your resume interview is complete — feedback is being prepared.",
+        "resumePassDescription": "You passed your resume interview.",
+        "resumeFailDescription": "Your resume interview did not meet the bar.",
+        "underReviewBadge": "Under review",
+        "passedBadge": "Passed",
+        "failedBadge": "Failed",
+        "awaitingFeedbackBadge": "Awaiting feedback",
+        "noSkillsTitle": "No skills yet",
+        "noSkillsDescription": "Use \"Add skill\" to claim a skill and verify it with a short quiz.",
+        "skillNotTakenDescription": "Timed multiple-choice assessment tailored to this skill.",
+        "beginAssessment": "Begin assessment →",
+        "skillPassedBadge": "Passed · {score}%",
+        "skillAssessedBadge": "Assessed",
+        "skillNeedsRetakeBadge": "Needs retake · {score}%",
+        "skillNeedsRetakeBadgeNoScore": "Needs retake",
+        "skillPassedDescription": "Assessment complete.",
+        "skillFailedDescription": "Last attempt did not meet the 70% pass mark.",
+        "viewDetails": "View details →",
+        "dialogTitle": "Assessment — {name}",
+        "dialogDescription": "Multiple-choice quiz tailored to this skill.",
+        "dialogPassed": "Passed",
+        "dialogScoreLabel": "Score:",
+        "dialogCompletedLabel": "Completed",
+        "dialogMarkedAssessed": "This skill is marked as assessed on your profile.",
+        "dialogMetRequirement": "You met the 70% requirement. No need to retake this assessment.",
+        "dialogNotPassed": "Not passed",
+        "dialogLastScorePrefix": "Your last score was",
+        "dialogLastScoreSuffix": ". You need 70% to pass and verify this skill.",
+        "dialogAttemptLabel": "Attempt:",
+        "dialogRetake": "Retake assessment"
       },
       "profile": {
         "title": "Profile",
@@ -1419,6 +1503,7 @@
           "verificationStatusVerified": "Verified",
           "verificationStatusPending": "Pending review",
           "none": "—",
+          "save": "Save changes",
           "saving": "Saving…",
           "removeFileFailed": "Failed to remove file from storage.",
           "documentUploadFailed": "Could not upload your document. Please try again."

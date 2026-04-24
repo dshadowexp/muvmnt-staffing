@@ -48,6 +48,9 @@ async function SuspendedContent() {
 
   if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
+  // Guard: a profile photo is required before the interview can start.
+  if (!worker.photo_url) return redirect({ href: "/dashboard/profile", locale });
+
   const existing = await getInterviewBySubjectForUser(
     "profession",
     session.userId,

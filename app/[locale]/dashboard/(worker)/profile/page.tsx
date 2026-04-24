@@ -24,6 +24,7 @@ export default async function WorkerProfilePage() {
           profession: worker.profession,
           years_exp: worker.years_exp,
           photo_url: worker.photo_url,
+          stage: worker.stage ?? null,
         }}
       />
     </div>

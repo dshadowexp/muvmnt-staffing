@@ -15,6 +15,7 @@ import {
   getCompliances,
   getIdentityVerification,
   getWorkAuthorization,
+  getWorkerProfile,
 } from "@/features/profile/dal/queries";
 import { CompliancesClient, type CompliancesRow } from "./_client";
 
@@ -22,6 +23,9 @@ export default async function WorkerCompliancePage() {
   const session = await getSession();
   if (!session) redirect("/sign-in");
   if (session.role !== "worker") redirect(`/dashboard`);
+
+  const worker = await getWorkerProfile();
+  const stage = worker?.stage ?? null;
 
   const compliancesPromise: Promise<CompliancesRow[]> = getCompliances().then(
     (rows) =>
@@ -49,7 +53,13 @@ export default async function WorkerCompliancePage() {
   workAuthPromise.catch(() => undefined);
 
   const identityVerificationPromise = getIdentityVerification().then((iv) =>
-    iv ? { verified: iv.verified, verified_at: iv.verified_at } : null,
+    iv
+      ? {
+          verified: iv.verified,
+          verified_at: iv.verified_at,
+          hasSession: !!iv.session_id,
+        }
+      : null,
   );
   identityVerificationPromise.catch(() => undefined);
 
@@ -60,6 +70,7 @@ export default async function WorkerCompliancePage() {
           compliancesPromise={compliancesPromise}
           workAuthPromise={workAuthPromise}
           identityVerificationPromise={identityVerificationPromise}
+          stage={stage}
         />
       </Suspense>
     </div>

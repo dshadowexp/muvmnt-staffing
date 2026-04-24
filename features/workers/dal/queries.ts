@@ -9,7 +9,9 @@ export type WorkerPendingActionId =
     | "profile-photo"
     | "profession-interview"
     | "resume-interview"
-    | "payroll-onboarding";
+    | "payroll-onboarding"
+    | "work-authorization"
+    | "identity-verification";
 
 /**
  * A serializable pending action — no JSX, no ReactNode.

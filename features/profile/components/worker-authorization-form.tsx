@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { WORK_AUTHORIZATION_TYPES } from "@/lib/constants";
 import type { WorkAuthorization } from "@/features/profile/schemas/authorization";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,12 @@ import {
   requiresSinExpiry,
   type AuthorizationFormValues,
 } from "@/features/profile/schemas/authorization";
+import { upsertWorkAuthorizationAction } from "@/features/profile/actions/authorization-actions";
+import {
+  FileInput,
+  getFilenameFromKey,
+  uploadFileToStorage,
+} from "@/features/storage/components/file-input";
 import {
   Field,
   FieldDescription,
@@ -48,7 +55,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import { useRouter } from "@/i18n/navigation";
 
 interface InitialWorkAuthorization {
   type: string;
@@ -113,8 +122,12 @@ export const WorkerAuthorizationForm = forwardRef<
   },
   ref,
 ) {
+  const router = useRouter();
   const { loading: authLoading } = useAuth();
   const [expiryOpen, setExpiryOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [existingFileCleared, setExistingFileCleared] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const t = useTranslations("kyc.onboarding.forms.authorization");
   const tCommon = useTranslations("common");
   const tVal = useTranslations("kyc.onboarding.validation");
@@ -141,7 +154,10 @@ export const WorkerAuthorizationForm = forwardRef<
   const socialNumberExpiry = watch("socialNumberExpiry") ?? "";
 
   const needsExpiry = requiresSinExpiry(workAuthorization);
+  // SIN is only locked once admin has verified the work auth. Before that,
+  // the worker can freely correct it regardless of whether one is already saved.
   const sinLocked =
+    workAuthorizationVerified &&
     enforcePersistedSocialNumberLock &&
     !canEditSocialNumber({
       socialNumber: initialSin,
@@ -153,7 +169,11 @@ export const WorkerAuthorizationForm = forwardRef<
     !workAuthorizationVerified && (!profileEditMode || isEditing);
 
   const inputsDisabled =
-    inEditUI && (submitting || authLoading);
+    inEditUI && (submitting || authLoading || isSaving);
+
+  /** Save button is active when any field or the file has changed. */
+  const isFormDirty =
+    formState.isDirty || pendingFile !== null || existingFileCleared;
 
   useEffect(() => {
     if (inputsDisabled) setExpiryOpen(false);
@@ -184,12 +204,74 @@ export const WorkerAuthorizationForm = forwardRef<
     [workAuthorizationVerified, inEditUI, trigger, getValues],
   );
 
+  /**
+   * Profile save: validate → upload file if pending → persist → refresh.
+   * Only called in profile edit mode.
+   */
+  async function handleSave() {
+    const fieldsValid = await trigger(undefined, { shouldFocus: true });
+    if (!fieldsValid) return;
+
+    // If the existing file was cleared and no new file was selected, block save.
+    if (existingFileCleared && !pendingFile) {
+      toast.error("Please upload a document before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      let fileKey: string | undefined;
+
+      if (pendingFile) {
+        const { key } = await uploadFileToStorage({
+          file: pendingFile,
+          context: "compliance",
+        });
+        fileKey = key;
+      }
+
+      const type = getValues("workAuthorization") as WorkAuthorization;
+      const sn = normalizeSocialNumber(getValues("socialNumber"));
+      const exp = getValues("socialNumberExpiry") ?? "";
+      const expRequired = requiresSinExpiry(type);
+
+      const result = await upsertWorkAuthorizationAction({
+        type,
+        // Pass new key, explicit null to clear, or undefined to leave unchanged.
+        fileUrl: fileKey !== undefined ? fileKey : existingFileCleared ? null : undefined,
+        socialNumber: sn,
+        socialNumberExpiry: expRequired ? exp : null,
+      });
+
+      if (result.error) {
+        toast.error(result.message);
+        return;
+      }
+
+      toast.success(result.message);
+      form.reset({
+        workAuthorization: type,
+        socialNumber: sn,
+        socialNumberExpiry: expRequired ? exp : "",
+      });
+      setPendingFile(null);
+      setExistingFileCleared(false);
+      onCancelEdit?.();
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   const wasEditingRef = useRef(false);
   useEffect(() => {
     const enteredEdit =
       profileEditMode && isEditing && !wasEditingRef.current;
     wasEditingRef.current = isEditing;
     if (!enteredEdit) return;
+    // Reset form fields and file state when entering edit mode.
     setValue(
       "workAuthorization",
       (initialWorkAuthorization?.type ?? "") as WorkAuthorization,
@@ -197,6 +279,8 @@ export const WorkerAuthorizationForm = forwardRef<
     );
     setValue("socialNumber", initialSin, { shouldValidate: false });
     setValue("socialNumberExpiry", initialExpiry, { shouldValidate: false });
+    setPendingFile(null);
+    setExistingFileCleared(false);
   }, [
     profileEditMode,
     isEditing,
@@ -235,6 +319,14 @@ export const WorkerAuthorizationForm = forwardRef<
             {initialWorkAuthorization?.type ?? t("none")}
           </p>
         </Field>
+        {initialWorkAuthorization?.file_url ? (
+          <Field>
+            <FieldLabel>{t("documentLabel")}</FieldLabel>
+            <p className="text-sm text-muted-foreground">
+              {getFilenameFromKey(initialWorkAuthorization.file_url)}
+            </p>
+          </Field>
+        ) : null}
         <Field>
           <FieldLabel>{t("socialNumberLabel")}</FieldLabel>
           <p className="text-sm">{maskSocialNumber(initialSin) || t("none")}</p>
@@ -264,9 +356,17 @@ export const WorkerAuthorizationForm = forwardRef<
 
   if (profileEditMode && !inEditUI) {
     return (
-      <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(8rem,10rem)_1fr] sm:gap-x-4">
+      <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(13rem,15rem)_1fr] sm:gap-x-4">
         <dt className="text-muted-foreground font-medium">{t("typeLabel")}</dt>
         <dd>{initialWorkAuthorization?.type || "—"}</dd>
+        {initialWorkAuthorization?.file_url ? (
+          <>
+            <dt className="text-muted-foreground font-medium">{t("documentLabel")}</dt>
+            <dd className="truncate">
+              {getFilenameFromKey(initialWorkAuthorization.file_url)}
+            </dd>
+          </>
+        ) : null}
         <dt className="text-muted-foreground font-medium">
           {t("socialNumberLabel")}
         </dt>
@@ -310,6 +410,31 @@ export const WorkerAuthorizationForm = forwardRef<
           <FieldError>
             {formState.errors.workAuthorization?.message}
           </FieldError>
+        </Field>
+
+        <Field>
+          <FieldLabel>{t("documentLabel")}</FieldLabel>
+          <FieldDescription>
+            {workAuthorization
+              ? t("uploadDescription", { type: workAuthorization })
+              : t("typeDescription")}
+          </FieldDescription>
+          <FileInput
+            context="compliance"
+            accept={[".pdf", ".jpg", ".jpeg", ".png"]}
+            maxMb={10}
+            uploadToCloud={false}
+            initialFileKey={
+              existingFileCleared
+                ? undefined
+                : (initialWorkAuthorization?.file_url ?? undefined)
+            }
+            onSelectedFile={(f) => setPendingFile(f)}
+            onExistingRemoved={() => {
+              setExistingFileCleared(true);
+            }}
+            disabled={inputsDisabled}
+          />
         </Field>
 
         <Field data-invalid={!!formState.errors.socialNumber}>
@@ -420,6 +545,8 @@ export const WorkerAuthorizationForm = forwardRef<
             </FieldError>
           </Field>
         )}
+
+        
       </FieldGroup>
 
       {profileEditMode && isEditing && onCancelEdit ? (
@@ -427,7 +554,7 @@ export const WorkerAuthorizationForm = forwardRef<
           <Button
             type="button"
             variant="ghost"
-            disabled={inputsDisabled}
+            disabled={isSaving}
             onClick={() => {
               setValue(
                 "workAuthorization",
@@ -438,10 +565,21 @@ export const WorkerAuthorizationForm = forwardRef<
               setValue("socialNumberExpiry", initialExpiry, {
                 shouldValidate: true,
               });
+              setPendingFile(null);
+              setExistingFileCleared(false);
               onCancelEdit();
             }}
           >
             {tCommon("cancel")}
+          </Button>
+          <Button
+            type="button"
+            disabled={!isFormDirty || isSaving}
+            onClick={() => void handleSave()}
+          >
+            <LoadingSwap isLoading={isSaving}>
+              {t("save")}
+            </LoadingSwap>
           </Button>
         </div>
       ) : null}

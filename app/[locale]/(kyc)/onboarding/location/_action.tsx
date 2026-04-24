@@ -40,14 +40,24 @@ export const locationAction = async (
   const upsert = await upsertLocationAction(parsed.data);
   if (upsert.error) return onboardingStepRawError(upsert.message);
 
-  const persist = await completeOnboardingStep("location");
-  if (persist.error) {
-    return persist.message
-      ? onboardingStepRawError(persist.message)
-      : onboardingStepError("persistFailed");
-  }
+  if (session.role === "worker") {
+    const persist = await completeOnboardingStep("location", {
+      markOnboardingCompleted: true,
+    });
+    if (persist.error) {
+      return persist.message
+        ? onboardingStepRawError(persist.message)
+        : onboardingStepError("persistFailed");
+    }
+    return { ok: true, redirectTo: "/review", steps: persist.steps };
+  } else {
+    const persist = await completeOnboardingStep("location");
+    if (persist.error) {
+      return persist.message
+        ? onboardingStepRawError(persist.message)
+        : onboardingStepError("persistFailed");
+    }
 
-  const redirectTo =
-    session.role === "worker" ? "/onboarding/availability" : "/onboarding/billing";
-  return { ok: true, redirectTo, steps: persist.steps };
+    return { ok: true, redirectTo: "/onboarding/billing", steps: persist.steps };
+  }
 };

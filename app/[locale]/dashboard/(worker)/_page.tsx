@@ -7,7 +7,11 @@ import {
   listShiftsForWorkerOnDay,
 } from "@/features/shifts/dal/queries";
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
-import { getWorkerProfile } from "@/features/profile/dal/queries";
+import {
+  getWorkerProfile,
+  getWorkAuthorization,
+  getIdentityVerification,
+} from "@/features/profile/dal/queries";
 import {
   getWorkerPendingActions,
   type WorkerPendingAction,
@@ -30,6 +34,8 @@ import {
   CameraIcon,
   StethoscopeIcon,
   WalletIcon,
+  ShieldCheckIcon,
+  FingerprintIcon,
 } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
@@ -133,14 +139,98 @@ type PendingAction = WorkerPendingAction & {
 async function PendingActions({
   userId,
   photoUrl,
+  stage,
 }: {
   userId: string;
   photoUrl: string | null;
+  stage?: string | null;
 }) {
-  const [pending, t] = await Promise.all([
-    getWorkerPendingActions(userId, photoUrl),
-    getTranslations("dashboard.worker.home"),
-  ]);
+  const t = await getTranslations("dashboard.worker.home");
+  const isPictureStage = !stage || stage === "picture";
+  const isComplianceStage = stage === "compliance";
+
+  // ── Picture stage: worker hasn't uploaded a photo yet ──
+  if (isPictureStage) {
+    return (
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-sm text-muted-foreground font-semibold tracking-tight">
+            {t("importantTasksTitle")}
+          </h2>
+          <Badge variant="secondary" className="tabular-nums">1</Badge>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <PendingActionCard
+            action={{
+              id: "profile-photo",
+              href: "/dashboard/profile",
+              title: t("photoCard.title"),
+              description: t("photoCard.description"),
+              icon: <CameraIcon className="size-5 text-primary" />,
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ── Compliance stage: link cards to /dashboard/compliance ──
+  if (isComplianceStage) {
+    const [workAuthRaw, identityVerificationRaw] = await Promise.all([
+      getWorkAuthorization(),
+      getIdentityVerification(),
+    ]);
+
+    const workAuthDone = workAuthRaw?.is_verified === true;
+    const identityDone = identityVerificationRaw?.verified === true;
+
+    if (workAuthDone && identityDone) return null;
+
+    const actions: PendingAction[] = [];
+
+    if (!workAuthDone) {
+      actions.push({
+        id: "work-authorization",
+        href: "/dashboard/compliance",
+        title: t("workAuthorization.title"),
+        description: t("workAuthorization.description"),
+        icon: <ShieldCheckIcon className="size-5 text-primary" />,
+      });
+    }
+
+    if (!identityDone) {
+      actions.push({
+        id: "identity-verification",
+        href: "/dashboard/compliance",
+        title: t("identityVerification.title"),
+        description: t("identityVerification.description"),
+        icon: <FingerprintIcon className="size-5 text-primary" />,
+      });
+    }
+
+    if (actions.length === 0) return null;
+
+    return (
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-sm text-muted-foreground font-semibold tracking-tight">
+            {t("importantTasksTitle")}
+          </h2>
+          <Badge variant="secondary" className="tabular-nums">
+            {actions.length}
+          </Badge>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {actions.map((a) => (
+            <PendingActionCard key={a.id} action={a} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Interview stage: show outstanding interview / onboarding actions ──
+  const pending = await getWorkerPendingActions(userId, photoUrl);
 
   if (pending.length === 0) return null;
 
@@ -305,7 +395,11 @@ export default async function WorkerHomePage() {
       </div>
 
       <Suspense fallback={<PendingActionsSkeleton />}>
-        <PendingActions userId={worker.user_id} photoUrl={worker.photo_url ?? null} />
+        <PendingActions
+          userId={worker.user_id}
+          photoUrl={worker.photo_url ?? null}
+          stage={worker.stage ?? null}
+        />
       </Suspense>
 
       <Suspense fallback={<ShiftRequestCardsSkeleton />}>
@@ -321,14 +415,16 @@ export default async function WorkerHomePage() {
         </div>
       </Suspense>
 
-      <div>
-        <h2 className="text-xl font-semibold tracking-tight">
-          {t("todaysShifts")}
-        </h2>
-        <Suspense fallback={<ShiftsTableSkeleton />}>
-          <TodayShifts workerId={worker.id} />
-        </Suspense>
-      </div>
+      {worker.stage === "live" && (
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight">
+            {t("todaysShifts")}
+          </h2>
+          <Suspense fallback={<ShiftsTableSkeleton />}>
+            <TodayShifts workerId={worker.id} />
+          </Suspense>
+        </div>
+      )}
     </div>
   );
 }

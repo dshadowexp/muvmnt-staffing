@@ -24,6 +24,7 @@ import {
   RESUME_UPLOAD_LIMIT,
   type InterviewSubjectRef,
 } from "@/features/interviews/lib/interview-subject-ref";
+import { tasks } from "@trigger.dev/sdk/v3";
 
 export type GetInterviewResult =
   | { error: true; message: string; data: null }
@@ -451,6 +452,17 @@ export async function finalizeInterviewRecording(
     if (updated == null) {
       return { error: true, message: "Interview not found" };
     }
+
+    // Kick off background processing (feedback generation + video analysis)
+    tasks
+      .trigger("interviews.process", {
+        interviewId,
+        userId: session.userId,
+        recordingKey: key,
+      })
+      .catch((err) => {
+        console.error("[finalizeInterviewRecording] trigger failed", err);
+      });
 
     return { error: false, recordingUrl };
   } catch (e) {

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { LandingAuthCtas } from "../_components/landing-auth-ctas";
 import { Button } from "@/components/ui/button";
+import { HowItWorks } from "./_how-it-works";
 
 export async function generateMetadata({
   params,
@@ -125,6 +126,8 @@ export default async function FindWorkPage() {
           </div>
         </div>
       </section>
+
+      <HowItWorks />
 
       <section className="border-t bg-muted/40 px-6 py-16 lg:px-12 lg:py-20">
         <div className="mx-auto max-w-5xl">

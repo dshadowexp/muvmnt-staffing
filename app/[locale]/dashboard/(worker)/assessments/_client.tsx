@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, use } from "react";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,12 @@ import {
   VideoIcon,
   XCircleIcon,
   CircleDashedIcon,
+  CameraIcon,
 } from "lucide-react";
 import { formatDateTime } from "@/lib/formatters";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { SkillsForm } from "@/features/profile/components/skills-form";
-import { parseInterviewFeedback } from "@/features/interviews/lib/interview-feedback-json";
 import type { Database } from "@/services/supabase/types/database";
 
 export type AssessmentSkillRow = {
@@ -53,6 +54,7 @@ export type StartedInterview = {
   id: string;
   subject: "profession" | "resume";
   feedback: Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
+  result: string | null;
   duration: string | null;
   completedAt: string | null;
   reviewed: boolean;
@@ -60,6 +62,7 @@ export type StartedInterview = {
 
 type Props = {
   profession: string;
+  hasPhoto: boolean;
   professionInterviewPromise: Promise<StartedInterview | null>;
   resumeInterviewPromise: Promise<StartedInterview | null>;
   skillsPromise: Promise<AssessmentSkillRow[]>;
@@ -73,6 +76,7 @@ const credentialCardClassName =
   "h-full origin-center motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:scale-[1.03] motion-safe:hover:-translate-y-1 hover:border-border hover:bg-muted/20 hover:shadow-md";
 
 function AiInterviewBadge() {
+  const t = useTranslations("dashboard.worker.assessments");
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Badge
@@ -80,20 +84,21 @@ function AiInterviewBadge() {
         className="border-violet-500/40 bg-violet-500/10 font-normal text-violet-950 dark:border-violet-400/35 dark:bg-violet-500/15 dark:text-violet-100"
       >
         <MicIcon className="size-3.5" aria-hidden />
-        AI
+        {t("aiBadge")}
       </Badge>
       <Badge
         variant="outline"
         className="border-sky-500/40 bg-sky-500/10 font-normal text-sky-950 dark:border-sky-400/35 dark:bg-sky-500/15 dark:text-sky-100"
       >
         <VideoIcon className="size-3.5" aria-hidden />
-        Video
+        {t("videoBadge")}
       </Badge>
     </div>
   );
 }
 
 function CredentialAssessmentBadges() {
+  const t = useTranslations("dashboard.worker.assessments");
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Badge
@@ -101,14 +106,14 @@ function CredentialAssessmentBadges() {
         className="border-emerald-500/40 bg-emerald-500/10 font-normal text-emerald-950 dark:border-emerald-400/35 dark:bg-emerald-500/15 dark:text-emerald-100"
       >
         <SparklesIcon className="size-3.5" aria-hidden />
-        AI-guided
+        {t("aiGuidedBadge")}
       </Badge>
       <Badge
         variant="outline"
         className="border-teal-500/40 bg-teal-500/10 font-normal text-teal-950 dark:border-teal-400/35 dark:bg-teal-500/15 dark:text-teal-100"
       >
         <ListChecksIcon className="size-3.5" aria-hidden />
-        Multiple choice
+        {t("multipleChoiceBadge")}
       </Badge>
     </div>
   );
@@ -116,11 +121,13 @@ function CredentialAssessmentBadges() {
 
 export function WorkerAssessmentsHub({
   profession,
+  hasPhoto,
   professionInterviewPromise,
   resumeInterviewPromise,
   skillsPromise,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("dashboard.worker.assessments");
   const [addOpen, setAddOpen] = React.useState(false);
 
   function handleAddDialogChange(open: boolean) {
@@ -133,9 +140,9 @@ export function WorkerAssessmentsHub({
       <div className="flex w-full flex-col gap-8">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">Assessments</h1>
+            <h1 className="text-xl font-semibold tracking-tight">{t("title")}</h1>
             <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-              Complete assessments to boost your profile and get selected for shifts faster.
+              {t("subtitle")}
             </p>
           </div>
           {/* <Button
@@ -151,16 +158,22 @@ export function WorkerAssessmentsHub({
 
         <div className="grid gap-4 p-1 sm:grid-cols-2 xl:grid-cols-3">
           <Suspense fallback={<InterviewCardSkeleton variant="start" />}>
-            <InterviewSlot
-              type="profession"
-              profession={profession}
-              promise={professionInterviewPromise}
+            <InterviewSlot 
+              type="resume" 
+              hasPhoto={hasPhoto} 
+              promise={resumeInterviewPromise} 
             />
           </Suspense>
 
           <Suspense fallback={<InterviewCardSkeleton variant="start" />}>
-            <InterviewSlot type="resume" promise={resumeInterviewPromise} />
+            <InterviewSlot
+              type="profession"
+              hasPhoto={hasPhoto}
+              promise={professionInterviewPromise}
+            />
           </Suspense>
+
+          
 
           {/* <Suspense fallback={<SkillsGridSkeleton />}>
             <SkillsGridSlot promise={skillsPromise} setAddOpen={setAddOpen} />
@@ -200,25 +213,49 @@ export function WorkerAssessmentsHub({
 
 function InterviewSlot({
   type,
-  profession,
+  hasPhoto,
   promise,
 }: {
   type: "profession" | "resume";
-  profession?: string;
+  hasPhoto: boolean;
   promise: Promise<StartedInterview | null>;
 }) {
+  const t = useTranslations("dashboard.worker.assessments");
   const interview = use(promise);
 
-  const title =
-    type === "profession" ? "Profession interview" : "Resume interview";
+  const title = t(type === "profession" ? "professionTitle" : "resumeTitle");
 
   if (interview?.completedAt == null) {
     const href =
       type === "profession" ? "/interviews/profession" : "/interviews/resume";
-    const description =
-      type === "profession"
-        ? `AI-led voice and video session about general health knowledge and professional competencies.`
-        : "AI-led voice and video walkthrough of your resume and experience.";
+    const description = t(type === "profession" ? "professionDescription" : "resumeDescription");
+
+    // No photo yet — show a nudge card instead of a navigable link
+    if (!hasPhoto) {
+      return (
+        <Link
+          href="/dashboard/profile"
+          className="group block rounded-2xl outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Card className={cn("overflow-hidden opacity-60", interviewCardClassName)}>
+            <CardHeader className="gap-3">
+              <AiInterviewBadge />
+              <CardTitle className="text-base">{title}</CardTitle>
+              <CardDescription>
+                {t("noPhotoDescription")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-center gap-2">
+              <CameraIcon className="size-4 text-muted-foreground" aria-hidden />
+              <span className="text-sm font-medium text-muted-foreground group-hover:underline">
+                {t("uploadPhotoFirst")}
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
+      );
+    }
+
     return (
       <Link
         href={href}
@@ -232,7 +269,7 @@ function InterviewSlot({
           </CardHeader>
           <CardContent>
             <span className="text-primary text-sm font-medium group-hover:underline">
-              Start interview →
+              {t("startInterview")}
             </span>
           </CardContent>
         </Card>
@@ -240,22 +277,20 @@ function InterviewSlot({
     );
   }
 
-  const parsedFeedback = parseInterviewFeedback(interview.feedback);
   const decision: "PASS" | "FAIL" | "PENDING" =
-    parsedFeedback?.decision ?? "PENDING";
+    interview.result === "pass"
+      ? "PASS"
+      : interview.result === "fail"
+        ? "FAIL"
+        : "PENDING";
 
-  const description = !interview.reviewed ? "Your interview feedback is under review." :
-    decision === "PENDING"
-      ? type === "profession"
-        ? `Your ${profession} interview is complete — feedback is being prepared.`
-        : "Your resume interview is complete — feedback is being prepared."
+  const description = !interview.reviewed
+    ? t("underReviewDescription")
+    : decision === "PENDING"
+      ? t(type === "profession" ? "professionPendingDescription" : "resumePendingDescription")
       : decision === "PASS"
-        ? type === "profession"
-          ? `You passed your ${profession} interview.`
-          : "You passed your resume interview."
-        : type === "profession"
-          ? `Your ${profession} interview did not meet the bar.`
-          : "Your resume interview did not meet the bar.";
+        ? t(type === "profession" ? "professionPassDescription" : "resumePassDescription")
+        : t(type === "profession" ? "professionFailDescription" : "resumeFailDescription");
 
   return (
     <Link
@@ -284,6 +319,7 @@ function SkillsGridSlot({
   promise: Promise<AssessmentSkillRow[]>;
   setAddOpen: (open: boolean) => void;
 }) {
+  const t = useTranslations("dashboard.worker.assessments");
   const skills = React.use(promise);
   const [quizDialog, setQuizDialog] =
     React.useState<AssessmentSkillRow | null>(null);
@@ -298,10 +334,9 @@ function SkillsGridSlot({
         onClick={() => setAddOpen(true)}
       >
         <CardHeader className="gap-3">
-          <CardTitle className="text-base">No skills yet</CardTitle>
+          <CardTitle className="text-base">{t("noSkillsTitle")}</CardTitle>
           <CardDescription>
-            Use &quot;Add skill&quot; to claim a skill and verify it with a short
-            quiz.
+            {t("noSkillsDescription")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -329,12 +364,12 @@ function SkillsGridSlot({
                     {s.name}
                   </CardTitle>
                   <CardDescription>
-                    Timed multiple-choice assessment tailored to this skill.
+                    {t("skillNotTakenDescription")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="mt-auto pt-0">
                   <span className="text-primary text-sm font-medium group-hover:underline">
-                    Begin assessment →
+                    {t("beginAssessment")}
                   </span>
                 </CardContent>
               </Card>
@@ -477,6 +512,7 @@ function CompletedSkillCard({
   skill: AssessmentSkillRow;
   state: Exclude<SkillCardState, "not_taken">;
 }) {
+  const t = useTranslations("dashboard.worker.assessments");
   const isPassed = state === "passed";
   const score = s.latestQuiz?.score ?? null;
 
@@ -498,27 +534,29 @@ function CompletedSkillCard({
               className="border-emerald-500/40 bg-emerald-500/10 font-normal text-emerald-950 dark:border-emerald-400/35 dark:bg-emerald-500/15 dark:text-emerald-100"
             >
               <CheckCircleIcon className="size-3.5" aria-hidden />
-              {s.latestQuiz ? `Passed · ${score ?? "—"}%` : "Assessed"}
+              {s.latestQuiz
+                ? t("skillPassedBadge", { score: score ?? "—" })
+                : t("skillAssessedBadge")}
             </Badge>
           ) : (
             <Badge
               variant="outline"
               className="border-destructive/40 bg-destructive/10 font-normal text-destructive"
             >
-              Needs retake{s.latestQuiz ? ` · ${score ?? "—"}%` : ""}
+              {s.latestQuiz
+                ? t("skillNeedsRetakeBadge", { score: score ?? "—" })
+                : t("skillNeedsRetakeBadgeNoScore")}
             </Badge>
           )}
         </div>
         <CardTitle className="text-base leading-snug">{s.name}</CardTitle>
         <CardDescription>
-          {isPassed
-            ? "Assessment complete."
-            : "Last attempt did not meet the 70% pass mark."}
+          {isPassed ? t("skillPassedDescription") : t("skillFailedDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-auto pt-0">
         <span className="text-primary text-sm font-medium group-hover:underline">
-          View details →
+          {t("viewDetails")}
         </span>
       </CardContent>
     </Card>
@@ -526,6 +564,7 @@ function CompletedSkillCard({
 }
 
 function SkillQuizStatusDialogBody({ skill: s }: { skill: AssessmentSkillRow }) {
+  const t = useTranslations("dashboard.worker.assessments");
   const state = skillCardState(s);
   const passed = state === "passed";
   const failed = state === "failed";
@@ -533,9 +572,9 @@ function SkillQuizStatusDialogBody({ skill: s }: { skill: AssessmentSkillRow }) 
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Assessment — {s.name}</DialogTitle>
+        <DialogTitle>{t("dialogTitle", { name: s.name })}</DialogTitle>
         <DialogDescription>
-          Multiple-choice quiz tailored to this skill.
+          {t("dialogDescription")}
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-4 py-2">
@@ -543,18 +582,17 @@ function SkillQuizStatusDialogBody({ skill: s }: { skill: AssessmentSkillRow }) 
           <div className="space-y-2 rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-4">
             <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-100">
               <CheckCircleIcon className="size-5 shrink-0" aria-hidden />
-              <span className="font-medium">Passed</span>
+              <span className="font-medium">{t("dialogPassed")}</span>
             </div>
             {s.latestQuiz && (
               <p className="text-sm text-muted-foreground">
-                Score:{" "}
+                {t("dialogScoreLabel")}{" "}
                 <span className="font-medium text-foreground">
                   {s.latestQuiz.score ?? "—"}%
                 </span>
                 {s.latestQuiz.completedAt && (
                   <>
-                    {" "}
-                    · Completed{" "}
+                    {" · "}{t("dialogCompletedLabel")}{" "}
                     {formatDateTime(new Date(s.latestQuiz.completedAt))}
                   </>
                 )}
@@ -562,28 +600,28 @@ function SkillQuizStatusDialogBody({ skill: s }: { skill: AssessmentSkillRow }) 
             )}
             {!s.latestQuiz && s.assessed && (
               <p className="text-sm text-muted-foreground">
-                This skill is marked as assessed on your profile.
+                {t("dialogMarkedAssessed")}
               </p>
             )}
             <p className="text-sm text-muted-foreground">
-              You met the 70% requirement. No need to retake this assessment.
+              {t("dialogMetRequirement")}
             </p>
           </div>
         )}
 
         {failed && s.latestQuiz && (
           <div className="space-y-2 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
-            <p className="font-medium text-destructive">Not passed</p>
+            <p className="font-medium text-destructive">{t("dialogNotPassed")}</p>
             <p className="text-sm text-muted-foreground">
-              Your last score was{" "}
+              {t("dialogLastScorePrefix")}{" "}
               <span className="font-medium text-foreground">
                 {s.latestQuiz.score ?? "—"}%
               </span>
-              . You need 70% to pass and verify this skill.
+              {t("dialogLastScoreSuffix")}
             </p>
             {s.latestQuiz.completedAt && (
               <p className="text-xs text-muted-foreground">
-                Attempt: {formatDateTime(new Date(s.latestQuiz.completedAt))}
+                {t("dialogAttemptLabel")} {formatDateTime(new Date(s.latestQuiz.completedAt))}
               </p>
             )}
           </div>
@@ -592,7 +630,7 @@ function SkillQuizStatusDialogBody({ skill: s }: { skill: AssessmentSkillRow }) 
       <DialogFooter className="gap-2 sm:gap-0">
         {failed && (
           <Button type="button" asChild>
-            <Link href={`/quizes/${s.id}`}>Retake assessment</Link>
+            <Link href={`/quizes/${s.id}`}>{t("dialogRetake")}</Link>
           </Button>
         )}
       </DialogFooter>
@@ -662,6 +700,8 @@ function DecisionBadge({
   decision: "PASS" | "FAIL" | "PENDING";
   reviewed: boolean;
 }) {
+  const t = useTranslations("dashboard.worker.assessments");
+
   if (!reviewed) {
     return (
       <Badge
@@ -669,7 +709,7 @@ function DecisionBadge({
         className="border-violet-500/40 bg-violet-500/10 font-normal text-violet-950 dark:border-violet-400/35 dark:bg-violet-500/15 dark:text-violet-100"
       >
         <CircleDashedIcon className="size-3.5 animate-spin" aria-hidden />
-        Under review
+        {t("underReviewBadge")}
       </Badge>
     );
   }
@@ -681,7 +721,7 @@ function DecisionBadge({
         className="border-emerald-500/40 bg-emerald-500/10 font-normal text-emerald-950 dark:border-emerald-400/35 dark:bg-emerald-500/15 dark:text-emerald-100"
       >
         <CheckCircleIcon className="size-3.5" aria-hidden />
-        Passed
+        {t("passedBadge")}
       </Badge>
     );
   }
@@ -693,7 +733,7 @@ function DecisionBadge({
         className="border-destructive/40 bg-destructive/10 font-normal text-destructive"
       >
         <XCircleIcon className="size-3.5" aria-hidden />
-        Failed
+        {t("failedBadge")}
       </Badge>
     );
   }
@@ -704,7 +744,7 @@ function DecisionBadge({
       className="border-violet-500/40 bg-violet-500/10 font-normal text-violet-950 dark:border-violet-400/35 dark:bg-violet-500/15 dark:text-violet-100"
     >
       <CircleDashedIcon className="size-3.5 animate-spin" aria-hidden />
-      Awaiting feedback
+      {t("awaitingFeedbackBadge")}
     </Badge>
   );
 }

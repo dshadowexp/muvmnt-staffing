@@ -43,9 +43,13 @@ import {
 export function ProfessionExperienceCard({
   profession,
   yearsExp,
+  locked = false,
 }: {
   profession: string;
   yearsExp: number;
+  /** When true the edit button is hidden and the card is read-only.
+   *  Workers can only change profession/experience in the picture or interview stage. */
+  locked?: boolean;
 }) {
   const router = useRouter();
   const tProf = useTranslations("professions");
@@ -93,7 +97,7 @@ export function ProfessionExperienceCard({
               Your primary healthcare role and years of experience.
             </CardDescription>
           </div>
-          {!isEditing && (
+          {!locked && !isEditing && (
             <Button
               type="button"
               variant="outline"
@@ -107,7 +111,7 @@ export function ProfessionExperienceCard({
         </div>
       </CardHeader>
       <CardContent>
-        {isEditing ? (
+        {isEditing && !locked ? (
           <form
             onSubmit={form.handleSubmit((v) => void onSubmit(v))}
             className="space-y-4"

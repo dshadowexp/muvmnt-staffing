@@ -1,0 +1,14 @@
+{{#> email-base previewText="Your interview result is in"}}
+  {{#*inline "body"}}
+    <p class="label">Interview result</p>
+    <h1>Your interview result</h1>
+    <p>Hi {{firstName}},</p>
+    <p>
+      Thank you for completing your <strong>{{subject}}</strong> interview. After careful review, we were not able to advance your application at this time.
+    </p>
+    <p>
+      You&apos;re welcome to try again in <strong>2 weeks</strong>. We encourage you to review any feedback on your dashboard and prepare before your next attempt.
+    </p>
+    <a href="{{dashboardUrl}}" class="btn">View my assessments</a>
+  {{/inline}}
+{{/email-base}}

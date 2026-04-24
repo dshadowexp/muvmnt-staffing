@@ -45,26 +45,6 @@ const workerSteps: MultistepFormStep[] = [
         freezesWhen: [],
         icon:        MapPin,
     },
-    {
-        id:          'availability',
-        title:       'Availability',
-        description: 'Weekly hours and timezone.',
-        route:        '/onboarding/availability',
-        dependsOn:   ['location'],
-        locked:      true,
-        freezesWhen: [],
-        icon:        CalendarClock,
-    },
-    {
-        id:          'compliance',
-        title:       'Compliance',
-        description: 'Upload supporting documents (background checks, licenses, immunizations).',
-        route:        '/onboarding/compliance',
-        dependsOn:   ['availability'],
-        locked:      true,
-        freezesWhen: [],
-        icon:        ShieldCheck,
-    },
 ]
 
 // ─── Client steps ─────────────────────────────────────────────────────────────

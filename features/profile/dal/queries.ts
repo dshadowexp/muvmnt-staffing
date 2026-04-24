@@ -122,7 +122,7 @@ export async function getIdentityVerification() {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("identity_verification")
-    .select("verified, verified_at")
+    .select("verified, verified_at, session_id")
     .eq("user_id", userId)
     .maybeSingle();
 

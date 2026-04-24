@@ -199,6 +199,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          session_id: string
           user_id: string
           verified: boolean
           verified_at: string | null
@@ -206,6 +207,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          session_id: string
           user_id: string
           verified?: boolean
           verified_at?: string | null
@@ -213,6 +215,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          session_id?: string
           user_id?: string
           verified?: boolean
           verified_at?: string | null
@@ -237,11 +240,14 @@ export type Database = {
           hume_chat_id: string | null
           id: string
           recording_url: string | null
+          result: string | null
           reviewed: boolean
           subject: string
           subject_ref: Json | null
           updated_at: string
           user_id: string
+          video_feedback: Json | null
+          video_feedback_status: string | null
         }
         Insert: {
           chat_group_id?: string | null
@@ -252,11 +258,14 @@ export type Database = {
           hume_chat_id?: string | null
           id?: string
           recording_url?: string | null
+          result?: string | null
           reviewed?: boolean
           subject: string
           subject_ref?: Json | null
           updated_at?: string
           user_id: string
+          video_feedback?: Json | null
+          video_feedback_status?: string | null
         }
         Update: {
           chat_group_id?: string | null
@@ -267,11 +276,14 @@ export type Database = {
           hume_chat_id?: string | null
           id?: string
           recording_url?: string | null
+          result?: string | null
           reviewed?: boolean
           subject?: string
           subject_ref?: Json | null
           updated_at?: string
           user_id?: string
+          video_feedback?: Json | null
+          video_feedback_status?: string | null
         }
         Relationships: [
           {
@@ -1065,6 +1077,7 @@ export type Database = {
           profession: string
           rating_avg: number | null
           rating_count: number | null
+          stage: string | null
           user_id: string
           years_exp: number
         }
@@ -1083,6 +1096,7 @@ export type Database = {
           profession: string
           rating_avg?: number | null
           rating_count?: number | null
+          stage?: string | null
           user_id: string
           years_exp: number
         }
@@ -1101,6 +1115,7 @@ export type Database = {
           profession?: string
           rating_avg?: number | null
           rating_count?: number | null
+          stage?: string | null
           user_id?: string
           years_exp?: number
         }

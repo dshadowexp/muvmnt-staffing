@@ -1,0 +1,21 @@
+{{#> email-base previewText="Action needed — your identity verification requires attention"}}
+  {{#*inline "body"}}
+    <p class="label">Identity verification</p>
+    <h1>Verification could not be completed</h1>
+    <p>Hi {{firstName}},</p>
+    <p>
+      Unfortunately we weren&apos;t able to verify your identity. Here&apos;s what happened:
+    </p>
+    <p style="padding:12px 16px;background:#fef2f2;border-left:3px solid #f87171;border-radius:4px;font-size:14px;color:#7f1d1d">
+      {{reason}}
+    </p>
+    <p>
+      You can try again from your compliance page. If you continue to have trouble, please contact our support team.
+    </p>
+    <a href="{{complianceUrl}}" class="btn">Try again</a>
+    <p style="margin-top:28px;font-size:13px;color:#888">
+      If the button does not work, copy this link into your browser:<br>
+      <a href="{{complianceUrl}}" style="color:#888">{{complianceUrl}}</a>
+    </p>
+  {{/inline}}
+{{/email-base}}

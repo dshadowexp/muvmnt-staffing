@@ -9,6 +9,8 @@ import { createAdminClient } from "@/services/supabase/server";
 import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { normalizeProfessionId } from "@/lib/professions";
+import { enqueueNotification } from "@/features/notifications/service/enqueue";
+import { env } from "@/data/env/server";
 
 const workerPayload = (data: WorkerProfileValues) => ({
   first_name: data.firstName,
@@ -60,14 +62,52 @@ export async function updateWorkerPhotoAction(photoUrl: string) {
   const { userId } = session;
 
   const supabase = await createAdminClient();
+
+  // Fetch stage + name so we can conditionally advance stage and send an email.
+  const { data: worker } = await supabase
+    .from("workers")
+    .select("stage, first_name")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const currentStage = worker?.stage ?? null;
+  const isPictureStage = !currentStage || currentStage === "picture";
+
+  // When the worker uploads their first photo (picture stage), advance them to
+  // the interview stage so they can proceed with their assessments.
   const { error } = await supabase
     .from("workers")
-    .update({ photo_url: photoUrl })
+    .update(
+      isPictureStage
+        ? { photo_url: photoUrl, stage: "interview" }
+        : { photo_url: photoUrl },
+    )
     .eq("user_id", userId);
 
   if (error) {
     return { error: true, message: error.message };
   }
+
+  // Send "interviews ready" email only when transitioning out of picture stage.
+  if (isPictureStage) {
+    const firstName = worker?.first_name ?? "there";
+    const assessmentsUrl = `${env.APP_URL}/dashboard/assessments`;
+
+    enqueueNotification({
+      userId,
+      channels: [
+        {
+          channel: "email",
+          subject: "Your profile is set — complete your interviews to continue",
+          template: "interview-ready",
+          data: { firstName, assessmentsUrl },
+        },
+      ],
+    }).catch((err) => {
+      console.error("[updateWorkerPhotoAction] enqueueNotification failed", err);
+    });
+  }
+
   return { error: false, message: "Photo updated successfully" };
 }
 

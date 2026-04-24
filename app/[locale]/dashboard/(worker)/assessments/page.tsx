@@ -26,6 +26,7 @@ export default async function WorkerAssessmentsPage() {
             id: i.id,
             subject: "profession" as const,
             feedback: i.feedback,
+            result: i.result,
             duration: i.duration,
             completedAt: i.completed_at,
             reviewed: i.reviewed,
@@ -41,6 +42,7 @@ export default async function WorkerAssessmentsPage() {
             id: i.id,
             subject: "resume" as const,
             feedback: i.feedback,
+            result: i.result,
             duration: i.duration,
             completedAt: i.completed_at,
             reviewed: i.reviewed,
@@ -78,6 +80,7 @@ export default async function WorkerAssessmentsPage() {
     <div className="flex w-full flex-col">
       <WorkerAssessmentsHub
         profession={worker.profession ?? ""}
+        hasPhoto={Boolean(worker.photo_url)}
         professionInterviewPromise={professionInterviewPromise}
         resumeInterviewPromise={resumeInterviewPromise}
         skillsPromise={skillsPromise}
