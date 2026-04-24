@@ -20,6 +20,7 @@ export default async function InterviewReviewPage({
 
   const session = await getSession();
   if (!session) return redirect({ href: "/sign-in", locale });
+  if (session.role !== "admin") return redirect({ href: "/dashboard", locale });
 
   const interview = await getInterviewByIdForUser(interviewId, session.userId);
   if (interview == null) return notFound();
@@ -37,7 +38,7 @@ export default async function InterviewReviewPage({
     ? fetchChatMessages(interview.hume_chat_id, interview.chat_group_id).then(condenseChatMessages)
     : Promise.resolve([]);
 
-  const backHref = session.role === "worker" ? "/dashboard/assessments" : "/";
+  const backHref = "/dashboard/admin/assessments";
 
   // Format dates on the server so the client renders identical text on both
   // SSR and hydration (avoids Intl locale/timezone mismatches).

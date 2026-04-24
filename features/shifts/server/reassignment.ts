@@ -2,8 +2,7 @@ import "server-only";
 
 import { logger } from "@trigger.dev/sdk/v3";
 
-import { STAFF_REQUEST_PROFESSION_PLACEHOLDER } from "@/features/requests/constants";
-import { findReplacementUserIdForShiftWindow } from "@/features/requests/server/matching";
+import { findFirstAvailableWorker } from "@/features/requests/server/matching";
 
 import {
     SHIFT_STATUS_CONFIRMED,
@@ -70,8 +69,8 @@ export async function processShiftTransferJob(
     }
 
     const sr = row.staff_requests;
-    if (!sr?.pricing_tier) {
-        logger.warn("shift.transfer: no pricing tier, restoring previous status", {
+    if (!sr?.pricing_tier || !sr.cell_id) {
+        logger.warn("shift.transfer: missing pricing_tier or cell_id, restoring previous status", {
             shiftId,
         });
         await patchShiftById(shiftId, { status: previousStatus });
@@ -87,14 +86,14 @@ export async function processShiftTransferJob(
         return;
     }
 
-    const replacementUserId = await findReplacementUserIdForShiftWindow({
-        ring: [  ],
-        dateYmd: win.dateYmd,
-        startHHmm: win.startHHmm,
-        endHHmm: win.endHHmm,
+    const replacementUserId = await findFirstAvailableWorker({
+        cellId:        sr.cell_id,
+        dateYmd:       win.dateYmd,
+        startHHmm:     win.startHHmm,
+        endHHmm:       win.endHHmm,
         pricingTierId: sr.pricing_tier,
-        requestProfession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
-        requirements: sr.requirements ?? [],
+        profession:    sr.profession,
+        requirements:  sr.requirements ?? [],
         excludeUserIds: [excludeWorkerUserId],
     });
 

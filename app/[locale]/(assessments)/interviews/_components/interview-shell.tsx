@@ -7,8 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { InterviewHeader } from "./interview-header";
 import { errorToast } from "@/components/error-toast";
 import { env } from "@/data/env/client";
 import {
@@ -24,6 +23,7 @@ import {
   CameraIcon,
   PlayCircleIcon,
   UserIcon,
+  BotOffIcon,
 } from "lucide-react";
 import { condenseChatMessages } from "@/services/hume/lib/condense-chat-messages";
 import { CondensedMessages } from "@/services/hume/components/condensed-messages";
@@ -41,8 +41,6 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { BackLink } from "@/components/back-link";
-import { Logo } from "@/components/logo";
 import { INTERVIEW_DURATION_SECS, MIN_DURATION_FOR_COMPLETED_AT_SECS } from "@/lib/constants";
 import { useRecorder } from "@/features/interviews/hooks/use-recorder";
 
@@ -66,6 +64,8 @@ type InterviewShellProps = {
   subjectRef: InterviewSubjectRef;
   interviewId?: string;
   chatGroupId?: string;
+  /** Seconds already elapsed in a previous session — used to cap remaining time on reload. */
+  savedDurationSecs?: number;
   sessionVariables: Record<string, string>;
   user: { name: string; imageUrl: string };
   title: string;
@@ -99,6 +99,11 @@ function InterviewInstructionsCard({
       body:  t("step7.body"),
     },
     {
+      icon:  <BotOffIcon className="size-4" />,
+      title: t("step9.title"),
+      body:  t("step9.body"),
+    },
+    {
       icon:  <PlayCircleIcon className="size-4" />,
       title: t("step8.title"),
       body:  t("step8.body"),
@@ -128,6 +133,7 @@ function InterviewInstructionsCard({
       title: t("step5.title"),
       body:  t("step5.body"),
     },
+    
   ];
 
   return (
@@ -328,8 +334,10 @@ function MicCheckMeter({
 
 function DeviceSetupCard({
   onStart,
+  isResuming = false,
 }: {
   onStart: () => Promise<void>;
+  isResuming?: boolean;
 }) {
   const t = useTranslations("assessments.interview.setup");
   const [micOn, setMicOn] = useState(false);
@@ -400,9 +408,18 @@ function DeviceSetupCard({
   return (
         <Card className="w-full max-w-lg lg:h-full">
           <CardContent className="flex h-full flex-col gap-5">
-            <p className="text-xs text-muted-foreground">
-              {t("durationNotice")}
-            </p>
+            {isResuming ? (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900 dark:bg-blue-950/30">
+                <p className="text-xs font-medium text-blue-800 dark:text-blue-400">
+                  Your interview was interrupted — your progress has been saved.
+                  Enable your camera and mic to pick up where you left off.
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {t("durationNotice")}
+              </p>
+            )}
 
             <div className="flex flex-1 flex-col items-center justify-center gap-5">
               <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
@@ -486,6 +503,8 @@ function DeviceSetupCard({
                   <CircleDashedIcon className="size-4 animate-spin" />
                   {t("starting")}
                 </>
+              ) : isResuming ? (
+                t("resume")
               ) : (
                 t("start")
               )}
@@ -504,6 +523,7 @@ export function InterviewShell({
   subjectRef,
   interviewId: initialInterviewId,
   chatGroupId,
+  savedDurationSecs = 0,
   sessionVariables,
   user,
   title,
@@ -539,7 +559,8 @@ export function InterviewShell({
     chatIdRef.current = chatMetadata.chatId;
   }
 
-  const elapsed = parseDurationToSeconds(callDurationTimestamp);
+  // Add the pre-reload elapsed time so the countdown is correctly capped after a reload.
+  const elapsed = savedDurationSecs + parseDurationToSeconds(callDurationTimestamp);
   const remaining = Math.max(0, INTERVIEW_DURATION_SECS - elapsed);
 
   // Callback ref: as soon as the <video> element mounts, attach whatever
@@ -722,17 +743,14 @@ export function InterviewShell({
   if (readyState === VoiceReadyState.IDLE) {
     return (
       <div className="flex min-h-svh flex-col">  {/* remove p-4, it pushes content under sticky header */}
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
-          <BackLink backHref="/dashboard/assessments" title="Assessments" />
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-        </header>
+        <InterviewHeader backHref="/dashboard/assessments" backTitle="Assessments" />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2">
             <InterviewInstructionsCard title={title} description={description} />
-            <DeviceSetupCard onStart={handleStart} />
+            <DeviceSetupCard
+              onStart={handleStart}
+              isResuming={!!chatGroupId && savedDurationSecs > 0}
+            />
           </div>
         </main>
       </div>
@@ -745,7 +763,7 @@ export function InterviewShell({
         <CircleDashedIcon className="size-10 animate-spin" />
         <p className="text-lg font-medium">{t("completed.title")}</p>
         <p className="text-sm text-muted-foreground">
-          {uploadingRecording ? "Saving interview..." : t("completed.wrappingUp")}
+          {uploadingRecording ? "Finalizing interview..." : t("completed.wrappingUp")}
         </p>
       </div>
     );

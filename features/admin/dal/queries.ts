@@ -40,7 +40,7 @@ export type AdminShiftRow = {
   request_id: string;
   client_id: string;
   client_name: string | null;
-  worker_id: string;
+  worker_id: string | null;
   worker_name: string | null;
   start_time: string;
   end_time: string;
@@ -502,7 +502,7 @@ export async function getAdminShiftsList(
   const rows = data ?? [];
   const [clientNames, workerNames] = await Promise.all([
     joinClientNamesByClientId(rows.map((r) => r.client_id)),
-    joinWorkerNamesByWorkerId(rows.map((r) => r.worker_id)),
+    joinWorkerNamesByWorkerId(rows.map((r) => r.worker_id ?? "")),
   ]);
 
   return rows.map((r) => ({
@@ -511,7 +511,7 @@ export async function getAdminShiftsList(
     client_id: r.client_id,
     client_name: clientNames.get(r.client_id) ?? null,
     worker_id: r.worker_id,
-    worker_name: workerNames.get(r.worker_id) ?? null,
+    worker_name: workerNames.get(r.worker_id ?? "") ?? null,
     start_time: r.start_time,
     end_time: r.end_time,
     status: r.status,
@@ -552,7 +552,7 @@ export const getAdminShiftReview = cache(
       supabase
         .from("workers")
         .select("id, first_name, last_name")
-        .eq("id", shift.worker_id)
+        .eq("id", shift.worker_id ?? "")
         .maybeSingle(),
       supabase
         .from("staff_requests")
@@ -788,7 +788,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     await Promise.all([
       joinClientNamesByUserId(jobsRaw.map((r) => r.client_user_id)),
       joinClientNamesByClientId(shiftsRaw.map((r) => r.client_id)),
-      joinWorkerNamesByWorkerId(shiftsRaw.map((r) => r.worker_id)),
+      joinWorkerNamesByWorkerId(shiftsRaw.map((r) => r.worker_id ?? "")),
       joinWorkerNamesByUserId(authsRaw.map((r) => r.user_id)),
       joinWorkerNamesByUserId(compsRaw.map((r) => r.user_id)),
     ]);
@@ -821,7 +821,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
       client_id: r.client_id,
       client_name: shiftClientNames.get(r.client_id) ?? null,
       worker_id: r.worker_id,
-      worker_name: shiftWorkerNames.get(r.worker_id) ?? null,
+      worker_name: shiftWorkerNames.get(r.worker_id ?? "") ?? null,
       start_time: r.start_time,
       end_time: r.end_time,
       status: r.status,

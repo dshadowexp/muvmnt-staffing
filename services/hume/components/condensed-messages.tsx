@@ -32,7 +32,7 @@ export function CondensedMessages({ messages, user, className, maxFft = 0 }: {
   maxFft?:  number
 }) {
   return (
-      <div className={cn("flex flex-col gap-4 w-full", className)}>
+      <div className={cn("flex flex-col gap-4 w-full select-none", className)}>
           {messages.map((message, index) => {
               const shouldAnimate = index === messages.length - 1 && maxFft > 0;
 

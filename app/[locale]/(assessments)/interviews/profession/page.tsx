@@ -16,6 +16,14 @@ import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-phot
 import { INTERVIEW_DURATION_SECS } from "@/lib/constants";
 import { InterviewShell } from "../_components/interview-shell";
 
+function parseDurationToSeconds(ts: string | null | undefined): number {
+  if (!ts) return 0;
+  const parts = ts.split(":").map(Number);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return 0;
+}
+
 export default async function ProfessionInterviewPage() {
   return (
     <Suspense
@@ -73,6 +81,7 @@ async function SuspendedContent() {
         accessToken={accessToken}
         interviewId={existing?.id ?? undefined}
         chatGroupId={existing?.chat_group_id ?? undefined}
+        savedDurationSecs={parseDurationToSeconds(existing?.duration)}
         subject="profession"
         subjectRef={{ key: professionKey, body: context, limit: 0 }}
         title={t("profession.title", { profession: professionLabel })}

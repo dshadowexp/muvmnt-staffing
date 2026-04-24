@@ -7,13 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { AddressCard } from "@/features/geo/components/address-card";
 import type { AddressLocation } from "@/features/geo/types";
 import { upsertLocationAction } from "@/features/geo/dal/mutations";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function WorkerAvailabilityAddressCard({
   locationPromise,
@@ -36,18 +30,12 @@ export function WorkerAvailabilityAddressCard({
 
   return (
     <Card className="border-border/80 transition-colors hover:border-primary/40 hover:bg-muted/30">
-      <CardContent className="flex items-center justify-between gap-4">
-        <div className="min-w-0 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-semibold">{t("addressTitle")}</p>
-          </div>
-          <div className="space-y-0.5 text-sm text-muted-foreground mt-3">
-            <AddressCard
-              value={location ?? undefined}
-              onChange={handleAddressChange}
-            />
-          </div>
-        </div>
+      <CardContent className="flex flex-col gap-3">
+        <p className="font-semibold">{t("addressTitle")}</p>
+        <AddressCard
+          value={location ?? undefined}
+          onChange={handleAddressChange}
+        />
       </CardContent>
     </Card>
   );

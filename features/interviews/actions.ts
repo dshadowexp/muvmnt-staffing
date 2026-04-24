@@ -14,6 +14,7 @@ import {
   updateInterviewByOwner,
   type InterviewUpdate,
 } from "./dal/mutations";
+import { s3Api } from "@/services/s3/api";
 import {
   isAssessmentInterviewLocked,
   normalizeFeedbackJsonString,
@@ -364,4 +365,107 @@ export async function getInterview(
     const message = e instanceof Error ? e.message : "Failed to load interview";
     return { error: true, message, data: null };
   }
+}
+
+// ─── Interview recording — multipart upload ───────────────────────────────────
+
+/**
+ * Step 1: called once when recording starts.
+ * Creates the S3 multipart upload session and returns the (uploadId, key) pair
+ * that the browser needs for subsequent part uploads.
+ */
+export async function initiateInterviewRecording(
+  interviewId: string,
+  mimeType: string,
+): Promise<
+  | { error: true; message: string }
+  | { error: false; uploadId: string; key: string }
+> {
+  const session = await getSession();
+  if (!session) return { error: true, message: "Not authenticated" };
+
+  try {
+    const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+    const { uploadId, key } = await s3Api.initiateMultipartUpload({
+      folder:   "interviews",
+      ownerId:  interviewId,
+      filename: `recording.${ext}`,
+      mimeType,
+    });
+    return { error: false, uploadId, key };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to initiate upload";
+    return { error: true, message };
+  }
+}
+
+/**
+ * Step 2 (per chunk): generates a presigned PUT URL for one S3 part.
+ * The browser uploads the raw chunk bytes directly to S3 — this server
+ * never handles the video data.
+ */
+export async function presignInterviewPart(
+  key: string,
+  uploadId: string,
+  partNumber: number,
+): Promise<{ error: true; message: string } | { error: false; url: string }> {
+  const session = await getSession();
+  if (!session) return { error: true, message: "Not authenticated" };
+
+  try {
+    const url = await s3Api.presignedPartUrl({ key, uploadId, partNumber });
+    return { error: false, url };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to presign part";
+    return { error: true, message };
+  }
+}
+
+/**
+ * Step 3: called after the last part is uploaded.
+ * Completes the multipart upload on S3, then saves the recording URL to the
+ * interview row so it can be played back.
+ */
+export async function finalizeInterviewRecording(
+  interviewId: string,
+  key: string,
+  uploadId: string,
+  parts: { PartNumber: number; ETag: string }[],
+): Promise<
+  | { error: true; message: string }
+  | { error: false; recordingUrl: string }
+> {
+  const session = await getSession();
+  if (!session) return { error: true, message: "Not authenticated" };
+
+  try {
+    const recordingUrl = await s3Api.completeMultipartUpload({
+      key,
+      uploadId,
+      parts: parts.sort((a, b) => a.PartNumber - b.PartNumber),
+    });
+
+    const updated = await updateInterviewByOwner(interviewId, session.userId, {
+      recording_url: recordingUrl,
+    });
+    if (updated == null) {
+      return { error: true, message: "Interview not found" };
+    }
+
+    return { error: false, recordingUrl };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to finalize recording";
+    return { error: true, message };
+  }
+}
+
+/**
+ * Best-effort cleanup — fire-and-forget on any recording error so incomplete
+ * multipart uploads don't accumulate (S3 charges for stored parts).
+ */
+export async function abortInterviewRecording(
+  key: string,
+  uploadId: string,
+): Promise<void> {
+  await s3Api.abortMultipartUpload({ key, uploadId }).catch(() => {});
 }

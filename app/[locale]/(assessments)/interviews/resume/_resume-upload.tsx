@@ -21,6 +21,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  AlertCircleIcon,
   CircleDashedIcon,
   FileTextIcon,
   Trash2Icon,
@@ -52,9 +53,7 @@ import {
   createAssessmentInterview,
   updateInterviewSubjectRefBody,
 } from "@/features/interviews/actions";
-import { Logo } from "@/components/logo";
-import { BackLink } from "@/components/back-link";
-import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
+import { InterviewHeader } from "../_components/interview-header";
 
 type SummaryShape = DeepPartial<ResumeSummary>;
 
@@ -70,6 +69,7 @@ type ExistingFile = {
 
 type Props = {
   existingInterview: InterviewRow | null;
+  candidateName?: string;
   onResumeReady: (payload: ResumeReadyPayload) => void;
 };
 
@@ -128,7 +128,7 @@ function hydrateExisting(existingInterview: InterviewRow | null): {
   };
 }
 
-export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
+export function ResumeUpload({ existingInterview, candidateName, onResumeReady }: Props) {
   const t = useTranslations("assessments.interview.resume");
   const initial = useRef(hydrateExisting(existingInterview)).current;
 
@@ -171,6 +171,9 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
       if (fileRef.current) {
         formData.append("resumeFile", fileRef.current);
       }
+      if (candidateName) {
+        formData.append("candidateName", candidateName);
+      }
 
       return fetch(url, { ...options, headers, body: formData });
     },
@@ -190,6 +193,9 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
 
   const summary: SummaryShape | null = aiSummary ?? pinnedSummary;
   const hasSummary = summary != null;
+  const validationFailed =
+    !isSummarizing && summary?.validation?.valid === false;
+  const remainingAttempts = RESUME_UPLOAD_LIMIT - uploadLimit;
   const displayFile: { name: string; size?: number } | null = selectedFile
     ? { name: selectedFile.name, size: selectedFile.size }
     : existingFile
@@ -200,7 +206,8 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
     !isSummarizing &&
     !!resumeKey &&
     !!interviewId &&
-    hasSummary;
+    hasSummary &&
+    !validationFailed;
 
   async function handleFileUpload(file: File | null) {
     if (file == null) return;
@@ -212,6 +219,11 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       toast.error(t("errorFileType"));
+      return;
+    }
+
+    if (uploadLimit >= RESUME_UPLOAD_LIMIT) {
+      toast.info(t("limitReached", { limit: RESUME_UPLOAD_LIMIT }));
       return;
     }
 
@@ -311,26 +323,33 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
   return (
     <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
 
-      <div className="flex items-center justify-between">
-        <BackLink backHref="/dashboard/assessments" title={t("backTitle")} />
-        <Logo href="/dashboard/assessments" />
-        <div className="flex items-center gap-2">
-          <FeedbackIcon />
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </div>
-      </div>
+      <InterviewHeader
+        backHref="/dashboard/assessments"
+        backTitle="Assessments"
+      />
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
         {displayFile == null ? (
           <Card className="w-full max-w-lg">
             <CardHeader>
-              <CardTitle className="text-xl">{t("uploadTitle")}</CardTitle>
-              <CardDescription className="text-balance">
-                {t("uploadDescription", {
-                  minutes: INTERVIEW_DURATION_SECS / 60,
-                })}
-              </CardDescription>
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <CardTitle className="text-xl">{t("uploadTitle")}</CardTitle>
+                  <CardDescription>
+                    {t("uploadDescription", {
+                      minutes: INTERVIEW_DURATION_SECS / 60,
+                    })}
+                  </CardDescription>
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                      {t("uploadLimitBadge", {
+                        remaining: remainingAttempts,
+                        limit: RESUME_UPLOAD_LIMIT,
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <Dropzone
@@ -350,8 +369,17 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
                 isRemoving={isRemoving}
                 isUploaded={!!resumeKey}
                 isSummarizing={isSummarizing}
+                isLimitReached={uploadLimit >= RESUME_UPLOAD_LIMIT}
                 onRemove={handleRemove}
               />
+              <div className="flex items-center gap-2">
+                <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                  {t("uploadLimitBadge", {
+                    remaining: remainingAttempts,
+                    limit: RESUME_UPLOAD_LIMIT,
+                  })}
+                </span>
+              </div>
               <CandidateHeader summary={summary} isStreaming={isSummarizing} />
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
@@ -359,9 +387,26 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
                 summary={summary}
                 isStreaming={isSummarizing}
               />
+              {validationFailed && (
+                <div className="flex flex-col gap-1.5 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3">
+                  <div className="flex items-center gap-2 text-destructive">
+                    <AlertCircleIcon className="size-4 shrink-0" />
+                    <span className="text-sm font-medium">
+                      {t("errorInvalidResumeTitle")}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {summary?.validation?.reason
+                      ? t("errorInvalidResumeReason", {
+                          reason: summary.validation.reason,
+                        })
+                      : t("errorInvalidResumeBody")}
+                  </p>
+                </div>
+              )}
               <Button
                 size="lg"
-                disabled={!ready}
+                disabled={!ready || isSummarizing || isRemoving}
                 onClick={() => {
                   if (
                     !ready ||
@@ -382,7 +427,7 @@ export function ResumeUpload({ existingInterview, onResumeReady }: Props) {
                 }}
                 className="w-full"
               >
-                {!ready && !isRemoving && (
+                {(isUploading || isSummarizing) && !isRemoving && (
                   <CircleDashedIcon className="size-4 animate-spin" aria-hidden />
                 )}
                 {t("proceedToInterview")}
@@ -454,6 +499,7 @@ function FileRow({
   isRemoving,
   isUploaded,
   isSummarizing,
+  isLimitReached,
   onRemove,
 }: {
   name: string;
@@ -462,6 +508,7 @@ function FileRow({
   isRemoving: boolean;
   isUploaded: boolean;
   isSummarizing: boolean;
+  isLimitReached: boolean;
   onRemove: () => void;
 }) {
   const t = useTranslations("assessments.interview.resume");
@@ -497,7 +544,7 @@ function FileRow({
           type="button"
           variant="ghost"
           size="icon-sm"
-          disabled={isRemoving || isUploading || isSummarizing}
+          disabled={isRemoving || isUploading || isSummarizing || isLimitReached}
           onClick={onRemove}
           title={t("removeFile")}
           aria-label={t("removeFile")}

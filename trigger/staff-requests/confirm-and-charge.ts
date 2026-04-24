@@ -1,4 +1,4 @@
-import { logger, metadata, schemaTask } from "@trigger.dev/sdk/v3";
+import { logger, metadata, schemaTask, tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 import { formatInTimeZone } from "date-fns-tz";
 import { parseISO } from "date-fns";
@@ -35,21 +35,8 @@ export type ConfirmAndChargeProgress = {
     detail?: string;
 };
 
-async function loadLocation(
-    clientUserId: string,
-    staffRequestLocation: Json,
-): Promise<ShiftLocationPayload | null> {
-    const fromRequest =
-        parseShiftLocationFromStaffRequestLocation(staffRequestLocation);
-    if (fromRequest) return fromRequest;
-
-    const supabase = await createAdminClient();
-    const { data } = await supabase
-        .from("locations")
-        .select("address, lat, lng")
-        .eq("user_id", clientUserId)
-        .maybeSingle();
-    return data ?? null;
+function loadLocation(staffRequestLocation: Json): ShiftLocationPayload | null {
+    return parseShiftLocationFromStaffRequestLocation(staffRequestLocation);
 }
 
 async function loadClientName(clientUserId: string): Promise<string> {
@@ -85,7 +72,7 @@ function formatWorkerShiftsEmailData(params: {
         }));
 
     return {
-        previewText:      `New shift${shifts.length > 1 ? "s" : ""} from ${clientName} — respond within 30 minutes`,
+        previewText:      `New shift${shifts.length > 1 ? "s" : ""} from ${clientName} — respond within 24 hours`,
         workerFirstName:  shifts[0]!.displayName.split(" ")[0],
         clientName,
         shiftCount:       shifts.length,
@@ -202,7 +189,7 @@ export const confirmAndChargeTask = schemaTask({
         } satisfies ConfirmAndChargeProgress);
 
         const [location, clientName] = await Promise.all([
-            loadLocation(row.client_user_id, row.location),
+            Promise.resolve(loadLocation(row.location)),
             loadClientName(row.client_user_id),
         ]);
 
@@ -285,11 +272,11 @@ export const confirmAndChargeTask = schemaTask({
                         channels: [
                             {
                                 channel:  "email",
-                                subject:  `New shift${shifts.length > 1 ? "s" : ""} assigned — respond within 30 minutes`,
+                                subject:  `New shift${shifts.length > 1 ? "s" : ""} assigned — respond within 24 hours`,
                                 template: "shift-assigned",
                                 data:     formatWorkerShiftsEmailData({
                                     shifts,
-                                    clientName:   ' ',
+                                    clientName:   " ",
                                     requirements: row.requirements ?? [],
                                     tasks:        row.tasks ?? [],
                                     acceptUrl,
@@ -312,7 +299,29 @@ export const confirmAndChargeTask = schemaTask({
 
         await Promise.allSettled(notifyAll);
 
-        // ── 5. Done ───────────────────────────────────────────────────────────
+        // ── 5. Schedule offer-worker check per shift (fires after 25 h if no response) ──
+        if (inserted.ok) {
+            const offerTriggers: Promise<unknown>[] = [];
+            for (const shifts of inserted.workerShifts.values()) {
+                for (const shift of shifts) {
+                    offerTriggers.push(
+                        tasks.trigger(
+                            "shifts.offer-worker",
+                            { shiftId: shift.shiftId },
+                            { delay: "25h" },
+                        ).catch((err) =>
+                            logger.error("confirm-and-charge: failed to schedule offer-worker", {
+                                shiftId: shift.shiftId,
+                                err: err instanceof Error ? err.message : String(err),
+                            }),
+                        ),
+                    );
+                }
+            }
+            await Promise.allSettled(offerTriggers);
+        }
+
+        // ── 6. Done ───────────────────────────────────────────────────────────
         await metadata.set("progress", {
             step:   "done",
             label:  "Confirmed",

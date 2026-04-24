@@ -8,10 +8,9 @@ const aj = arcjet.withRule(
     fixedWindow({
         mode: "LIVE",
         window: "60s",
-        max: 10,
+        max: 5,
     })
 )
-
 
 const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = [
@@ -58,8 +57,15 @@ export async function POST(req: Request) {
     );
   }
 
+  const candidateName = formData.get("candidateName");
   const buffer = await file.arrayBuffer();
-  const summary = await streamResumeKeyPoints(buffer, file.type);
+  const summary = await streamResumeKeyPoints(
+    buffer,
+    file.type,
+    typeof candidateName === "string" && candidateName.trim().length > 0
+      ? candidateName.trim()
+      : undefined,
+  );
 
   const posthog = getPostHogClient();
   posthog?.capture({

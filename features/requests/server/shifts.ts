@@ -97,14 +97,15 @@ export async function insertShiftsFromCoverage(params: {
             : params.hourlyRate;
 
     type ShiftRow = {
-        request_id:  string;
-        client_id:   string;
-        worker_id:   string;
-        start_time:  string;
-        end_time:    string;
-        hourly_rate: number;
-        status:      string;
-        location:    ShiftLocationPayload | null;
+        request_id:         string;
+        client_id:          string;
+        worker_id:          string;
+        start_time:         string;
+        end_time:           string;
+        hourly_rate:        number;
+        status:             string;
+        location:           ShiftLocationPayload | null;
+        offered_worker_ids: string[];
     };
 
     // Build rows + a parallel metadata list so we can zip after insert
@@ -121,14 +122,15 @@ export async function insertShiftsFromCoverage(params: {
             );
 
             rows.push({
-                request_id:  params.staffRequestId,
-                client_id:   clientId,
-                worker_id:   wid,
-                start_time:  startIso,
-                end_time:    endIso,
-                hourly_rate: shiftRate,
-                status:      "scheduled",
-                location:    params.location,
+                request_id:          params.staffRequestId,
+                client_id:           clientId,
+                worker_id:           wid,
+                start_time:          startIso,
+                end_time:            endIso,
+                hourly_rate:         shiftRate,
+                status:              "scheduled",
+                location:            params.location,
+                offered_worker_ids:  [a.userId],
             });
 
             meta.push({

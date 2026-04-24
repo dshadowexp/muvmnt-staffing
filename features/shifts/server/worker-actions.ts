@@ -2,8 +2,7 @@ import "server-only";
 
 import { tasks } from "@trigger.dev/sdk/v3";
 
-import { STAFF_REQUEST_PROFESSION_PLACEHOLDER } from "@/features/requests/constants";
-import { findReplacementUserIdForShiftWindow } from "@/features/requests/server/matching";
+import { findFirstAvailableWorker } from "@/features/requests/server/matching";
 import type { transferShiftTask } from "@/trigger/shifts";
 
 import {
@@ -77,41 +76,41 @@ export async function declineWorkerShift(
     }
 
     const sr = row.staff_requests;
-    if (!sr?.pricing_tier) {
+    if (!sr?.pricing_tier || !sr.cell_id) {
         return {
             ok: false,
-            message: "Shift request has no pricing tier; cannot re-match",
+            message: "Shift request has no pricing tier or location; cannot re-match",
         };
     }
 
     const win = shiftWindowFromTimestamps(row.start_time, row.end_time);
     if (!win) return { ok: false, message: "Shift has invalid times" };
 
-    // const replacementUserId = await findReplacementUserIdForShiftWindow({
+    const replacementUserId = await findFirstAvailableWorker({
+        cellId:        sr.cell_id,
+        dateYmd:       win.dateYmd,
+        startHHmm:     win.startHHmm,
+        endHHmm:       win.endHHmm,
+        pricingTierId: sr.pricing_tier,
+        profession:    sr.profession,
+        requirements:  sr.requirements ?? [],
+        excludeUserIds: [workerUserId],
+    });
 
-    //     dateYmd: win.dateYmd,
-    //     startHHmm: win.startHHmm,
-    //     endHHmm: win.endHHmm,
-    //     pricingTierId: sr.pricing_tier,
-    //     requestProfession: STAFF_REQUEST_PROFESSION_PLACEHOLDER,
-    //     requirements: sr.requirements ?? [],
-    //     excludeUserIds: [workerUserId],
-    // });
-
-    // if (replacementUserId) {
-    //     const newWorkerId = await getWorkerIdByUserId(replacementUserId);
-    //     if (!newWorkerId) {
-    //         await patchShiftById(shiftId, { status: SHIFT_STATUS_DECLINED });
-    //         return {
-    //             ok: false,
-    //             message: "Replacement could not be linked to a worker profile",
-    //         };
-    //     }
-    //     return patchShiftById(shiftId, {
-    //         worker_id: newWorkerId,
-    //         status: SHIFT_STATUS_SCHEDULED,
-    //     });
-    // }
+    if (replacementUserId) {
+        const newWorkerId = await getWorkerIdByUserId(replacementUserId);
+        if (!newWorkerId) {
+            await patchShiftById(shiftId, { status: SHIFT_STATUS_DECLINED });
+            return {
+                ok: false,
+                message: "Replacement worker could not be linked to a worker profile",
+            };
+        }
+        return patchShiftById(shiftId, {
+            worker_id: newWorkerId,
+            status:    SHIFT_STATUS_SCHEDULED,
+        });
+    }
 
     return patchShiftById(shiftId, { status: SHIFT_STATUS_DECLINED });
 }

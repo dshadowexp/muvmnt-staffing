@@ -25,7 +25,6 @@ import {
   ClockIcon,
   ListChecksIcon,
   MicIcon,
-  PlusIcon,
   SparklesIcon,
   VideoIcon,
   XCircleIcon,
@@ -621,8 +620,8 @@ function CompletedInterviewCard({
         ? "border-destructive/25 bg-gradient-to-br from-destructive/[0.06] via-transparent to-orange-500/[0.04] group-hover:border-destructive/40"
         : "border-violet-500/25 bg-gradient-to-br from-violet-500/[0.06] via-transparent to-sky-500/[0.04] group-hover:border-violet-500/40 dark:border-violet-400/20 dark:from-violet-500/10 dark:group-hover:border-violet-400/35";
 
-  const cta =
-    decision === "PENDING" ? "Generate feedback →" : "View feedback →";
+  // const cta =
+  //   decision === "PENDING" ? "Generate feedback →" : "View feedback →";
 
   return (
     <Card
@@ -647,11 +646,11 @@ function CompletedInterviewCard({
         <CardTitle className="text-base">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      {/* <CardContent>
         <span className="text-primary text-sm font-medium group-hover:underline">
           {cta}
         </span>
-      </CardContent>
+      </CardContent> */}
     </Card>
   );
 }

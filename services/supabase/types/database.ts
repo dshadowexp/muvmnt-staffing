@@ -185,7 +185,15 @@ export type Database = {
           screenshot_key?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       identity_verification: {
         Row: {
@@ -732,11 +740,12 @@ export type Database = {
           hourly_rate: number | null
           id: string
           location: Json | null
+          offered_worker_ids: string[] | null
           request_id: string
           start_time: string
           status: string | null
           updated_at: string
-          worker_id: string
+          worker_id: string | null
         }
         Insert: {
           checkin_time?: string | null
@@ -749,11 +758,12 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           location?: Json | null
+          offered_worker_ids?: string[] | null
           request_id: string
           start_time: string
           status?: string | null
           updated_at?: string
-          worker_id: string
+          worker_id?: string | null
         }
         Update: {
           checkin_time?: string | null
@@ -766,11 +776,12 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           location?: Json | null
+          offered_worker_ids?: string[] | null
           request_id?: string
           start_time?: string
           status?: string | null
           updated_at?: string
-          worker_id?: string
+          worker_id?: string | null
         }
         Relationships: [
           {
@@ -962,7 +973,6 @@ export type Database = {
           is_email_verified: boolean
           is_phone_verified: boolean
           phone_number: string | null
-          plan: string
           push_token: string | null
           role: string | null
           updated_at: string | null
@@ -976,7 +986,6 @@ export type Database = {
           is_email_verified?: boolean
           is_phone_verified?: boolean
           phone_number?: string | null
-          plan?: string
           push_token?: string | null
           role?: string | null
           updated_at?: string | null
@@ -990,7 +999,6 @@ export type Database = {
           is_email_verified?: boolean
           is_phone_verified?: boolean
           phone_number?: string | null
-          plan?: string
           push_token?: string | null
           role?: string | null
           updated_at?: string | null

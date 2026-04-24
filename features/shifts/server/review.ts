@@ -1,6 +1,7 @@
 import "server-only";
 
 import Stripe from "stripe";
+import { tasks } from "@trigger.dev/sdk/v3";
 
 import { getStripeServer } from "@/services/stripe/server";
 
@@ -32,13 +33,32 @@ export async function rateClientShift(
     );
     if (!ctx.ok) return ctx;
 
-    return upsertShiftRating({
+    const result = await upsertShiftRating({
         shiftId: ctx.ctx.shiftId,
         clientUserId,
         workerId: ctx.ctx.workerId,
         rating: input.rating,
         comment: input.comment?.length ? input.comment : null,
     });
+
+    if (result.ok) {
+        // Recompute rating_avg + rating_count on the worker row asynchronously.
+        // Idempotency key collapses rapid re-rates (e.g. client edits within
+        // seconds) into a single sync so the worker row is never over-written
+        // by racing tasks.
+        void tasks
+            .trigger(
+                "shifts.sync-worker-rating",
+                { workerId: ctx.ctx.workerId },
+                { idempotencyKey: `sync-worker-rating:${ctx.ctx.workerId}` },
+            )
+            .catch(() => {
+                // Non-fatal — the rating write already succeeded. The worker
+                // aggregate will self-correct on the next rating event.
+            });
+    }
+
+    return result;
 }
 
 export type TipChargeResult = ShiftReviewResult<{

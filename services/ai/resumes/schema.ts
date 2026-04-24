@@ -31,6 +31,21 @@ export const aiSummarySchema = z.object({
   certifications: z
     .array(z.string())
     .describe("Professional certifications, empty array if none"),
+  validation: z
+    .object({
+      valid: z
+        .boolean()
+        .describe(
+          "true if this is a genuine CV/resume with sufficient content for a behavioural interview; false otherwise",
+        ),
+      reason: z
+        .string()
+        .optional()
+        .describe(
+          "If valid is false: a short human-readable reason (e.g. 'not a resume', 'insufficient detail', 'blank or unreadable'). Omit if valid is true.",
+        ),
+    })
+    .describe("Validity verdict for the uploaded document"),
 });
 
 export type ResumeSummary = z.infer<typeof aiSummarySchema>;

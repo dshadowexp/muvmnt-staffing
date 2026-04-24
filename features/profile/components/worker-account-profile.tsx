@@ -174,24 +174,8 @@ export function WorkAuthCardSlot({
   return (
     <Card size="sm">
       <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <CardTitle>{t("workAuth.title")}</CardTitle>
-            <CardDescription>{t("workAuth.description")}</CardDescription>
-          </div>
-          {/* {!verified && !isEditing ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="shrink-0"
-              onClick={() => setIsEditing(true)}
-              aria-label="Edit work authorization"
-            >
-              <Pencil className="size-3.5" aria-hidden />
-            </Button>
-          ) : null} */}
-        </div>
+        <CardTitle>{t("workAuth.title")}</CardTitle>
+        <CardDescription>{t("workAuth.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <WorkerAuthorizationForm

@@ -35,56 +35,63 @@ function describe(event: MatchProgressEvent): MatchCoverageProgress {
     switch (event.kind) {
         case "locating":
             return {
-                step: "locating",
-                label: "Locating your business",
+                step:   "locating",
+                label:  "Pinpointing your location",
                 detail: event.cellId
-                    ? "Got the geo cell — searching the surrounding area."
-                    : "We can't find an address on file. Add one to keep going.",
+                    ? "Location confirmed — starting nearby search."
+                    : "No address on file. Add one to continue.",
             };
         case "ring":
             return {
-                step: "ring",
-                label: "Mapping the search radius",
-                detail: `${event.ringCellCount} geo cells in range`,
+                step:         "ring",
+                label:        "Scanning your area for workers",
+                detail:       `Searching across ${event.ringCellCount} zones near your location`,
                 ringCellCount: event.ringCellCount,
             };
         case "workers":
             return {
-                step: "workers",
-                label: "Loading available workers nearby",
-                detail: `${event.workerCount} workers found`,
+                step:        "workers",
+                label:       "Finding workers nearby",
+                detail:      `${event.workerCount} active worker${event.workerCount === 1 ? "" : "s"} found in range`,
                 workerCount: event.workerCount,
             };
         case "availability":
             return {
-                step: "availability",
-                label: "Reading their published availability",
-                detail: `${event.availabilityRows} availability windows`,
+                step:   "availability",
+                label:  "Checking their schedules",
+                detail: `Reviewing ${event.availabilityRows} published availability windows`,
             };
         case "filter":
             return {
-                step: "filter",
-                label: "Applying your tier filters",
-                detail: `${event.remaining} of ${event.before} workers match the ${event.tierId} tier`,
+                step:           "filter",
+                label:          "Matching your requirements",
+                detail:         `${event.remaining} of ${event.before} workers qualify for the ${event.tierId} tier`,
                 candidateCount: event.remaining,
+            };
+        case "expanding":
+            return {
+                // Stays on "scheduling" visually so completed step rows don't reset.
+                step:   "scheduling",
+                label:  "Expanding search radius",
+                detail: `No full coverage yet — broadening to a wider area (pass ${event.ringIndex + 1} of ${event.totalRings})`,
             };
         case "scheduling":
             return {
-                step: "scheduling",
-                label: "Building the daily coverage plan",
-                detail: `${event.days} days to cover`,
+                step:   "scheduling",
+                label:  "Building your coverage plan",
+                detail: `Arranging shifts across ${event.days} day${event.days === 1 ? "" : "s"}`,
             };
         case "done":
             return {
-                step: "done",
-                label: event.result.fullyCovered
-                    ? "Coverage ready"
-                    : "Best-effort coverage ready",
-                detail: `${event.result.totalWorkers} unique workers · ${
-                    event.result.fullyCovered ? "fully covered" : "partial coverage"
+                step:           "done",
+                label:          event.result.fullyCovered
+                    ? "Full coverage found"
+                    : "Best-effort coverage found",
+                detail:         `${event.result.totalWorkers} worker${event.result.totalWorkers === 1 ? "" : "s"} assigned · ${
+                    event.result.fullyCovered ? "all shifts covered" : "partial coverage — consider adjusting your schedule"
                 }`,
                 candidateCount: event.result.candidateCount,
-                ringCellCount: event.result.ringCellCount,
+                ringCellCount:  event.result.ringCellCount,
             };
     }
 }

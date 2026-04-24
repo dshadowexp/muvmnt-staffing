@@ -2,18 +2,15 @@
   "site": {
     "name": "readykare",
     "tagline": "Get healthcare shift coverage in under 5 minutes",
-    "phone": "1-437-979-7797",
     "email": "support@readykare.com",
     "countries": "Canada",
     "copyright": "© {year} readykare Inc. All rights reserved."
   },
-
   "meta": {
     "description": "readykare connects healthcare facilities and families with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief.",
     "openGraphDescription": "Fill staffing gaps in under 5 minutes with AI-powered, real-time matching to vetted, prescreened healthcare professionals nearby.",
-    "openGraphImageAlt": "readykare Inc."
+    "openGraphImageAlt": "Readykare Staffing Inc."
   },
-
   "professions": {
     "rn": "Registered Nurse (RN)",
     "rpn": "Registered Practical Nurse (RPN)",
@@ -24,7 +21,6 @@
     "dsw": "Developmental Services Worker (DSW)",
     "cook": "Cook / Dietary Aide"
   },
-
   "compliance": {
     "cpr": "CPR",
     "first_aid": "First Aide",
@@ -37,7 +33,6 @@
     "drivers_license": "Driver's License",
     "diploma_degree": "Diploma / Degree"
   },
-
   "complianceDesc": {
     "cpr": "Cardiopulmonary resuscitation — chest compressions, rescue breathing, and AED use during cardiac emergencies.",
     "first_aid": "Responding to injuries, bleeding, burns, and sudden illness until advanced medical help arrives.",
@@ -50,7 +45,6 @@
     "drivers_license": "Valid provincial driver's license for roles that involve travel or client transport.",
     "diploma_degree": "Highest education credential relevant to the role (e.g. BScN, PSW certificate)."
   },
-
   "skills": {
     "medi_admin": "Medication Administrator",
     "vital_signs_monitoring": "Vital Signs Monitoring",
@@ -75,7 +69,6 @@
     "infection_control_protocols": "Infection Control Protocols",
     "emergency_response_assistance": "Emergency Response Assistance"
   },
-
   "skillsDesc": {
     "medi_admin": "Safe medication handling: the five rights, documentation, and routes of administration within scope of practice.",
     "vital_signs_monitoring": "Monitoring and recording patient vital signs per protocol.",
@@ -100,7 +93,6 @@
     "infection_control_protocols": "PPE, isolation, and infection prevention practices.",
     "emergency_response_assistance": "Supporting emergency situations until advanced help arrives."
   },
-
   "common": {
     "home": "Home",
     "continue": "Continue",
@@ -117,7 +109,6 @@
     "dashboard": "Dashboard",
     "pickADate": "Pick a date"
   },
-
   "notFound": {
     "global": {
       "title": "Page not found",
@@ -140,38 +131,54 @@
       "backOnboarding": "Back to onboarding"
     }
   },
-
   "nav": {
     "links": [
-      { "label": "How it works", "href": "/#how" },
-      { "label": "Why us", "href": "/#why" }
+      {
+        "label": "How it works",
+        "href": "/#how"
+      },
+      {
+        "label": "Why us",
+        "href": "/#why"
+      }
     ],
     "findWork": "Find work",
     "requestStaff": "Request staff",
     "dashboard": "Dashboard",
     "menu": "Menu"
   },
-
   "footer": {
     "brandDescription": "AI-powered instant healthcare staffing solutions.",
     "columns": {
       "facilities": {
         "title": "For facilities",
         "links": [
-          { "label": "Request staff", "href": "/find-staff" },
-          { "label": "How it works", "href": "/#how" }
+          {
+            "label": "Request staff",
+            "href": "/find-staff"
+          },
+          {
+            "label": "How it works",
+            "href": "/#how"
+          }
         ]
       },
       "professionals": {
         "title": "For professionals",
         "links": [
-          { "label": "Find work", "href": "/find-work" }
+          {
+            "label": "Find work",
+            "href": "/find-work"
+          }
         ]
       },
       "company": {
         "title": "Company",
         "links": [
-          { "label": "FAQ", "href": "/faq" }
+          {
+            "label": "FAQ",
+            "href": "/faq"
+          }
         ]
       }
     },
@@ -180,7 +187,6 @@
       "terms": "Terms of Use"
     }
   },
-
   "landing": {
     "hero": {
       "badge": "Healthcare staffing, simplified",
@@ -191,9 +197,18 @@
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
-        { "value": "50+", "label": "Facilities served" },
-        { "value": "98%", "label": "Shift fill rate" },
-        { "value": "<5m", "label": "Avg. response" }
+        {
+          "value": "50+",
+          "label": "Facilities served"
+        },
+        {
+          "value": "98%",
+          "label": "Shift fill rate"
+        },
+        {
+          "value": "<5m",
+          "label": "Avg. response"
+        }
       ]
     },
     "trust": {
@@ -204,10 +219,26 @@
       "title": "Request, match, confirm.",
       "subtitle": "From request to placement in hours, not days.",
       "steps": [
-        { "num": "01", "title": "Request your shift", "description": "Tell us the dates and hours. Takes under three minutes." },
-        { "num": "02", "title": "We match fast", "description": "Our roster of credentialed and vetted professionals is ready to cover shifts day or night." },
-        { "num": "03", "title": "Confirm coverage", "description": "Review matched workers, accept the tier that fits your budget, and lock it in." },
-        { "num": "04", "title": "Shift runs smoothly", "description": "Staff clock in, you approve hours, we handle payouts and follow-up." }
+        {
+          "num": "01",
+          "title": "Request your shift",
+          "description": "Tell us the dates and hours. Takes under three minutes."
+        },
+        {
+          "num": "02",
+          "title": "We match fast",
+          "description": "Our roster of credentialed and vetted professionals is ready to cover shifts day or night."
+        },
+        {
+          "num": "03",
+          "title": "Confirm coverage",
+          "description": "Review matched workers, accept the tier that fits your budget, and lock it in."
+        },
+        {
+          "num": "04",
+          "title": "Shift runs smoothly",
+          "description": "Staff clock in, you approve hours, we handle payouts and follow-up."
+        }
       ],
       "ctaRequest": "Request staff →",
       "ctaJoin": "Join as a professional"
@@ -217,30 +248,69 @@
       "title": "We move at the speed of care.",
       "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the pressures Canadian teams face every day.",
       "points": [
-        { "icon": "Zap", "title": "Fast coverage", "description": "Most requests are matched the same day — including emergency relief." },
-        { "icon": "BadgeCheck", "title": "Vetted professionals", "description": "Every worker is credentialed, reference-checked, and compliance-verified." },
-        { "icon": "MapPin", "title": "Local reach", "description": "Active coverage across Ontario, with more provinces rolling out." },
-        { "icon": "MessageCircle", "title": "Real support", "description": "A dedicated team that knows your facility — no tickets, no chatbots." }
+        {
+          "icon": "Zap",
+          "title": "Fast coverage",
+          "description": "Most requests are matched the same day — including emergency relief."
+        },
+        {
+          "icon": "BadgeCheck",
+          "title": "Vetted professionals",
+          "description": "Every worker is credentialed, reference-checked, and compliance-verified."
+        },
+        {
+          "icon": "MapPin",
+          "title": "Local reach",
+          "description": "Active coverage across Ontario, with more provinces rolling out."
+        },
+        {
+          "icon": "MessageCircle",
+          "title": "Real support",
+          "description": "A dedicated team that knows your facility — no tickets, no chatbots."
+        }
       ],
       "statCards": [
-        { "title": "50+ facilities", "subtitle": "Trust readykare across Ontario" },
-        { "title": "98% fill rate", "subtitle": "Across all shift types" },
-        { "title": "<5m response", "subtitle": "For emergency coverage" }
+        {
+          "title": "50+ facilities",
+          "subtitle": "Trust readykare across Ontario"
+        },
+        {
+          "title": "98% fill rate",
+          "subtitle": "Across all shift types"
+        },
+        {
+          "title": "<5m response",
+          "subtitle": "For emergency coverage"
+        }
       ]
     },
     "testimonials": {
       "overline": "Testimonials",
       "title": "What facilities say.",
       "items": [
-        { "stars": 5, "text": "ReadyKare filled three RN shifts over a holiday weekend. Honestly a lifesaver.", "name": "Sandra K.", "role": "Director of Care — Toronto" },
-        { "stars": 5, "text": "The PSWs they send are professional and warm. Residents have noticed the difference.", "name": "James L.", "role": "Administrator — Calgary" },
-        { "stars": 5, "text": "Signed up and had vetted staff on the floor within 48 hours. Impressive.", "name": "Maria T.", "role": "HR Manager — Vancouver" }
+        {
+          "stars": 5,
+          "text": "ReadyKare filled three RN shifts over a holiday weekend. Honestly a lifesaver.",
+          "name": "Sandra K.",
+          "role": "Director of Care — Toronto"
+        },
+        {
+          "stars": 5,
+          "text": "The PSWs they send are professional and warm. Residents have noticed the difference.",
+          "name": "James L.",
+          "role": "Administrator — Calgary"
+        },
+        {
+          "stars": 5,
+          "text": "Signed up and had vetted staff on the floor within 48 hours. Impressive.",
+          "name": "Maria T.",
+          "role": "HR Manager — Vancouver"
+        }
       ],
       "ctaRequest": "Request staff →",
       "ctaFindWork": "Find work"
     }
   },
-
   "findStaff": {
     "meta": {
       "title": "Request healthcare staff",
@@ -249,12 +319,28 @@
     },
     "breadcrumb": "Request staff",
     "points": [
-      { "icon": "Timer", "label": "Same-day placement" },
-      { "icon": "BadgeCheck", "label": "Credentialed professionals" },
-      { "icon": "ShieldCheck", "label": "PIPEDA-compliant" }
+      {
+        "icon": "Timer",
+        "label": "Same-day placement"
+      },
+      {
+        "icon": "BadgeCheck",
+        "label": "Credentialed professionals"
+      },
+      {
+        "icon": "ShieldCheck",
+        "label": "PIPEDA-compliant"
+      }
     ],
     "rolesLabel": "We place",
-    "roles": ["RN", "RPN", "PSW", "DSW", "Allied", "Support"],
+    "roles": [
+      "RN",
+      "RPN",
+      "PSW",
+      "DSW",
+      "Allied",
+      "Support"
+    ],
     "card": {
       "title": "Request shift coverage",
       "subtitle": "Get matched with staff instantly."
@@ -282,9 +368,21 @@
     },
     "how": {
       "steps": [
-        { "num": "01", "title": "Tell us your need", "description": "Dates, hours, and how many staff you need." },
-        { "num": "02", "title": "We match fast", "description": "Review proposed coverage and pick a pricing tier." },
-        { "num": "03", "title": "Confirm & go", "description": "Lock in staff. Hours are tracked and paid out for you." }
+        {
+          "num": "01",
+          "title": "Tell us your need",
+          "description": "Dates, hours, and how many staff you need."
+        },
+        {
+          "num": "02",
+          "title": "We match fast",
+          "description": "Review proposed coverage and pick a pricing tier."
+        },
+        {
+          "num": "03",
+          "title": "Confirm & go",
+          "description": "Lock in staff. Hours are tracked and paid out for you."
+        }
       ]
     },
     "account": {
@@ -295,7 +393,6 @@
       "ctaSignIn": "Already a member? Sign in"
     }
   },
-
   "findWork": {
     "meta": {
       "title": "Find healthcare work",
@@ -313,24 +410,57 @@
     "perksOverline": "Why readykare",
     "perksTitle": "Built for the way you actually work.",
     "perks": [
-      { "icon": "Zap", "title": "Own your time", "description": "Choose days, nights, weekends, or relief work — whatever fits your life." },
-      { "icon": "CalendarClock", "title": "Fast matching", "description": "Get notified the moment a shift that fits your skills opens nearby." },
-      { "icon": "DollarSign", "title": "Fair, clear pay", "description": "See rates upfront. Hours are tracked and paid out bi-weekly." },
-      { "icon": "Headset", "title": "Human support", "description": "A real person handles your file — no bots, no black holes." }
+      {
+        "icon": "Zap",
+        "title": "Own your time",
+        "description": "Choose days, nights, weekends, or relief work — whatever fits your life."
+      },
+      {
+        "icon": "CalendarClock",
+        "title": "Fast matching",
+        "description": "Get notified the moment a shift that fits your skills opens nearby."
+      },
+      {
+        "icon": "DollarSign",
+        "title": "Fair, clear pay",
+        "description": "See rates upfront. Hours are tracked and paid out bi-weekly."
+      },
+      {
+        "icon": "Headset",
+        "title": "Human support",
+        "description": "A real person handles your file — no bots, no black holes."
+      }
     ],
     "rolesOverline": "Roles we place",
     "rolesTitle": "Nurses, PSWs, allied health, and support.",
     "seeFaq": "See FAQ",
     "roles": [
-      { "abbr": "RN", "full": "Registered Nurse" },
-      { "abbr": "RPN", "full": "Registered Practical Nurse" },
-      { "abbr": "PSW", "full": "Personal Support Worker" },
-      { "abbr": "DSW", "full": "Developmental Support Worker" },
-      { "abbr": "Allied", "full": "Allied Health" },
-      { "abbr": "Support", "full": "Healthcare Support" }
+      {
+        "abbr": "RN",
+        "full": "Registered Nurse"
+      },
+      {
+        "abbr": "RPN",
+        "full": "Registered Practical Nurse"
+      },
+      {
+        "abbr": "PSW",
+        "full": "Personal Support Worker"
+      },
+      {
+        "abbr": "DSW",
+        "full": "Developmental Support Worker"
+      },
+      {
+        "abbr": "Allied",
+        "full": "Allied Health"
+      },
+      {
+        "abbr": "Support",
+        "full": "Healthcare Support"
+      }
     ]
   },
-
   "faq": {
     "meta": {
       "title": "FAQ",
@@ -340,14 +470,46 @@
     "title": "Frequently asked questions",
     "subtitle": "Quick answers about how readykare works for healthcare teams and professionals.",
     "items": [
-      { "id": "what-is-readykare", "question": "What is readykare?", "answer": "readykare connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles." },
-      { "id": "who-can-use", "question": "Who can use readykare?", "answer": "Healthcare organizations, facilities, and families can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability." },
-      { "id": "how-matching", "question": "How does matching work?", "answer": "Facilities describe the role, dates, and requirements. We surface candidates from our vetted pool based on credentials, experience, and availability. Workers can also browse and apply to open roles that fit their preferences." },
-      { "id": "cost", "question": "Is there a cost to create an account?", "answer": "You can create an account and explore the platform at no upfront cost. Only pay for the shifts you cover." },
-      { "id": "credentials", "question": "How are credentials verified?", "answer": "We collect and verify professional licenses, certifications, and other requirements according to your role and provincial rules. Exact steps are shown during onboarding so you always know what's needed." },
-      { "id": "data-privacy", "question": "How is my data protected?", "answer": "We handle personal information in line with Canadian privacy law (including PIPEDA where applicable). We only share what's necessary for placements, and you can read more in our Privacy Policy." },
-      { "id": "ontario", "question": "Do you operate outside Ontario?", "answer": "We're focused on Ontario healthcare staffing today. If you're elsewhere in Canada, you can still reach out — we'll let you know when coverage expands." },
-      { "id": "support", "question": "How do I get help?", "answer": "Use the contact options in the footer or email us at support@readykare.com. For account-specific issues, sign in and use in-app support where available." }
+      {
+        "id": "what-is-readykare",
+        "question": "What is readykare?",
+        "answer": "readykare connects Canadian healthcare facilities with pre-screened, credentialed professionals for temporary staffing, home care, and relief coverage. We focus on fast matching and compliance so you can fill shifts without long hiring cycles."
+      },
+      {
+        "id": "who-can-use",
+        "question": "Who can use readykare?",
+        "answer": "Healthcare organizations, facilities, and families can post staffing needs. Licensed and credentialed professionals (nurses, PSWs, allied health, and more) can create a profile and apply to opportunities that match their skills and availability."
+      },
+      {
+        "id": "how-matching",
+        "question": "How does matching work?",
+        "answer": "Facilities describe the role, dates, and requirements. We surface candidates from our vetted pool based on credentials, experience, and availability. Workers can also browse and apply to open roles that fit their preferences."
+      },
+      {
+        "id": "cost",
+        "question": "Is there a cost to create an account?",
+        "answer": "You can create an account and explore the platform at no upfront cost. Only pay for the shifts you cover."
+      },
+      {
+        "id": "credentials",
+        "question": "How are credentials verified?",
+        "answer": "We collect and verify professional licenses, certifications, and other requirements according to your role and provincial rules. Exact steps are shown during onboarding so you always know what's needed."
+      },
+      {
+        "id": "data-privacy",
+        "question": "How is my data protected?",
+        "answer": "We handle personal information in line with Canadian privacy law (including PIPEDA where applicable). We only share what's necessary for placements, and you can read more in our Privacy Policy."
+      },
+      {
+        "id": "ontario",
+        "question": "Do you operate outside Ontario?",
+        "answer": "We're focused on Ontario healthcare staffing today. If you're elsewhere in Canada, you can still reach out — we'll let you know when coverage expands."
+      },
+      {
+        "id": "support",
+        "question": "How do I get help?",
+        "answer": "Use the contact options in the footer or email us at support@readykare.com. For account-specific issues, sign in and use in-app support where available."
+      }
     ],
     "cta": {
       "title": "Ready to get started?",
@@ -355,7 +517,6 @@
       "secondary": "Find work"
     }
   },
-
   "legal": {
     "breadcrumb": "Legal",
     "badge": "Legal",
@@ -374,7 +535,10 @@
       "subtitle": "A short, plain-language summary of how readykare handles personal information as we match healthcare facilities with temporary staff.",
       "effective": "April 20, 2026",
       "updated": "April 20, 2026",
-      "related": { "label": "Terms of Use", "href": "/terms" },
+      "related": {
+        "label": "Terms of Use",
+        "href": "/terms"
+      },
       "contactEmail": "support@readykare.com",
       "sections": [
         {
@@ -477,7 +641,10 @@
       "subtitle": "The plain-language ground rules for using ReadyKare, whether you're a healthcare professional picking up shifts or a facility requesting staff.",
       "effective": "April 20, 2026",
       "updated": "April 20, 2026",
-      "related": { "label": "Privacy Policy", "href": "/privacy" },
+      "related": {
+        "label": "Privacy Policy",
+        "href": "/privacy"
+      },
       "contactEmail": "support@readykare.com",
       "sections": [
         {
@@ -573,7 +740,6 @@
       ]
     }
   },
-
   "auth": {
     "legal": {
       "prefix": "By continuing, you agree to ReadyKare's",
@@ -710,7 +876,6 @@
       }
     }
   },
-
   "dashboard": {
     "nav": {
       "home": "Home",
@@ -764,7 +929,7 @@
         },
         "resumeInterview": {
           "title": "Resume interview",
-          "description": "Walk us through your resume in 8 minutes to finish onboarding." 
+          "description": "Walk us through your resume in 8 minutes to finish onboarding."
         },
         "workAuth": {
           "title": "Work authorization",
@@ -829,7 +994,7 @@
       },
       "payroll": {
         "title": "Payroll",
-        "subtitle": "View your Stripe Connect balance and manage payouts.",
+        "subtitle": "Access your payroll balance here.",
         "loadError": "We couldn't load your payroll details. Please report to support.",
         "needSetup": "Set up your payroll account to view your balance and manage payouts.",
         "completeTasksFirst": "You can onboard payroll when you complete all important tasks. Visit Home page to view your important tasks.",
@@ -1091,7 +1256,6 @@
       }
     }
   },
-
   "kyc": {
     "onboarding": {
       "meta": {
@@ -1397,7 +1561,6 @@
       "nextBody": "No further action is needed on this page. Check your inbox and messages for updates from ReadyKare — we'll let you know as soon as your account is ready."
     }
   },
-
   "assessments": {
     "quiz": {
       "preparingTitle": "Preparing your assessment…",
@@ -1431,36 +1594,40 @@
       "candidateFallback": "Candidate",
       "instructions": {
         "step1": {
-            "title": "Enable your microphone",
-            "body": "Allow microphone access when prompted. Speak clearly and at a normal pace."
+          "title": "Enable your microphone",
+          "body": "Allow microphone access when prompted. Speak clearly and at a normal pace."
         },
         "step2": {
-            "title": "Enable your camera",
-            "body": "Your video helps provide a more complete assessment. Ensure good lighting."
+          "title": "Enable your camera",
+          "body": "Your video helps provide a more complete assessment. Ensure good lighting."
         },
         "step3": {
-            "title": "Show your face",
-            "body": "Make sure to show your face to the camera at all times during the interview."
+          "title": "Show your face",
+          "body": "Make sure to show your face to the camera at all times during the interview."
         },
         "step4": {
-            "title": "Answer naturally",
-            "body": "The AI interviewer will ask questions relevant to your experience. Take your time."
+          "title": "Answer naturally",
+          "body": "The AI interviewer will ask questions relevant to your experience. Take your time."
         },
         "step5": {
-            "title": "Complete the session",
-            "body": "Your responses are recorded and reviewed. Results are shared shortly after."
+          "title": "Complete the session",
+          "body": "Your responses are recorded and reviewed. Results are shared shortly after."
         },
         "step6": {
-            "title": "Mind your environment",
-            "body": "Find a quiet, well-lit space free from distractions before starting."
+          "title": "Mind your environment",
+          "body": "Find a quiet, well-lit space free from distractions before starting."
         },
         "step7": {
-            "title": "This interview will be video recorded",
-            "body": "The entire session will be recorded on video. Ensure you are comfortable being on camera for the full duration."
+          "title": "Is video recorded",
+          "body": "The entire session will be recorded on video. Ensure you are comfortable being on camera for the full duration."
         },
         "step8": {
-            "title": "Only begin when ready",
-            "body": "Do not start until you are fully prepared. You will not be able to pause or restart once the interview begins."
+          "title": "Only begin when ready",
+          "body": "Do not start until you are fully prepared. You will not be able to pause or restart once the interview begins."
+        },
+        "step9": {
+          "title": "No AI assistance",
+          "body": "Complete this interview using your own knowledge and experience only. The use of AI tools, chatbots, or any external assistance during the session is strictly prohibited."
         },
         "notice": "Once started, the timer cannot be paused. Please treat this like you would a person-led assessment interview."
       },
@@ -1475,7 +1642,8 @@
         "micCheckListening": "Listening…",
         "micCheckPassed": "Microphone ready",
         "starting": "Starting…",
-        "start": "Start interview"
+        "start": "Start interview",
+        "resume": "Resume interview"
       },
       "controls": {
         "mute": "Mute",
@@ -1489,7 +1657,7 @@
       "completed": {
         "title": "Interview complete",
         "generating": "Generating your feedback — this may take a moment…",
-        "wrappingUp": "Saving your interview — taking you to your feedback…"
+        "wrappingUp": "Finalizing your interview — you will receive your feedback shortly…"
       },
       "profession": {
         "title": "{profession} Professional Interview",
@@ -1527,7 +1695,13 @@
         "errorFileType": "Please upload a PDF, Word document, or text file",
         "errorUploadFailed": "Failed to upload your resume. Please try again.",
         "errorRemoveFailed": "Failed to remove your resume. Please try again.",
-        "limitReached": "You've reached the maximum of {limit} resume changes. You can no longer change your resume."
+        "limitReached": "You've reached the maximum of {limit} resume changes. You can no longer change your resume.",
+        "uploadLimitBadge": "{remaining} of {limit} uploads remaining",
+        "errorInvalidResumeTitle": "Resume not accepted",
+        "errorInvalidResumeBody": "This document doesn't appear to be a valid resume. Please upload a CV that includes your name, work history, and relevant experience.",
+        "errorInvalidResumeReason": "This document doesn't appear to be a valid resume ({reason}). Please upload a CV that includes your name, work history, and relevant experience.",
+        "attemptsRemaining": "{count, plural, one {# upload attempt remaining} other {# upload attempts remaining}}",
+        "noAttemptsRemaining": "No upload attempts remaining."
       },
       "review": {
         "back": "Back to assessments",
@@ -1567,7 +1741,6 @@
       }
     }
   },
-
   "referral": {
     "claim": {
       "applying": "Applying your referral link…"
@@ -1758,15 +1931,15 @@
       "billedWeeklyNotice": "Nothing is charged at this step. You are billed weekly for actual hours worked at your selected base rate.",
       "baseRateChip": "base",
       "workersAvailable": "{count, plural, =0 {no workers} one {# worker} other {# workers}} available",
-      "matchStarting": "Starting coverage matching",
-      "matchPreparing": "Preparing your coverage",
+      "matchStarting": "Finding your coverage",
+      "matchPreparing": "Preparing your shift plan",
       "matchStep": {
-        "locating": "Locate your business",
-        "ring": "Map the search radius",
-        "workers": "Load nearby workers",
-        "availability": "Read availability",
-        "filter": "Apply tier filters",
-        "scheduling": "Build the daily plan"
+        "locating": "Pinpoint your location",
+        "ring": "Scan nearby zones",
+        "workers": "Find available workers",
+        "availability": "Check their schedules",
+        "filter": "Match your requirements",
+        "scheduling": "Build your coverage plan"
       },
       "confirmAndCharge": "Confirm and pay",
       "confirmAndCheckout": "Confirm and check out",

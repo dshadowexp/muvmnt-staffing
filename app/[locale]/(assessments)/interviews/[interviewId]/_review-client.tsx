@@ -6,7 +6,6 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
   AlertTriangleIcon,
-  ArrowLeftIcon,
   CircleDashedIcon,
   CircleSlashIcon,
   ClockIcon,
@@ -48,11 +47,7 @@ import {
   type InterviewFeedbackParsed,
 } from "@/features/interviews/lib/interview-feedback-json";
 import type { Database } from "@/services/supabase/types/database";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Logo } from "@/components/logo";
-import { BackLink } from "@/components/back-link";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
+import { InterviewHeader } from "../_components/interview-header";
 
 type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
 
@@ -139,14 +134,10 @@ export function InterviewReviewClient({
 
   return (
     <div className="flex min-h-svh flex-col">
-       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 px-4 py-3 backdrop-blur">
-          <BackLink backHref={backHref} title="Assessments" />
-          <div className="flex items-center gap-2">
-            <FeedbackIcon />
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-      </header>
+      <InterviewHeader
+        backHref={backHref}
+        backTitle="Assessments"
+      />
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
         <Card>
           <CardHeader className="gap-4">

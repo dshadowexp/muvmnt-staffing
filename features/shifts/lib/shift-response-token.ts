@@ -4,7 +4,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { createAdminClient } from "@/services/supabase/server";
 
 const SECRET = new TextEncoder().encode(process.env.SHIFT_RESPONSE_TOKEN_SECRET!);
-const EXPIRES_IN_SECONDS = 30 * 60; // 30 minutes
+const EXPIRES_IN_SECONDS = 24 * 60 * 60; // 24 hours
 
 export type ShiftResponseAction =
     | "accept"

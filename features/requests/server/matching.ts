@@ -1,6 +1,8 @@
 import "server-only";
 
+import { gridDiskDistances } from "h3-js";
 import { createAdminClient } from "@/services/supabase/server";
+import { H3_K } from "@/lib/constants";
 import {
     PRICING_TIER_CREDENTIALED,
     PRICING_TIER_PULSE,
@@ -154,6 +156,7 @@ export type MatchProgressEvent =
     | { kind: "availability"; availabilityRows: number }
     | { kind: "filter"; tierId: string; remaining: number; before: number }
     | { kind: "scheduling"; days: number }
+    | { kind: "expanding"; ringIndex: number; totalRings: number }
     | { kind: "done"; result: MatchResult };
 
 export type ProgressFn = (event: MatchProgressEvent) => void | Promise<void>;
@@ -298,44 +301,170 @@ export async function filterCandidatesForTier(
     }
 }
 
+// ─── Internal helpers ─────────────────────────────────────────────────────────
+
+/** Compute H3 ring layers from a cell id. Single import point for h3-js. */
+function buildRings(cellId: string): string[][] {
+    return gridDiskDistances(cellId, H3_K);
+}
+
 /**
- * Single-worker re-match: returns the first eligible user id who can solo-cover
- * `[startHHmm, endHHmm]` on `dateYmd`, after applying the same near-by pool +
- * tier filters used by initial matching. Used by the shift transfer / decline
- * flows to swap in a replacement when a worker drops a confirmed shift.
+ * Resolve a filtered, sorted candidate list for one H3 ring slice.
+ * Handles pool building, tier/profession/requirements filtering, and optional
+ * user exclusions. Emits "filter" progress when a progress callback is provided.
  */
-export async function findReplacementUserIdForShiftWindow(params: {
+async function resolveCandidatesForRing(params: {
+    ring: string[];
+    dailyWindows: DailyWindowMatch[];
+    pricingTierId: string;
+    profession: string;
+    requirements: string[];
+    excludeUserIds?: string[];
+    progress?: ProgressFn;
+}): Promise<MatchCandidate[]> {
+    const pool = await buildCandidatePool({
+        dailyWindows: params.dailyWindows,
+        ring: params.ring,
+        progress: params.progress,
+    });
+
+    const all = pool.ok ? pool.candidates : [];
+    const filtered = await filterCandidatesForTier(
+        all,
+        params.pricingTierId,
+        params.profession,
+        params.requirements,
+    );
+
+    await params.progress?.({
+        kind: "filter",
+        tierId: params.pricingTierId,
+        remaining: filtered.length,
+        before: all.length,
+    });
+
+    if (!params.excludeUserIds?.length) return filtered;
+    const excluded = new Set(params.excludeUserIds);
+    return filtered.filter((c) => !excluded.has(c.userId));
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+export type RunScheduleMatchParams = {
+    cellId: string;
+    dailyWindows: DailyWindowMatch[];
+    pricingTierId: string;
+    profession: string;
+    requirements: string[];
+    progress?: ProgressFn;
+};
+
+/**
+ * Progressive ring-expansion scheduler. Starts from the cell closest to the
+ * request location and expands outward until full coverage is achieved or all
+ * rings are exhausted.
+ *
+ * Emits rich progress events: detailed sub-steps (ring / workers / availability
+ * / filter / scheduling) on the first ring, then "expanding" events on
+ * subsequent rings so the UI can show "Expanding search radius…" without
+ * visually regressing already-completed step rows.
+ */
+export async function runScheduleMatch(
+    params: RunScheduleMatchParams,
+): Promise<MatchResult> {
+    const rings = buildRings(params.cellId);
+
+    await params.progress?.({ kind: "locating", cellId: params.cellId });
+
+    let result: MatchResult = emptyMatchResult;
+
+    for (let i = 0; i < rings.length; i++) {
+        const ring = rings[i]!;
+
+        // Subsequent rings: emit a single "expanding" event instead of replaying
+        // ring/workers/availability steps (which would visually reset step rows).
+        if (i > 0) {
+            await params.progress?.({
+                kind: "expanding",
+                ringIndex: i,
+                totalRings: rings.length,
+            });
+        }
+
+        // Only stream detailed sub-events on the first ring pass.
+        const ringProgress = i === 0 ? params.progress : undefined;
+
+        const candidates = await resolveCandidatesForRing({
+            ring,
+            dailyWindows: params.dailyWindows,
+            pricingTierId: params.pricingTierId,
+            profession: params.profession,
+            requirements: params.requirements,
+            progress: ringProgress,
+        });
+
+        result = await matchWorkersForStaffRequest({
+            ring,
+            dailyWindows: params.dailyWindows,
+            pricingTierId: params.pricingTierId,
+            profession: params.profession,
+            requirements: params.requirements,
+            progress: ringProgress,
+            filteredCandidates: candidates,
+            existingMatchResult: result,
+        });
+
+        if (result.fullyCovered) break;
+    }
+
+    return result;
+}
+
+export type FindFirstAvailableWorkerParams = {
+    cellId: string;
     dateYmd: string;
     startHHmm: string;
     endHHmm: string;
-    ring: string[];
     pricingTierId: string;
-    requestProfession: string;
+    profession: string;
     requirements: string[];
-    excludeUserIds: string[];
-}): Promise<string | null> {
-    const dailyWindows: DailyWindowMatch[] = [
-        { date: params.dateYmd.slice(0, 10), slots: [{ startTime: params.startHHmm, endTime: params.endHHmm }] },
-    ];
-    const pool = await buildCandidatePool({
-        dailyWindows,
-        ring: params.ring,
-    });
-    if (!pool.ok) return null;
+    excludeUserIds?: string[];
+};
 
-    let list = await filterCandidatesForTier(
-        pool.candidates,
-        params.pricingTierId,
-        params.requestProfession,
-        params.requirements,
-    );
-    const ex = new Set(params.excludeUserIds);
-    list = list.filter((c) => !ex.has(c.userId));
+/**
+ * Find the first available worker who can solo-cover a single shift window.
+ *
+ * Uses all H3 rings at once (broadest search) since replacement urgency
+ * outweighs proximity preference. Applies the same tier / profession /
+ * requirements / exclusion filters as the full scheduler.
+ *
+ * Replaces the old `findReplacementUserIdForShiftWindow` — callers now pass
+ * `cellId` instead of a pre-built ring, keeping H3 details internal.
+ */
+export async function findFirstAvailableWorker(
+    params: FindFirstAvailableWorkerParams,
+): Promise<string | null> {
+    const allCells = buildRings(params.cellId).flat();
+
+    const dailyWindows: DailyWindowMatch[] = [{
+        date: params.dateYmd.slice(0, 10),
+        slots: [{ startTime: params.startHHmm, endTime: params.endHHmm }],
+    }];
+
+    const candidates = await resolveCandidatesForRing({
+        ring: allCells,
+        dailyWindows,
+        pricingTierId: params.pricingTierId,
+        profession: params.profession,
+        requirements: params.requirements,
+        excludeUserIds: params.excludeUserIds,
+    });
 
     const reqStart = toMinutes(params.startHHmm);
-    const reqEnd = toMinutes(params.endHHmm);
-    for (const c of list) {
-        const dow = dayOfWeekFromYmd(params.dateYmd);
+    const reqEnd   = toMinutes(params.endHHmm);
+    const dow      = dayOfWeekFromYmd(params.dateYmd);
+
+    for (const c of candidates) {
         const intervals = c.availability.get(dow) ?? [];
         if (segmentsThatCover(intervals, reqStart, reqEnd)) return c.userId;
     }

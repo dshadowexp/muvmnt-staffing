@@ -13,12 +13,8 @@ import {
     STAFF_REQUEST_STATUS_PENDING_PRICING,
 } from "../constants";
 import {
-    buildCandidatePool,
-    emptyMatchResult,
-    filterCandidatesForTier,
-    matchWorkersForStaffRequest,
+    runScheduleMatch,
     type DailyWindowMatch,
-    type MatchCandidate,
     type MatchResult,
     type ProgressFn,
 } from "./matching";
@@ -31,8 +27,6 @@ import {
 import { totalCoveredHoursFromMatchSchedule } from "../pricing/staff-request-pricing";
 import { getSession } from "@/lib/session";
 import { normalizeProfessionId } from "@/lib/professions";
-import { gridDiskDistances } from "h3-js";
-import { H3_K } from "@/lib/constants";
 import type { Database, Json } from "@/services/supabase/types/database";
 import {
     createDraftLocationSchema,
@@ -376,54 +370,18 @@ export async function runMatchForStaffRequest(args: {
     if (!row) return { ok: false, message: "Request not found" };
 
     const dailyWindows = (row.daily_time_windows ?? []) as DailyWindowMatch[];
-    const tier = row.pricing_tier ?? "pulse";
-    const profession = professionForStaffRequest(row);
-    const requirements = mergePersistedStaffRequestRequirements(
-        row.requirements ?? [],
-    );
+    const tier         = row.pricing_tier ?? "pulse";
+    const profession   = professionForStaffRequest(row);
+    const requirements = mergePersistedStaffRequestRequirements(row.requirements ?? []);
 
-    const rings = gridDiskDistances(row.cell_id, H3_K);
-
-    let result: MatchResult = emptyMatchResult;
-    for (let i = 0; i < rings.length; i++) {
-        const ring = rings[i];
-        const pool = await buildCandidatePool({
-            dailyWindows,
-            ring,
-            progress: args.progress,
-        });
-
-        const allCandidates: MatchCandidate[] = pool.ok ? pool.candidates : [];
-
-        const filtered = await filterCandidatesForTier(
-            allCandidates,
-            tier,
-            profession,
-            requirements,
-        );
-
-        await args.progress?.({
-            kind: "filter",
-            tierId: tier,
-            remaining: filtered.length,
-            before: allCandidates.length,
-        });
-
-        result = await matchWorkersForStaffRequest({
-            ring,
-            dailyWindows,
-            pricingTierId: tier,
-            profession,
-            requirements,
-            progress: args.progress,
-            filteredCandidates: filtered,
-            existingMatchResult: result,
-        });
-
-        if (result.fullyCovered) {
-            break;
-        }
-    }
+    const result = await runScheduleMatch({
+        cellId:        row.cell_id,
+        dailyWindows,
+        pricingTierId: tier,
+        profession,
+        requirements,
+        progress:      args.progress,
+    });
 
     const cache: CoverageDataCache = {
         schedule: result.schedule,

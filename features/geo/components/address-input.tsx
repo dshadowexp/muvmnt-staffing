@@ -53,10 +53,16 @@ export function AddressInput({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState(-1);
-  const [dropdownRect, setDropdownRect] = useState({
-    top: 0,
+  const [dropdownRect, setDropdownRect] = useState<{
+    top?: number;
+    bottom?: number;
+    left: number;
+    width: number;
+    maxHeight: number;
+  }>({
     left: 0,
     width: 0,
+    maxHeight: 320,
   });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -68,11 +74,40 @@ export function AddressInput({
     const el = wrapperRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    setDropdownRect({
-      top: rect.bottom + 4,
-      left: rect.left,
-      width: rect.width,
-    });
+    // Use visualViewport when available — it correctly reflects the keyboard-
+    // adjusted viewport on mobile, unlike window.innerHeight which may not.
+    const viewportHeight =
+      window.visualViewport?.height ?? window.innerHeight;
+    const viewportTop = window.visualViewport?.offsetTop ?? 0;
+
+    const spaceBelow = viewportHeight - (rect.bottom - viewportTop);
+    const spaceAbove = rect.top - viewportTop;
+    const GAP = 4;
+    const MAX = 320;
+
+    // Flip above when below is cramped and above has more room.
+    const openAbove = spaceBelow < 200 && spaceAbove > spaceBelow;
+
+    if (openAbove) {
+      const availableAbove = spaceAbove - GAP;
+      setDropdownRect({
+        // `bottom` in fixed coords = distance from viewport bottom to input top
+        bottom: viewportHeight - (rect.top - viewportTop) + GAP,
+        top: undefined,
+        left: rect.left,
+        width: rect.width,
+        maxHeight: Math.min(MAX, availableAbove),
+      });
+    } else {
+      const availableBelow = spaceBelow - GAP;
+      setDropdownRect({
+        top: rect.bottom - viewportTop + GAP,
+        bottom: undefined,
+        left: rect.left,
+        width: rect.width,
+        maxHeight: Math.min(MAX, availableBelow),
+      });
+    }
   }, []);
 
   const fetchSuggestions = useCallback(async (input: string) => {
@@ -128,12 +163,18 @@ export function AddressInput({
 
   useEffect(() => {
     if (!open) return;
-    const onScrollOrResize = () => updateDropdownPosition();
-    window.addEventListener("resize", onScrollOrResize);
-    window.addEventListener("scroll", onScrollOrResize, true);
+    const update = () => updateDropdownPosition();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    // visualViewport fires when the soft keyboard appears/disappears on mobile,
+    // giving us an accurate height to recompute flip direction.
+    window.visualViewport?.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("scroll", update);
     return () => {
-      window.removeEventListener("resize", onScrollOrResize);
-      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+      window.visualViewport?.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("scroll", update);
     };
   }, [open, updateDropdownPosition]);
 
@@ -191,11 +232,13 @@ export function AddressInput({
         createPortal(
           <div
             ref={dropdownRef}
-            className="fixed z-[100] max-h-[min(40vh,320px)] overflow-y-auto rounded-lg border border-border bg-popover shadow-lg"
+            className="fixed z-[100] overflow-y-auto rounded-lg border border-border bg-popover shadow-lg"
             style={{
               top: dropdownRect.top,
+              bottom: dropdownRect.bottom,
               left: dropdownRect.left,
               width: dropdownRect.width,
+              maxHeight: dropdownRect.maxHeight,
             }}
           >
             {displayed.map((s, i) => (

@@ -6,3 +6,5 @@
  */
 export { transferShiftTask } from "./transfer-shift";
 export { payoutShiftTask } from "./payout-shift";
+export { offerWorkerTask } from "./offer-worker";
+export { syncWorkerRatingTask } from "./sync-worker-rating";

@@ -7,13 +7,11 @@ import {
   listShiftsForWorkerOnDay,
 } from "@/features/shifts/dal/queries";
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
+import { getWorkerProfile } from "@/features/profile/dal/queries";
 import {
-  getWorkAuthorization,
-  getWorkerProfile,
-} from "@/features/profile/dal/queries";
-import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
-import { PayrollOnboardingTaskCard } from "@/features/payments/payroll/components/payroll-onboarding-task-card";
-import { payrollAccountMeetsOnboardingRequirements } from "@/features/payments/payroll/dal/queries";
+  getWorkerPendingActions,
+  type WorkerPendingAction,
+} from "@/features/workers/dal/queries";
 import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
@@ -124,12 +122,11 @@ async function TodayShifts({ workerId }: { workerId: string }) {
   );
 }
 
-type PendingAction = {
-  id: string;
+/** UI-enriched version of WorkerPendingAction — adds JSX fields for rendering. */
+type PendingAction = WorkerPendingAction & {
   title: string;
   description: string;
   icon?: ReactNode;
-  href?: string;
   badge?: { label: string; icon?: ReactNode };
 };
 
@@ -140,69 +137,41 @@ async function PendingActions({
   userId: string;
   photoUrl: string | null;
 }) {
-  const [professionInterview, resumeInterview, workAuth, payrollOk, t] =
-    await Promise.all([
-      getInterviewBySubjectForUser("profession", userId),
-      getInterviewBySubjectForUser("resume", userId),
-      getWorkAuthorization(),
-      payrollAccountMeetsOnboardingRequirements(userId),
-      getTranslations("dashboard.worker.home"),
-    ]);
+  const [pending, t] = await Promise.all([
+    getWorkerPendingActions(userId, photoUrl),
+    getTranslations("dashboard.worker.home"),
+  ]);
 
-  const actions: PendingAction[] = [];
+  if (pending.length === 0) return null;
 
-  if (!photoUrl) {
-    actions.push({
-      id: "profile-photo",
-      title: t("photoCard.title"),
+  /** Map each DAL action id → UI-layer icon + i18n strings. */
+  const iconMap: Record<string, { title: string; description: string; icon: ReactNode }> = {
+    "profile-photo": {
+      title:       t("photoCard.title"),
       description: t("photoCard.description"),
-      icon: <CameraIcon className="size-5 text-primary" />,
-      href: "/dashboard/profile",
-    });
-  }
-
-  if (!professionInterview?.completed_at) {
-    actions.push({
-      id: "profession-interview",
-      title: t("professionInterview.title"),
+      icon:        <CameraIcon className="size-5 text-primary" />,
+    },
+    "profession-interview": {
+      title:       t("professionInterview.title"),
       description: t("professionInterview.description"),
-      icon: <StethoscopeIcon className="size-5 text-primary" />,
-      href: "/dashboard/assessments",
-    });
-  }
-
-  if (!resumeInterview?.completed_at) {
-    actions.push({
-      id: "resume-interview",
-      title: t("resumeInterview.title"),
+      icon:        <StethoscopeIcon className="size-5 text-primary" />,
+    },
+    "resume-interview": {
+      title:       t("resumeInterview.title"),
       description: t("resumeInterview.description"),
-      icon: <FileTextIcon className="size-5 text-primary" />,
-      href: "/dashboard/assessments",
-    });
-  }
+      icon:        <FileTextIcon className="size-5 text-primary" />,
+    },
+    "payroll-onboarding": {
+      title:       t("payrollOnboarding.title"),
+      description: t("payrollOnboarding.description"),
+      icon:        <WalletIcon className="size-5 text-primary" />,
+    },
+  };
 
-  // if (workAuth && workAuth.is_verified !== true) {
-  //   actions.push({
-  //     id: "work-authorization",
-  //     title: t("workAuth.title"),
-  //     description: t("workAuth.description"),
-  //     icon: <ShieldCheckIcon className="size-5 text-muted-foreground" />,
-  //     badge: {
-  //       label: t("workAuth.badge"),
-  //       icon: <CircleDashedIcon className="size-3 animate-spin" />,
-  //     },
-  //   });
-  // }
-
-  // if (!payrollOk.ok) {
-  //   actions.push({
-  //     id: "payroll-onboarding",
-  //     title: t("payrollOnboarding.title"),
-  //     description: t("payrollOnboarding.description"),
-  //     icon: <WalletIcon className="size-5 text-primary" />,
-  //     href: "/dashboard/payroll",
-  //   });
-  // }
+  const actions: PendingAction[] = pending.map((a) => ({
+    ...a,
+    ...iconMap[a.id],
+  }));
 
   if (actions.length === 0) return null;
 
@@ -217,17 +186,9 @@ async function PendingActions({
         </Badge>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {actions.map((a) =>
-          a.id === "payroll-onboarding" ? (
-            <PayrollOnboardingTaskCard
-              key={a.id}
-              title={a.title}
-              description={a.description}
-            />
-          ) : (
-            <PendingActionCard key={a.id} action={a} />
-          ),
-        )}
+        {actions.map((a) => (
+          <PendingActionCard key={a.id} action={a} />
+        ))}
       </div>
     </div>
   );
@@ -329,7 +290,9 @@ function ShiftsTableSkeleton() {
 
 export default async function WorkerHomePage() {
   const worker = await getWorkerProfile();
-  if (!worker) redirect("/onboarding/profile");
+  if (!worker) {
+    return redirect("/")
+  };
 
   const t = await getTranslations("dashboard.worker.home");
 

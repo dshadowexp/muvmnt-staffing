@@ -186,7 +186,7 @@ export default async function AdminRequestPage({ params }: PageProps) {
                         href={`/admin/shifts/${s.id}`}
                         className="text-primary hover:underline"
                       >
-                        {s.worker_id.slice(0, 8)}
+                        {s.worker_id?.slice(0, 8) ?? "—"}
                       </Link>
                     </TableCell>
                     <TableCell className="text-muted-foreground whitespace-nowrap">

@@ -5,6 +5,11 @@ import {
     DeleteObjectCommand,
     HeadObjectCommand,
     ListObjectsV2Command,
+    CreateMultipartUploadCommand,
+    UploadPartCommand,
+    CompleteMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+    type CompletedPart,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createHash } from 'node:crypto';
@@ -14,7 +19,7 @@ import { s3Client } from './client';
   
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type StorageFolder = 'avatars' | 'compliance' | 'receipts' | 'shifts' | 'feedback' | 'resumes'
+export type StorageFolder = 'avatars' | 'compliance' | 'receipts' | 'shifts' | 'feedback' | 'resumes' | 'interviews'
 
 export interface UploadParams {
     folder:      StorageFolder
@@ -201,6 +206,88 @@ class S3Api {
             mimeType:     'application/octet-stream', // HEAD each file for exact type if needed
             lastModified: obj.LastModified ?? new Date(),
         }))
+    }
+
+    // ─── Multipart upload (stream chunks directly from browser to S3) ─────────
+
+    /**
+     * Step 1 — called once at recording start.
+     * Returns an uploadId + key that identify this multipart session.
+     */
+    async initiateMultipartUpload(params: {
+        folder:   StorageFolder;
+        ownerId:  string;
+        filename: string;
+        mimeType: string;
+    }): Promise<{ uploadId: string; key: string }> {
+        const key = this.buildKey(params.folder, params.ownerId, params.filename);
+        const res = await this.s3.send(new CreateMultipartUploadCommand({
+            Bucket:      this.bucket,
+            Key:         key,
+            ContentType: params.mimeType,
+            Metadata:    { ownerId: params.ownerId, filename: params.filename },
+        }));
+        if (!res.UploadId) throw new Error('Failed to initiate multipart upload');
+        return { uploadId: res.UploadId, key };
+    }
+
+    /**
+     * Step 2 (per chunk) — generates a short-lived presigned PUT URL for one part.
+     * The browser uploads the chunk directly to S3 — this server never touches
+     * the raw bytes.
+     *
+     * NOTE: your S3 bucket's CORS policy must expose the `ETag` response header,
+     * otherwise `res.headers.get('ETag')` in the browser returns null.
+     * Add `ExposeHeaders: ['ETag']` to your bucket CORS configuration.
+     */
+    async presignedPartUrl(params: {
+        key:        string;
+        uploadId:   string;
+        partNumber: number;            // 1-indexed; max 10 000
+    }): Promise<string> {
+        return getSignedUrl(
+            this.s3,
+            new UploadPartCommand({
+                Bucket:     this.bucket,
+                Key:        params.key,
+                UploadId:   params.uploadId,
+                PartNumber: params.partNumber,
+            }),
+            { expiresIn: 3_600 },
+        );
+    }
+
+    /**
+     * Step 3 — called once after all parts are uploaded.
+     * Returns the permanent public URL of the assembled object.
+     */
+    async completeMultipartUpload(params: {
+        key:      string;
+        uploadId: string;
+        parts:    CompletedPart[];    // must be sorted by PartNumber ascending
+    }): Promise<string> {
+        await this.s3.send(new CompleteMultipartUploadCommand({
+            Bucket:           this.bucket,
+            Key:              params.key,
+            UploadId:         params.uploadId,
+            MultipartUpload:  { Parts: params.parts },
+        }));
+        return this.buildPublicUrl(params.key);
+    }
+
+    /**
+     * Best-effort cleanup — call on any error so incomplete uploads don't
+     * accumulate in S3 (you're billed for stored parts even if never completed).
+     */
+    async abortMultipartUpload(params: {
+        key:      string;
+        uploadId: string;
+    }): Promise<void> {
+        await this.s3.send(new AbortMultipartUploadCommand({
+            Bucket:   this.bucket,
+            Key:      params.key,
+            UploadId: params.uploadId,
+        }));
     }
 
     // ─── Private ─────────────────────────────────────────────────────────────

@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 import { VoiceProvider } from "@humeai/voice-react";
+
+function parseDurationToSeconds(ts: string | null | undefined): number {
+  if (!ts) return 0;
+  const parts = ts.split(":").map(Number);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return 0;
+}
 import { useLocale, useTranslations } from "next-intl";
 import { InterviewShell } from "../_components/interview-shell";
 import { ResumeUpload } from "./_resume-upload";
@@ -39,6 +47,7 @@ export function ResumeInterviewClient({
     return (
       <ResumeUpload
         existingInterview={existingInterview}
+        candidateName={userName}
         onResumeReady={setReady}
       />
     );
@@ -50,6 +59,8 @@ export function ResumeInterviewClient({
         accessToken={accessToken}
         subject="resume"
         interviewId={ready.interviewId}
+        chatGroupId={existingInterview?.chat_group_id ?? undefined}
+        savedDurationSecs={parseDurationToSeconds(existingInterview?.duration)}
         subjectRef={{
           key: ready.ref.key,
           body: ready.ref.body.slice(0, 4000),

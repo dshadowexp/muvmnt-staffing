@@ -19,6 +19,9 @@ export type ShiftActionContext = {
     staff_requests: {
         client_user_id: string;
         pricing_tier: string | null;
+        /** H3 cell id — used to build the candidate search ring. */
+        cell_id: string | null;
+        profession: string;
         requirements: string[];
         daily_time_windows: unknown;
     } | null;
@@ -474,6 +477,8 @@ export async function getShiftWithStaffRequest(
             staff_requests!inner (
                 client_user_id,
                 pricing_tier,
+                cell_id,
+                profession,
                 requirements,
                 daily_time_windows
             )
