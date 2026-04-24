@@ -13,9 +13,7 @@
     "typecheck": "tsc --noEmit",
     "trigger:dev": "npx trigger.dev@latest dev",
     "trigger:deploy": "npx trigger.dev@latest deploy",
-    "gen-types": "supabase gen types typescript --project-id gyjvlazhyqoqlfldlcfn --schema public > ./services/supabase/types/database.ts",
-    "link": "supabase link --project-ref gyjvlazhyqoqlfldlcfn",
-    "dump-schema": "supabase db dump --schema public > ./schema.sql"
+    "gen-types": "supabase gen types typescript --project-id gyjvlazhyqoqlfldlcfn --schema public > ./services/supabase/types/database.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.43",
@@ -81,7 +79,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.18",
-    "@trigger.dev/build": "^4.4.0",
+    "@trigger.dev/build": "4.4.4",
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
