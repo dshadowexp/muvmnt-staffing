@@ -32,7 +32,7 @@ import {
   AuthLegalNote,
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, signUpWithEmail } from "@/services/firebase/auth";
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 import posthog from "posthog-js";
 
 export function SignUpForm() {

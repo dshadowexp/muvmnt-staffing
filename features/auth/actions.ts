@@ -2,7 +2,7 @@
 
 import { getAdminAuth } from "@/services/firebase/admin";
 import { findOrCreateUser } from "@/features/users/dal/mutations";
-import type { UserAuth, UserRole } from "@/types/auth";
+import type { UserAuth, UserRole } from "@/features/auth/types";
 
 /**
  * Frontend-side equivalent of the legacy server `AuthService.exchangeToken`.

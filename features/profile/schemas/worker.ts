@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { normalizeProfessionId, tryNormalizeProfessionId } from "@/lib/professions";
-import type { ProfessionalRole } from "@/types";
 
 export const WORKER_GENDERS = ["male", "female"] as const;
 export type WorkerGender = (typeof WORKER_GENDERS)[number];

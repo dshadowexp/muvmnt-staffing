@@ -7,7 +7,7 @@ import {
   canAccessStep,
   getRedirectForIncompleteDependencies,
 } from "@/features/onboarding/types";
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 
 /**
  * Ensures the user may open this onboarding step (dependencies completed in Supabase).

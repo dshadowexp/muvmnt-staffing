@@ -3,7 +3,6 @@
 import * as React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useTranslations } from "next-intl";
-import type { RequesterType } from "@/types";
 import {
   INDIVIDUAL_CLIENT_TYPE,
   ORGANIZATION_REQUESTER_TYPES,
@@ -107,7 +106,7 @@ export function ClientProfileForm({ form }: ClientProfileFormProps) {
           single
           values={watch("type") ? [watch("type")] : []}
           onValuesChange={(v) =>
-            setValue("type", (v[0] ?? "") as RequesterType, {
+            setValue("type", (v[0] ?? ""), {
               shouldValidate: true,
             })
           }

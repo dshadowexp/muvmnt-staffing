@@ -1,4 +1,4 @@
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 import { STEPS_BY_ROLE } from "@/features/onboarding/steps";
 import type { OnboardingStepsJson } from "@/features/onboarding/types";
 import { getOnboardingBlockerRoute } from "@/features/onboarding/types";

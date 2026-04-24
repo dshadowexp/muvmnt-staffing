@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/services/supabase/server";
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 import type { Database } from "@/services/supabase/types/database";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { env } from "@/data/env/server";

@@ -4,7 +4,7 @@ import { addDays, parseISO } from "date-fns";
 import { formatInTimeZone, toDate } from "date-fns-tz";
 import { createAdminClient } from "@/services/supabase/server";
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
-import type { DaySchedule, WorkerAssignment } from "./matching";
+import type { DaySchedule } from "./matching";
 
 const SHIFT_HOURLY_RATE_SHARE_OF_REQUEST = 0.75;
 

@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PROFESSIONAL_ROLES } from "@/lib/constants";
-import type { ProfessionalRole } from "@/types";
+import { ProfessionalRole } from "@/lib/professions";
 import {
   WORKER_GENDERS,
   getLatestAllowedWorkerBirthDate,

@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useMultistepForm, type MultistepFormStep } from "@/hooks/use-multistep-form";
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 import { STEPS_BY_ROLE } from "./steps";
 import type { OnboardingStepsJson } from "./types";
 

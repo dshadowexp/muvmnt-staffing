@@ -1,10 +1,5 @@
-import type {
-  Province, AvailabilityType,
-  WorkSetting, FormStep, RequesterType, ShiftType, RequestUrgency,
-  WorkAuthorization,
-} from "@/types";
 import { PROFESSION_IDS, type ProfessionalRole } from "@/lib/professions";
-import { UserRole } from "@/types/auth";
+import { UserRole } from "@/features/auth/types";
 import { env } from "@/data/env/client";
 
 // ── Site ─────────────────────────────────────────────────────────────────────
@@ -52,8 +47,41 @@ export const DASHBOARD_PREFIXES: Record<UserRole, string[]> = {
   admin:  ["/dashboard/admin", "/dashboard/referrals"],
 };
 
+export type RequesterType =
+  | "Long-Term Care Home"
+  | "Hospital"
+  | "Retirement Community"
+  | "Home Care Agency"
+  | "Community Health Centre"
+  | "Rehabilitation Centre"
+  | "Dental / Medical Clinic"
+  | "Individual"
+  | "Other";
+
+// ── Client (Find Talent) ──────────────────────────────────────────────────────
+export const REQUESTER_TYPES: RequesterType[] = [
+  "Long-Term Care Home",
+  "Hospital",
+  "Retirement Community",
+  "Home Care Agency",
+  "Community Health Centre",
+  "Rehabilitation Centre",
+  "Dental / Medical Clinic",
+  "Individual",
+  "Other",
+];
+
+/** Stored `clients.type` value for individual / private home-care accounts. */
+export const INDIVIDUAL_CLIENT_TYPE =
+  "Individual" as const satisfies RequesterType;
+
+/** Facility types when the account represents an organization (excludes individual). */
+export const ORGANIZATION_REQUESTER_TYPES: RequesterType[] =
+  REQUESTER_TYPES.filter((t) => t !== INDIVIDUAL_CLIENT_TYPE);
+
+
 // ── Professional (Find Work) ──────────────────────────────────────────────────
-export const WORK_AUTHORIZATION_TYPES: WorkAuthorization[] = [
+export const WORK_AUTHORIZATION_TYPES: string[] = [
   "Canadian Citizen",
   "Permanent Resident",
   "Open Work Permit",
@@ -82,7 +110,7 @@ export {
 /** Ordered list of profession ids (labels from `messages` → `professions`). */
 export const PROFESSIONAL_ROLES: ProfessionalRole[] = [...PROFESSION_IDS];
 
-export const PROVINCES: Province[] = [
+export const PROVINCES: string[] = [
   "Ontario",
   "Alberta",
   "British Columbia",
@@ -93,66 +121,6 @@ export const PROVINCES: Province[] = [
   "Manitoba",
   "Saskatchewan",
   "Quebec",
-];
-
-export const AVAILABILITY_OPTIONS: AvailabilityType[] = [
-  "Full-Time",
-  "Part-Time",
-  "Casual / Relief",
-  "Travel",
-];
-
-export const WORK_SETTINGS: WorkSetting[] = [
-  "Long-Term Care",
-  "Hospital",
-  "Home Care",
-  "Retirement Community",
-  "Community Clinic",
-  "Rehabilitation Centre",
-];
-
-export const FORM_STEPS: FormStep[] = [
-  { id: 1, title: "Personal Info",       description: "Tell us about yourself" },
-  { id: 2, title: "Professional Details", description: "Your credentials & availability" },
-  { id: 3, title: "Resume & Message",    description: "Upload your resume" },
-];
-
-// ── Client (Find Talent) ──────────────────────────────────────────────────────
-export const REQUESTER_TYPES: RequesterType[] = [
-  "Long-Term Care Home",
-  "Hospital",
-  "Retirement Community",
-  "Home Care Agency",
-  "Community Health Centre",
-  "Rehabilitation Centre",
-  "Dental / Medical Clinic",
-  "Individual",
-  "Other",
-];
-
-/** Stored `clients.type` value for individual / private home-care accounts. */
-export const INDIVIDUAL_CLIENT_TYPE =
-  "Individual" as const satisfies RequesterType;
-
-/** Facility types when the account represents an organization (excludes individual). */
-export const ORGANIZATION_REQUESTER_TYPES: RequesterType[] =
-  REQUESTER_TYPES.filter((t) => t !== INDIVIDUAL_CLIENT_TYPE);
-
-export const SHIFT_TYPES: ShiftType[] = [
-  "Day",
-  "Evening",
-  "Night",
-  "Rotating",
-  "Flexible",
-];
-
-export const STAFF_COUNT_OPTIONS = ["1", "2–5", "6–10", "10+"] as const;
-
-export const URGENCY_OPTIONS: RequestUrgency[] = [
-  "Emergency (today)",
-  "Within 48 hours",
-  "This week",
-  "Planning ahead",
 ];
 
 // ── Landing — unlocalized structural data ────────────────────────────────────

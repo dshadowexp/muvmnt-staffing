@@ -7,9 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { tryNormalizeProfessionId } from "@/lib/professions";
+import { ProfessionalRole, tryNormalizeProfessionId } from "@/lib/professions";
 import { PROFESSIONAL_ROLES } from "@/lib/constants";
-import type { ProfessionalRole } from "@/types";
 import {
   workerProfessionExperienceSchema,
   type WorkerProfessionExperienceValues,

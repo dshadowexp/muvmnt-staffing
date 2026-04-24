@@ -5,7 +5,7 @@ import {
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getSession } from "@/lib/session";
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 
 import { getOnboardingResumeRoute } from "@/features/onboarding/lib/resume-route";
 

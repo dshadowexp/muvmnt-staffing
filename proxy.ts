@@ -8,7 +8,7 @@ import {
     INACTIVE_PREFIXES,
     DASHBOARD_PREFIXES,
 } from "./lib/constants";
-import { UserAuth, UserRole } from "./types/auth";
+import { UserAuth, UserRole } from "./features/auth/types";
 import arcjet, { detectBot, shield, slidingWindow } from "@/services/arcjet/client";
 
 const ajBase = arcjet

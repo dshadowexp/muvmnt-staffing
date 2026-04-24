@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
-import type { UserAuth } from "@/types/auth";
+import type { UserAuth } from "@/features/auth/types";
 
 /** Cookie read deduped per request — safe to await from multiple Server Components. */
 export const getSession = cache(async (): Promise<UserAuth | null> => {

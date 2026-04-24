@@ -1,4 +1,4 @@
-import type { DaySchedule } from "../types/staff-match";
+import type { DaySchedule } from "../server/matching";
 
 /** One scheduled time-of-day window expressed as `HH:mm` strings. */
 export type StaffRequestPricingDraft = {

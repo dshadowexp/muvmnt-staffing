@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { WORK_AUTHORIZATION_TYPES } from "@/lib/constants";
-import type { WorkAuthorization } from "@/types";
 
 type AuthorizationValidationKey =
   | "workAuthorizationRequired"
@@ -10,6 +9,13 @@ type AuthorizationValidationKey =
   | "socialNumberExpiryRequired"
   | "socialNumberExpiryInvalid"
   | "socialNumberExpiryPast";
+
+export type WorkAuthorization =
+  | "Canadian Citizen"
+  | "Permanent Resident"
+  | "Open Work Permit"
+  | "Closed Work Permit"
+  | "Study Permit (with work authorization)";
 
 /**
  * Authorization types whose holder must provide an expiry for the SIN they

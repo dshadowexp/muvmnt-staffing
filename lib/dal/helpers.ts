@@ -6,7 +6,7 @@ import {
   DalReturn,
   ThrowableDalError,
 } from "./types"
-import { UserAuth, UserRole } from "@/types/auth"
+import { UserAuth, UserRole } from "@/features/auth/types"
 import { getSession } from "@/lib/session"
 
 export function dalLoginRedirect<T, E extends DalError>(

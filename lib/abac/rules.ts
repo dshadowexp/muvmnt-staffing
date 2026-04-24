@@ -1,4 +1,4 @@
-import { UserRole } from "@/types/auth"
+import { UserRole } from "@/features/auth/types"
 
 export type Comment = {
   id: string

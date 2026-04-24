@@ -7,7 +7,7 @@ import {
     MapPin,
     CalendarClock,
 } from "lucide-react";
-import { UserRole } from "@/types/auth";
+import { UserRole } from "@/features/auth/types";
 import { MultistepFormStep } from "@/hooks/use-multistep-form";
 
 export type { OnboardingStepState } from "@/features/onboarding/types";

@@ -1,6 +1,6 @@
 'use server';
 
-import { UserAuth } from "@/types/auth";
+import { UserAuth } from "@/features/auth/types";
 import { cookies } from "next/headers";
 
 export const setSession = async (user: UserAuth) => {

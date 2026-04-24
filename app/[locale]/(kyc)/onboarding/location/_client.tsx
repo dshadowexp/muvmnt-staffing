@@ -10,7 +10,7 @@ import type { AddressLocation } from "@/features/geo/types";
 import { AddressCard } from "@/features/geo/components/address-card";
 import { ClientLocationDetailInputs } from "@/features/geo/components/client-location-detail-inputs";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
-import type { UserRole } from "@/types/auth";
+import type { UserRole } from "@/features/auth/types";
 import { locationAction } from "./_action";
 
 interface LocationFormProps {

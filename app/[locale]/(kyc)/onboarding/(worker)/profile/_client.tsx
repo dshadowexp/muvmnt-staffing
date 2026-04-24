@@ -14,13 +14,13 @@ import {
   WorkerProfileValues,
   type WorkerGender,
 } from "@/features/profile/schemas/worker";
-import { ProfessionalRole } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { profileAction } from "./_action";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import posthog from "posthog-js";
+import { ProfessionalRole } from "@/lib/professions";
 
 export function ProfileClient({
   workerProfile,

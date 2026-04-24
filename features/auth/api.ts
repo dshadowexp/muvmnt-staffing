@@ -1,4 +1,4 @@
-import { UserRole } from "@/types/auth";
+import { UserRole } from "@/features/auth/types";
 import { setSession } from "../../lib/session";
 import { env } from "@/data/env/client";
 

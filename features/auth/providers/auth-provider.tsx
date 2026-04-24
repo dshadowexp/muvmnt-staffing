@@ -14,7 +14,7 @@ import React, {
 } from "react";
 import { auth } from "@/services/firebase/auth";
 import { deleteSession, setSession } from "@/lib/session";
-import { UserAuth, UserRole } from "@/types/auth";
+import { UserAuth, UserRole } from "@/features/auth/types";
 import { useRouter } from "@/i18n/navigation";
 import { logout } from "@/services/firebase/auth";
 import { recordReferralAction } from "@/features/referrals/actions";

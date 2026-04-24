@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { WORK_AUTHORIZATION_TYPES } from "@/lib/constants";
-import type { WorkAuthorization } from "@/types";
+import type { WorkAuthorization } from "@/features/profile/schemas/authorization";
 import { cn } from "@/lib/utils";
 import {
   buildAuthorizationSchema,
