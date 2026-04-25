@@ -19,7 +19,7 @@ export function VerificationClient() {
             <EmailVerification />
             <Separator className="my-6" />
             {authUser?.role === "worker" && <PhoneVerification />}
-            {(!firebaseUser?.emailVerified || !firebaseUser?.phoneNumber) && (
+            {(firebaseUser?.emailVerified && firebaseUser?.phoneNumber) && (
                 <form action={formAction}>
                     <ContinueButton />
                 </form>
