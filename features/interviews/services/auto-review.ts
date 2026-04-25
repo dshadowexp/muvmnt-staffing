@@ -147,58 +147,30 @@ export async function tryAutoReview(
 
     const firstName = worker?.first_name ?? "there";
 
-    // 7. For the combined interview the candidate has completed a single unified
-    //    assessment — promote immediately. For legacy separate-interview subjects
-    //    ("profession" / "resume") check that the other half has also been passed.
-    let bothPassed: boolean;
-    if (interview.subject === "combined") {
-      bothPassed = true;
+    // 7. Promote worker to compliance stage
+    const { error: promoteError } = await supabase
+      .from("workers")
+      .update({ stage: "compliance" })
+      .eq("user_id", userId)
+      .or("stage.is.null,stage.eq.interview");
+
+    if (promoteError) {
+      console.error("[auto-review] Failed to promote worker to compliance", {
+        userId,
+        promoteError,
+      });
     } else {
-      const { data: otherPassed } = await supabase
-        .from("interviews")
-        .select("id")
-        .eq("user_id", userId)
-        .neq("id", interviewId)
-        .eq("reviewed", true)
-        .eq("result", "pass")
-        .limit(1)
-        .maybeSingle();
-
-      bothPassed = otherPassed != null;
+      console.log("[auto-review] Worker promoted to compliance ✓", { userId });
     }
 
-    // 8. Promote to compliance only when all required interviews are done
-    if (bothPassed) {
-      const { error: promoteError } = await supabase
-        .from("workers")
-        .update({ stage: "compliance" })
-        .eq("user_id", userId)
-        .or("stage.is.null,stage.eq.interview");
-
-      if (promoteError) {
-        console.error("[auto-review] Failed to promote worker to compliance", {
-          userId,
-          promoteError,
-        });
-      } else {
-        console.log("[auto-review] Worker promoted to compliance ✓", { userId });
-      }
-    }
-
-    // 9. Send email + push notification
+    // 8. Send email + push notification
     const complianceUrl = `${env.APP_URL}/dashboard/compliance`;
-    const assessmentsUrl = `${env.APP_URL}/dashboard/assessments`;
-
-    const emailSubject = bothPassed
-      ? "You passed your interview — you're now in the compliance stage"
-      : "You passed your interview — one more to go";
+    const dashboardUrl = `${env.APP_URL}/dashboard`;
 
     const notificationData = {
       firstName,
-      subject: interview.subject,
       complianceUrl,
-      assessmentsUrl,
-      otherInterviewPending: !bothPassed,
+      dashboardUrl,
     };
 
     await enqueueNotification({
@@ -206,7 +178,7 @@ export async function tryAutoReview(
       channels: [
         {
           channel: "email",
-          subject: emailSubject,
+          subject: "You passed your interview — you're now in the compliance stage",
           template: "interview-passed",
           data: notificationData,
         },
@@ -221,7 +193,6 @@ export async function tryAutoReview(
     console.log("[auto-review] Notification enqueued ✓", {
       interviewId,
       userId,
-      bothPassed,
     });
   } catch (err) {
     // Non-fatal — never let auto-review failures bubble up to the parent task

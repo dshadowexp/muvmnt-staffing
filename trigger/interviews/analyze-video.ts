@@ -20,7 +20,7 @@ const payloadSchema = z.object({
 export const analyzeInterviewVideoTask = schemaTask({
   id: "interviews.analyze-video",
   schema: payloadSchema,
-  maxDuration: 600,
+  maxDuration: 3600,
   retry: {
     maxAttempts: 2,
   },

@@ -1,23 +1,13 @@
-{{#> email-base previewText="You passed your interview — your next step is ready"}}
+{{#> email-base previewText="You passed your interview — you're now in the compliance stage"}}
   {{#*inline "body"}}
     <p class="label">Interview result</p>
     <h1>You passed your interview 🎉</h1>
     <p>Hi {{firstName}},</p>
     <p>
-      We&apos;ve reviewed your <strong>{{subject}}</strong> interview and we&apos;re pleased to confirm that you&apos;ve <strong>passed</strong>.
+      We&apos;ve reviewed your interview and we&apos;re pleased to confirm that you&apos;ve <strong>passed</strong>. Congratulations!
     </p>
-    {{#if otherInterviewPending}}
     <p>
-      You&apos;re making great progress! You still have one more interview to complete before your application can move forward. Head to your assessments page to finish up.
-    </p>
-    <a href="{{assessmentsUrl}}" class="btn">Complete your remaining interview</a>
-    <p style="margin-top:28px;font-size:13px;color:#888">
-      If the button does not work, copy this link into your browser:<br>
-      <a href="{{assessmentsUrl}}" style="color:#888">{{assessmentsUrl}}</a>
-    </p>
-    {{else}}
-    <p>
-      Both your interviews are now complete — congratulations! Your account has been moved to the compliance stage. You can now begin uploading your compliance documents, which are required before you can be placed on shifts.
+      Your account has been moved to the compliance stage. You can now begin uploading your compliance documents, which are required before you can be placed on shifts.
     </p>
     <p>
       Head to your compliance page to get started:
@@ -27,6 +17,5 @@
       If the button does not work, copy this link into your browser:<br>
       <a href="{{complianceUrl}}" style="color:#888">{{complianceUrl}}</a>
     </p>
-    {{/if}}
   {{/inline}}
 {{/email-base}}

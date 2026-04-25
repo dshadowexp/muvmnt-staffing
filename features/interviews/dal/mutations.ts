@@ -77,7 +77,7 @@ export async function generateInterviewFeedback(interviewId: string) {
       interviewInfo: {
         title: interview.subject,
         profession: interview.subject,
-        description: subjectRef.body,
+        description: subjectRef.resumeSummary,
       },
       userName: user.email ?? "",
     });

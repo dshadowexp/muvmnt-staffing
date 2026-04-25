@@ -60,15 +60,12 @@ export async function submitInterviewReviewAction(
 
   const template = result === "pass" ? "interview-passed" : "interview-failed";
   const complianceUrl = `${env.APP_URL}/dashboard/compliance`;
-  const assessmentsUrl = `${env.APP_URL}/dashboard/assessments`;
+  const dashboardUrl = `${env.APP_URL}/dashboard`;
 
   const notificationData = {
     firstName,
-    subject: row.subject,
-    // Pass both URLs; the template decides which to surface
-    dashboardUrl: result === "pass" ? complianceUrl : assessmentsUrl,
     complianceUrl,
-    promoted,
+    dashboardUrl,
   };
 
   // 5. Enqueue email + push notification (fire-and-forget on failure — the

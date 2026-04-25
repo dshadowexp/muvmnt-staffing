@@ -42,7 +42,7 @@ export default async function PricingStepPage({ params }: PageProps) {
     }
 
     return (
-        <div className="w-full max-w-3xl space-y-6">
+        <div className="w-full max-w-5xl mx-auto space-y-5">
             <header className="space-y-2">
                 <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                     {t("step2Title")}

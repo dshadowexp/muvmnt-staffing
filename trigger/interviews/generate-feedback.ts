@@ -61,9 +61,11 @@ export const generateInterviewFeedbackTask = schemaTask({
 
     const subjectRef = parseInterviewSubjectRef(interview.subject_ref);
     const description =
-      subjectRef.body.trim().length > 0
-        ? subjectRef.body
-        : "General interview practice session.";
+      subjectRef.resumeSummary.trim().length > 0
+        ? subjectRef.resumeSummary
+        : subjectRef.professionContext.trim().length > 0
+          ? subjectRef.professionContext
+          : "General interview practice session.";
 
     const interviewInfo = {
       title: interview.subject.replace(/_/g, " "),

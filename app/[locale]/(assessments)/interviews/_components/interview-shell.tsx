@@ -11,6 +11,16 @@ import { InterviewHeader } from "./interview-header";
 import { errorToast } from "@/components/error-toast";
 import { env } from "@/data/env/client";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useLocale } from "next-intl";
+import { routing } from "@/i18n/routing";
+import { LOCALE_LABELS } from "@/lib/constants";
+import {
   CheckCircle2Icon,
   MicIcon,
   MicOffIcon,
@@ -332,12 +342,41 @@ function MicCheckMeter({
   );
 }
 
+function LanguageSelector({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (locale: string) => void;
+}) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {routing.locales.map((locale) => (
+          <SelectItem key={locale} value={locale}>
+            {LOCALE_LABELS[locale] ?? locale.toUpperCase()}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 function DeviceSetupCard({
   onStart,
   isResuming = false,
+  selectedLocale,
+  onLocaleChange,
 }: {
   onStart: () => Promise<void>;
   isResuming?: boolean;
+  initialLocale: string;
+  selectedLocale: string;
+  onLocaleChange: (locale: string) => void;
+
 }) {
   const t = useTranslations("assessments.interview.setup");
   const [micOn, setMicOn] = useState(false);
@@ -408,6 +447,14 @@ function DeviceSetupCard({
   return (
         <Card className="w-full max-w-lg lg:h-full">
           <CardContent className="flex h-full flex-col gap-5">
+            {!isResuming && (
+              <div className="w-full space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("languageLabel")}
+                </p>
+                <LanguageSelector value={selectedLocale} onChange={onLocaleChange} />
+              </div>
+            )}
             {isResuming ? (
               <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900 dark:bg-blue-950/30">
                 <p className="text-xs font-medium text-blue-800 dark:text-blue-400">
@@ -420,6 +467,8 @@ function DeviceSetupCard({
                 {t("durationNotice")}
               </p>
             )}
+
+
 
             <div className="flex flex-1 flex-col items-center justify-center gap-5">
               <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
@@ -485,30 +534,30 @@ function DeviceSetupCard({
                   )}
                 </DeviceRow>
               </div>
-
+            
               <Button
-              size="lg"
-              disabled={!canStart || starting}
-              onClick={async () => {
-                setStarting(true);
-                camStreamRef.current?.getTracks().forEach((track) => track.stop());
-                camStreamRef.current = null;
-                await onStart();
-                setStarting(false);
-              }}
-              className="w-full"
-            >
-              {starting ? (
-                <>
-                  <CircleDashedIcon className="size-4 animate-spin" />
-                  {t("starting")}
-                </>
-              ) : isResuming ? (
-                t("resume")
-              ) : (
-                t("start")
-              )}
-            </Button>
+                size="lg"
+                disabled={!canStart || starting}
+                onClick={async () => {
+                  setStarting(true);
+                  camStreamRef.current?.getTracks().forEach((track) => track.stop());
+                  camStreamRef.current = null;
+                  await onStart();
+                  setStarting(false);
+                }}
+                className="w-full"
+              >
+                {starting ? (
+                  <>
+                    <CircleDashedIcon className="size-4 animate-spin" />
+                    {t("starting")}
+                  </>
+                ) : isResuming ? (
+                  t("resume")
+                ) : (
+                  t("start")
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -531,13 +580,14 @@ export function InterviewShell({
   returnPath,
 }: InterviewShellProps) {
   const router = useRouter();
+  const currentLocale = useLocale();
   const t = useTranslations("assessments.interview");
   const [interviewId, setInterviewId] = useState<string | null>(
     initialInterviewId ?? null,
   );
-  const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp } =
-    useVoice();
+  const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp, sendSessionSettings } = useVoice();
   const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(interviewId);
+  const [selectedLocale, setSelectedLocale] = useState<string>(currentLocale);
   const [finalizing, setFinalizing] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
@@ -547,6 +597,7 @@ export function InterviewShell({
   const lastSyncedChatIdRef = useRef<string | null>(null);
   const isNavigatingRef = useRef(false);
   const startingRef = useRef(false);
+  const closingSignalSentRef = useRef(false);
   const disconnectRef = useRef(disconnect);
   const disconnectedRef = useRef<boolean>(false);
   const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -630,6 +681,27 @@ export function InterviewShell({
       if (durationIntervalRef.current) clearInterval(durationIntervalRef.current);
     };
   }, [interviewId]);
+
+  useEffect(() => {
+    if (readyState === VoiceReadyState.CLOSED) {
+      closingSignalSentRef.current = false;
+    }
+  }, [readyState]);
+
+  useEffect(() => {
+    if (closingSignalSentRef.current) return;
+    if (readyState !== VoiceReadyState.OPEN) return;
+    if (remaining > 120 || remaining <= 0) return; // 120s = 2 min threshold
+  
+    closingSignalSentRef.current = true;
+  
+    sendSessionSettings({
+      context: {
+        type: "persistent",
+        text: "SYSTEM: Two minutes remaining in this interview. Begin wrapping up — ask no more than one final short question if mid-topic, then move into closing remarks and thank the candidate. Do not start any new topics.",
+      },
+    });
+  }, [remaining, readyState, sendSessionSettings]);
 
   // Auto-disconnect when time is up
   useEffect(() => {
@@ -721,7 +793,7 @@ export function InterviewShell({
           variables: {
             ...sessionVariables,
             duration: INTERVIEW_DURATION_SECS / 60,
-            start_time: new Date().toISOString(),
+            ...(!(!!chatGroupId && savedDurationSecs > 0) ? { language: selectedLocale } : {}),
           },
         },
         resumedChatGroupId: chatGroupId ?? undefined,
@@ -748,6 +820,9 @@ export function InterviewShell({
             <DeviceSetupCard
               onStart={handleStart}
               isResuming={!!chatGroupId && savedDurationSecs > 0}
+              initialLocale={currentLocale}
+              selectedLocale={selectedLocale}
+              onLocaleChange={setSelectedLocale}
             />
           </div>
         </main>

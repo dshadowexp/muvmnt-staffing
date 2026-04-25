@@ -68,7 +68,10 @@ type ExistingFile = {
 type Props = {
   existingInterview: InterviewRow | null;
   candidateName?: string;
+  professionLabel?: string;
+  professionContext?: string;
   onResumeReady: (payload: ResumeReadyPayload) => void;
+  onBack?: () => void; 
 };
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -110,23 +113,23 @@ function hydrateExisting(existingInterview: InterviewRow | null): {
     return { file: null, interviewId: null, summary: null, limit: 0 };
   }
   const ref = parseInterviewSubjectRef(existingInterview.subject_ref);
-  if (ref.key.length === 0) {
+  if (ref.resumeUrl.length === 0) {
     return {
       file: null,
       interviewId: existingInterview.id,
       summary: null,
-      limit: ref.limit,
+      limit: ref.uploadCount,
     };
   }
   return {
-    file: { key: ref.key, name: getFilenameFromKey(ref.key) },
+    file: { key: ref.resumeUrl, name: getFilenameFromKey(ref.resumeUrl) },
     interviewId: existingInterview.id,
-    summary: tryParseSummary(ref.body),
-    limit: ref.limit,
+    summary: tryParseSummary(ref.resumeSummary),
+    limit: ref.uploadCount,
   };
 }
 
-export function ResumeUpload({ existingInterview, candidateName, onResumeReady }: Props) {
+export function ResumeUpload({ existingInterview, candidateName, professionLabel, professionContext, onResumeReady, onBack }: Props) {
   const t = useTranslations("assessments.interview.resume");
   const initial = useRef(hydrateExisting(existingInterview)).current;
 
@@ -261,7 +264,13 @@ export function ResumeUpload({ existingInterview, candidateName, onResumeReady }
       } else {
         const created = await createAssessmentInterview({
           subject: "combined",
-          subjectRef: { key, body: "", limit: 1 },
+          subjectRef: { 
+            resumeUrl: key,
+            resumeSummary: "",
+            uploadCount: 1,
+            profession: "",
+            professionContext: "",
+          },
         });
         if (created.error) {
           toast.error(created.message);
@@ -322,8 +331,8 @@ export function ResumeUpload({ existingInterview, candidateName, onResumeReady }
     <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
 
       <InterviewHeader
-        backHref="/dashboard/assessments"
-        backTitle="Assessments"
+        backHref="/dashboard"
+        backTitle="Dashboard"
       />
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -350,12 +359,17 @@ export function ResumeUpload({ existingInterview, candidateName, onResumeReady }
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-8">
               <Dropzone
                 isDragOver={isDragOver}
                 setIsDragOver={setIsDragOver}
                 onFile={handleFileUpload}
               />
+              {onBack && (
+                <Button variant="ghost" size="lg" className="w-full" onClick={onBack}>
+                  {t("backToPhoto")}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -403,34 +417,48 @@ export function ResumeUpload({ existingInterview, candidateName, onResumeReady }
                   </p>
                 </div>
               )}
-              <Button
-                size="lg"
-                disabled={!ready || isSummarizing || isRemoving}
-                onClick={() => {
-                  if (
-                    !ready ||
-                    resumeKey == null ||
-                    interviewId == null ||
-                    summary == null
-                  ) {
-                    return;
-                  }
-                  onResumeReady({
-                    interviewId,
-                    ref: {
-                      key: resumeKey,
-                      body: JSON.stringify(summary),
-                      limit: uploadLimit,
-                    },
-                  });
-                }}
-                className="w-full"
-              >
-                {(isUploading || isSummarizing) && !isRemoving && (
-                  <CircleDashedIcon className="size-4 animate-spin" aria-hidden />
+              <div className="flex flex-col gap-7 mt-4">
+                <Button
+                  size="lg"
+                  disabled={!ready || isSummarizing || isRemoving}
+                  onClick={() => {
+                    if (
+                      !ready ||
+                      resumeKey == null ||
+                      interviewId == null ||
+                      summary == null
+                    ) {
+                      return;
+                    }
+                    onResumeReady({
+                      interviewId,
+                      ref: {
+                        resumeUrl: resumeKey,
+                        resumeSummary: JSON.stringify(summary),
+                        uploadCount: uploadLimit,
+                        profession: "",
+                        professionContext: "",
+                      },
+                    });
+                  }}
+                  className="w-full"
+                >
+                  {(isUploading || isSummarizing) && !isRemoving && (
+                    <CircleDashedIcon className="size-4 animate-spin" aria-hidden />
+                  )}
+                  {t("proceedToInterview")}
+                </Button>
+                {onBack && (
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    onClick={onBack}
+                    disabled={isUploading || isSummarizing}
+                  >
+                    {t("backToPhoto")}
+                  </Button>
                 )}
-                {t("proceedToInterview")}
-              </Button>
+              </div>
             </CardContent>
           </Card>
         )}

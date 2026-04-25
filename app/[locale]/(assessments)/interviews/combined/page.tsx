@@ -7,8 +7,7 @@ import { getSession } from "@/lib/session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
 import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";
-import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
-import { ResumeInterviewClient } from "./_resume-interview-client";
+import { ResumeInterviewClient } from "./_client";
 import { redirect } from "@/i18n/navigation";
 
 export default async function ResumeInterviewPage() {
@@ -35,9 +34,6 @@ async function SuspendedContent() {
 
   if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
-  // Guard: a profile photo is required before the interview can start.
-  if (!worker.photo_url) return redirect({ href: "/dashboard/profile", locale });
-
   const existing = await getInterviewBySubjectForUser(
     "combined",
     session.userId,
@@ -46,13 +42,10 @@ async function SuspendedContent() {
     return redirect({ href: `/assessments`, locale });
   }
 
-  const [accessToken, photoSrc] = await Promise.all([
-    fetchAccessToken({
-      apiKey: env.HUME_API_KEY,
-      secretKey: env.HUME_SECRET_KEY,
-    }),
-    resolveWorkerPhotoSrc(worker.photo_url),
-  ]);
+  const accessToken = await fetchAccessToken({
+    apiKey: env.HUME_API_KEY,
+    secretKey: env.HUME_SECRET_KEY,
+  });
 
   const t = await getTranslations("assessments.interview");
 
@@ -64,7 +57,7 @@ async function SuspendedContent() {
     <ResumeInterviewClient
       accessToken={accessToken}
       userName={userName}
-      userImage={photoSrc ?? ""}
+      photoUrl={worker.photo_url ?? null}
       profession={worker.profession ?? t("profession.fallbackProfession")}
       years_exp={worker.years_exp?.toString() ?? "0"}
       existingInterview={existing}

@@ -30,7 +30,7 @@ export default async function RequestsPage() {
 
   const t = await getTranslations("dashboard.client.requests");
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full max-w-5xl space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
           {t("title")}

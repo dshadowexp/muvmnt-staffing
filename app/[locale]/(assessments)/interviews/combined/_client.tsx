@@ -19,11 +19,12 @@ import type { InterviewRow } from "@/features/interviews/dal/queries";
 import { professionLabelEn } from "@/lib/labels-en";
 import { normalizeProfessionId } from "@/lib/professions";
 import { getProfessionContext } from "@/services/ai/interviews/profession-context";
+import { PhotoUploadStep } from "./_photo-upload";
 
 type Props = {
   accessToken: string;
   userName: string;
-  userImage: string;
+  photoUrl: string | null
   profession: string;
   years_exp: string;
   existingInterview: InterviewRow | null;
@@ -37,16 +38,31 @@ type ReadyState = {
 export function ResumeInterviewClient({
   accessToken,
   userName,
-  userImage,
+  photoUrl,
   profession,
   years_exp,
   existingInterview,
 }: Props) {
-  const t = useTranslations("assessments.interview.resume");
   const locale = useLocale();
+  const t = useTranslations("assessments.interview.resume");
   const [ready, setReady] = useState<ReadyState | null>(null);
+  const [photoReady, setPhotoReady] = useState(false);
+  const [userImage, setUserImage] = useState("");
+
   const professionKey = normalizeProfessionId(profession);
   const context = getProfessionContext(professionKey);
+
+  if (!photoReady) {
+    return (
+      <PhotoUploadStep
+        initialPhotoKey={photoUrl ?? undefined}
+        onComplete={(url) => {
+          setUserImage(url);
+          setPhotoReady(true);
+        }}
+      />
+    );
+  }
 
   if (!ready) {
     return (
@@ -54,6 +70,7 @@ export function ResumeInterviewClient({
         existingInterview={existingInterview}
         candidateName={userName}
         onResumeReady={setReady}
+        onBack={() => setPhotoReady(false)}
       />
     );
   }
@@ -67,9 +84,11 @@ export function ResumeInterviewClient({
         chatGroupId={existingInterview?.chat_group_id ?? undefined}
         savedDurationSecs={parseDurationToSeconds(existingInterview?.duration)}
         subjectRef={{
-          key: ready.ref.key,
-          body: ready.ref.body.slice(0, 4000),
-          limit: ready.ref.limit,
+          resumeUrl:         ready.ref.resumeUrl,
+          resumeSummary:     ready.ref.resumeSummary.slice(0, 4000),
+          uploadCount:       ready.ref.uploadCount,
+          profession:        ready.ref.profession,
+          professionContext: ready.ref.professionContext,
         }}
         title={t("interviewTitle")}
         description={t("interviewDescription", {
@@ -78,10 +97,10 @@ export function ResumeInterviewClient({
         sessionVariables={{
           language: locale,
           candidate_name: userName,
-          resume_text: ready.ref.body,
+          resume_text: ready.ref.resumeSummary,
           years_of_experience: years_exp,
-          profession: professionLabelEn(professionKey),
-          profession_context: context,
+          profession:         ready.ref.profession || professionLabelEn(professionKey),
+          profession_context: ready.ref.professionContext || context,
         }}
         user={{ name: userName, imageUrl: userImage }}
         returnPath="/dashboard/assessments"

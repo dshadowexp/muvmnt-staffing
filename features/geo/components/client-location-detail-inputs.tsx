@@ -6,7 +6,6 @@ import { useRouter } from "@/i18n/navigation";
 import type { AddressLocation } from "@/features/geo/types";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 type ClientLocationDetailInputsProps = {
   location: AddressLocation | null;
@@ -23,9 +22,6 @@ type ClientLocationDetailInputsProps = {
   disabled?: boolean;
 };
 
-/**
- * Suite, postal code, and site instructions — same fields as client onboarding location step.
- */
 export function ClientLocationDetailInputs({
   location,
   onPersist,
@@ -39,16 +35,14 @@ export function ClientLocationDetailInputs({
 
   const suiteRef = useRef<HTMLInputElement>(null);
   const postalCodeRef = useRef<HTMLInputElement>(null);
-  const instructionsRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (suiteRef.current) suiteRef.current.value = location?.addressLine2 ?? "";
     if (postalCodeRef.current) postalCodeRef.current.value = location?.postalCode ?? "";
-    if (instructionsRef.current) instructionsRef.current.value = location?.instructions ?? "";
-  }, [location?.id, location?.addressLine2, location?.postalCode, location?.instructions]);
+  }, [location?.id, location?.addressLine2, location?.postalCode]);
 
   async function handleDetailsBlur(
-    field: "addressLine2" | "postalCode" | "instructions",
+    field: "addressLine2" | "postalCode",
     value: string,
   ) {
     if (!location) return;
@@ -56,16 +50,13 @@ export function ClientLocationDetailInputs({
     const current =
       field === "addressLine2"
         ? location.addressLine2 ?? ""
-        : field === "postalCode"
-          ? location.postalCode ?? ""
-          : location.instructions ?? "";
+        : location.postalCode ?? "";
     if (trimmed === current.trim()) return;
 
     const next: AddressLocation = {
       ...location,
       addressLine2: field === "addressLine2" ? trimmed || null : location.addressLine2,
       postalCode: field === "postalCode" ? trimmed || null : location.postalCode,
-      instructions: field === "instructions" ? trimmed || null : location.instructions,
     };
 
     if (onChange) {
@@ -104,18 +95,6 @@ export function ClientLocationDetailInputs({
           onBlur={(e) => void handleDetailsBlur("postalCode", e.target.value)}
           placeholder={t("postalCodePlaceholder")}
           autoComplete="postal-code"
-          disabled={disabled}
-        />
-      </Field>
-      <Field className="min-w-0 sm:col-span-2">
-        <FieldLabel htmlFor={`${baseId}-instructions`}>{t("instructionsLabel")}</FieldLabel>
-        <Textarea
-          id={`${baseId}-instructions`}
-          ref={instructionsRef}
-          defaultValue={location.instructions ?? ""}
-          onBlur={(e) => void handleDetailsBlur("instructions", e.target.value)}
-          placeholder={t("instructionsPlaceholder")}
-          rows={4}
           disabled={disabled}
         />
       </Field>

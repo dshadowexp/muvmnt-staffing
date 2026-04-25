@@ -44,13 +44,6 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   sendClientInviteAction,
   sendWorkerInvitesAction,
 } from "@/features/admin/actions/invites";
@@ -238,46 +231,29 @@ function InviteClientFormDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useTranslations("dashboard.admin.inviteClient");
-  const [segment, setSegment] = React.useState<
-    "individual" | "organization" | null
-  >(null);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) {
-      setSegment(null);
       setName("");
       setEmail("");
       setSubmitting(false);
     }
   }, [open]);
 
-  const valid =
-    segment !== null && name.trim().length > 0 && isEmail(email);
-
-  const description =
-    segment === "individual"
-      ? t("descriptionIndividual")
-      : segment === "organization"
-        ? t("descriptionOrganization")
-        : t("description");
-
-  const namePlaceholder =
-    segment === "organization"
-      ? t("namePlaceholderOrganization")
-      : t("namePlaceholderIndividual");
+  const valid = name.trim().length > 0 && isEmail(email);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!valid || !segment) return;
+    if (!valid) return;
     setSubmitting(true);
     try {
       const res = await sendClientInviteAction({
         name: name.trim(),
         email: email.trim(),
-        segment,
+        segment: "organization",
       });
       if (res.sent > 0) {
         toast.success(t("toastQueued", { name: name.trim() }));
@@ -297,39 +273,17 @@ function InviteClientFormDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription>{t("descriptionOrganization")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="invite-client-segment">{t("accountKindLabel")}</Label>
-            <Select
-              value={segment ?? undefined}
-              onValueChange={(v) =>
-                setSegment(v as "individual" | "organization")
-              }
-            >
-              <SelectTrigger id="invite-client-segment" className="w-full">
-                <SelectValue placeholder={t("accountKindPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="individual">
-                  {t("accountKindIndividual")}
-                </SelectItem>
-                <SelectItem value="organization">
-                  {t("accountKindOrganization")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="invite-client-name">{t("nameLabel")}</Label>
             <Input
               id="invite-client-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={namePlaceholder}
+              placeholder={t("namePlaceholderOrganization")}
               required
             />
           </div>

@@ -50,12 +50,12 @@ export function CompliancesClient({ compliancesPromise, workAuthPromise, identit
         </p>
       </div>
 
-      <Suspense fallback={<SectionCardSkeleton lines={3} />}>
-        <WorkAuthCardSlot workAuthPromise={workAuthPromise} stage={stage} />
-      </Suspense>
-
       <Suspense fallback={<SectionCardSkeleton lines={2} />}>
         <IdentityVerificationCardSlot identityVerificationPromise={identityVerificationPromise} stage={stage} />
+      </Suspense>
+
+      <Suspense fallback={<SectionCardSkeleton lines={3} />}>
+        <WorkAuthCardSlot workAuthPromise={workAuthPromise} stage={stage} />
       </Suspense>
 
       {/* Compliance documents

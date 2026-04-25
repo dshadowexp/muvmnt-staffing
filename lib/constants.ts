@@ -6,6 +6,13 @@ import { env } from "@/data/env/client";
 // Brand / contact data. Localized copy lives in messages/{locale}.json.
 export const SITE_NAME  = "readykare";
 export const SITE_EMAIL = "support@readykare.com";
+
+// ── Locale labels ─────────────────────────────────────────────────────────────
+export const LOCALE_LABELS: Record<string, string> = {
+  en: "English",
+  fr: "Français",
+};
+
 // ─── Public (no session required) ────────────────────────────────────────────
 
 export const PUBLIC_PATHS = new Set([

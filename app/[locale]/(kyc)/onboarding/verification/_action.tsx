@@ -34,7 +34,7 @@ export const verifyDetailsAction = async (
       );
     }
   }
-  if (!user.is_phone_verified) {
+  if (user.role === "worker" && !user.is_phone_verified) {
     if (!firebaseUser.phoneNumber) return onboardingStepError("phoneNotVerified");
     try {
       await syncPhoneFromAuth(firebaseUser.phoneNumber);

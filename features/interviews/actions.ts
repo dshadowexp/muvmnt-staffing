@@ -59,10 +59,12 @@ export async function createAssessmentInterview({
       user_id: session.userId,
       subject,
       subject_ref: {
-        key: subjectRef.key,
-        body: subjectRef.body,
-        limit: subjectRef.limit,
-      },
+        resumeUrl:         subjectRef.resumeUrl,
+        resumeSummary:     subjectRef.resumeSummary,
+        uploadCount:       subjectRef.uploadCount,
+        profession:        subjectRef.profession,
+        professionContext: subjectRef.professionContext,
+      }
     });
     return { error: false, id: row.id };
   } catch (e) {
@@ -130,7 +132,13 @@ export async function updateInterviewSubjectRefBody(
 
   try {
     const row = await updateInterviewByOwner(id, session.userId, {
-      subject_ref: { key: existing.key, body, limit: existing.limit },
+      subject_ref: {
+        resumeUrl:         existing.resumeUrl,
+        resumeSummary:     body,
+        uploadCount:       existing.uploadCount,
+        profession:        existing.profession,
+        professionContext: existing.professionContext,
+      }
     });
     if (row == null) {
       return { error: true, message: "Interview not found" };
@@ -166,7 +174,7 @@ export async function bumpInterviewSubjectRefUpload(
   }
 
   const existing = parseInterviewSubjectRef(interview.subject_ref);
-  if (existing.limit >= RESUME_UPLOAD_LIMIT) {
+  if (existing.uploadCount >= RESUME_UPLOAD_LIMIT) {
     return {
       error: true,
       message: "Maximum number of resume changes reached",
@@ -174,16 +182,22 @@ export async function bumpInterviewSubjectRefUpload(
     };
   }
 
-  const nextLimit = existing.limit + 1;
+  const nextCount = existing.uploadCount + 1;
 
   try {
     const row = await updateInterviewByOwner(id, session.userId, {
-      subject_ref: { key: newKey, body: "", limit: nextLimit },
+      subject_ref: {
+        resumeUrl:         newKey,
+        resumeSummary:     "",
+        uploadCount:       nextCount,
+        profession:        existing.profession,
+        professionContext: existing.professionContext,
+      }
     });
     if (row == null) {
       return { error: true, message: "Interview not found" };
     }
-    return { error: false, limit: nextLimit };
+    return { error: false, limit: nextCount };
   } catch (e) {
     const message =
       e instanceof Error ? e.message : "Failed to update interview";
@@ -213,7 +227,7 @@ export async function clearInterviewSubjectRefFile(
   }
 
   const existing = parseInterviewSubjectRef(interview.subject_ref);
-  if (existing.limit >= RESUME_UPLOAD_LIMIT) {
+  if (existing.uploadCount >= RESUME_UPLOAD_LIMIT) {
     return {
       error: true,
       message: "Maximum number of resume changes reached",
@@ -223,12 +237,18 @@ export async function clearInterviewSubjectRefFile(
 
   try {
     const row = await updateInterviewByOwner(id, session.userId, {
-      subject_ref: { key: "", body: "", limit: existing.limit },
+      subject_ref: {
+        resumeUrl:         "",
+        resumeSummary:     "",
+        uploadCount:       existing.uploadCount,
+        profession:        existing.profession,
+        professionContext: existing.professionContext,
+      }
     });
     if (row == null) {
       return { error: true, message: "Interview not found" };
     }
-    return { error: false, limit: existing.limit };
+    return { error: false, limit: existing.uploadCount };
   } catch (e) {
     const message =
       e instanceof Error ? e.message : "Failed to update interview";
@@ -304,10 +324,13 @@ export async function generateInterviewFeedback(
       : "Candidate";
 
   const subjectRef = parseInterviewSubjectRef(interview.subject_ref);
-  const description =
-    subjectRef.body.trim().length > 0
-      ? subjectRef.body
-      : "General interview practice session.";
+  const description = subjectRef.resumeSummary.trim().length > 0
+    ? subjectRef.resumeSummary
+    : "General interview practice session.";
+
+  const profession = subjectRef.profession.trim().length > 0
+    ? subjectRef.profession
+    : worker?.profession?.trim() ? professionLabelEn(worker.profession) : "General";
 
   try {
     const feedback = await streamAiInterviewFeedback({
@@ -315,10 +338,7 @@ export async function generateInterviewFeedback(
       humeGroupChatId: interview.chat_group_id,
       interviewInfo: {
         title: interview.subject.replace(/_/g, " "),
-        profession:
-          worker?.profession?.trim()
-            ? professionLabelEn(worker.profession)
-            : "General",
+        profession,
         description,
       },
       userName: userName.length > 0 ? userName : "Candidate",

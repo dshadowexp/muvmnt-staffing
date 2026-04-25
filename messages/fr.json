@@ -1134,8 +1134,8 @@
         "shiftsCompleted": "Quarts terminés",
         "totalTimeCovered": "Temps total couvert",
         "makeRequest": "Passer une demande",
-        "makeRequestSubtitle": "Créez une nouvelle demande de personnel pour commencer.",
-        "newStaffRequest": "Demander du nouveau personnel",
+        "makeRequestSubtitle": "Créez une demande de personnel temporaire pour commencer.",
+        "newStaffRequest": "Demander du personnel temporaire",
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
         "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui."
@@ -1346,7 +1346,7 @@
       "steps": {
         "verification": {
           "title": "Vérification",
-          "description": "Confirmez votre courriel et votre numéro de téléphone pour sécuriser votre compte."
+          "description": "Confirmez vos informations de contact pour sécuriser votre compte."
         },
         "personal-details": {
           "title": "Profil",
@@ -1671,6 +1671,7 @@
     },
     "interview": {
       "candidateFallback": "Candidat",
+      "interviewNotFound": "Entretien introuvable. Redirection en cours…",
       "instructions": {
         "step1": {
           "title": "Activer votre microphone",
@@ -1722,7 +1723,8 @@
         "micCheckPassed": "Microphone prêt",
         "starting": "Démarrage…",
         "start": "Commencer l'entretien",
-        "resume": "Reprendre l'entretien"
+        "resume": "Reprendre l'entretien",
+        "languageLabel": "Dans quelle langue souhaitez-vous passer votre entretien ?"
       },
       "controls": {
         "mute": "Couper le son",
@@ -1780,7 +1782,14 @@
         "errorInvalidResumeBody": "Ce document ne semble pas être un CV valide. Veuillez téléverser un CV contenant votre nom, votre expérience professionnelle et vos informations pertinentes.",
         "errorInvalidResumeReason": "Ce document ne semble pas être un CV valide ({reason}). Veuillez téléverser un CV contenant votre nom, votre expérience professionnelle et vos informations pertinentes.",
         "attemptsRemaining": "{count, plural, one {# tentative de téléversement restante} other {# tentatives de téléversement restantes}}",
-        "noAttemptsRemaining": "Aucune tentative de téléversement restante."
+        "noAttemptsRemaining": "Aucune tentative de téléversement restante.",
+        "backToPhoto": "Retour au téléversement de la photo"
+      },
+      "photo": {
+        "title": "Ajouter une photo de profil",
+        "description": "Une photo récente et claire de votre visage est requise avant de commencer votre entretien.",
+        "continue": "Continuer",
+        "backTitle": "Tableau de bord"
       },
       "review": {
         "back": "Retour aux évaluations",

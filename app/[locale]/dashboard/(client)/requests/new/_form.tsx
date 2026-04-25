@@ -252,7 +252,7 @@ export function NewStaffRequestPageClient({
     );
 
     return (
-        <div className="w-full max-w-3xl space-y-6">
+        <div className="w-full max-w-5xl space-y-6">
             <div className="space-y-6">
                 <BackLink backHref="/dashboard/requests" title={backTitle} />
                 <StaffRequestJobProfileSettingsRow

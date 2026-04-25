@@ -1135,8 +1135,8 @@
         "shiftsCompleted": "Shifts completed",
         "totalTimeCovered": "Total time covered",
         "makeRequest": "Place request",
-        "makeRequestSubtitle": "Create a new staff request to get started.",
-        "newStaffRequest": "Request new staff",
+        "makeRequestSubtitle": "Create a temporary staff request to get started.",
+        "newStaffRequest": "Request temporary staff",
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today."
@@ -1347,7 +1347,7 @@
       "steps": {
         "verification": {
           "title": "Verification",
-          "description": "Confirm your email address and phone number to secure your account."
+          "description": "Confirm your contact information to secure your account."
         },
         "personal-details": {
           "title": "Profile",
@@ -1672,6 +1672,7 @@
     },
     "interview": {
       "candidateFallback": "Candidate",
+      "interviewNotFound": "Interview not found. Redirecting…",
       "instructions": {
         "step1": {
           "title": "Enable your microphone",
@@ -1723,7 +1724,8 @@
         "micCheckPassed": "Microphone ready",
         "starting": "Starting…",
         "start": "Start interview",
-        "resume": "Resume interview"
+        "resume": "Resume interview",
+        "languageLabel": "What language would you like to take your interview in?"
       },
       "controls": {
         "mute": "Mute",
@@ -1781,7 +1783,14 @@
         "errorInvalidResumeBody": "This document doesn't appear to be a valid resume. Please upload a CV that includes your name, work history, and relevant experience.",
         "errorInvalidResumeReason": "This document doesn't appear to be a valid resume ({reason}). Please upload a CV that includes your name, work history, and relevant experience.",
         "attemptsRemaining": "{count, plural, one {# upload attempt remaining} other {# upload attempts remaining}}",
-        "noAttemptsRemaining": "No upload attempts remaining."
+        "noAttemptsRemaining": "No upload attempts remaining.",
+        "backToPhoto": "Return to photo upload"
+      },
+      "photo": {
+        "title": "Add a profile photo",
+        "description": "A clear, recent photo of your face is required before you can start your interview.",
+        "continue": "Continue",
+        "backTitle": "Dashboard"
       },
       "review": {
         "back": "Back to assessments",

@@ -6,7 +6,6 @@ import { getIdentityVerification, getWorkAuthorization, getWorkerProfile } from 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type WorkerPendingActionId =
-    | "profile-photo"
     | "assessment-interview"
     | "payroll-onboarding"
     | "work-authorization"
@@ -37,15 +36,10 @@ export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> 
     const worker = await getWorkerProfile();
     if (!worker) return [];
 
-    const { user_id, photo_url, stage } = worker;
+    const { user_id, stage } = worker;
     const actions: WorkerPendingAction[] = [];
-
-    if (stage === "picture") {
-        if (!photo_url) {
-            actions.push({ id: "profile-photo", href: "/dashboard/profile" });
-        }
-    } else if (stage === "interview") {
-
+    
+    if (stage === "interview") {
         const combinedInterview = await getInterviewBySubjectForUser("combined", user_id);
         if (!combinedInterview?.completed_at) {
             actions.push({ id: "assessment-interview", href: "/interviews/combined" });

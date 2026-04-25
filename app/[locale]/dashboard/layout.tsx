@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <SidebarInset className="min-h-0 flex-1 overflow-hidden">
                 <SiteHeader avatarSrc={avatarSrc} displayName={displayName} />
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
-                    <div className="@container/main flex w-full min-w-0 flex-1 flex-col items-stretch gap-6 px-4 pb-10 pt-4 md:px-6 md:pt-5 [&>*]:!max-w-none">
+                    <div className="@container/main flex w-full min-w-0 flex-1 flex-col items-center gap-6 px-4 pb-10 pt-4 md:px-6 md:pt-5">
                         {children}
                     </div>
                 </div>

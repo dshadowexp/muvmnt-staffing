@@ -12,11 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { routing } from "@/i18n/routing";
 import { controlTriggerStyles, type ControlTone } from "./control-trigger";
-
-const LOCALE_LABELS: Record<string, string> = {
-  en: "English",
-  fr: "Français",
-};
+import { LOCALE_LABELS } from "@/lib/constants";
 
 export function LanguageSwitcher({
   tone = "default",

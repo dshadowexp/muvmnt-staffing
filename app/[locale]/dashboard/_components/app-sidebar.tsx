@@ -67,7 +67,7 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
       { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
       { title: t("shifts"), url: "/dashboard/shifts", icon: <CalendarDays className="size-4" /> },
       { title: t("availability"), url: "/dashboard/availability", icon: <CalendarClock className="size-4" /> },
-      { title: t("assessments"), url: "/dashboard/assessments", icon: <CheckIcon className="size-4" /> },
+      // { title: t("assessments"), url: "/dashboard/assessments", icon: <CheckIcon className="size-4" /> },
       { title: t("compliance"), url: "/dashboard/compliance", icon: <ShieldCheckIcon className="size-4" /> },
       { title: t("payroll"), url: "/dashboard/payroll", icon: <WalletIcon className="size-4" /> },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },

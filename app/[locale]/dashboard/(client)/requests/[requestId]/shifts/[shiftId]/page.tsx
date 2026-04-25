@@ -196,7 +196,7 @@ export default async function ClientShiftDetailPage({
   if (session.role !== "client") redirect(`/dashboard`);
 
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-8">
+    <div className="flex w-full max-w-5xl mx-auto flex-col gap-8">
       <BackLink backHref={`/dashboard/requests/${requestId}`} title="Request" />
 
       <Suspense fallback={<DetailSkeleton />}>

@@ -61,20 +61,18 @@ export async function POST(req: Request) {
       : "";
 
   const subjectRef = parseInterviewSubjectRef(interview.subject_ref);
-  const description =
-    subjectRef.body.trim().length > 0
-      ? subjectRef.body
-      : "General interview practice session.";
+  const description = subjectRef.resumeSummary.trim().length > 0
+    ? subjectRef.resumeSummary
+    : "General interview practice session.";
 
   const result = await streamAiInterviewFeedback({
     humeChatId: interview.hume_chat_id,
     humeGroupChatId: interview.chat_group_id,
     interviewInfo: {
       title: interview.subject.replace(/_/g, " "),
-      profession:
-        worker?.profession?.trim()
-          ? professionLabelEn(worker.profession)
-          : "General",
+      profession: subjectRef.profession.trim().length > 0
+        ? subjectRef.profession
+        : worker?.profession?.trim() ? professionLabelEn(worker.profession) : "General",
       description,
     },
     userName: userName.length > 0 ? userName : "Candidate",

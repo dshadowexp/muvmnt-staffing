@@ -5,64 +5,47 @@ type Json = Database["public"]["Tables"]["interviews"]["Row"]["subject_ref"];
 /**
  * Canonical shape stored in `interviews.subject_ref` (JSONB).
  *
- * - `key`   — storage object key for any underlying file (e.g. resume PDF).
- *             Empty string when the interview has no associated file.
- * - `body`  — opaque payload for the interview reference. For resume
- *             interviews this is a JSON-encoded structured summary; for
- *             profession interviews it's a plain profession string.
- * - `limit` — number of times the underlying source has been (re)uploaded.
- *             Used by the resume flow to cap how many resume swaps the
- *             user can perform before the interview is locked in.
+ * - `resumeUrl`        — storage object key for the uploaded resume file.
+ *                        Empty string when no file is associated.
+ * - `resumeSummary`    — JSON-encoded structured AI summary of the resume.
+ *                        Empty string before the summary has been generated.
+ * - `uploadCount`      — number of times the resume has been (re)uploaded.
+ *                        Capped at RESUME_UPLOAD_LIMIT before the interview locks.
+ * - `profession`       — human-readable profession label at the time of upload.
+ * - `professionContext`— profession-specific AI context string at time of upload.
  */
 export type InterviewSubjectRef = {
-  key: string;
-  body: string;
-  limit: number;
+  resumeUrl: string;
+  resumeSummary: string;
+  uploadCount: number;
+  profession: string;
+  professionContext: string;
 };
 
-/** Maximum number of resume uploads allowed per interview. */
 export const RESUME_UPLOAD_LIMIT = 3;
 
 export const EMPTY_INTERVIEW_SUBJECT_REF: InterviewSubjectRef = {
-  key: "",
-  body: "",
-  limit: 0,
+  resumeUrl: "",
+  resumeSummary: "",
+  uploadCount: 0,
+  profession: "",
+  professionContext: "",
 };
 
-/**
- * Safely coerces a stored `subject_ref` JSON value into the canonical
- * {@link InterviewSubjectRef} shape. Falls back to empty fields for missing
- * or legacy values, so callers never have to null-check.
- *
- * Accepts:
- *  - The current `{ key, body, limit }` shape.
- *  - The legacy `{ key, text }` shape (auto-migrated to `body`).
- *  - A bare string (legacy: stored as `body` with empty key).
- */
-export function parseInterviewSubjectRef(
-  value: Json | undefined,
-): InterviewSubjectRef {
-  if (value == null) return { ...EMPTY_INTERVIEW_SUBJECT_REF };
-
-  if (typeof value === "string") {
-    return { key: "", body: value, limit: 0 };
+export function parseInterviewSubjectRef(value: Json | undefined): InterviewSubjectRef {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    return { ...EMPTY_INTERVIEW_SUBJECT_REF };
   }
 
-  if (typeof value === "object" && !Array.isArray(value)) {
-    const obj = value as Record<string, unknown>;
-    const key = typeof obj.key === "string" ? obj.key : "";
-    const body =
-      typeof obj.body === "string"
-        ? obj.body
-        : typeof obj.text === "string"
-          ? obj.text
-          : "";
-    const limit =
-      typeof obj.limit === "number" && Number.isFinite(obj.limit)
-        ? Math.max(0, Math.trunc(obj.limit))
-        : 0;
-    return { key, body, limit };
-  }
+  const obj = value as Record<string, unknown>;
 
-  return { ...EMPTY_INTERVIEW_SUBJECT_REF };
+  return {
+    resumeUrl:         typeof obj.resumeUrl === "string"         ? obj.resumeUrl         : "",
+    resumeSummary:     typeof obj.resumeSummary === "string"     ? obj.resumeSummary     : "",
+    uploadCount:       typeof obj.uploadCount === "number" && Number.isFinite(obj.uploadCount)
+                         ? Math.max(0, Math.trunc(obj.uploadCount))
+                         : 0,
+    profession:        typeof obj.profession === "string"        ? obj.profession        : "",
+    professionContext: typeof obj.professionContext === "string" ? obj.professionContext : "",
+  };
 }

@@ -18,7 +18,7 @@ const workerSteps: MultistepFormStep[] = [
     {
         id:          'verification',
         title:       'Verification',
-        description: 'Confirm your email address and phone number to secure your account.',
+        description: 'Confirm your contact information to secure your account.',
         route:        '/onboarding/verification',
         dependsOn:   [], 
         locked:      true, 

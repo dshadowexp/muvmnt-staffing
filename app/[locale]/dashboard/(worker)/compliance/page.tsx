@@ -64,7 +64,7 @@ export default async function WorkerCompliancePage() {
   identityVerificationPromise.catch(() => undefined);
 
   return (
-    <div className="flex w-full max-w-4xl flex-col gap-6">
+    <div className="flex w-full max-w-5xl mx-auto flex-col gap-6">
       <Suspense fallback={<CompliancePageSkeleton />}>
         <CompliancesClient
           compliancesPromise={compliancesPromise}

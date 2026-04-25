@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo } from "react";
 import { Separator } from "@/components/ui/separator";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
 import { useOnboardingFormNavigate } from "@/features/onboarding/hooks/use-onboarding-form-navigate";
@@ -14,12 +14,19 @@ export function VerificationClient() {
     const [state, formAction] = useActionState(verifyDetailsAction, undefined);
     useOnboardingFormNavigate(state);
 
+    const continueCheck = useMemo(() => authUser?.role === "worker" ? (firebaseUser?.emailVerified && firebaseUser?.phoneNumber) : firebaseUser?.emailVerified, [authUser, firebaseUser]);
+
     return (
         <div className="space-y-6">
             <EmailVerification />
-            <Separator className="my-6" />
-            {authUser?.role === "worker" && <PhoneVerification />}
-            {(firebaseUser?.emailVerified && firebaseUser?.phoneNumber) && (
+            
+            {authUser?.role === "worker" && 
+                <>
+                    <Separator className="my-6" />
+                    <PhoneVerification />
+                </>
+            }
+            {continueCheck && (
                 <form action={formAction}>
                     <ContinueButton />
                 </form>

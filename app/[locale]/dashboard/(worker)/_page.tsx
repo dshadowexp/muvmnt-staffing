@@ -9,15 +9,12 @@ import {
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
 import {
   getWorkerProfile,
-  getWorkAuthorization,
-  getIdentityVerification,
 } from "@/features/profile/dal/queries";
 import {
   getWorkerPendingActions,
   type WorkerPendingAction,
 } from "@/features/workers/dal/queries";
 import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
-import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import {
   Card,
@@ -29,16 +26,16 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   CheckCircle2Icon,
-  ChevronRightIcon,
-  CameraIcon,
   StethoscopeIcon,
   WalletIcon,
   ShieldCheckIcon,
   FingerprintIcon,
   CircleDashedIcon,
+  ChevronRightIcon,
 } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { Link } from "@/i18n/navigation";
 
 function formatCents(amountCents: number, currency: string) {
   return new Intl.NumberFormat("en-CA", {
@@ -129,7 +126,7 @@ async function TodayShifts({ workerId }: { workerId: string }) {
 }
 
 /** UI-enriched version of WorkerPendingAction — adds JSX fields for rendering. */
-type PendingAction = WorkerPendingAction & {
+export type PendingAction = WorkerPendingAction & {
   title: string;
   description: string;
   icon?: ReactNode;
@@ -144,11 +141,6 @@ async function PendingActions() {
 
   /** Map each DAL action id → UI-layer icon + i18n strings. */
   const iconMap: Record<string, { title: string; description: string; icon: ReactNode }> = {
-    "profile-photo": {
-      title:       t("photoCard.title"),
-      description: t("photoCard.description"),
-      icon:        <CameraIcon className="size-5 text-primary" />,
-    },
     "assessment-interview": {
       title:       t("assessmentInterview.title"),
       description: t("assessmentInterview.description"),
@@ -254,6 +246,7 @@ function PendingActionCard({ action }: { action: PendingAction }) {
     </div>
   );
 }
+
 
 function PendingActionsSkeleton() {
   return (
