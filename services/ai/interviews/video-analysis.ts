@@ -1,30 +1,85 @@
 import "server-only";
+import { z } from "zod";
 import { env } from "@/data/env/server";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Zod schemas (single source of truth for types + response validation) ──────
 
-export type VideoAnalysisFlag = {
-  type: string;
-  description: string;
-  timestampSeconds?: number;
+const FLAG_TYPES = [
+  "MULTIPLE_FACES",
+  "OFF_CAMERA_GAZE",
+  "VISIBLE_SCREEN_OR_NOTES",
+  "EARBUD_DETECTED",
+  "OTHER_PERSON_IN_BACKGROUND",
+  "IDENTITY_MISMATCH",
+  "OTHER",
+] as const;
+
+const VideoAnalysisFlagSchema = z.object({
+  type: z.enum(FLAG_TYPES),
+  description: z.string(),
+  timestampSeconds: z.number().optional(),
+});
+
+const IdentityMatchSchema = z.object({
+  verdict: z.enum(["match", "uncertain", "no_match"]),
+  confidence: z.enum(["low", "medium", "high"]),
+  rationale: z.string(),
+});
+
+const VideoAnalysisResultSchema = z.object({
+  confidence: z.enum(["low", "medium", "high"]),
+  flags: z.array(VideoAnalysisFlagSchema),
+  summary: z.string(),
+  identityMatch: IdentityMatchSchema.optional(),
+});
+
+export type VideoAnalysisFlag = z.infer<typeof VideoAnalysisFlagSchema>;
+export type IdentityMatch = z.infer<typeof IdentityMatchSchema>;
+export type VideoAnalysisResult = z.infer<typeof VideoAnalysisResultSchema>;
+
+// ─── Gemini response schemas (OpenAPI 3.0 subset accepted by the API) ──────────
+
+const FLAG_SCHEMA = {
+  type: "object",
+  properties: {
+    type: { type: "string", enum: FLAG_TYPES },
+    description: { type: "string" },
+    timestampSeconds: { type: "number" },
+  },
+  required: ["type", "description"],
 };
 
-export type IdentityMatch = {
-  /** Whether the person in the video matches the registered candidate's profile photo. */
-  verdict: "match" | "uncertain" | "no_match";
-  /** How confident Gemini is in this verdict. */
-  confidence: "low" | "medium" | "high";
-  /** A brief, factual rationale for the verdict. */
-  rationale: string;
+const IDENTITY_MATCH_SCHEMA = {
+  type: "object",
+  properties: {
+    verdict: { type: "string", enum: ["match", "uncertain", "no_match"] },
+    confidence: { type: "string", enum: ["low", "medium", "high"] },
+    rationale: { type: "string" },
+  },
+  required: ["verdict", "confidence", "rationale"],
 };
 
-export type VideoAnalysisResult = {
-  /** Overall integrity risk level for this session. */
-  confidence: "low" | "medium" | "high";
-  flags: VideoAnalysisFlag[];
-  summary: string;
-  /** Present only when a reference profile photo was supplied. */
-  identityMatch?: IdentityMatch;
+/** Response schema used when no profile photo is supplied. */
+const RESPONSE_SCHEMA_NO_PHOTO = {
+  type: "object",
+  properties: {
+    confidence: { type: "string", enum: ["low", "medium", "high"] },
+    flags: { type: "array", items: FLAG_SCHEMA },
+    summary: { type: "string" },
+  },
+  required: ["confidence", "flags", "summary"],
+};
+
+/** Response schema used when a profile photo is supplied — identityMatch is required. */
+const RESPONSE_SCHEMA_WITH_PHOTO = {
+  type: "object",
+  properties: {
+    confidence: { type: "string", enum: ["low", "medium", "high"] },
+    flags: { type: "array", items: FLAG_SCHEMA },
+    summary: { type: "string" },
+    identityMatch: IDENTITY_MATCH_SCHEMA,
+  },
+  required: ["confidence", "flags", "summary", "identityMatch"],
 };
 
 // ─── Gemini File API helpers ──────────────────────────────────────────────────
@@ -33,7 +88,7 @@ const GEMINI_API_KEY = () => env.GEMINI_API_KEY;
 const UPLOAD_BASE =
   "https://generativelanguage.googleapis.com/upload/v1beta/files";
 const GENERATE_BASE =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent";
 
 async function uploadFileToGemini(
   buffer: Buffer,
@@ -135,6 +190,18 @@ async function waitForFileActive(fileUri: string): Promise<void> {
   throw new Error("Gemini file did not become ACTIVE within the polling timeout");
 }
 
+async function deleteGeminiFile(fileUri: string): Promise<void> {
+  const apiKey = GEMINI_API_KEY();
+  const fileNameMatch = fileUri.match(/files\/([^/?]+)/);
+  if (!fileNameMatch) return; // nothing to delete if URI is unparseable
+
+  const fileName = fileNameMatch[1];
+  await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/files/${fileName}?key=${apiKey}`,
+    { method: "DELETE" },
+  );
+}
+
 // ─── Prompts ──────────────────────────────────────────────────────────────────
 
 const CHEATING_DETECTION_INSTRUCTIONS = `
@@ -144,9 +211,6 @@ CHEATING DETECTION — look for:
 3. Visible screens, monitors, phones, or written notes beside/behind the candidate
 4. Earbuds, earphones, or in-ear devices in the candidate's ears
 5. Other people visible in the background or entering/leaving the frame`.trim();
-
-const FLAG_TYPES =
-  `"MULTIPLE_FACES" | "OFF_CAMERA_GAZE" | "VISIBLE_SCREEN_OR_NOTES" | "EARBUD_DETECTED" | "OTHER_PERSON_IN_BACKGROUND" | "IDENTITY_MISMATCH" | "OTHER"`;
 
 /**
  * Prompt used when a reference profile photo is available.
@@ -171,24 +235,6 @@ Identity verdict rules:
 
 --- PART 2: ${CHEATING_DETECTION_INSTRUCTIONS} ---
 
-Respond ONLY with valid JSON matching this exact structure:
-{
-  "confidence": "low" | "medium" | "high",
-  "identityMatch": {
-    "verdict": "match" | "uncertain" | "no_match",
-    "confidence": "low" | "medium" | "high",
-    "rationale": "One or two factual sentences explaining your verdict"
-  },
-  "flags": [
-    {
-      "type": ${FLAG_TYPES},
-      "description": "Brief factual description of what was observed",
-      "timestampSeconds": <number or omit if not applicable>
-    }
-  ],
-  "summary": "2-3 sentence overall assessment of session integrity, referencing both identity and cheating checks"
-}
-
 Guidance:
 - Set the top-level "confidence" to the highest risk level found across identity or cheating checks.
 - If identity is uncertain or no_match, add an "IDENTITY_MISMATCH" flag entry.
@@ -202,19 +248,7 @@ const ANALYSIS_PROMPT_NO_PHOTO = `You are a proctoring AI for a remote video int
 
 ${CHEATING_DETECTION_INSTRUCTIONS}
 
-Respond ONLY with valid JSON matching this exact structure:
-{
-  "confidence": "low" | "medium" | "high",
-  "flags": [
-    {
-      "type": ${FLAG_TYPES},
-      "description": "Brief factual description of what was observed",
-      "timestampSeconds": <number or omit if not applicable>
-    }
-  ],
-  "summary": "2-3 sentence overall assessment of the integrity of this interview session"
-}
-
+Guidance:
 - Set confidence to "high" when you have clear visual evidence of a flag.
 - Set confidence to "medium" when indicators are present but ambiguous.
 - Set confidence to "low" when video quality or angle limits your assessment or no issues were found.
@@ -236,9 +270,12 @@ export async function analyzeInterviewVideoBuffer(
 
   const hasPhoto = profilePhoto != null && profilePhoto.buffer.byteLength > 0;
 
+  // Hoisted so the finally block can delete the file regardless of outcome.
+  let fileUri: string | null = null;
+
   try {
     // Upload video to Gemini Files API
-    const fileUri = await uploadFileToGemini(buffer, mimeType);
+    fileUri = await uploadFileToGemini(buffer, mimeType);
     await waitForFileActive(fileUri);
 
     // Build the parts array — photo (inline_data) first when available, then video
@@ -250,7 +287,6 @@ export async function analyzeInterviewVideoBuffer(
     const parts: GeminiPart[] = [];
 
     if (hasPhoto) {
-      // Encode profile photo as base64 inline image
       parts.push({
         inline_data: {
           mime_type: profilePhoto!.mimeType,
@@ -271,6 +307,7 @@ export async function analyzeInterviewVideoBuffer(
         generationConfig: {
           temperature: 0.1,
           responseMimeType: "application/json",
+          responseSchema: hasPhoto ? RESPONSE_SCHEMA_WITH_PHOTO : RESPONSE_SCHEMA_NO_PHOTO,
         },
       }),
     });
@@ -297,78 +334,21 @@ export async function analyzeInterviewVideoBuffer(
       return fallback;
     }
 
-    try {
-      const cleaned = rawText
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/\s*```$/, "")
-        .trim();
-
-      const parsed = JSON.parse(cleaned) as Partial<VideoAnalysisResult> & {
-        identityMatch?: Partial<IdentityMatch>;
-      };
-
-      const confidence =
-        parsed.confidence === "high" ||
-        parsed.confidence === "medium" ||
-        parsed.confidence === "low"
-          ? parsed.confidence
-          : "low";
-
-      const flags = Array.isArray(parsed.flags)
-        ? parsed.flags.filter(
-            (f): f is VideoAnalysisFlag =>
-              typeof f === "object" &&
-              f !== null &&
-              typeof f.type === "string" &&
-              typeof f.description === "string",
-          )
-        : [];
-
-      const summary =
-        typeof parsed.summary === "string" && parsed.summary.trim().length > 0
-          ? parsed.summary.trim()
-          : "Analysis completed.";
-
-      let identityMatch: IdentityMatch | undefined;
-      if (hasPhoto && parsed.identityMatch != null) {
-        const im = parsed.identityMatch;
-        const verdict =
-          im.verdict === "match" ||
-          im.verdict === "uncertain" ||
-          im.verdict === "no_match"
-            ? im.verdict
-            : "uncertain";
-        const imConfidence =
-          im.confidence === "high" ||
-          im.confidence === "medium" ||
-          im.confidence === "low"
-            ? im.confidence
-            : "low";
-        const rationale =
-          typeof im.rationale === "string" && im.rationale.trim().length > 0
-            ? im.rationale.trim()
-            : "No rationale provided.";
-        identityMatch = { verdict, confidence: imConfidence, rationale };
-      }
-
-      return { confidence, flags, summary, identityMatch };
-    } catch (parseErr) {
-      console.error(
-        "[video-analysis] Failed to parse Gemini JSON response",
-        parseErr,
-        rawText,
-      );
-      return {
-        confidence: "low",
-        flags: [],
-        summary: "Analysis response could not be parsed.",
-      };
-    }
+    // responseSchema guarantees valid JSON matching the schema — parse and validate directly.
+    const parsed = VideoAnalysisResultSchema.parse(JSON.parse(rawText));
+    return parsed;
   } catch (err) {
     console.error(
       "[video-analysis] Unexpected error during video analysis",
       err,
     );
     return fallback;
+  } finally {
+    // Always delete the uploaded file from Gemini's Files API — non-fatal.
+    if (fileUri) {
+      deleteGeminiFile(fileUri).catch((err) =>
+        console.warn("[video-analysis] Failed to delete Gemini file", { fileUri, err }),
+      );
+    }
   }
 }

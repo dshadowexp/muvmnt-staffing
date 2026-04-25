@@ -7,7 +7,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { env } from "@/data/env/server";
 import { getSession } from "@/lib/session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
-import { getProfessionContext } from "@/services/ai/profession-context";
+import { getProfessionContext } from "@/services/ai/interviews/profession-context";
 import { professionLabelEn } from "@/lib/labels-en";
 import { normalizeProfessionId } from "@/lib/professions";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";

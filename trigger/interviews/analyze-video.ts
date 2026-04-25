@@ -17,18 +17,6 @@ const payloadSchema = z.object({
   recordingKey: z.string().min(1),
 });
 
-function getMimeTypeExtension(mimeType: string): string {
-  const map: Record<string, string> = {
-    "video/mp4": "mp4",
-    "video/webm": "webm",
-    "video/ogg": "ogv",
-    "video/quicktime": "mov",
-    "video/x-msvideo": "avi",
-    "video/x-matroska": "mkv",
-  };
-  return map[mimeType] ?? "mp4";
-}
-
 export const analyzeInterviewVideoTask = schemaTask({
   id: "interviews.analyze-video",
   schema: payloadSchema,
@@ -75,19 +63,19 @@ export const analyzeInterviewVideoTask = schemaTask({
 
       // logger.log("Video downloaded", { bytes: videoBuffer.byteLength, mimeType: download.mimeType });
 
-      // 3. Transcode with ffmpeg
+      // 3. Transcode video and fetch profile photo in parallel
       const tempDir = tmpdir();
       outputPath = join(tempDir, `interview-${interviewId}-compressed.mp4`);
 
-      logger.log("Transcoding video", { inputPath, outputPath });
+      logger.log("Transcoding video and fetching profile photo in parallel", { outputPath });
 
-      await new Promise<void>((resolve, reject) => {
+      const transcodePromise = new Promise<void>((resolve, reject) => {
         ffmpeg(download.stream)
           .outputOptions([
             "-vf scale=854:480",
             "-an",               // no audio (matches your original flag)
             "-c:v libx264",
-            "-preset fast",
+            "-preset ultrafast",
             "-crf 28",
           ])
           .output(outputPath!)
@@ -96,42 +84,47 @@ export const analyzeInterviewVideoTask = schemaTask({
           .run();
       });
 
-      // 4. Read compressed output
-      const compressedBuffer = await fs.readFile(outputPath);
-      logger.log("Transcoding complete", { compressedBytes: compressedBuffer.byteLength });
+      const profilePhotoPromise: Promise<{ buffer: Buffer; mimeType: string } | null> = (async () => {
+        try {
+          const { data: worker } = await supabase
+            .from("workers")
+            .select("photo_url")
+            .eq("user_id", userId)
+            .maybeSingle();
 
-      // 5. Fetch worker profile photo for identity verification
-      let profilePhoto: { buffer: Buffer; mimeType: string } | null = null;
-      try {
-        const { data: worker } = await supabase
-          .from("workers")
-          .select("photo_url")
-          .eq("user_id", userId)
-          .maybeSingle();
+          if (!worker?.photo_url) {
+            logger.log("No profile photo found — identity check will be skipped");
+            return null;
+          }
 
-        if (worker?.photo_url) {
           logger.log("Fetching profile photo for identity verification", { photoKey: worker.photo_url });
           const photoDownload = await s3Api.download(worker.photo_url);
           const photoChunks: Buffer[] = [];
           for await (const chunk of photoDownload.stream) {
             photoChunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
           }
-          profilePhoto = {
+          const photo = {
             buffer: Buffer.concat(photoChunks),
             mimeType: photoDownload.mimeType || "image/jpeg",
           };
-          logger.log("Profile photo fetched", { bytes: profilePhoto.buffer.byteLength });
-        } else {
-          logger.log("No profile photo found — identity check will be skipped");
+          logger.log("Profile photo fetched", { bytes: photo.buffer.byteLength });
+          return photo;
+        } catch (photoErr) {
+          // Non-fatal: proceed without identity check
+          logger.warn("Failed to fetch profile photo, skipping identity verification", {
+            error: photoErr instanceof Error ? photoErr.message : String(photoErr),
+          });
+          return null;
         }
-      } catch (photoErr) {
-        // Non-fatal: proceed without identity check
-        logger.warn("Failed to fetch profile photo, skipping identity verification", {
-          error: photoErr instanceof Error ? photoErr.message : String(photoErr),
-        });
-      }
+      })();
 
-      // 6. Analyze with Gemini (video + optional profile photo)
+      const [, profilePhoto] = await Promise.all([transcodePromise, profilePhotoPromise]);
+
+      // 4. Read compressed output
+      const compressedBuffer = await fs.readFile(outputPath);
+      logger.log("Transcoding complete", { compressedBytes: compressedBuffer.byteLength });
+
+      // 5. Analyze with Gemini (video + optional profile photo)
       logger.log("Sending to Gemini for analysis", { hasProfilePhoto: profilePhoto != null });
       const analysisResult = await analyzeInterviewVideoBuffer(compressedBuffer, "video/mp4", profilePhoto);
 
@@ -140,7 +133,7 @@ export const analyzeInterviewVideoTask = schemaTask({
         flagCount: analysisResult.flags.length,
       });
 
-      // 7. Persist results
+      // 6. Persist results
       const { error: updateError } = await supabase
         .from("interviews")
         .update({
@@ -155,7 +148,7 @@ export const analyzeInterviewVideoTask = schemaTask({
 
       logger.log("Video analysis saved", { interviewId });
 
-      // 8. Attempt auto-review — non-fatal, runs only if feedback is also ready
+      // 7. Attempt auto-review — non-fatal, runs only if feedback is also ready
       logger.log("Attempting auto-review after video analysis", { interviewId });
       await tryAutoReview(interviewId, userId);
 
@@ -165,7 +158,7 @@ export const analyzeInterviewVideoTask = schemaTask({
         flagCount: analysisResult.flags.length,
       };
     } catch (err) {
-      // 8. On error: mark as failed
+      // On error: mark as failed
       logger.error("Video analysis failed, marking status=failed", {
         interviewId,
         error: err instanceof Error ? err.message : String(err),

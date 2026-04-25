@@ -8,3 +8,5 @@
 export { stripeAccountUpdatedTask } from "./account-updated";
 export { stripeCheckoutSessionCompletedTask } from "./checkout-session-completed";
 export { stripeIdentityVerificationSessionRequiresInputTask, stripeIdentityVerificationSessionVerifiedTask } from "./identity-verification-session";
+export { stripeInvoicePaymentSucceededTask } from "./invoice-payment-succeeded";
+export { stripeInvoicePaymentFailedTask } from "./invoice-payment-failed";

@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { google } from "./models/google";
+import { google } from "../models/google";
 import { z } from "zod";
 
 const quizQuestionSchema = z.object({

@@ -10,6 +10,8 @@ import { toWebhookJobPayload, type StripeWebhookJobPayload } from "./schemas";
 import { stripeAccountUpdatedTask } from "@/trigger/stripe/account-updated";
 import { stripeCheckoutSessionCompletedTask } from "@/trigger/stripe/checkout-session-completed";
 import { stripeIdentityVerificationSessionRequiresInputTask, stripeIdentityVerificationSessionVerifiedTask } from "@/trigger/stripe/identity-verification-session";
+import { stripeInvoicePaymentSucceededTask } from "@/trigger/stripe/invoice-payment-succeeded";
+import { stripeInvoicePaymentFailedTask } from "@/trigger/stripe/invoice-payment-failed";
 
 /**
  * Typed registry of Stripe event → Trigger.dev task binding.
@@ -25,6 +27,8 @@ const BINDINGS = {
     "checkout.session.completed": { id: "stripe.checkout.session.completed" } satisfies EventBinding<typeof stripeCheckoutSessionCompletedTask>,
     "identity.verification_session.verified": { id: "stripe.identity.verification_session.verified" } satisfies EventBinding<typeof stripeIdentityVerificationSessionVerifiedTask>,
     "identity.verification_session.requires_input": { id: "stripe.identity.verification_session.requires_input" } satisfies EventBinding<typeof stripeIdentityVerificationSessionRequiresInputTask>,
+    "invoice.payment_succeeded": { id: "stripe.invoice.payment_succeeded" } satisfies EventBinding<typeof stripeInvoicePaymentSucceededTask>,
+    "invoice.payment_failed": { id: "stripe.invoice.payment_failed" } satisfies EventBinding<typeof stripeInvoicePaymentFailedTask>,
 } as const;
 
 type HandledEventType = keyof typeof BINDINGS;
@@ -61,7 +65,13 @@ export async function dispatchStripeEvent(event: Stripe.Event): Promise<StripeDi
             break;
         case "identity.verification_session.requires_input":
             task = stripeIdentityVerificationSessionRequiresInputTask;
-            break;  
+            break;
+        case "invoice.payment_succeeded":
+            task = stripeInvoicePaymentSucceededTask;
+            break;
+        case "invoice.payment_failed":
+            task = stripeInvoicePaymentFailedTask;
+            break;
         default:
             break;
     }

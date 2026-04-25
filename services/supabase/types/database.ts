@@ -81,27 +81,77 @@ export type Database = {
           },
         ]
       }
+      billing_periods: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_periods_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
+          approval_window_hours: number
+          billing_mode: string
           created_at: string
           id: string
           name: string
+          net_terms_days: number
+          stripe_customer_id: string | null
           type: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          approval_window_hours?: number
+          billing_mode?: string
           created_at?: string
           id?: string
           name: string
+          net_terms_days?: number
+          stripe_customer_id?: string | null
           type: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          approval_window_hours?: number
+          billing_mode?: string
           created_at?: string
           id?: string
           name?: string
+          net_terms_days?: number
+          stripe_customer_id?: string | null
           type?: string
           updated_at?: string
           user_id?: string
@@ -291,6 +341,72 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          billing_period_id: string
+          client_id: string
+          collection_method: string
+          created_at: string
+          currency: string
+          due_date: string | null
+          id: string
+          period_end: string
+          period_start: string
+          status: string
+          stripe_customer_id: string
+          stripe_invoice_id: string
+          total_amount_cents: number
+          updated_at: string
+        }
+        Insert: {
+          billing_period_id: string
+          client_id: string
+          collection_method: string
+          created_at?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          status?: string
+          stripe_customer_id: string
+          stripe_invoice_id: string
+          total_amount_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_period_id?: string
+          client_id?: string
+          collection_method?: string
+          created_at?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_invoice_id?: string
+          total_amount_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_billing_period_id_fkey"
+            columns: ["billing_period_id"]
+            isOneToOne: false
+            referencedRelation: "billing_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -742,6 +858,9 @@ export type Database = {
       }
       shifts: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
+          billing_period_id: string | null
           checkin_time: string | null
           checkout_time: string | null
           client_id: string
@@ -756,10 +875,14 @@ export type Database = {
           request_id: string
           start_time: string
           status: string | null
+          timesheet_status: string | null
           updated_at: string
           worker_id: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          billing_period_id?: string | null
           checkin_time?: string | null
           checkout_time?: string | null
           client_id: string
@@ -774,10 +897,14 @@ export type Database = {
           request_id: string
           start_time: string
           status?: string | null
+          timesheet_status?: string | null
           updated_at?: string
           worker_id?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          billing_period_id?: string | null
           checkin_time?: string | null
           checkout_time?: string | null
           client_id?: string
@@ -792,6 +919,7 @@ export type Database = {
           request_id?: string
           start_time?: string
           status?: string | null
+          timesheet_status?: string | null
           updated_at?: string
           worker_id?: string | null
         }
