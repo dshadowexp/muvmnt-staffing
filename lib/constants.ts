@@ -135,5 +135,5 @@ export const TRUST_LOGOS = [
 export const H3_K = 20;
 export const H3_RESOLUTION = 8;
 
-export const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 0.5 * 60 : 8 * 60;
-export const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 0.2 * 60 : 1 * 60;
+export const INTERVIEW_DURATION_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 0.5 * 60 : 10 * 60;
+export const MIN_DURATION_FOR_COMPLETED_AT_SECS = env.NEXT_PUBLIC_NODE_ENV === "development" ? 0.2 * 60 : 5 * 60;

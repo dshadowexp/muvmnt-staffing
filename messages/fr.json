@@ -924,13 +924,9 @@
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
         "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui.",
-        "professionInterview": {
-          "title": "Entrevue professionnelle",
-          "description": "Entrevue AI-guidée rapide pour vous jumeler aux quarts appropriés."
-        },
-        "resumeInterview": {
-          "title": "Entrevue sur votre CV",
-          "description": "Présentez-nous votre CV en 8 minutes pour terminer l'intégration."
+        "assessmentInterview": {
+          "title": "Entrevue IA",
+          "description": "Complétez une entrevue IA de 10 minutes pour terminer votre intégration."
         },
         "workAuth": {
           "title": "Autorisation de travail",
@@ -1091,17 +1087,12 @@
         "noPhotoDescription": "Vous devez téléverser une photo de profil avant de commencer cet entretien.",
         "uploadPhotoFirst": "Téléverser une photo d'abord →",
         "startInterview": "Commencer l'entretien →",
-        "professionTitle": "Entretien professionnel",
-        "professionDescription": "Session audio et vidéo guidée par IA sur les connaissances générales en santé et les compétences professionnelles.",
-        "resumeTitle": "Entretien de CV",
-        "resumeDescription": "Présentation audio et vidéo guidée par IA de votre CV et de votre expérience.",
+        "combinedTitle": "Entrevue IA",
+        "combinedDescription": "Une entrevue de 10 minutes par IA couvrant les connaissances cliniques, les compétences professionnelles et l'expérience.",
         "underReviewDescription": "Vos commentaires d'entretien sont en cours d'examen.",
-        "professionPendingDescription": "Votre entretien professionnel est terminé — les commentaires sont en cours de préparation.",
-        "professionPassDescription": "Vous avez réussi votre entretien professionnel.",
-        "professionFailDescription": "Votre entretien professionnel n'a pas satisfait aux critères requis.",
-        "resumePendingDescription": "Votre entretien de CV est terminé — les commentaires sont en cours de préparation.",
-        "resumePassDescription": "Vous avez réussi votre entretien de CV.",
-        "resumeFailDescription": "Votre entretien de CV n'a pas satisfait aux critères requis.",
+        "combinedPendingDescription": "Votre entretien est terminé — les commentaires sont en cours de préparation.",
+        "combinedPassDescription": "Vous avez réussi votre entretien.",
+        "combinedFailDescription": "Votre entretien n'a pas satisfait aux critères requis.",
         "underReviewBadge": "En cours d'examen",
         "passedBadge": "Réussi",
         "failedBadge": "Échoué",
@@ -1823,6 +1814,7 @@
         "retake": "Commencer un nouvel entretien",
         "retakeAfter": "Vous n'avez pas réussi. Vous pourrez refaire l'entretien après <strong>{date}</strong>.",
         "subject": {
+          "combined": "Entrevue IA",
           "profession": "Entretien professionnel",
           "resume": "Entretien basé sur le CV"
         }

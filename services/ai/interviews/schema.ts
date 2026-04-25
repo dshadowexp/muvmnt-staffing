@@ -2,9 +2,7 @@ import { z } from "zod";
 
 /**
  * Shape of a single rubric entry in the interview feedback. Category labels
- * vary by `interview_type` (clinical vs behavioural) so we capture them as a
- * descriptive string alongside the numeric score rather than a fixed set of
- * keys.
+ * are descriptive strings so the rubric can be extended without a schema change.
  */
 export const interviewScoreSchema = z.object({
   label: z
@@ -22,18 +20,19 @@ export const interviewFeedbackSchema = z.object({
     .string()
     .describe("Full name of the candidate as it appeared in the interview"),
   interview_type: z
-    .enum(["CLINICAL", "BEHAVIORAL"])
-    .describe("Which rubric was applied"),
+    .enum(["COMBINED", "CLINICAL", "BEHAVIORAL"])
+    .describe("Which rubric was applied — COMBINED for the single unified interview"),
   decision: z
     .enum(["PASS", "FAIL"])
-    .describe("Overall hiring decision based on the rubric"),
+    .describe("Overall hiring decision based on all rubric scores"),
   average_score: z
     .number()
-    .describe("Mean of the five category scores (0-5)"),
+    .describe("Mean of all rubric scores (0-5)"),
   scores: z
     .array(interviewScoreSchema)
     .describe(
-      "Exactly five rubric categories with scores, in the order listed in the system prompt for the selected interview_type",
+      "All rubric categories with scores in the order listed in the system prompt. " +
+      "COMBINED interviews produce ten scores (five clinical then five behavioral).",
     ),
   strengths: z
     .array(z.string())

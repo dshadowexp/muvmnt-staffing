@@ -16,6 +16,9 @@ import { ResumeUpload } from "./_resume-upload";
 import { INTERVIEW_DURATION_SECS } from "@/lib/constants";
 import type { InterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import type { InterviewRow } from "@/features/interviews/dal/queries";
+import { professionLabelEn } from "@/lib/labels-en";
+import { normalizeProfessionId } from "@/lib/professions";
+import { getProfessionContext } from "@/services/ai/interviews/profession-context";
 
 type Props = {
   accessToken: string;
@@ -42,6 +45,8 @@ export function ResumeInterviewClient({
   const t = useTranslations("assessments.interview.resume");
   const locale = useLocale();
   const [ready, setReady] = useState<ReadyState | null>(null);
+  const professionKey = normalizeProfessionId(profession);
+  const context = getProfessionContext(professionKey);
 
   if (!ready) {
     return (
@@ -57,7 +62,7 @@ export function ResumeInterviewClient({
     <VoiceProvider>
       <InterviewShell
         accessToken={accessToken}
-        subject="resume"
+        subject={`combined`}
         interviewId={ready.interviewId}
         chatGroupId={existingInterview?.chat_group_id ?? undefined}
         savedDurationSecs={parseDurationToSeconds(existingInterview?.duration)}
@@ -74,8 +79,9 @@ export function ResumeInterviewClient({
           language: locale,
           candidate_name: userName,
           resume_text: ready.ref.body,
-          profession: profession,
           years_of_experience: years_exp,
+          profession: professionLabelEn(professionKey),
+          profession_context: context,
         }}
         user={{ name: userName, imageUrl: userImage }}
         returnPath="/dashboard/assessments"

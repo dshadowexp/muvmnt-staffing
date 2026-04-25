@@ -17,8 +17,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertCircleIcon,
@@ -262,7 +260,7 @@ export function ResumeUpload({ existingInterview, candidateName, onResumeReady }
         }
       } else {
         const created = await createAssessmentInterview({
-          subject: "resume",
+          subject: "combined",
           subjectRef: { key, body: "", limit: 1 },
         });
         if (created.error) {

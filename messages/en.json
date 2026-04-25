@@ -923,13 +923,9 @@
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today.",
-        "professionInterview": {
-          "title": "Profession interview",
-          "description": "Quick AI-led interview to match you to the right shifts."
-        },
-        "resumeInterview": {
-          "title": "Resume interview",
-          "description": "Walk us through your resume in 8 minutes to finish onboarding."
+        "assessmentInterview": {
+          "title": "AI Interview",
+          "description": "Complete a 10-minute AI-led interview to finish your onboarding."
         },
         "workAuth": {
           "title": "Work authorization",
@@ -1092,17 +1088,12 @@
         "noPhotoDescription": "You need to upload a profile photo before you can start this interview.",
         "uploadPhotoFirst": "Upload a photo first →",
         "startInterview": "Start interview →",
-        "professionTitle": "Profession interview",
-        "professionDescription": "AI-led voice and video session about general health knowledge and professional competencies.",
-        "resumeTitle": "Resume interview",
-        "resumeDescription": "AI-led voice and video walkthrough of your resume and experience.",
+        "combinedTitle": "AI Interview",
+        "combinedDescription": "A 10-minute AI-led voice and video interview covering clinical knowledge, professional competencies, and experience.",
         "underReviewDescription": "Your interview feedback is under review.",
-        "professionPendingDescription": "Your profession interview is complete — feedback is being prepared.",
-        "professionPassDescription": "You passed your profession interview.",
-        "professionFailDescription": "Your profession interview did not meet the bar.",
-        "resumePendingDescription": "Your resume interview is complete — feedback is being prepared.",
-        "resumePassDescription": "You passed your resume interview.",
-        "resumeFailDescription": "Your resume interview did not meet the bar.",
+        "combinedPendingDescription": "Your interview is complete — feedback is being prepared.",
+        "combinedPassDescription": "You passed your interview.",
+        "combinedFailDescription": "Your interview did not meet the bar.",
         "underReviewBadge": "Under review",
         "passedBadge": "Passed",
         "failedBadge": "Failed",
@@ -1824,6 +1815,7 @@
         "retake": "Start new interview",
         "retakeAfter": "You did not pass. You can retake after <strong>{date}</strong>.",
         "subject": {
+          "combined": "AI Interview",
           "profession": "Profession interview",
           "resume": "Resume interview"
         }

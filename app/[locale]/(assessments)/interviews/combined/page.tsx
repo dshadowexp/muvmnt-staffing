@@ -39,11 +39,11 @@ async function SuspendedContent() {
   if (!worker.photo_url) return redirect({ href: "/dashboard/profile", locale });
 
   const existing = await getInterviewBySubjectForUser(
-    "resume",
+    "combined",
     session.userId,
   );
   if (existing && isAssessmentInterviewLocked(existing)) {
-    return redirect({ href: `/interviews/${existing.id}`, locale });
+    return redirect({ href: `/assessments`, locale });
   }
 
   const [accessToken, photoSrc] = await Promise.all([

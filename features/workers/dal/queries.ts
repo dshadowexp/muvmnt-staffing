@@ -7,8 +7,7 @@ import { getIdentityVerification, getWorkAuthorization, getWorkerProfile } from 
 
 export type WorkerPendingActionId =
     | "profile-photo"
-    | "profession-interview"
-    | "resume-interview"
+    | "assessment-interview"
     | "payroll-onboarding"
     | "work-authorization"
     | "identity-verification"
@@ -46,17 +45,10 @@ export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> 
             actions.push({ id: "profile-photo", href: "/dashboard/profile" });
         }
     } else if (stage === "interview") {
-        const [professionInterview, resumeInterview] = await Promise.all([
-            getInterviewBySubjectForUser("profession", user_id),
-            getInterviewBySubjectForUser("resume", user_id),
-        ]);
 
-        if (!professionInterview?.completed_at) {
-            actions.push({ id: "profession-interview", href: "/interviews/profession" });
-        }
-    
-        if (!resumeInterview?.completed_at) {
-            actions.push({ id: "resume-interview", href: "/interviews/resume" });
+        const combinedInterview = await getInterviewBySubjectForUser("combined", user_id);
+        if (!combinedInterview?.completed_at) {
+            actions.push({ id: "assessment-interview", href: "/interviews/combined" });
         }
     } else if (stage === "compliance") {
         const [workAuth, identityVerification] = await Promise.all([

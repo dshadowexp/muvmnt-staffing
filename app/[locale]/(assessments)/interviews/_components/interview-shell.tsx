@@ -715,15 +715,13 @@ export function InterviewShell({
 
       connect({
         auth: { type: "accessToken", value: accessToken },
-        configId:
-          subject === "profession"
-            ? env.NEXT_PUBLIC_HUME_CONFIG_ID_PROFESSION
-            : env.NEXT_PUBLIC_HUME_CONFIG_ID_RESUME,
+        configId: env.NEXT_PUBLIC_HUME_CONFIG_ID,
         sessionSettings: {
           type: "session_settings",
           variables: {
             ...sessionVariables,
             duration: INTERVIEW_DURATION_SECS / 60,
+            start_time: new Date().toISOString(),
           },
         },
         resumedChatGroupId: chatGroupId ?? undefined,

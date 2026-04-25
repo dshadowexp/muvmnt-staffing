@@ -147,21 +147,27 @@ export async function tryAutoReview(
 
     const firstName = worker?.first_name ?? "there";
 
-    // 7. Check whether the worker's other interview has also been passed
-    //    (by admin or auto-review — either counts)
-    const { data: otherPassed } = await supabase
-      .from("interviews")
-      .select("id")
-      .eq("user_id", userId)
-      .neq("id", interviewId)
-      .eq("reviewed", true)
-      .eq("result", "pass")
-      .limit(1)
-      .maybeSingle();
+    // 7. For the combined interview the candidate has completed a single unified
+    //    assessment — promote immediately. For legacy separate-interview subjects
+    //    ("profession" / "resume") check that the other half has also been passed.
+    let bothPassed: boolean;
+    if (interview.subject === "combined") {
+      bothPassed = true;
+    } else {
+      const { data: otherPassed } = await supabase
+        .from("interviews")
+        .select("id")
+        .eq("user_id", userId)
+        .neq("id", interviewId)
+        .eq("reviewed", true)
+        .eq("result", "pass")
+        .limit(1)
+        .maybeSingle();
 
-    const bothPassed = otherPassed != null;
+      bothPassed = otherPassed != null;
+    }
 
-    // 8. Promote to compliance only when both interviews are done
+    // 8. Promote to compliance only when all required interviews are done
     if (bothPassed) {
       const { error: promoteError } = await supabase
         .from("workers")

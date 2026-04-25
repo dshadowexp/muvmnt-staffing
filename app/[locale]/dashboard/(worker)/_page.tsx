@@ -30,7 +30,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   CheckCircle2Icon,
   ChevronRightIcon,
-  FileTextIcon,
   CameraIcon,
   StethoscopeIcon,
   WalletIcon,
@@ -150,15 +149,10 @@ async function PendingActions() {
       description: t("photoCard.description"),
       icon:        <CameraIcon className="size-5 text-primary" />,
     },
-    "profession-interview": {
-      title:       t("professionInterview.title"),
-      description: t("professionInterview.description"),
+    "assessment-interview": {
+      title:       t("assessmentInterview.title"),
+      description: t("assessmentInterview.description"),
       icon:        <StethoscopeIcon className="size-5 text-primary" />,
-    },
-    "resume-interview": {
-      title:       t("resumeInterview.title"),
-      description: t("resumeInterview.description"),
-      icon:        <FileTextIcon className="size-5 text-primary" />,
     },
     "work-authorization": {
       title:       t("workAuthorization.title"),

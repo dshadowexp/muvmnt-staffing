@@ -52,7 +52,7 @@ export type AssessmentSkillRow = {
 
 export type StartedInterview = {
   id: string;
-  subject: "profession" | "resume";
+  subject: "combined" | "profession" | "resume";
   feedback: Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
   result: string | null;
   duration: string | null;
@@ -63,8 +63,7 @@ export type StartedInterview = {
 type Props = {
   profession: string;
   hasPhoto: boolean;
-  professionInterviewPromise: Promise<StartedInterview | null>;
-  resumeInterviewPromise: Promise<StartedInterview | null>;
+  combinedInterviewPromise: Promise<StartedInterview | null>;
   skillsPromise: Promise<AssessmentSkillRow[]>;
 };
 
@@ -122,8 +121,7 @@ function CredentialAssessmentBadges() {
 export function WorkerAssessmentsHub({
   profession,
   hasPhoto,
-  professionInterviewPromise,
-  resumeInterviewPromise,
+  combinedInterviewPromise,
   skillsPromise,
 }: Props) {
   const router = useRouter();
@@ -158,18 +156,9 @@ export function WorkerAssessmentsHub({
 
         <div className="grid gap-4 p-1 sm:grid-cols-2 xl:grid-cols-3">
           <Suspense fallback={<InterviewCardSkeleton variant="start" />}>
-            <InterviewSlot 
-              type="resume" 
-              hasPhoto={hasPhoto} 
-              promise={resumeInterviewPromise} 
-            />
-          </Suspense>
-
-          <Suspense fallback={<InterviewCardSkeleton variant="start" />}>
             <InterviewSlot
-              type="profession"
               hasPhoto={hasPhoto}
-              promise={professionInterviewPromise}
+              promise={combinedInterviewPromise}
             />
           </Suspense>
 
@@ -212,23 +201,20 @@ export function WorkerAssessmentsHub({
 // ---------------------------------------------------------------------------
 
 function InterviewSlot({
-  type,
   hasPhoto,
   promise,
 }: {
-  type: "profession" | "resume";
   hasPhoto: boolean;
   promise: Promise<StartedInterview | null>;
 }) {
   const t = useTranslations("dashboard.worker.assessments");
   const interview = use(promise);
 
-  const title = t(type === "profession" ? "professionTitle" : "resumeTitle");
+  const title = t("combinedTitle");
 
   if (interview?.completedAt == null) {
-    const href =
-      type === "profession" ? "/interviews/profession" : "/interviews/resume";
-    const description = t(type === "profession" ? "professionDescription" : "resumeDescription");
+    const href = "/interviews/combined";
+    const description = t("combinedDescription");
 
     // No photo yet — show a nudge card instead of a navigable link
     if (!hasPhoto) {
@@ -287,10 +273,10 @@ function InterviewSlot({
   const description = !interview.reviewed
     ? t("underReviewDescription")
     : decision === "PENDING"
-      ? t(type === "profession" ? "professionPendingDescription" : "resumePendingDescription")
+      ? t("combinedPendingDescription")
       : decision === "PASS"
-        ? t(type === "profession" ? "professionPassDescription" : "resumePassDescription")
-        : t(type === "profession" ? "professionFailDescription" : "resumeFailDescription");
+        ? t("combinedPassDescription")
+        : t("combinedFailDescription");
 
   return (
     <Link

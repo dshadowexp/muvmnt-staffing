@@ -19,12 +19,12 @@ export default async function WorkerAssessmentsPage() {
 
   const userId = session.userId;
 
-  const professionInterviewPromise: Promise<StartedInterview | null> =
-    getInterviewBySubjectForUser("profession", userId).then((i) =>
+  const combinedInterviewPromise: Promise<StartedInterview | null> =
+    getInterviewBySubjectForUser("combined", userId).then((i) =>
       i
         ? {
             id: i.id,
-            subject: "profession" as const,
+            subject: "combined" as const,
             feedback: i.feedback,
             result: i.result,
             duration: i.duration,
@@ -33,23 +33,7 @@ export default async function WorkerAssessmentsPage() {
           }
         : null,
     );
-  professionInterviewPromise.catch(() => undefined);
-
-  const resumeInterviewPromise: Promise<StartedInterview | null> =
-    getInterviewBySubjectForUser("resume", userId).then((i) =>
-      i
-        ? {
-            id: i.id,
-            subject: "resume" as const,
-            feedback: i.feedback,
-            result: i.result,
-            duration: i.duration,
-            completedAt: i.completed_at,
-            reviewed: i.reviewed,
-          }
-        : null,
-    );
-  resumeInterviewPromise.catch(() => undefined);
+  combinedInterviewPromise.catch(() => undefined);
 
   const skillsPromise: Promise<AssessmentSkillRow[]> = (async () => {
     const rows = await getSkills();
@@ -81,8 +65,7 @@ export default async function WorkerAssessmentsPage() {
       <WorkerAssessmentsHub
         profession={worker.profession ?? ""}
         hasPhoto={Boolean(worker.photo_url)}
-        professionInterviewPromise={professionInterviewPromise}
-        resumeInterviewPromise={resumeInterviewPromise}
+        combinedInterviewPromise={combinedInterviewPromise}
         skillsPromise={skillsPromise}
       />
     </div>

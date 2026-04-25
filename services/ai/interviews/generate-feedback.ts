@@ -74,9 +74,9 @@ Evaluate whether ${userName} is safe, competent, and reliable enough to be place
 
 ## EVALUATION FRAMEWORK
 
-### IF interview_type = CLINICAL
+This is a COMBINED interview. Score the candidate across ALL TEN categories below, in this exact order.
 
-Score the candidate (0-5) in each category, in this exact order:
+### SECTION A — CLINICAL (categories 1–5)
 
 1. Clinical Knowledge — Understanding of procedures, protocols, and best practices
 2. Patient Safety Awareness — Ability to identify risks and avoid harm
@@ -84,15 +84,13 @@ Score the candidate (0-5) in each category, in this exact order:
 4. Communication Clarity — Clear, structured, professional responses
 5. Consistency & Accuracy — No contradictions or unsafe statements
 
-### IF interview_type = BEHAVIORAL
+### SECTION B — BEHAVIORAL (categories 6–10)
 
-Score the candidate (0-5) in each category, in this exact order:
-
-1. Communication Skills
-2. Teamwork & Collaboration
-3. Accountability & Ownership
-4. Adaptability & Problem-Solving
-5. Honesty & Consistency
+6. Communication Skills — Listens well, articulates clearly, adapts tone
+7. Teamwork & Collaboration — Works with colleagues, escalates appropriately
+8. Accountability & Ownership — Takes responsibility, acknowledges mistakes
+9. Adaptability & Problem-Solving — Handles pressure and unexpected situations
+10. Honesty & Consistency — Answers align across the interview, no evasion
 
 ---
 
@@ -115,13 +113,13 @@ Immediately FAIL the candidate if ANY of the following occur:
 * Shows lack of patient safety awareness
 * Provides contradictory or dishonest answers
 * Cannot answer fundamental questions for their experience level
-* Gives vague answers with no real examples (behavioural)
+* Gives vague answers with no real examples in the behavioral section
 
 ---
 
 ## DECISION LOGIC
 
-1. Compute the average score across all five categories
+1. Compute the average score across all ten categories
 2. Apply rules:
    * If any category score is <= 1 → FAIL
    * If average < 3 → FAIL
@@ -134,10 +132,10 @@ Immediately FAIL the candidate if ANY of the following occur:
 Return ONLY the structured object the system expects. The structure MUST match the schema provided by the tool:
 
 - \`candidate_name\`: the candidate's full name (use "${userName}" unless the transcript clearly overrides it)
-- \`interview_type\`: "CLINICAL" or "BEHAVIORAL" (pick the rubric you applied)
+- \`interview_type\`: always "COMBINED"
 - \`decision\`: "PASS" or "FAIL"
-- \`average_score\`: number, one decimal place acceptable
-- \`scores\`: array of exactly FIVE objects \`{ label, score }\`. Labels MUST match the rubric order above for the chosen interview_type. Scores are integers 0-5.
+- \`average_score\`: mean of all ten category scores, one decimal place acceptable
+- \`scores\`: array of exactly TEN objects \`{ label, score }\`. Labels MUST match the rubric order above (clinical 1–5 first, behavioral 6–10 second). Scores are integers 0–5.
 - \`strengths\`: 2-4 short, concrete, transcript-grounded strengths
 - \`weaknesses\`: 2-4 short, concrete, transcript-grounded concerns
 - \`risk_flags\`: safety/ethical/compliance concerns; use an empty array when none

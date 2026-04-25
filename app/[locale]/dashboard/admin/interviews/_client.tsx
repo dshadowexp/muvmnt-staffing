@@ -527,7 +527,7 @@ export function AdminInterviewsClient({ interviews }: Props) {
                     {row.worker_name ?? "Unknown"}
                   </TableCell>
                   <TableCell>
-                    {row.subject === "profession" ? "Profession" : "Resume"}
+                    {row.subject === "combined" ? "Combined" : row.subject === "profession" ? "Profession" : "Resume"}
                   </TableCell>
                   <TableCell>{row.duration ?? "—"}</TableCell>
                   <TableCell>
@@ -575,7 +575,7 @@ export function AdminInterviewsClient({ interviews }: Props) {
           <DialogHeader>
             <DialogTitle>
               {selected?.worker_name ?? "Unknown"} —{" "}
-              {selected?.subject === "profession" ? "Profession" : "Resume"} Interview
+              {selected?.subject === "combined" ? "Combined" : selected?.subject === "profession" ? "Profession" : "Resume"} Interview
             </DialogTitle>
             <DialogDescription>
               Completed{" "}
