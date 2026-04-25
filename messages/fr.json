@@ -1754,7 +1754,7 @@
       },
       "resume": {
         "uploadTitle": "Entretien basé sur le CV",
-        "uploadDescription": "Téléversez votre CV pour commencer. Nous mènerons un entretien comportemental de {minutes, plural, one {# minute} other {# minutes}} basé sur votre CV.",
+        "uploadDescription": "Téléversez votre CV pour commencer. Vous avez {remaining} tentative(s) de téléversement pour fournir un CV acceptable, sinon vous ne pourrez pas passer à l'entretien.",
         "fileLabel": "CV",
         "fileHint": "PDF, Word ou texte brut — 10 Mo maximum.",
         "scanning": "Analyse du CV…",
@@ -1784,7 +1784,7 @@
         "errorUploadFailed": "Échec du téléversement de votre CV. Veuillez réessayer.",
         "errorRemoveFailed": "Échec de la suppression de votre CV. Veuillez réessayer.",
         "limitReached": "Vous avez atteint le maximum de {limit} modifications de CV. Vous ne pouvez plus changer votre CV.",
-        "uploadLimitBadge": "{remaining} sur {limit} téléversements restants",
+        "uploadLimitBadge": "{remaining} tentative(s) de téléversement restante(s)",
         "errorInvalidResumeTitle": "CV non accepté",
         "errorInvalidResumeBody": "Ce document ne semble pas être un CV valide. Veuillez téléverser un CV contenant votre nom, votre expérience professionnelle et vos informations pertinentes.",
         "errorInvalidResumeReason": "Ce document ne semble pas être un CV valide ({reason}). Veuillez téléverser un CV contenant votre nom, votre expérience professionnelle et vos informations pertinentes.",

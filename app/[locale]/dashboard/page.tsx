@@ -1,4 +1,4 @@
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getSession } from "@/lib/session";
 import { getLocale } from "next-intl/server";
 import ClientHomePage from "./(client)/_page";
@@ -10,5 +10,11 @@ export default async function DashboardPage() {
     if (!session) return redirect({ href: "/sign-in", locale });
     if (session.role === "client") return <ClientHomePage />;
     if (session.role === "worker") return <WorkerHomePage />;
-    return redirect({ href: "/dashboard/admin", locale });
+    return (
+        <div className="flex flex-col items-center justify-center h-screen">
+            <h1>Ops! You shouldn't be here</h1>
+            <p>You are not authorized to access this page.</p>
+            <Link href="/">Go to home</Link>
+        </div>
+    );
 }

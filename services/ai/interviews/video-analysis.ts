@@ -33,7 +33,7 @@ const GEMINI_API_KEY = () => env.GEMINI_API_KEY;
 const UPLOAD_BASE =
   "https://generativelanguage.googleapis.com/upload/v1beta/files";
 const GENERATE_BASE =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 async function uploadFileToGemini(
   buffer: Buffer,

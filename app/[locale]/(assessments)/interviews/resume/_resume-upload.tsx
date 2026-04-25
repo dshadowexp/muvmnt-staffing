@@ -337,6 +337,7 @@ export function ResumeUpload({ existingInterview, candidateName, onResumeReady }
                   <CardTitle className="text-xl">{t("uploadTitle")}</CardTitle>
                   <CardDescription>
                     {t("uploadDescription", {
+                      remaining: remainingAttempts,
                       minutes: INTERVIEW_DURATION_SECS / 60,
                     })}
                   </CardDescription>

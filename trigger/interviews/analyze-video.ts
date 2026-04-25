@@ -1,16 +1,15 @@
 import { logger, schemaTask } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
-import { exec } from "child_process";
-import { promisify } from "util";
+import ffmpeg from "fluent-ffmpeg";          
 import * as fs from "fs/promises";
-
+import { tmpdir } from "os";
+import { join } from "path";
 import { createAdminClient } from "@/services/supabase/server";
 import { s3Api } from "@/services/s3/api";
 import { analyzeInterviewVideoBuffer } from "@/services/ai/interviews/video-analysis";
 import { tryAutoReview } from "@/features/interviews/services/auto-review";
 import type { Json } from "@/services/supabase/types/database";
-
-const execAsync = promisify(exec);
+import { Readable } from "stream";
 
 const payloadSchema = z.object({
   interviewId: z.string().min(1),
@@ -68,30 +67,37 @@ export const analyzeInterviewVideoTask = schemaTask({
       logger.log("Downloading video from S3", { recordingKey });
       const download = await s3Api.download(recordingKey);
 
-      const chunks: Buffer[] = [];
-      for await (const chunk of download.stream) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-      }
-      const videoBuffer = Buffer.concat(chunks);
+      // const chunks: Buffer[] = [];
+      // for await (const chunk of download.stream) {
+      //   chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      // }
+      // const videoBuffer = Buffer.concat(chunks);
 
-      logger.log("Video downloaded", { bytes: videoBuffer.byteLength, mimeType: download.mimeType });
+      // logger.log("Video downloaded", { bytes: videoBuffer.byteLength, mimeType: download.mimeType });
 
       // 3. Transcode with ffmpeg
-      const ext = getMimeTypeExtension(download.mimeType);
-      inputPath = `/tmp/interview-${interviewId}.${ext}`;
-      outputPath = `/tmp/interview-${interviewId}-compressed.mp4`;
-
-      await fs.writeFile(inputPath, videoBuffer);
+      const tempDir = tmpdir();
+      outputPath = join(tempDir, `interview-${interviewId}-compressed.mp4`);
 
       logger.log("Transcoding video", { inputPath, outputPath });
 
-      await execAsync(
-        `ffmpeg -y -i "${inputPath}" -vf scale=854:480 -an -c:v libx264 -preset fast -crf 28 "${outputPath}"`,
-      );
+      await new Promise<void>((resolve, reject) => {
+        ffmpeg(download.stream)
+          .outputOptions([
+            "-vf scale=854:480",
+            "-an",               // no audio (matches your original flag)
+            "-c:v libx264",
+            "-preset fast",
+            "-crf 28",
+          ])
+          .output(outputPath!)
+          .on("end", () => resolve())
+          .on("error", (err) => reject(err))
+          .run();
+      });
 
       // 4. Read compressed output
       const compressedBuffer = await fs.readFile(outputPath);
-
       logger.log("Transcoding complete", { compressedBytes: compressedBuffer.byteLength });
 
       // 5. Fetch worker profile photo for identity verification

@@ -1,5 +1,5 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
-import { additionalFiles } from "@trigger.dev/build/extensions/core";
+import { additionalFiles, ffmpeg } from "@trigger.dev/build/extensions/core";
 
 export default defineConfig({
   project: "proj_csgaittwhahtnolpoifz",
@@ -24,12 +24,11 @@ export default defineConfig({
   dirs: ["trigger"],
   build: {
     extensions: [
-      // Ship the Handlebars templates alongside the task bundle so
-      // `renderEmail/Sms/Push` can read them at runtime from
-      // `features/notifications/templates/**`.
+      ffmpeg(),
       additionalFiles({
         files: ["features/notifications/templates/**"],
       }),
     ],
+    external: ["fluent-ffmpeg"],
   },
 });

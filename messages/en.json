@@ -1755,7 +1755,7 @@
       },
       "resume": {
         "uploadTitle": "Resume Interview",
-        "uploadDescription": "Upload your resume to begin. We will conduct a {minutes}-minute behavioural interview based on your resume.",
+        "uploadDescription": "Upload your resume(CV) to begin. You have {remaining} upload attempt(s) to provide an acceptable resume, otherwise you will not be able to proceed to the interview.",
         "fileLabel": "Resume",
         "fileHint": "PDF, Word, or plain text — max 10 MB.",
         "scanning": "Scanning resume…",
@@ -1785,7 +1785,7 @@
         "errorUploadFailed": "Failed to upload your resume. Please try again.",
         "errorRemoveFailed": "Failed to remove your resume. Please try again.",
         "limitReached": "You've reached the maximum of {limit} resume changes. You can no longer change your resume.",
-        "uploadLimitBadge": "{remaining} of {limit} uploads remaining",
+        "uploadLimitBadge": "{remaining} upload attemps(s) left",
         "errorInvalidResumeTitle": "Resume not accepted",
         "errorInvalidResumeBody": "This document doesn't appear to be a valid resume. Please upload a CV that includes your name, work history, and relevant experience.",
         "errorInvalidResumeReason": "This document doesn't appear to be a valid resume ({reason}). Please upload a CV that includes your name, work history, and relevant experience.",

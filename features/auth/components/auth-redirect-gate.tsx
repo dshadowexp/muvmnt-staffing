@@ -11,6 +11,7 @@ export function AuthRedirectGate({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const { redirectTo } = useAuthRedirect();
+    console.log("redirectTo", redirectTo);
 
     const isAuthPage =
         pathname?.includes("sign-in") ||
