@@ -4,7 +4,7 @@ import { getLocale } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { getCurrentUser, isWorkerEmail } from "@/features/users/dal/queries";
 import { createAdminClient } from "@/services/supabase/server";
-import { resolveScreeningToken } from "@/features/screenings/dal/queries";
+import { resolveScreeningToken, type CandidateIdentityVerification } from "@/features/screenings/dal/queries";
 import { getOrCreateScreeningCandidate } from "@/features/screenings/dal/mutations";
 import { redirect } from "@/i18n/navigation";
 import { ScreeningCandidateClient } from "./_client";
@@ -115,20 +115,51 @@ async function SuspendedContent({
     user.email ?? "",
   );
 
-  // Interview stage — redirect to the single interview entry point
-  if (candidate.stage === "interview") {
-    const supabase = await createAdminClient();
-    const { data: iv } = await supabase
-      .from("interviews")
-      .select("id")
-      .eq("user_id", session.userId)
-      .eq("screening_id", screening.id)
-      .maybeSingle();
-
-    if (iv?.id) {
-      return redirect({ href: `/interviews/${iv.id}`, locale });
+  // Deadline check — skip for completed candidates
+  if (candidate.stage !== "completed") {
+    const sentAt = invite.sent_at ?? invite.created_at;
+    const deadlineMs =
+      new Date(sentAt).getTime() + screening.deadline_days * 24 * 60 * 60 * 1000;
+    if (Date.now() > deadlineMs) {
+      return (
+        <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
+          <h1 className="text-2xl font-semibold">Deadline passed</h1>
+          <p className="text-muted-foreground text-sm max-w-sm">
+            The deadline to complete this screening has passed. Please contact
+            the employer if you believe this is an error.
+          </p>
+        </div>
+      );
     }
   }
+
+  // Interview stage — check identity, then redirect
+  if (candidate.stage === "interview") {
+    const candidateIv =
+      (candidate.identity_verification ?? null) as CandidateIdentityVerification | null;
+    const needsIdentity = screening.require_identity && !candidateIv?.verified;
+
+    if (!needsIdentity) {
+      const supabase = await createAdminClient();
+      const { data: interviewRow } = await supabase
+        .from("interviews")
+        .select("id")
+        .eq("user_id", session.userId)
+        .eq("screening_id", screening.id)
+        .maybeSingle();
+
+      if (interviewRow?.id) {
+        return redirect({ href: `/interviews/${interviewRow.id}`, locale });
+      }
+    }
+  }
+
+  const candidateIv =
+    (candidate.identity_verification ?? null) as CandidateIdentityVerification | null;
+  const showIdentityStep =
+    candidate.stage === "interview" &&
+    screening.require_identity &&
+    !candidateIv?.verified;
 
   return (
     <ScreeningCandidateClient
@@ -137,6 +168,7 @@ async function SuspendedContent({
       candidate={candidate}
       isWorkerInvite={workerInvite}
       locale={locale}
+      showIdentityStep={showIdentityStep}
     />
   );
 }

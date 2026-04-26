@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "../providers/auth-provider";
 
-const PRESERVED_AUTH_PARAM_KEYS = ["redirect", "as", "ref"] as const;
+const PRESERVED_AUTH_PARAM_KEYS = ["redirect", "as", "ref", "token"] as const;
 
 const DEFAULT_REDIRECT = "/dashboard";
 

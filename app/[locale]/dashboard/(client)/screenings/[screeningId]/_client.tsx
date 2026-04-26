@@ -22,6 +22,10 @@ import {
   UsersIcon,
   SendIcon,
   BarChart2Icon,
+  TimerIcon,
+  CalendarClockIcon,
+  LanguagesIcon,
+  ClipboardListIcon,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -223,9 +227,48 @@ export function ScreeningDetailClient({
     const results = await Promise.all(
       emails.map((email) => sendScreeningInviteAction(screening.id, email))
     )
-    const failed = results.filter((r) => r.error)
+
+    type FailedEntry = { email: string; reason: string }
+    const failed: FailedEntry[] = results.flatMap((r, i) =>
+      r.error
+        ? [{ email: emails[i]!, reason: (r as { error: true; message: string }).message }]
+        : []
+    )
+    const succeeded = emails.length - failed.length
+
     if (failed.length > 0) {
-      toast.error(`Failed to send ${failed.length} invite(s)`)
+      // Repopulate the textarea with only the addresses that failed
+      const failedEmails = failed.map((f) => f.email)
+
+      // Build a readable description of why each one failed
+      const alreadyInvited = failed
+        .filter((f) => f.reason === "already invited")
+        .map((f) => f.email)
+      const otherErrors = failed.filter((f) => f.reason !== "already invited")
+
+      const lines: string[] = []
+      if (alreadyInvited.length > 0) {
+        lines.push(
+          `Already invited: ${alreadyInvited.join(", ")}`
+        )
+      }
+      otherErrors.forEach((f) => lines.push(`${f.email}: ${f.reason}`))
+
+      if (succeeded > 0) {
+        toast.warning(
+          `${succeeded} invite${succeeded !== 1 ? "s" : ""} sent — ${failed.length} could not be sent`,
+          { description: lines.join("\n") }
+        )
+        router.refresh()
+      } else {
+        toast.error(
+          `Could not send ${failed.length} invite${failed.length !== 1 ? "s" : ""}`,
+          { description: lines.join("\n") }
+        )
+      }
+
+      // Restore only the failed emails into the textarea
+      reset({ emails: failedEmails.join("\n") })
     } else {
       toast.success(
         emails.length === 1
@@ -233,6 +276,7 @@ export function ScreeningDetailClient({
           : `${emails.length} invites sent`
       )
       reset()
+      setInviteDialogOpen(false)
       router.refresh()
     }
   }
@@ -303,7 +347,37 @@ export function ScreeningDetailClient({
       </div>
 
       {/* Description accordion */}
-      <Accordion type="single" collapsible className="mt-4">
+      <Accordion type="single" collapsible className="mt-4 rounded-none border-0 shadow-none">
+        <AccordionItem value="details" className="px-3">
+          <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+            Details
+          </AccordionTrigger>
+          <AccordionContent className="pb-4 text-sm leading-relaxed text-muted-foreground">
+            <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5 text-left">
+                <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-normal text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                        <TimerIcon
+                            className="size-3.5 shrink-0"
+                            aria-hidden
+                        />
+                        {screening.interview_duration} minutes
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                        <CalendarClockIcon className="size-3.5 shrink-0" aria-hidden />
+                        {screening.deadline_days} days
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                        <LanguagesIcon
+                            className="size-3.5 shrink-0"
+                            aria-hidden
+                        />
+                        {}
+                    </span>
+
+                </span>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
         <AccordionItem value="description" className="px-3">
           <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
             Description
@@ -399,6 +473,46 @@ export function ScreeningDetailClient({
             </CardContent>
           </Card>
         </div>
+
+        {/* Evaluate card — active when there are candidates */}
+        {(() => {
+          const canEvaluate = candidates.length > 0
+          const card = (
+            <Card className="flex h-full flex-row items-start justify-between">
+              <CardHeader className="flex-grow">
+                <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                  <ClipboardListIcon className="size-4 text-muted-foreground" />
+                  Evaluate candidates
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {canEvaluate
+                    ? "Review and compare candidate interview results."
+                    : "Candidates will appear here once they start the screening."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6 pl-0">
+                <ArrowRightIcon className="size-5 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          )
+
+          if (!canEvaluate) {
+            return (
+              <div className="cursor-not-allowed opacity-60">
+                {card}
+              </div>
+            )
+          }
+
+          return (
+            <Link
+              className="transition-transform hover:scale-[1.02]"
+              href={`/dashboard/screenings/${screening.id}/evaluate`}
+            >
+              {card}
+            </Link>
+          )
+        })()}
       </div>
 
       {/* Invite dialog */}
@@ -457,7 +571,7 @@ export function ScreeningDetailClient({
           {candidates.length === 0 ? (
             <div className="py-12 text-center">
               <p className="text-sm text-muted-foreground">
-                No candidates yet. Share the link or send invites above.
+                No candidates yet. Send invites above.
               </p>
             </div>
           ) : (

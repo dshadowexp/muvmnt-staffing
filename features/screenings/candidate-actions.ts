@@ -5,9 +5,16 @@ import { getCurrentUser } from "@/features/users/dal/queries";
 import {
   getOrCreateScreeningCandidate,
   updateCandidateStage,
+  updateCandidateIdentityVerification,
   insertScreeningInterview,
 } from "./dal/mutations";
-import { resolveScreeningToken, getScreeningCandidate } from "./dal/queries";
+import {
+  resolveScreeningToken,
+  getScreeningCandidate,
+  type CandidateIdentityVerification,
+} from "./dal/queries";
+import { getStripeServer } from "@/services/stripe/server";
+import { env } from "@/data/env/server";
 
 // ─── Join / get-or-create ─────────────────────────────────────────────────────
 
@@ -120,6 +127,83 @@ export async function saveCandidatePhotoAction(
       message: e instanceof Error ? e.message : "Failed to save photo",
     };
   }
+}
+
+// ─── Candidate identity verification ─────────────────────────────────────────
+
+export async function createCandidateIdentityVerificationAction(
+  screeningId: string,
+  returnUrl: string,
+): Promise<
+  | { error: true; message: string }
+  | { error: false; url?: string; alreadyVerified?: true }
+> {
+  const session = await getSession();
+  if (!session || session.role !== "candidate") {
+    return { error: true, message: "Not authorized" };
+  }
+
+  const candidate = await getScreeningCandidate(session.userId, screeningId);
+  if (!candidate) return { error: true, message: "Candidate not found" };
+
+  const iv = (candidate.identity_verification ?? null) as CandidateIdentityVerification | null;
+
+  if (iv?.verified) return { error: false, alreadyVerified: true };
+
+  const stripe = getStripeServer();
+
+  // Try to resume an existing requires_input session
+  if (iv?.session_id) {
+    try {
+      const existing = await stripe.identity.verificationSessions.retrieve(iv.session_id);
+      if (existing.status === "requires_input" && existing.url) {
+        return { error: false, url: existing.url };
+      }
+      if (existing.status === "verified") {
+        // Webhook hasn't fired yet — mark locally
+        await updateCandidateIdentityVerification(session.userId, screeningId, {
+          verified: true,
+          verified_at: new Date().toISOString(),
+          session_id: iv.session_id,
+        });
+        return { error: false, alreadyVerified: true };
+      }
+    } catch {
+      // Fall through to create a new session
+    }
+  }
+
+  // Create a new Stripe Identity session
+  let stripeSession: Awaited<ReturnType<typeof stripe.identity.verificationSessions.create>>;
+  try {
+    stripeSession = await stripe.identity.verificationSessions.create({
+      type: "document",
+      client_reference_id: session.userId,
+      return_url: returnUrl,
+      metadata: {
+        type: "candidate",
+        user_id: session.userId,
+        screening_candidate_id: candidate.id,
+      },
+    });
+  } catch (e) {
+    return {
+      error: true,
+      message: e instanceof Error ? e.message : "Failed to create verification session",
+    };
+  }
+
+  if (!stripeSession.url) {
+    return { error: true, message: "Stripe did not return a verification URL. Please try again." };
+  }
+
+  await updateCandidateIdentityVerification(session.userId, screeningId, {
+    verified: false,
+    verified_at: null,
+    session_id: stripeSession.id,
+  });
+
+  return { error: false, url: stripeSession.url };
 }
 
 // ─── Complete (called from finalizeInterviewRecording) ────────────────────────

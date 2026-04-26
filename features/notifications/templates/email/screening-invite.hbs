@@ -1,11 +1,26 @@
 {{#> email-base previewText="You've been invited to complete a screening"}}
   {{#*inline "body"}}
     <p class="label">Screening Invitation</p>
-    <h1>You've been invited to complete a candidate screening.</h1>
-    <p><strong>{{clientName}}</strong> has invited you to apply for <strong>{{screeningTitle}}</strong>.</p>
+    <h1>You've been invited to complete a screening.</h1>
+    <p><strong>{{clientName}}</strong> has invited you to complete the screening for <strong>{{screeningTitle}}</strong>.</p>
     <p>Click the button below to get started. You'll complete a short profile, upload your resume, and do a brief AI-powered interview — all in one place.</p>
     <a href="{{inviteUrl}}" class="btn">Start Screening</a>
     <div class="divider"></div>
+    <table style="width:100%;border-collapse:collapse;margin:0 0 16px;">
+      <tr>
+        <td style="padding:10px 14px;background:#f9fafb;border-radius:8px 8px 0 0;border-bottom:1px solid #e5e7eb;">
+          <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Interview duration</span><br>
+          <span style="font-size:15px;color:#111827;font-weight:500;">{{interviewDuration}} minutes</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:10px 14px;background:#f9fafb;border-radius:0 0 8px 8px;">
+          <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Complete by</span><br>
+          <span style="font-size:15px;color:#111827;font-weight:500;">{{deadlineDate}}</span>
+          <span style="font-size:13px;color:#6b7280;margin-left:6px;">({{deadlineDays}} days from today)</span>
+        </td>
+      </tr>
+    </table>
     <p style="font-size:13px;color:#888;">
       If the button doesn't work, copy and paste this link into your browser:<br>
       <a href="{{inviteUrl}}" style="color:#888;word-break:break-all;">{{inviteUrl}}</a>

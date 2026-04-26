@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TRUST_LOGOS } from "@/lib/constants";
 import {
@@ -10,11 +9,12 @@ import {
   ArrowRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/navigation";
+import { ctaPrimary, ctaOutline, ctaOutlineDark } from "../_lib/cta-classes";
 
 /* Shared overline pill used in light-mode content sections */
 const SectionOverline = ({
@@ -46,6 +46,16 @@ type HeroStat = { value: string; label: string };
 type HowStep = { num: string; title: string; description: string };
 type WhyPoint = { icon: string; title: string; description: string };
 type Testimonial = { stars: number; text: string; name: string; role: string };
+type Pipeline = {
+  zoneLabel: string;
+  journeyOverline: string;
+  journeySubtitle: string;
+  clientTrack: string[];
+  proTrack: string[];
+  clientSub: string;
+  proSub: string;
+};
+type ScreeningStat = { value: string; label: string };
 
 /* ──────────────────────────────────────────
    HeroSection
@@ -83,17 +93,8 @@ export async function HeroSection() {
             </p>
 
             <div className="flex animate-fade-up-3 flex-wrap items-center gap-4">
-              <Button asChild size="lg">
-                <Link href="/find-staff">{t("ctaRequest")}</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-white/20 text-white hover:bg-white/10 hover:text-white"
-              >
-                <Link href="/find-work">{t("ctaProfessional")}</Link>
-              </Button>
+              <Link href="/find-staff" className={ctaPrimary}>{t("ctaRequest")}</Link>
+              <Link href="/find-work" className={ctaOutlineDark}>{t("ctaProfessional")}</Link>
             </div>
           </div>
 
@@ -223,12 +224,8 @@ export async function HowItWorksSection() {
 
         {/* CTAs */}
         <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild size="lg">
-            <Link href="/find-staff">{t("ctaRequest")}</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/find-work">{t("ctaJoin")}</Link>
-          </Button>
+          <Link href="/find-staff" className={ctaPrimary}>{t("ctaRequest")}</Link>
+          <Link href="/find-work" className={ctaOutline}>{t("ctaJoin")}</Link>
         </div>
       </div>
     </section>
@@ -238,7 +235,20 @@ export async function HowItWorksSection() {
 /* ──────────────────────────────────────────
    PipelineDiagram
 ────────────────────────────────────────── */
-function PipelineDiagram() {
+
+interface PipelineDiagramProps {
+  zoneLabel: string;
+  /** Labels for the top (permanent/roles) track: [node0, node1, node2, node3] */
+  clientTrack: string[];
+  /** Labels for the bottom (temporary/shifts) track */
+  proTrack: string[];
+  /** Sub-label under first node of top track */
+  clientSub: string;
+  /** Sub-label under first node of bottom track */
+  proSub: string;
+}
+
+function PipelineDiagram({ zoneLabel, clientTrack, proTrack, clientSub, proSub }: PipelineDiagramProps) {
   const teal = "rgba(13,148,136,";
   const green = "rgba(16,185,129,";
 
@@ -251,21 +261,21 @@ function PipelineDiagram() {
 
   const tracks: { y: number; nodes: TrackNode[] }[] = [
     {
-      y: ay,
+      y: by,
       nodes: [
-        { x: xs[0], label: "Client",    variant: "neutral", sub: "Staffing need" },
-        { x: xs[1], label: "AI Screen", variant: "teal"    },
-        { x: xs[2], label: "Shortlist", variant: "teal"    },
-        { x: xs[3], label: "Hired ✓",  variant: "green"   },
+        { x: xs[0], label: proTrack[0],  variant: "neutral", sub: proSub },
+        { x: xs[1], label: proTrack[1],  variant: "teal"    },
+        { x: xs[2], label: proTrack[2],  variant: "teal"    },
+        { x: xs[3], label: proTrack[3],  variant: "green"   },
       ],
     },
     {
-      y: by,
+      y: ay,
       nodes: [
-        { x: xs[0], label: "HC Pro",    variant: "neutral", sub: "Open for shifts" },
-        { x: xs[1], label: "Interview", variant: "teal"    },
-        { x: xs[2], label: "Matched",   variant: "teal"    },
-        { x: xs[3], label: "Shifts ✓", variant: "green"   },
+        { x: xs[0], label: clientTrack[0], variant: "neutral", sub: clientSub },
+        { x: xs[1], label: clientTrack[1], variant: "teal"    },
+        { x: xs[2], label: clientTrack[2], variant: "teal"    },
+        { x: xs[3], label: clientTrack[3], variant: "green"   },
       ],
     },
   ];
@@ -284,7 +294,7 @@ function PipelineDiagram() {
         strokeWidth="1.2" strokeDasharray="5 3" />
       <text x="213" y="38" textAnchor="middle" fontSize="8" fontWeight="700"
         fill={`${teal}1)`} letterSpacing="2"
-        fontFamily="system-ui, -apple-system, sans-serif">READYKARE</text>
+        fontFamily="system-ui, -apple-system, sans-serif">{zoneLabel}</text>
 
       {tracks.map(({ y, nodes }) => (
         <g key={`track-${y}`}>
@@ -367,6 +377,7 @@ function PipelineDiagram() {
 export async function WhyUsSection() {
   const t = await getTranslations("landing.why");
   const points = t.raw("points") as WhyPoint[];
+  const pipeline = t.raw("pipeline") as Pipeline;
 
   return (
     <section
@@ -429,12 +440,18 @@ export async function WhyUsSection() {
             />
             <div className="relative">
               <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-[2px] text-primary/60">
-                The journey
+                {pipeline.journeyOverline}
               </p>
               <p className="mb-6 text-sm font-light text-muted-foreground">
-                One platform. Two paths. Every placement.
+                {pipeline.journeySubtitle}
               </p>
-              <PipelineDiagram />
+              <PipelineDiagram
+                zoneLabel={pipeline.zoneLabel}
+                clientTrack={pipeline.clientTrack}
+                proTrack={pipeline.proTrack}
+                clientSub={pipeline.clientSub}
+                proSub={pipeline.proSub}
+              />
             </div>
           </div>
         </div>
@@ -500,12 +517,8 @@ export async function TestimonialsSection() {
         </div>
 
         <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild size="lg">
-            <Link href="/find-staff">{t("ctaRequest")}</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/find-work">{t("ctaFindWork")}</Link>
-          </Button>
+          <Link href="/find-staff" className={ctaPrimary}>{t("ctaRequest")}</Link>
+          <Link href="/find-work" className={ctaOutline}>{t("ctaFindWork")}</Link>
         </div>
       </div>
     </section>
@@ -516,7 +529,12 @@ export async function TestimonialsSection() {
    ScreeningSection
 ────────────────────────────────────────── */
 
-function ScreeningDiagram() {
+interface ScreeningDiagramProps {
+  painLabels: [string, string, string];
+  outputLabel: string;
+}
+
+function ScreeningDiagram({ painLabels, outputLabel }: ScreeningDiagramProps) {
   const teal = "rgba(13,148,136,";
   const red = "rgba(239,68,68,";
 
@@ -534,19 +552,19 @@ function ScreeningDiagram() {
   const painNodes = [
     {
       cy: 50,
-      label: "Scheduling Headaches",
+      label: painLabels[0],
       // Clock
       d: "M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z M12 6v6l4 2",
     },
     {
       cy: 130,
-      label: "No-Shows",
+      label: painLabels[1],
       // XCircle
       d: "M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z M15 9l-6 6 M9 9l6 6",
     },
     {
       cy: 210,
-      label: "Gut-Feel Bias",
+      label: painLabels[2],
       // ShieldAlert
       d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M12 8v4 M12 16h.01",
     },
@@ -672,17 +690,20 @@ function ScreeningDiagram() {
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
         <path d="M22 4L12 14.01l-3-3" />
       </g>
-      <text x={outCx} y={outCy + 42}
+      <text x={outCx} y={outCy + 47}
         fill="rgba(94,234,212,0.65)"
-        fontSize="8.5" textAnchor="middle" fontFamily="system-ui">Fast</text>
-      <text x={outCx} y={outCy + 53}
-        fill="rgba(94,234,212,0.65)"
-        fontSize="8.5" textAnchor="middle" fontFamily="system-ui">Decisions</text>
+        fontSize="8.5" textAnchor="middle" fontFamily="system-ui">{outputLabel}</text>
     </svg>
   );
 }
 
-export function ScreeningSection() {
+type ScreeningDiagramData = { painLabels: [string, string, string]; outputLabel: string };
+
+export async function ScreeningSection() {
+  const t = await getTranslations("landing.screening");
+  const stats = t.raw("stats") as ScreeningStat[];
+  const diagram = t.raw("diagram") as ScreeningDiagramData;
+
   return (
     <section className="relative overflow-hidden bg-[var(--charcoal)] px-6 py-24 lg:px-12 lg:py-32">
       {/* Background effects matching hero */}
@@ -693,50 +714,46 @@ export function ScreeningSection() {
       <div className="relative mx-auto max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
 
-          {/* ── Left: copy ── */}
-          <div>
+          {/* ── Left: node diagram ── */}
+          <div className="flex flex-col items-start justify-center">
             <Badge
               variant="secondary"
-              className="mb-5 h-7 rounded-full border border-[rgba(13,148,136,0.3)] bg-[rgba(13,148,136,0.15)] px-3 text-[0.68rem] font-semibold uppercase tracking-[2.5px] text-[var(--teal-mid)]"
+              className="mb-5 h-7 rounded-full border border-[rgba(13,148,136,0.3)] bg-[rgba(13,148,136,0.15)] px-3 text-[0.68rem] font-semibold tracking-[2.5px] text-[var(--teal-mid)]"
             >
-              AI Screening
+              {t("badge")}
             </Badge>
+            <div className="relative w-full max-w-md rounded-3xl border border-[rgba(13,148,136,0.15)] bg-[rgba(13,148,136,0.06)] p-8 lg:p-10">
+              <div aria-hidden className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(13,148,136,0.12),transparent_70%)]" />
+              <ScreeningDiagram
+                painLabels={diagram.painLabels}
+                outputLabel={diagram.outputLabel}
+              />
+            </div>
+          </div>
 
+          {/* ── Right: copy ── */}
+          <div>
             <h2 className="font-[var(--font-display)] text-[clamp(2rem,3.5vw,2.8rem)] font-extrabold leading-[1.1] tracking-tight text-white">
-              Stop screening
+              {t("titleLead")}
               <br />
-              <span className="text-[var(--teal-mid)]">manually.</span>
+              <span className="text-[var(--teal-mid)]">{t("titleAccent")}</span>
             </h2>
 
             <p className="mt-5 max-w-md text-base font-light leading-7 text-white/55">
-              Scheduling calls, reading CVs, scoring candidates — it takes weeks.
-              ReadyKare runs structured AI interviews for every applicant, so you
-              receive a ranked shortlist, not a pile of resumes.
+              {t("subtitle")}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button asChild size="lg">
-                <Link href="/screening">
-                  Learn more
-                  <ArrowRight className="ml-2 size-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-              >
-                <Link href="/find-staff">Start hiring</Link>
-              </Button>
+              <Link href="/screening" className={ctaPrimary}>
+                {t("ctaLearnMore")}
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link href="/find-staff" className={ctaOutlineDark}>{t("ctaStartHiring")}</Link>
             </div>
 
             {/* Mini stats row */}
             <div className="mt-10 flex items-center gap-8 border-t border-white/10 pt-8">
-              {[
-                { value: "< 48h", label: "Time to shortlist" },
-                { value: "100%", label: "Candidates screened" },
-                { value: "3×", label: "Faster than manual" },
-              ].map(s => (
+              {stats.map(s => (
                 <div key={s.label}>
                   <div className="font-[var(--font-display)] text-xl font-extrabold text-white">
                     {s.value}
@@ -744,14 +761,6 @@ export function ScreeningSection() {
                   <div className="mt-0.5 text-xs text-white/40">{s.label}</div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* ── Right: node diagram ── */}
-          <div className="flex items-center justify-center">
-            <div className="relative w-full max-w-md rounded-3xl border border-[rgba(13,148,136,0.15)] bg-[rgba(13,148,136,0.06)] p-8 lg:p-10">
-              <div aria-hidden className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(13,148,136,0.12),transparent_70%)]" />
-              <ScreeningDiagram />
             </div>
           </div>
 

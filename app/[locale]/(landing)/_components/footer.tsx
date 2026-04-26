@@ -43,7 +43,7 @@ export default async function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-10 pb-14 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-16">
           <div>
-            <div className="mb-4 font-[var(--font-display)] text-2xl font-extrabold text-white">
+            <div className="mb-4 font-[var(--font-display)] text-2xl font-extrabold text-primary">
               {SITE_NAME.toLowerCase()}
               <span className="text-[var(--teal-mid)]">.</span>
             </div>

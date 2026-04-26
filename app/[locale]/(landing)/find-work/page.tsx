@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { LandingAuthCtas } from "../_components/landing-auth-ctas";
-import { Button } from "@/components/ui/button";
+import { ctaOutlineSm } from "../_lib/cta-classes";
 import { HowItWorks } from "./_how-it-works";
 
 export async function generateMetadata({
@@ -140,12 +140,10 @@ export default async function FindWorkPage() {
                 {t("rolesTitle")}
               </h2>
             </div>
-            <Button variant="outline" asChild>
-              <Link href="/faq">
-                {t("seeFaq")}
-                <ArrowRight className="ml-1 size-4" />
-              </Link>
-            </Button>
+            <Link href="/faq" className={ctaOutlineSm}>
+              {t("seeFaq")}
+              <ArrowRight className="size-4" />
+            </Link>
           </div>
 
           <div className="flex flex-wrap gap-2">

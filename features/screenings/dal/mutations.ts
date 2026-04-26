@@ -19,6 +19,10 @@ export async function insertScreening(payload: {
   client_id: string;
   title: string;
   description: string;
+  deadline_days: number;
+  interview_duration: number;
+  allowed_languages: string[];
+  require_identity: boolean;
 }): Promise<ScreeningRow> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
@@ -33,7 +37,14 @@ export async function insertScreening(payload: {
 export async function updateScreening(
   id: string,
   clientId: string,
-  payload: { title: string; description: string },
+  payload: {
+    title: string;
+    description: string;
+    deadline_days: number;
+    interview_duration: number;
+    allowed_languages: string[];
+    require_identity: boolean;
+  },
 ): Promise<void> {
   const supabase = await createAdminClient();
   const { error } = await supabase
@@ -137,6 +148,20 @@ export async function updateCandidateStage(
   const { error } = await supabase
     .from("screening_candidates")
     .update({ stage, updated_at: new Date().toISOString(), ...patch })
+    .eq("user_id", userId)
+    .eq("screening_id", screeningId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateCandidateIdentityVerification(
+  userId: string,
+  screeningId: string,
+  iv: { verified: boolean; verified_at: string | null; session_id: string | null },
+): Promise<void> {
+  const supabase = await createAdminClient();
+  const { error } = await supabase
+    .from("screening_candidates")
+    .update({ identity_verification: iv, updated_at: new Date().toISOString() })
     .eq("user_id", userId)
     .eq("screening_id", screeningId);
   if (error) throw new Error(error.message);

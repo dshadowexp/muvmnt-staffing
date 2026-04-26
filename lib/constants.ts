@@ -43,6 +43,7 @@ export const AUTH_PATHS = new Set([
 export const INACTIVE_PREFIXES: string[] = [
   "/onboarding",
   "/review",
+  "/s",
 ];
 
 // ─── Role-based dashboard roots ───────────────────────────────────────────────
@@ -50,9 +51,9 @@ export const INACTIVE_PREFIXES: string[] = [
 
 export const DASHBOARD_PREFIXES: Record<UserRole, string[]> = {
   worker:    ["/dashboard", "/interviews", "/s"],
-  client:    ["/dashboard"],
+  client:    ["/dashboard", "upgrade"],
   admin:     ["/dashboard/admin", "/dashboard/referrals"],
-  candidate: ["/s"],
+  candidate: ["/s", "/interviews"],
 };
 
 export type RequesterType =

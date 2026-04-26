@@ -8,6 +8,7 @@ import { SignInForm } from "@/features/auth/forms/sign-in-form";
 import { useState } from "react";
 import type { ScreeningRow, ScreeningCandidateRow } from "@/features/screenings/dal/queries";
 import { DetailsStep } from "./_steps/details";
+import { IdentityStep } from "./_steps/identity";
 import { CompletedStep } from "./_steps/completed";
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
   candidate: ScreeningCandidateRow | null;
   isWorkerInvite: boolean;
   locale: string;
+  showIdentityStep?: boolean;
 };
 
 export function ScreeningCandidateClient({
@@ -24,8 +26,9 @@ export function ScreeningCandidateClient({
   candidate,
   isWorkerInvite,
   locale,
+  showIdentityStep = false,
 }: Props) {
-  const { authUser } = useAuth();
+  const { authUser, setNotFoundHandler, setEmailTakenHandler } = useAuth();
   const router = useRouter();
   const prevAuthUser = useRef(authUser);
   // Workers already have an account — default straight to sign-in and hide sign-up
@@ -41,6 +44,19 @@ export function ScreeningCandidateClient({
     }
     prevAuthUser.current = authUser;
   }, [authUser, router]);
+
+  // While the auth gate is visible, intercept auth-provider navigation so that
+  // error outcomes (no Supabase row, email taken) flip the view instead of
+  // navigating away from the portal and losing the screening context.
+  useEffect(() => {
+    if (candidate) return;
+    setNotFoundHandler(() => setAuthView("signup"));
+    setEmailTakenHandler(() => setAuthView("signin"));
+    return () => {
+      setNotFoundHandler(null);
+      setEmailTakenHandler(null);
+    };
+  }, [candidate, setNotFoundHandler, setEmailTakenHandler]);
 
   // Not authenticated — show auth gate
   if (!candidate) {
@@ -58,7 +74,12 @@ export function ScreeningCandidateClient({
 
           {authView === "signup" ? (
             <>
-              <SignUpForm role="candidate" />
+              <SignUpForm
+                role="candidate"
+                onSuccess={() => {/* auth effect handles router.refresh() */}}
+                showGoogle={false}
+                showFooterLink={false}
+              />
               <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <button
@@ -72,7 +93,11 @@ export function ScreeningCandidateClient({
             </>
           ) : (
             <>
-              <SignInForm />
+              <SignInForm
+                onSuccess={() => {/* auth effect handles router.refresh() */}}
+                showGoogle={false}
+                showFooterLink={false}
+              />
               {/* Workers are always existing users — no sign-up path */}
               {!isWorkerInvite && (
                 <p className="text-center text-sm text-muted-foreground">
@@ -105,10 +130,20 @@ export function ScreeningCandidateClient({
     );
   }
 
-  // "interview" stage is handled server-side: the page redirects to /interviews/[id].
-  // If we somehow render here in that stage, show a loading spinner while the
-  // server redirect resolves (or the user can refresh manually).
+  // "interview" stage: identity verification gate (if required) or redirect.
   if (stage === "interview") {
+    if (showIdentityStep) {
+      return (
+        <IdentityStep
+          screening={screening}
+          candidate={candidate}
+          token={token}
+          onVerified={() => router.refresh()}
+        />
+      );
+    }
+    // Server-side redirect handles the interview navigation; show a spinner
+    // while it resolves (or if the user lands here mid-redirect).
     return (
       <div className="flex min-h-svh items-center justify-center">
         <div className="text-center space-y-2">

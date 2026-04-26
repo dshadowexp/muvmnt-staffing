@@ -10,8 +10,9 @@ export async function handleIdentityVerificationSessionVerified(
 ): Promise<void> {
   const supabase = await createAdminClient();
 
-  // Resolve the user_id from metadata (set at session creation time)
   const userId = session.metadata?.user_id ?? session.client_reference_id;
+  const type = session.metadata?.type;
+  const screeningCandidateId = session.metadata?.screening_candidate_id;
 
   if (!userId) {
     console.error(
@@ -21,7 +22,35 @@ export async function handleIdentityVerificationSessionVerified(
     return;
   }
 
-  // Mark the identity_verification row as verified, matched by session_id
+  // ── Candidate path ──────────────────────────────────────────────────────────
+  if (type === "candidate" && screeningCandidateId) {
+    const { error } = await supabase
+      .from("screening_candidates")
+      .update({
+        identity_verification: {
+          verified: true,
+          verified_at: new Date().toISOString(),
+          session_id: session.id,
+        },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", screeningCandidateId);
+
+    if (error) {
+      throw new Error(
+        `[identity-verified] Failed to update candidate identity_verification: ${error.message}`,
+      );
+    }
+
+    console.log("[identity-verified] Candidate identity_verification marked verified", {
+      sessionId: session.id,
+      screeningCandidateId,
+      userId,
+    });
+    return;
+  }
+
+  // ── Worker path (existing) ──────────────────────────────────────────────────
   const { error: updateError, data: updatedRows } = await supabase
     .from("identity_verification")
     .update({
@@ -37,8 +66,7 @@ export async function handleIdentityVerificationSessionVerified(
     );
   }
 
-  // Fallback: if session_id wasn't found (edge case — race between insert and
-  // webhook delivery), upsert by user_id so the record is never left stale.
+  // Fallback: session_id not found — upsert by user_id
   if (!updatedRows || updatedRows.length === 0) {
     console.warn(
       "[identity-verified] session_id not found in identity_verification — upserting by user_id",
@@ -69,7 +97,6 @@ export async function handleIdentityVerificationSessionVerified(
     userId,
   });
 
-  // Fetch worker first name for personalised notification copy
   const { data: worker } = await supabase
     .from("workers")
     .select("first_name")

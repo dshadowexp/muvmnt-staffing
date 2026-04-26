@@ -79,6 +79,13 @@ async function SuspendedContent({
 
     const onSavePhoto = saveCandidatePhotoAction.bind(null, screening_id);
 
+    // Fetch full screening settings (title/description already fetched above)
+    const { data: screeningSettings } = await supabase
+      .from("screenings")
+      .select("interview_duration, allowed_languages")
+      .eq("id", screening_id)
+      .maybeSingle();
+
     return (
       <ResumeInterviewClient
         accessToken={accessToken}
@@ -92,6 +99,8 @@ async function SuspendedContent({
         interviewTitle={screening?.title}
         interviewDescription={screening?.description ?? undefined}
         defaultProfessionContext={screening?.description ?? undefined}
+        durationSecs={(screeningSettings?.interview_duration ?? 15) * 60}
+        allowedLocales={screeningSettings?.allowed_languages ?? ["en"]}
       />
     );
   }

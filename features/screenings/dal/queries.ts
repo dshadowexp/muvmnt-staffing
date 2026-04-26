@@ -7,6 +7,12 @@ export type ScreeningRow = Database["public"]["Tables"]["screenings"]["Row"];
 export type ScreeningInviteRow = Database["public"]["Tables"]["screening_invites"]["Row"];
 export type ScreeningCandidateRow = Database["public"]["Tables"]["screening_candidates"]["Row"];
 
+export type CandidateIdentityVerification = {
+  verified: boolean;
+  verified_at: string | null;
+  session_id: string | null;
+};
+
 export type CandidateWithResult = ScreeningCandidateRow & {
   interview: {
     id: string;

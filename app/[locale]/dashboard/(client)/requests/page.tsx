@@ -159,14 +159,16 @@ async function StaffRequests() {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    {staffRequest.pricing_tier ? (
+                    {staffRequest.status === STAFF_REQUEST_STATUS_CONFIRMED && staffRequest.pricing_tier ? (
                       <Badge variant="outline" className="gap-1 font-normal">
                         {staffRequest.pricing_tier}
                       </Badge>
                     ) : null}
-                    <Badge variant="outline" className="gap-1 font-normal">
-                      {formatJobHourlyRateLine(staffRequest.pricing_rate)}
-                    </Badge>
+                    {staffRequest.status === STAFF_REQUEST_STATUS_CONFIRMED && staffRequest.pricing_tier ? (
+                      <Badge variant="outline" className="gap-1 font-normal">
+                        {formatJobHourlyRateLine(staffRequest.pricing_rate)}
+                      </Badge>
+                    ) : null}
                     <Badge variant="outline" className="gap-1 font-normal">
                       <UserIcon className="size-3" aria-hidden />
                       {staffRequest.positions}

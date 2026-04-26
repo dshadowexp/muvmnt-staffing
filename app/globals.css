@@ -256,3 +256,16 @@
     @apply absolute top-0 left-1/2 -translate-1/2 rounded-full px-4 py-1 text-sm text-primary-foreground bg-primary;
   }
 }
+
+ 
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+ 
+@keyframes counter {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+ 
+ 

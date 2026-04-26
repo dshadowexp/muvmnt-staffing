@@ -35,9 +35,11 @@ const RETRY_SUBJECTS = new Set(["profession", "resume"]);
 export async function createAssessmentInterview({
   subject,
   subjectRef,
+  language,
 }: {
   subject: string;
   subjectRef: InterviewSubjectRef;
+  language?: string;
 }): Promise<{ error: true; message: string } | { error: false; id: string }> {
   const session = await getSession();
   if (!session) {
@@ -58,6 +60,7 @@ export async function createAssessmentInterview({
     const row = await insertInterview({
       user_id: session.userId,
       subject,
+      language: language ?? null,
       subject_ref: {
         resumeUrl:         subjectRef.resumeUrl,
         resumeSummary:     subjectRef.resumeSummary,

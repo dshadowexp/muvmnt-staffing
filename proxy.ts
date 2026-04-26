@@ -74,8 +74,7 @@ function isAllowedForRole(pathname: string, role: UserRole): boolean {
     return DASHBOARD_PREFIXES[role].some((p) => hasPrefix(pathname, p));
 }
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
-
+// ─── Proxy ───────────────────────────────────────────────────────────────
 export async function proxy(req: NextRequest) {
     const userAgent = req.headers.get("user-agent");
     const aj = userAgent ? ajWithBot : ajBase;
@@ -120,7 +119,7 @@ export async function proxy(req: NextRequest) {
     }
 
     // Inactive account → confined to onboarding/review
-    if (!session.isActive) {
+    if (!session.isActive && session.role !== "candidate") {
         if (!isInactivePath(path)) {
             return NextResponse.redirect(new URL("/review", req.url));
         }

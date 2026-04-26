@@ -82,8 +82,14 @@ async function ScreeningsList() {
                 <CardContent className="text-muted-foreground line-clamp-3">
                   {s.description}
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-wrap gap-2">
                   <StatusBadge status={s.status} />
+                  <Badge variant="outline" className="text-muted-foreground">
+                    {s.allowed_languages.join(", ")}
+                  </Badge>
+                  <Badge variant="outline" className="text-muted-foreground">
+                    {s.interview_duration} minutes screening
+                  </Badge>
                 </CardFooter>
               </div>
               <CardContent>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@/components/ui/button";
+import { ctaPrimary, ctaOutline } from "../_lib/cta-classes";
 import { FaqAccordion } from "./_components/faq-accordion";
 
 export async function generateMetadata({
@@ -77,12 +77,8 @@ export default async function FaqPage() {
             {t("cta.title")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button asChild>
-              <Link href="/find-staff">{t("cta.primary")}</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/find-work">{t("cta.secondary")}</Link>
-            </Button>
+            <Link href="/find-staff" className={ctaPrimary}>{t("cta.primary")}</Link>
+            <Link href="/find-work" className={ctaOutline}>{t("cta.secondary")}</Link>
           </div>
         </div>
       </section>

@@ -30,6 +30,11 @@ type AuthContextType = {
   setPendingRole: (role: UserRole | null) => void;
   setPendingReferralCode: (code: string | null) => void;
   reloadToken: () => Promise<void>;
+  /** Register a handler that fires instead of navigating when a Firebase user
+   *  has no Supabase row (not_found). Call with null to unregister. */
+  setNotFoundHandler: (fn: (() => void) | null) => void;
+  /** Register a handler that fires instead of navigating on email_taken. */
+  setEmailTakenHandler: (fn: (() => void) | null) => void;
 };
 
 type ExchangeOutcome = "ok" | "not_found" | "email_taken";
@@ -48,6 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
     const pendingRoleRef = useRef<UserRole | null>(null);
     const pendingReferralCodeRef = useRef<string | null>(null);
+    const onNotFoundRef = useRef<(() => void) | null>(null);
+    const onEmailTakenRef = useRef<(() => void) | null>(null);
 
     const setPendingRole = useCallback((role: UserRole | null) => {
         pendingRoleRef.current = role;
@@ -55,6 +62,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const setPendingReferralCode = useCallback((code: string | null) => {
         pendingReferralCodeRef.current = code;
+    }, []);
+
+    const setNotFoundHandler = useCallback((fn: (() => void) | null) => {
+        onNotFoundRef.current = fn;
+    }, []);
+
+    const setEmailTakenHandler = useCallback((fn: (() => void) | null) => {
+        onEmailTakenRef.current = fn;
     }, []);
 
     /**
@@ -132,10 +147,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const outcome = await runTokenExchange(user);
 
                 if (outcome === "not_found") {
-                    // Firebase account exists but no Supabase row — needs to sign up
+                    // Firebase account exists but no Supabase row — needs to sign up.
+                    // If a portal has registered a handler, defer to it instead of
+                    // navigating away (which would unmount the portal).
                     await logout();
                     await deleteSession();
                     toast.info("No account found. Please sign up to get started.");
+                    if (onNotFoundRef.current) {
+                        onNotFoundRef.current();
+                        return;
+                    }
                     const redirectParam =
                         searchParams.get("redirect") ?? searchParams.get("callbackUrl");
                     router.push(
@@ -147,13 +168,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
 
                 if (outcome === "email_taken") {
-                    // Email is registered under a different auth provider — sign them
-                    // out of Firebase and send to sign-in with an explanatory toast
+                    // Email is registered under a different auth provider.
                     await logout();
                     await deleteSession();
                     toast.error(
                         "An account with this email already exists. Please sign in instead.",
                     );
+                    if (onEmailTakenRef.current) {
+                        onEmailTakenRef.current();
+                        return;
+                    }
                     router.push("/sign-in");
                     return;
                 }
@@ -187,6 +211,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setPendingRole,
                 setPendingReferralCode,
                 reloadToken,
+                setNotFoundHandler,
+                setEmailTakenHandler,
             }}
         >
             {children}

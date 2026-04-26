@@ -87,6 +87,7 @@ export async function findOrCreateUser(params: {
         email: params.email,
         role: params.role,
         is_email_verified: params.emailVerified,
+        is_active: params.role === "candidate" ? false : true,
       })
       .select()
       .single();

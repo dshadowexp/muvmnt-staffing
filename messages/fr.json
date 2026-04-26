@@ -262,11 +262,6 @@
           "icon": "MapPin",
           "title": "Présence locale",
           "description": "Couverture active en Ontario, avec déploiement progressif dans d'autres provinces."
-        },
-        {
-          "icon": "MessageCircle",
-          "title": "Soutien humain",
-          "description": "Une équipe dédiée qui connaît votre établissement — pas de billets, pas de robots."
         }
       ],
       "statCards": [
@@ -282,7 +277,26 @@
           "title": "<5m de délai",
           "subtitle": "Pour la relève d'urgence"
         }
-      ]
+      ],
+      "pipeline": {
+        "zoneLabel": "READYKARE",
+        "journeyOverline": "Le parcours",
+        "journeySubtitle": "Une plateforme. Deux voies. Un seul objectif.",
+        "clientTrack": [
+          "Client",
+          "Screening IA",
+          "Sélection",
+          "Recruté ✓"
+        ],
+        "proTrack": [
+          "Prof. santé",
+          "Entretien",
+          "Jumelé",
+          "Quarts ✓"
+        ],
+        "clientSub": "Besoin en personnel",
+        "proSub": "Disponible pour des quarts"
+      }
     },
     "testimonials": {
       "overline": "Témoignages",
@@ -309,6 +323,36 @@
       ],
       "ctaRequest": "Demander du personnel →",
       "ctaFindWork": "Trouver un quart"
+    },
+    "screening": {
+      "badge": "Présélection IA",
+      "titleLead": "Éliminez la présélection",
+      "titleAccent": "manuelle.",
+      "subtitle": "Appels, lecture de CV, évaluation des candidats — ça prend des semaines. ReadyKare effectue des entretiens IA structurés pour vos candidats afin que vous puissiez décider par les données.",
+      "ctaLearnMore": "En savoir plus",
+      "ctaStartHiring": "Commencer à recruter",
+      "stats": [
+        {
+          "value": "< 48h",
+          "label": "Délai de présélection"
+        },
+        {
+          "value": "100%",
+          "label": "Candidats évalués"
+        },
+        {
+          "value": "3×",
+          "label": "Plus rapide que le manuel"
+        }
+      ],
+      "diagram": {
+        "painLabels": [
+          "Problèmes de planification",
+          "Absences",
+          "Biais subjectifs"
+        ],
+        "outputLabel": "Décisions basées sur les données"
+      }
     }
   },
   "findStaff": {
@@ -459,7 +503,44 @@
         "abbr": "Soutien",
         "full": "Soutien aux soins"
       }
-    ]
+    ],
+    "howOverline": "Comment ça fonctionne",
+    "howTitle": "Votre parcours de la candidature au premier quart",
+    "howSubtitle": "Un processus clair et structuré pour que vous sachiez toujours où vous en êtes et ce qui vient ensuite.",
+    "howSteps": [
+      {
+        "phase": "Entretien",
+        "title": "Entretien mené par IA",
+        "description": "Complétez un entretien IA guidé couvrant votre CV et votre expérience professionnelle. C'est conversationnel, équitable et entièrement en ligne."
+      },
+      {
+        "phase": "Révision",
+        "title": "Examen de la performance",
+        "description": "Notre équipe examine votre entretien. Si vous réussissez, vous avancez. Sinon, vous pouvez réessayer dans deux semaines.",
+        "branchLabel": "✓ Réussite → continuer · ✗ Réessayer dans 2 semaines"
+      },
+      {
+        "phase": "Conformité",
+        "title": "Soumettre vos documents",
+        "description": "Fournissez votre autorisation de travail, complétez la vérification d'identité et téléchargez les documents de conformité requis."
+      },
+      {
+        "phase": "Révision conformité",
+        "title": "Documents vérifiés",
+        "description": "Nous examinons tout ce que vous avez soumis. Si quelque chose nécessite des clarifications, nous vous contacterons directement."
+      },
+      {
+        "phase": "Configuration",
+        "title": "Configurer disponibilité et paie",
+        "description": "Indiquez vos disponibilités pour les quarts et connectez votre compte de paiement pour être prêt à être payé dès le premier jour."
+      },
+      {
+        "phase": "Actif",
+        "title": "Recevoir des quarts et être payé",
+        "description": "Commencez à recevoir des demandes de quart, accompagnez-les avec soin et regardez vos gains apparaître dans votre compte."
+      }
+    ],
+    "howTitleAccent": "premier quart"
   },
   "faq": {
     "meta": {
@@ -781,8 +862,10 @@
       "roleClientDescription": "Trouvez du personnel temporaire près de chez vous pour combler vos quarts",
       "titleWorker": "Créez votre compte professionnel",
       "titleClient": "Créez votre compte établissement",
+      "titleCandidate": "Créez votre compte",
       "subtitleWorker": "Trouvez du travail en santé flexible près de chez vous",
       "subtitleClient": "Trouvez du personnel temporaire près de chez vous pour combler vos quarts",
+      "subtitleCandidate": "Créez votre compte pour commencer votre présélection.",
       "overline": "Créez votre compte readykare",
       "referralBanner": "Vous avez été référé! Inscrivez-vous pour commencer.",
       "referralInvalidToast": "Ce lien de référence est invalide ou expiré.",
@@ -1739,7 +1822,9 @@
         "starting": "Démarrage…",
         "start": "Commencer l'entretien",
         "resume": "Reprendre l'entretien",
-        "languageLabel": "Dans quelle langue souhaitez-vous passer votre entretien ?"
+        "languageLabel": "Dans quelle langue souhaitez-vous passer votre entretien ?",
+        "backToResume": "Retour au téléversement du CV",
+        "backTitle": "Tableau de bord"
       },
       "controls": {
         "mute": "Couper le son",
@@ -2086,6 +2171,127 @@
         "highTitle": "Forte demande",
         "highDetail": "Les tarifs reflètent une hausse pour ces dates. Réserver plus tôt peut réduire le coût."
       }
+    }
+  },
+  "screening": {
+    "meta": {
+      "title": "Présélection IA de candidats",
+      "description": "ReadyKare effectue des entretiens IA structurés sur chaque candidat et livre une liste classée — sans planification, absences ni approximations.",
+      "ogDescription": "Du poste ouvert au recrutement en quelques jours. Présélection IA qui ne dort jamais."
+    },
+    "hero": {
+      "badge": "Présélection de candidats par IA",
+      "titleLead": "Du poste ouvert",
+      "titleAccent": "au recrutement.",
+      "titleTail": "En quelques jours.",
+      "subtitle": "Nous effectuons des entretiens IA structurés sur chaque candidat et livrons une liste classée — pour éviter la planification, les absences et les approximations.",
+      "ctaGetStarted": "Commencer",
+      "ctaHowItWorks": "Voir comment ça fonctionne"
+    },
+    "pain": {
+      "overline": "Le problème",
+      "title": "Le recrutement manuel est brisé.",
+      "tagline": "Chaque étape dépendant d'un calendrier humain est un goulot d'étranglement que vous ne pouvez pas vous permettre.",
+      "items": [
+        {
+          "num": "01",
+          "stat": "60–80%",
+          "statLabel": "du temps des recruteurs",
+          "title": "Heures perdues en appels de présélection",
+          "body": "Les appels initiaux qui n'aboutissent pas consomment la majorité de la semaine de chaque recruteur — du temps qui devrait être consacré aux personnes ayant le potentiel requis."
+        },
+        {
+          "num": "02",
+          "stat": "1 sur 4",
+          "statLabel": "candidats disparaissent",
+          "title": "Absences et reports tardifs",
+          "body": "Un créneau réservé n'est pas un créneau respecté. Chaque absence repousse votre calendrier de plusieurs jours, et le prochain moment disponible n'arrive jamais assez vite."
+        },
+        {
+          "num": "03",
+          "stat": "0 donnée",
+          "statLabel": "pour comparer",
+          "title": "Évaluations incohérentes",
+          "body": "Différents interviewers posent différentes questions. Sans référentiel structuré, vous comparez des pommes avec des opinions — pas avec des candidats."
+        }
+      ]
+    },
+    "how": {
+      "overline": "Comment ça fonctionne",
+      "titleLead": "Votre poste pourvu.",
+      "titleAccent": "Zéro effort.",
+      "subtitle": "Vous nous dites ce dont vous avez besoin. Nous nous occupons de tout le reste.",
+      "steps": [
+        {
+          "icon": "ClipboardList",
+          "title": "Décrivez le poste",
+          "body": "Dites-nous qui vous recherchez — le poste, les critères essentiels et ce à quoi ressemble le succès dans les 90 premiers jours."
+        },
+        {
+          "icon": "Wand2",
+          "title": "Nous gérons le reste",
+          "body": "Chaque candidat passe par notre processus de présélection rigoureux à sa convenance. Aucune coordination de calendrier requise de votre part."
+        },
+        {
+          "icon": "ListChecks",
+          "title": "Rencontrez votre sélection",
+          "body": "En 48 heures, vous recevez une liste de candidats ayant déjà prouvé qu'ils répondent à vos critères — prêts pour votre entretien final."
+        }
+      ]
+    },
+    "candidate": {
+      "overline": "Pour les candidats",
+      "titleLead": "Respectueux de leur temps.",
+      "titleAccent": "Meilleur pour votre pipeline.",
+      "subtitle": "Une expérience sans friction signifie que plus de candidats terminent — ce qui signifie que vous voyez davantage de talents, pas seulement ceux qui ont surmonté un obstacle de planification.",
+      "perks": [
+        {
+          "icon": "CalendarCheck",
+          "title": "À leur rythme",
+          "body": "Les candidats complètent la présélection quand cela leur convient — aucun créneau à jongler, aucun abandon dû aux conflits de planification."
+        },
+        {
+          "icon": "Timer",
+          "title": "En moins de 20 minutes",
+          "body": "Un processus ciblé et structuré qui respecte leur temps et maintient des taux d'achèvement élevés."
+        },
+        {
+          "icon": "Smartphone",
+          "title": "N'importe quel appareil",
+          "body": "Téléphone, tablette, ordinateur — où qu'ils soient, l'expérience fonctionne parfaitement."
+        },
+        {
+          "icon": "CheckCircle2",
+          "title": "Toujours disponible",
+          "body": "Votre pipeline continue 24h/24. Aucune attente des heures de bureau pour recevoir des candidats."
+        }
+      ]
+    },
+    "stats": {
+      "items": [
+        {
+          "value": "< 48h",
+          "label": "Délai moyen de présélection"
+        },
+        {
+          "value": "100%",
+          "label": "Candidats évalués équitablement"
+        },
+        {
+          "value": "3×",
+          "label": "Plus rapide que la présélection traditionnelle"
+        },
+        {
+          "value": "0",
+          "label": "Maux de tête de planification"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Prêt à pourvoir votre poste?",
+      "subtitle": "Publiez votre offre aujourd'hui et recevez une liste de candidats qualifiés et présélectionnés dans les 48 heures.",
+      "ctaGetStarted": "Commencer",
+      "ctaHowItWorks": "Comment ReadyKare fonctionne"
     }
   }
 }

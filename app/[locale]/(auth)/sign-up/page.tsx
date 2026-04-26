@@ -2,9 +2,10 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { Hospital, Stethoscope, ArrowRight } from "lucide-react";
+import { Hospital, Stethoscope, ArrowRight, User, UserRoundCheckIcon } from "lucide-react";
 import { SITE_NAME } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
+import { withAuthParams } from "@/features/auth/lib/auth-params";
 
 export const metadata: Metadata = {
   title: `Sign Up | ${SITE_NAME}`,
@@ -25,6 +26,7 @@ export default async function SignUpPage({ searchParams }: Props) {
   const as = typeof params.as === "string" ? params.as : null;
   if (as === "worker") redirect(`/sign-up/worker${refSuffix}`);
   if (as === "client") redirect(`/sign-up/client${refSuffix}`);
+  if (as === "candidate") redirect(`/sign-up/candidate${refSuffix}`);
 
   const t = await getTranslations("auth.signUp");
 
@@ -42,6 +44,14 @@ export default async function SignUpPage({ searchParams }: Props) {
       icon: Stethoscope,
       title: t("roleWorker"),
       description: t("roleWorkerDescription"),
+    },
+    {
+      value: "candidate",
+      // href: `/sign-up/candidate${refSuffix}`,
+      href: withAuthParams("/sign-up/candidate", params),
+      icon: UserRoundCheckIcon,
+      title: t("roleCandidate"),
+      description: t("roleCandidateDescription"),
     }
   ];
 

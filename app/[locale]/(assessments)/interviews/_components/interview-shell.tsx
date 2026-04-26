@@ -21,6 +21,7 @@ import { useLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { LOCALE_LABELS } from "@/lib/constants";
 import {
+  ArrowLeftIcon,
   CheckCircle2Icon,
   MicIcon,
   MicOffIcon,
@@ -81,6 +82,14 @@ type InterviewShellProps = {
   title: string;
   description: string;
   returnPath: string;
+  /** Called when the user clicks "Back to resume upload" on the device-setup screen. */
+  onBack?: () => void;
+  /** Locale stored on the interview row — used to display the language when resuming. */
+  savedLocale?: string | null;
+  /** Total interview duration in seconds. Defaults to INTERVIEW_DURATION_SECS. */
+  durationSecs?: number;
+  /** Restrict the language selector to these locales. Defaults to all supported locales. */
+  allowedLocales?: string[];
 };
 
 // ── Mic check (pre-interview) ────────────────────────────────────────────────
@@ -91,9 +100,11 @@ const MIC_SUSTAIN_MS = 700;
 function InterviewInstructionsCard({
   title,
   description,
+  durationMins,
 }: {
   title:       string;
   description: string;
+  durationMins: number;
 }) {
   const t = useTranslations("assessments.interview.instructions");
 
@@ -171,7 +182,7 @@ function InterviewInstructionsCard({
 
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900 dark:bg-amber-950/30">
                   <p className="text-xs text-amber-800 dark:text-amber-400">
-                      {t("notice", { minutes: INTERVIEW_DURATION_SECS / 60 })}
+                      {t("notice", { minutes: durationMins })}
                   </p>
               </div>
           </CardContent>
@@ -345,17 +356,20 @@ function MicCheckMeter({
 function LanguageSelector({
   value,
   onChange,
+  allowedLocales,
 }: {
   value: string;
   onChange: (locale: string) => void;
+  allowedLocales: readonly string[];
 }) {
+  const visibleLocales = routing.locales.filter((l) => allowedLocales.includes(l));
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="w-full">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {routing.locales.map((locale) => (
+        {visibleLocales.map((locale) => (
           <SelectItem key={locale} value={locale}>
             {LOCALE_LABELS[locale] ?? locale.toUpperCase()}
           </SelectItem>
@@ -367,16 +381,21 @@ function LanguageSelector({
 
 function DeviceSetupCard({
   onStart,
+  onBack,
   isResuming = false,
   selectedLocale,
   onLocaleChange,
+  savedLocale,
+  allowedLocales,
 }: {
   onStart: () => Promise<void>;
+  onBack?: () => void;
   isResuming?: boolean;
   initialLocale: string;
   selectedLocale: string;
   onLocaleChange: (locale: string) => void;
-
+  savedLocale?: string;
+  allowedLocales: readonly string[];
 }) {
   const t = useTranslations("assessments.interview.setup");
   const [micOn, setMicOn] = useState(false);
@@ -446,31 +465,55 @@ function DeviceSetupCard({
 
   return (
         <Card className="w-full max-w-lg lg:h-full">
-          <CardContent className="flex h-full flex-col gap-5">
-            {!isResuming && (
-              <div className="w-full space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">
-                  {t("languageLabel")}
-                </p>
-                <LanguageSelector value={selectedLocale} onChange={onLocaleChange} />
-              </div>
-            )}
-            {isResuming ? (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900 dark:bg-blue-950/30">
-                <p className="text-xs font-medium text-blue-800 dark:text-blue-400">
-                  Your interview was interrupted — your progress has been saved.
-                  Enable your camera and mic to pick up where you left off.
-                </p>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">
+          <CardContent className="flex h-full flex-col justify-between gap-5">
+            <div>
+              {isResuming && savedLocale ? (
+                // Resuming — show read-only saved locale
+                <div className="w-full space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {t("languageLabel")}
+                  </p>
+                  <div className="flex items-center rounded-md border px-3 py-2 text-sm text-muted-foreground">
+                    {LOCALE_LABELS[savedLocale] ?? savedLocale.toUpperCase()}
+                  </div>
+                </div>
+              ) : !isResuming && allowedLocales.length === 1 ? (
+                // Only one language available — no choice needed, show read-only
+                <div className="w-full space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {t("languageLabel")}
+                  </p>
+                  <div className="flex items-center rounded-md border px-3 py-2 text-sm text-muted-foreground">
+                    {LOCALE_LABELS[allowedLocales[0]] ?? allowedLocales[0].toUpperCase()}
+                  </div>
+                </div>
+              ) : !isResuming ? (
+                // Multiple languages — show selector
+                <div className="w-full space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {t("languageLabel")}
+                  </p>
+                  <LanguageSelector
+                    value={selectedLocale}
+                    onChange={onLocaleChange}
+                    allowedLocales={allowedLocales}
+                  />
+                </div>
+              ) : null}
+              {isResuming ? (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900 dark:bg-blue-950/30">
+                  <p className="text-xs font-medium text-blue-800 dark:text-blue-400">
+                    Your interview was interrupted — your progress has been saved.
+                    Enable your camera and mic to pick up where you left off.
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col items-start justify-center gap-5">
+              <p className="text-xs  text-muted-foreground">
                 {t("durationNotice")}
               </p>
-            )}
-
-
-
-            <div className="flex flex-1 flex-col items-center justify-center gap-5">
               <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
                 {camOn ? (
                   <video
@@ -497,7 +540,7 @@ function DeviceSetupCard({
                   error={camError}
                   icon={
                     camOn ? (
-                      <VideoIcon className="size-5 text-emerald-500" />
+                      <VideoIcon className="size-5 text-primary" />
                     ) : (
                       <VideoOffIcon className="size-5 text-muted-foreground" />
                     )
@@ -558,6 +601,19 @@ function DeviceSetupCard({
                   t("start")
                 )}
               </Button>
+
+              {onBack && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-muted-foreground"
+                  onClick={onBack}
+                >
+                  <ArrowLeftIcon className="size-4" />
+                  {t("backToResume")}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -578,6 +634,10 @@ export function InterviewShell({
   title,
   description,
   returnPath,
+  onBack,
+  savedLocale,
+  durationSecs,
+  allowedLocales,
 }: InterviewShellProps) {
   const router = useRouter();
   const currentLocale = useLocale();
@@ -587,7 +647,18 @@ export function InterviewShell({
   );
   const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp, sendSessionSettings, messages } = useVoice();
   const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(interviewId);
-  const [selectedLocale, setSelectedLocale] = useState<string>(currentLocale);
+
+  const totalDurationSecs = durationSecs ?? INTERVIEW_DURATION_SECS;
+  const effectiveLocales = allowedLocales && allowedLocales.length > 0
+    ? allowedLocales
+    : (routing.locales as unknown as string[]);
+
+  // If the saved/current locale isn't in the allowed set, default to the first allowed locale
+  const initialLocale = effectiveLocales.includes(savedLocale ?? currentLocale)
+    ? (savedLocale ?? currentLocale)
+    : effectiveLocales[0];
+
+  const [selectedLocale, setSelectedLocale] = useState<string>(initialLocale);
   const [finalizing, setFinalizing] = useState(false);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
@@ -612,7 +683,7 @@ export function InterviewShell({
 
   // Add the pre-reload elapsed time so the countdown is correctly capped after a reload.
   const elapsed = savedDurationSecs + parseDurationToSeconds(callDurationTimestamp);
-  const remaining = Math.max(0, INTERVIEW_DURATION_SECS - elapsed);
+  const remaining = Math.max(0, totalDurationSecs - elapsed);
 
   // Callback ref: as soon as the <video> element mounts, attach whatever
   // stream is currently active. This avoids the race where srcObject was
@@ -796,7 +867,7 @@ export function InterviewShell({
 
       let activeInterviewId = interviewId;
       if (activeInterviewId == null) {
-        const res = await createAssessmentInterview({ subject, subjectRef });
+        const res = await createAssessmentInterview({ subject, subjectRef, language: selectedLocale });
         if (res.error) {
           return errorToast(res.message);
         }
@@ -814,7 +885,7 @@ export function InterviewShell({
           type: "session_settings",
           variables: {
             ...sessionVariables,
-            duration: INTERVIEW_DURATION_SECS / 60,
+            duration: totalDurationSecs / 60,
             ...(!(!!chatGroupId && savedDurationSecs > 0) ? { language: selectedLocale } : {}),
           },
         },
@@ -835,16 +906,23 @@ export function InterviewShell({
   if (readyState === VoiceReadyState.IDLE) {
     return (
       <div className="flex min-h-svh flex-col">  {/* remove p-4, it pushes content under sticky header */}
-        <InterviewHeader backHref="/dashboard/assessments" backTitle="Assessments" />
+        <InterviewHeader backHref={returnPath} backTitle={t("setup.backTitle")} />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto grid h-fit w-full max-w-lg grid-cols-1 gap-6 lg:max-w-5xl lg:grid-cols-2">
-            <InterviewInstructionsCard title={title} description={description} />
+            <InterviewInstructionsCard
+              title={title}
+              description={description}
+              durationMins={totalDurationSecs / 60}
+            />
             <DeviceSetupCard
               onStart={handleStart}
+              onBack={onBack}
               isResuming={!!chatGroupId && savedDurationSecs > 0}
               initialLocale={currentLocale}
               selectedLocale={selectedLocale}
               onLocaleChange={setSelectedLocale}
+              savedLocale={savedLocale ?? undefined}
+              allowedLocales={effectiveLocales}
             />
           </div>
         </main>

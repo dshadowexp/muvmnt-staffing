@@ -70,7 +70,8 @@ type Props = {
   professionLabel?: string;
   professionContext?: string;
   onResumeReady: (payload: ResumeReadyPayload) => void;
-  onBack?: () => void; 
+  onBack?: () => void;
+  backHref?: string;
 };
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -128,7 +129,7 @@ function hydrateExisting(existingInterview: InterviewRow | null): {
   };
 }
 
-export function ResumeUpload({ existingInterview, candidateName, professionLabel, professionContext, onResumeReady, onBack }: Props) {
+export function ResumeUpload({ existingInterview, candidateName, professionLabel, professionContext, onResumeReady, onBack, backHref = "/dashboard" }: Props) {
   const t = useTranslations("assessments.interview.resume");
   const initial = useRef(hydrateExisting(existingInterview)).current;
 
@@ -312,8 +313,8 @@ export function ResumeUpload({ existingInterview, candidateName, professionLabel
     <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
 
       <InterviewHeader
-        backHref="/dashboard"
-        backTitle="Dashboard"
+        backHref={backHref}
+        backTitle={t("backTitle")}
       />
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4">

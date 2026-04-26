@@ -134,7 +134,7 @@ export function ResetPasswordForm() {
                                     href={withAuthParams("/sign-in")}
                                     className="font-semibold text-primary no-underline hover:text-primary/80"
                                 >
-                                {t("backToSignIn")}
+                                    {t("backToSignIn")}
                                 </Link>
                             </p>
                             </FieldGroup>

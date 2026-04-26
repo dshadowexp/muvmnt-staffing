@@ -309,18 +309,22 @@ export default async function WorkerHomePage() {
         <PendingActions />
       </Suspense>
 
-      <Suspense fallback={<ShiftRequestCardsSkeleton />}>
-        <WorkerPendingShiftRequestCards workerId={worker.id} />
-      </Suspense>
+      {worker.stage === "live" && (
+        <Suspense fallback={<ShiftRequestCardsSkeleton />}>
+          <WorkerPendingShiftRequestCards workerId={worker.id} />
+        </Suspense>
+      )}
 
-      <Suspense fallback={<StatsCardsSkeleton />}>
-        <div className="flex flex-col gap-4">
-          <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-            {t("subtitle")}
-          </p>
-          <StatsCards workerId={worker.id} />
-        </div>
-      </Suspense>
+      {worker.stage === "live" && ( 
+        <Suspense fallback={<StatsCardsSkeleton />}>
+          <div className="flex flex-col gap-4">
+            <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
+              {t("subtitle")}
+            </p>
+            <StatsCards workerId={worker.id} />
+          </div>
+        </Suspense>
+      )}
 
       {worker.stage === "live" && (
         <div>

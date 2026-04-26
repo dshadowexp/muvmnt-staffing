@@ -24,7 +24,16 @@ export function EditScreeningForm({ screening }: Props) {
 
   return (
     <ScreeningForm
-      defaultValues={{ title: screening.title, description: screening.description }}
+      defaultValues={{
+          title: screening.title,
+          description: screening.description,
+          deadline_days: screening.deadline_days,
+          interview_duration: screening.interview_duration,
+          allowed_languages: (screening.allowed_languages ?? []).filter(
+            (l): l is "en" | "fr" => l === "en" || l === "fr"
+          ),
+          require_identity: screening.require_identity,
+        }}
       onSubmit={onSubmit}
       submitLabel="Save changes"
       requireDirty

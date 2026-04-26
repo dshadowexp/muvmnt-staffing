@@ -22,6 +22,10 @@ import { getScreeningById } from "./dal/queries";
 export async function createScreeningAction(data: {
   title: string;
   description: string;
+  deadline_days: number;
+  interview_duration: number;
+  allowed_languages: string[];
+  require_identity: boolean;
 }): Promise<{ error: true; message: string } | { error: false; id: string }> {
   const session = await getSession();
   if (!session || session.role !== "client") {
@@ -36,6 +40,10 @@ export async function createScreeningAction(data: {
       client_id: client.id,
       title: data.title.trim(),
       description: data.description.trim(),
+      deadline_days: data.deadline_days,
+      interview_duration: data.interview_duration,
+      allowed_languages: data.allowed_languages,
+      require_identity: data.require_identity,
     });
     revalidatePath("/dashboard/screenings");
     return { error: false, id: screening.id };
@@ -78,7 +86,14 @@ export async function updateScreeningStatusAction(
 
 export async function updateScreeningAction(
   screeningId: string,
-  data: { title: string; description: string },
+  data: {
+    title: string;
+    description: string;
+    deadline_days: number;
+    interview_duration: number;
+    allowed_languages: string[];
+    require_identity: boolean;
+  },
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
   if (!session || session.role !== "client") {
@@ -122,10 +137,37 @@ export async function sendScreeningInviteAction(
   }
 
   try {
-    const invite = await insertScreeningInvite(screeningId, email.trim().toLowerCase());
+    const invite = await insertScreeningInvite(screeningId, email.trim().toLowerCase()).catch((err: unknown) => {
+      // Supabase unique constraint → friendly message instead of raw Postgres error
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("duplicate key") || msg.includes("unique constraint")) {
+        throw new Error("already invited");
+      }
+      throw err;
+    });
     const inviteUrl = `${env.APP_URL}/s/${invite.token}`;
     const clientUser = await getCurrentUser();
     const clientName = client.name ?? clientUser?.email ?? "ReadyKare";
+
+    // Pre-compute deadline date from the moment the invite is sent
+    const deadlineDate = new Date(
+      Date.now() + screening.deadline_days * 24 * 60 * 60 * 1000
+    );
+    const deadlineDateFormatted = deadlineDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const templateData = {
+      inviteUrl,
+      clientName,
+      screeningTitle: screening.title,
+      deadlineDays: screening.deadline_days,
+      deadlineDate: deadlineDateFormatted,
+      interviewDuration: screening.interview_duration,
+    };
 
     // Check if this email belongs to an existing user
     const supabase = await createAdminClient();
@@ -141,30 +183,31 @@ export async function sendScreeningInviteAction(
         channels: [
           {
             channel: "email",
-            subject: `You've been invited to complete a screening`,
+            subject: `You've been invited to complete a screening for ${screening.title}`,
             template: "screening-invite",
-            data: {
-              inviteUrl,
-              clientName,
-              screeningTitle: screening.title,
-            },
+            data: templateData,
           },
         ],
       });
     } else {
-      await sendDirectEmail({
+      const emailResult = await sendDirectEmail({
         to: invite.email,
-        subject: `You've been invited to complete a screening`,
+        subject: `You've been invited to complete a screening for ${screening.title}`,
         template: "screening-invite",
-        data: {
-          inviteUrl,
-          clientName,
-          screeningTitle: screening.title,
-        },
+        data: templateData,
       });
+      if (emailResult.status === "failed") {
+        throw new Error(emailResult.error);
+      }
     }
 
-    await markInviteSent(invite.id);
+    // Non-fatal: the invite was already created and the email sent.
+    // If the status update fails (e.g. missing column migration), we log
+    // rather than surfacing a false error to the user.
+    await markInviteSent(invite.id).catch((err) => {
+      console.error("[sendScreeningInviteAction] markInviteSent failed:", err);
+    });
+
     revalidatePath(`/dashboard/screenings/${screeningId}`);
     return { error: false };
   } catch (e) {

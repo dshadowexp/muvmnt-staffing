@@ -3,10 +3,10 @@
 import { CircleDashedIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { ctaPrimary } from "../_lib/cta-classes";
 
 export type LandingAuthCtasProps = {
     /** e.g. `/sign-up?as=client` or `/sign-up?as=worker` */
@@ -67,9 +67,7 @@ export function LandingAuthCtas({
                     className,
                 )}
             >
-                <Button size="lg" asChild>
-                    <Link href="/dashboard">{tNav("dashboard")}</Link>
-                </Button>
+                <Link href="/dashboard" className={ctaPrimary}>{tNav("dashboard")}</Link>
             </div>
         );
     }
@@ -81,9 +79,7 @@ export function LandingAuthCtas({
                 className,
             )}
         >
-            <Button size="lg" asChild>
-                <Link href={signUpHref}>{ctaCreateLabel}</Link>
-            </Button>
+            <Link href={signUpHref} className={ctaPrimary}>{ctaCreateLabel}</Link>
             <Link href="/sign-in" className={signInClass}>
                 {ctaSignInLabel}
             </Link>

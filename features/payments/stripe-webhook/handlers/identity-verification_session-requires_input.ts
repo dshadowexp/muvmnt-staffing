@@ -63,6 +63,8 @@ export async function handleIdentityVerificationSessionRequiresInput(
   session: Stripe.Identity.VerificationSession,
 ): Promise<void> {
   const userId = session.metadata?.user_id ?? session.client_reference_id;
+  const type = session.metadata?.type;
+  const screeningCandidateId = session.metadata?.screening_candidate_id;
 
   if (!userId) {
     console.error(
@@ -78,29 +80,56 @@ export async function handleIdentityVerificationSessionRequiresInput(
   console.log("[identity-requires-input] Verification requires input", {
     sessionId: session.id,
     userId,
+    type,
     errorCode,
     reason,
   });
 
-  // We do NOT mark the row as verified — the worker needs to retry.
-  // Update the session_id on the row to the latest session so the status
-  // card correctly reflects the most recent attempt.
   const supabase = await createAdminClient();
 
+  // ── Candidate path ──────────────────────────────────────────────────────────
+  if (type === "candidate" && screeningCandidateId) {
+    const { error } = await supabase
+      .from("screening_candidates")
+      .update({
+        identity_verification: {
+          verified: false,
+          verified_at: null,
+          session_id: session.id,
+        },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", screeningCandidateId);
+
+    if (error) {
+      console.error(
+        "[identity-requires-input] Failed to update candidate identity_verification",
+        { screeningCandidateId, error },
+      );
+    }
+
+    console.log("[identity-requires-input] Candidate session_id updated", {
+      sessionId: session.id,
+      screeningCandidateId,
+    });
+    return;
+  }
+
+  // ── Worker path (existing) ──────────────────────────────────────────────────
+  // We do NOT mark the row as verified — the worker needs to retry.
+  // Update the session_id so the status card reflects the most recent attempt.
   const { error: updateError } = await supabase
     .from("identity_verification")
     .update({ session_id: session.id })
     .eq("user_id", userId);
 
   if (updateError) {
-    // Non-fatal — the notification is still worth sending even if the update fails
     console.error(
       "[identity-requires-input] Failed to update session_id on identity_verification",
       { userId, updateError },
     );
   }
 
-  // Fetch worker first name for personalised notification copy
   const { data: worker } = await supabase
     .from("workers")
     .select("first_name")

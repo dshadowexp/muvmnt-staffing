@@ -289,6 +289,7 @@ export type Database = {
           feedback: Json | null
           hume_chat_id: string | null
           id: string
+          language: string | null
           recording_url: string | null
           result: string | null
           reviewed: boolean
@@ -309,6 +310,7 @@ export type Database = {
           feedback?: Json | null
           hume_chat_id?: string | null
           id?: string
+          language?: string | null
           recording_url?: string | null
           result?: string | null
           reviewed?: boolean
@@ -329,6 +331,7 @@ export type Database = {
           feedback?: Json | null
           hume_chat_id?: string | null
           id?: string
+          language?: string | null
           recording_url?: string | null
           result?: string | null
           reviewed?: boolean
@@ -726,6 +729,7 @@ export type Database = {
           email: string
           first_name: string | null
           id: string
+          identity_verification: Json
           invite_id: string | null
           last_name: string | null
           photo_url: string | null
@@ -739,6 +743,7 @@ export type Database = {
           email: string
           first_name?: string | null
           id?: string
+          identity_verification?: Json
           invite_id?: string | null
           last_name?: string | null
           photo_url?: string | null
@@ -752,6 +757,7 @@ export type Database = {
           email?: string
           first_name?: string | null
           id?: string
+          identity_verification?: Json
           invite_id?: string | null
           last_name?: string | null
           photo_url?: string | null
@@ -817,28 +823,40 @@ export type Database = {
       }
       screenings: {
         Row: {
+          allowed_languages: string[]
           client_id: string
           created_at: string
+          deadline_days: number
           description: string
           id: string
+          interview_duration: number
+          require_identity: boolean
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          allowed_languages?: string[]
           client_id: string
           created_at?: string
+          deadline_days?: number
           description: string
           id?: string
+          interview_duration?: number
+          require_identity?: boolean
           status: string
           title: string
           updated_at?: string
         }
         Update: {
+          allowed_languages?: string[]
           client_id?: string
           created_at?: string
+          deadline_days?: number
           description?: string
           id?: string
+          interview_duration?: number
+          require_identity?: boolean
           status?: string
           title?: string
           updated_at?: string

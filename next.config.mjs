@@ -57,7 +57,11 @@ const nextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "1h3.googleusercontent.com",
+                hostname: "*.googleusercontent.com",
+            },
+            {
+                protocol: "https",
+                hostname: "fly.storage.tigris.dev",
             },
         ],
     },

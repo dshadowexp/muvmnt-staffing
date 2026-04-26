@@ -28,7 +28,21 @@ import { useRouter } from "@/i18n/navigation";
 import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import posthog from "posthog-js";
 
-export function SignInForm() {
+type SignInFormProps = {
+  /** Called after successful sign-in instead of navigating. Use in embedded
+   *  contexts (e.g. screening portals) where the host manages navigation. */
+  onSuccess?: () => void;
+  /** Show the Google sign-in button. Defaults to true. */
+  showGoogle?: boolean;
+  /** Show the "Don't have an account?" footer link. Defaults to true. */
+  showFooterLink?: boolean;
+};
+
+export function SignInForm({
+  onSuccess,
+  showGoogle = true,
+  showFooterLink = true,
+}: SignInFormProps = {}) {
   const router = useRouter();
   const { loading } = useAuth();
   const { redirectTo, withAuthParams } = useAuthRedirect();
@@ -65,7 +79,11 @@ export function SignInForm() {
       await loginWithEmail(data.email.trim(), data.password);
       posthog.identify(data.email.trim(), { email: data.email.trim() });
       posthog.capture("user_signed_in", { method: "email" });
-      router.push(redirectTo as Parameters<typeof router.push>[0]);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(redirectTo as Parameters<typeof router.push>[0]);
+      }
     } catch (err) {
       const key = getAuthErrorKey(err);
       setError(key ? tErrors(key) : "");
@@ -93,9 +111,9 @@ export function SignInForm() {
 
         <CardContent className="px-9 pb-8 pt-7">
           <FieldGroup>
-            <GoogleButton />
+            {showGoogle && <GoogleButton />}
 
-            <OrDivider />
+            {showGoogle && <OrDivider />}
 
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
@@ -154,15 +172,17 @@ export function SignInForm() {
               </Button>
             </form>
 
-            <p className="text-center text-[0.82rem] font-light text-muted-foreground">
-              {t("noAccount")}{" "}
-              <Link
-                href={withAuthParams("/sign-up")}
-                className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
-              >
-                {t("createOne")}
-              </Link>
-            </p>
+            {showFooterLink && (
+              <p className="text-center text-[0.82rem] font-light text-muted-foreground">
+                {t("noAccount")}{" "}
+                <Link
+                  href={withAuthParams("/sign-up")}
+                  className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
+                >
+                  {t("createOne")}
+                </Link>
+              </p>
+            )}
           </FieldGroup>
         </CardContent>
       </Card>

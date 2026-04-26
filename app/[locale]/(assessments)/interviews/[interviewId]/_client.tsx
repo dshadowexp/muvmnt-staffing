@@ -50,6 +50,10 @@ type Props = {
   interviewDescription?: string;
   /** Fallback profession context used in session variables before a resume is uploaded. */
   defaultProfessionContext?: string;
+  /** Total interview duration in seconds. Defaults to INTERVIEW_DURATION_SECS. */
+  durationSecs?: number;
+  /** Restrict the language selector to these locales. Defaults to all supported locales. */
+  allowedLocales?: string[];
 };
 
 export function ResumeInterviewClient({
@@ -64,6 +68,8 @@ export function ResumeInterviewClient({
   interviewTitle,
   interviewDescription,
   defaultProfessionContext,
+  durationSecs,
+  allowedLocales,
 }: Props) {
   const locale = useLocale();
   const t = useTranslations("assessments.interview.resume");
@@ -95,6 +101,7 @@ export function ResumeInterviewClient({
         candidateName={userName}
         onResumeReady={setReady}
         onBack={() => setPhotoReady(false)}
+        backHref={returnPath}
       />
     );
   }
@@ -135,6 +142,10 @@ export function ResumeInterviewClient({
         }}
         user={{ name: userName, imageUrl: userImage }}
         returnPath={returnPath}
+        onBack={() => setReady(null)}
+        savedLocale={existingInterview?.language ?? undefined}
+        durationSecs={durationSecs}
+        allowedLocales={allowedLocales}
       />
     </VoiceProvider>
   );

@@ -1,7 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ctaPrimarySm, ctaOutlineSm } from "../../_lib/cta-classes";
 import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
@@ -132,12 +132,8 @@ export default function LegalWrapper({
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button asChild size="sm">
-                <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={related.href}>{related.label}</Link>
-              </Button>
+              <a href={`mailto:${contactEmail}`} className={ctaPrimarySm}>{contactEmail}</a>
+              <Link href={related.href} className={ctaOutlineSm}>{related.label}</Link>
             </div>
           </CardContent>
         </Card>

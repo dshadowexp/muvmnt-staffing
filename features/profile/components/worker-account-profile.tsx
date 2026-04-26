@@ -241,7 +241,7 @@ export function WorkAuthCardSlot({
                 : null
             }
             workAuthorizationVerified={verified}
-            profileEditMode={isCompliance && !verified}
+            profileEditMode={!isLocked && !verified}
             isEditing={isCompliance && isEditing}
             onCancelEdit={() => setIsEditing(false)}
           />

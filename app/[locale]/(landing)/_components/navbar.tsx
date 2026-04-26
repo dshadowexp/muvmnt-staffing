@@ -1,8 +1,8 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ctaPrimarySm, ctaGhostSm } from "../_lib/cta-classes";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MenuToggle } from "./menu-toggle";
 import { Logo } from "@/components/logo";
@@ -17,21 +17,13 @@ function NavbarAuthButtons() {
   if (loading) return <CircleDashedIcon className="animate-spin" />;
 
   if (authUser) {
-    return (
-      <Button size="sm" asChild>
-        <Link href={`/dashboard`}>{t("dashboard")}</Link>
-      </Button>
-    );
+    return <Link href="/dashboard" className={ctaPrimarySm}>{t("dashboard")}</Link>;
   }
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="ghost" size="sm" asChild>
-        <Link href="/find-work">{t("findWork")}</Link>
-      </Button>
-      <Button size="sm" asChild>
-        <Link href="/find-staff">{t("requestStaff")}</Link>
-      </Button>
+      <Link href="/find-work" className={ctaGhostSm}>{t("findWork")}</Link>
+      <Link href="/find-staff" className={ctaPrimarySm}>{t("requestStaff")}</Link>
     </div>
   );
 }

@@ -62,8 +62,10 @@ export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> 
         if (workAuth && identityVerification?.verified) {
             actions.push({ id: "processing", href: "/dashboard" });
         }
-    } else {
-        actions.push({ id: "processing", href: "/dashboard" });
+    } else if (stage === "payroll") {
+        actions.push({ id: "payroll-onboarding", href: "/payroll" });
+    } else if (stage === "live") {
+        // actions.push({ id: "processing", href: "/dashboard" });
     }
 
     return actions;

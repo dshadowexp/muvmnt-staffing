@@ -245,7 +245,7 @@
     "why": {
       "overline": "Why readykare",
       "title": "We move at the speed of care.",
-      "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the pressures healthcare teams face every day.",
+      "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the staffings pressures healthcare teams face every day.",
       "points": [
         {
           "icon": "Zap",
@@ -254,18 +254,13 @@
         },
         {
           "icon": "BadgeCheck",
-          "title": "Vetted professionals",
-          "description": "Every worker is credentialed, reference-checked, and compliance-verified."
+          "title": "AI Screening",
+          "description": "Effortless AI-driven candidate review, and you can use it too!"
         },
         {
           "icon": "MapPin",
           "title": "Local reach",
           "description": "Active coverage across Ontario, with more provinces rolling out."
-        },
-        {
-          "icon": "MessageCircle",
-          "title": "Real support",
-          "description": "A dedicated team that knows your facility — no tickets, no chatbots."
         }
       ],
       "statCards": [
@@ -281,7 +276,26 @@
           "title": "<5m response",
           "subtitle": "For emergency coverage"
         }
-      ]
+      ],
+      "pipeline": {
+        "zoneLabel": "READYKARE",
+        "journeyOverline": "The journey",
+        "journeySubtitle": "One platform. Two tracks. One goal.",
+        "clientTrack": [
+          "Shifts",
+          "Request",
+          "Matched",
+          "Covered ✓"
+        ],
+        "proTrack": [
+          "Roles",
+          "Screening",
+          "Shortlist",
+          "Hired ✓"
+        ],
+        "clientSub": "Temporary staff",
+        "proSub": "Permanent staff"
+      }
     },
     "testimonials": {
       "overline": "Testimonials",
@@ -308,6 +322,36 @@
       ],
       "ctaRequest": "Request staff →",
       "ctaFindWork": "Find work"
+    },
+    "screening": {
+      "badge": "AI Screening",
+      "titleLead": "Eliminate manual",
+      "titleAccent": "screening.",
+      "subtitle": "Scheduling calls, reading CVs, scoring candidates — it takes weeks. ReadyKare runs structured AI-led interviews for your candidates, so you can make data-driven decisions about who to hire.",
+      "ctaLearnMore": "Learn more",
+      "ctaStartHiring": "Start hiring",
+      "stats": [
+        {
+          "value": "< 48h",
+          "label": "Time to shortlist"
+        },
+        {
+          "value": "100%",
+          "label": "Candidates screened"
+        },
+        {
+          "value": "3×",
+          "label": "Faster than manual"
+        }
+      ],
+      "diagram": {
+        "painLabels": [
+          "Scheduling Headaches",
+          "No-Shows",
+          "Gut-Based Decisions"
+        ],
+        "outputLabel": "Data-Driven Screening"
+      }
     }
   },
   "findStaff": {
@@ -458,7 +502,44 @@
         "abbr": "Support",
         "full": "Healthcare Support"
       }
-    ]
+    ],
+    "howOverline": "How it works",
+    "howTitle": "Your path from application to ",
+    "howSubtitle": "A clear, structured process so you always know where you stand and what comes next.",
+    "howSteps": [
+      {
+        "phase": "Interview",
+        "title": "AI-Led Interview",
+        "description": "Complete a guided AI interview covering your resume and professional experience. It's conversational, fair, and done entirely online."
+      },
+      {
+        "phase": "Review",
+        "title": "Performance Review",
+        "description": "Our team reviews your interview. If you pass, you move forward. If not, you're welcome to try again in two weeks.",
+        "branchLabel": "✓ Pass → continue · ✗ Retry in 2 weeks"
+      },
+      {
+        "phase": "Compliance",
+        "title": "Submit Your Documents",
+        "description": "Provide your work authorization, complete identity verification, and upload any required healthcare compliance documents."
+      },
+      {
+        "phase": "Compliance Review",
+        "title": "Documents Reviewed",
+        "description": "We review everything you've submitted. If anything needs clarifying, we'll reach out directly. Otherwise, you're cleared to continue."
+      },
+      {
+        "phase": "Setup",
+        "title": "Set Availability & Payroll",
+        "description": "Tell us when you're available for shifts and connect your payout account so you're ready to get paid from day one."
+      },
+      {
+        "phase": "Active",
+        "title": "Receive Shifts & Get Paid",
+        "description": "Start receiving shift requests, complete them with care, and watch your earnings land in your account."
+      }
+    ],
+    "howTitleAccent": "first shift"
   },
   "faq": {
     "meta": {
@@ -778,16 +859,20 @@
       "choiceSubtitle": "Select the option that describes you",
       "roleWorkerDescription": "Are you a healthcare professional looking for flexible work?",
       "roleClientDescription": "Are you a healthcare facility looking for staffing solutions?",
+      "roleCandidateDescription": "Are you here for a screening?",
       "titleWorker": "Create your worker account",
       "titleClient": "Create your account",
+      "titleCandidate": "Create your account",
       "subtitleWorker": "Flexible healthcare work at your fingertips",
       "subtitleClient": "AI powered staffing solutions at your fingertips",
+      "subtitleCandidate": "Set up your account to begin your screening.",
       "overline": "Create your readykare account",
       "referralBanner": "You've been referred! Sign up to get started.",
       "referralInvalidToast": "That referral link is invalid or has expired.",
       "roleLabel": "I am looking for",
       "roleClient": "Staffing",
       "roleWorker": "Work",
+      "roleCandidate": "Candidate",
       "emailLabel": "Email address",
       "emailPlaceholder": "you@organization.ca",
       "passwordLabel": "Password",
@@ -1043,7 +1128,7 @@
         "workAuth": {
           "title": "Work authorization",
           "description": "Upload your work authorization document for review by our team.",
-          "descriptionInterview": "Complete your interviews first. Visit the Assessments page to complete them.",
+          "descriptionInterview": "Complete your interviews first. Visit dashboard to complete important tasks.",
           "descriptionCompliance": "Upload your work authorization document for review by our team.",
           "editAria": "Edit work authorization",
           "descriptionPostCompliance": "Your work authorization has been submitted. Contact support if you need to make changes."
@@ -1051,7 +1136,7 @@
         "identityVerification": {
           "title": "Identity verification",
           "description": "Verify your identity to complete your compliance requirements.",
-          "descriptionInterview": "Complete your interviews first. Visit the Assessments page to complete them.",
+          "descriptionInterview": "Complete your interviews first. Visit dashboard to complete important tasks.",
           "descriptionCompliance": "Verify your identity to complete your compliance requirements.",
           "statusVerified": "Verified",
           "statusNotVerified": "Not verified",
@@ -1064,7 +1149,7 @@
         },
         "documentsTitle": "Compliance documents",
         "documentsDescription": "Upload the required documents for each compliance type.",
-        "documentsDescriptionInterview": "Complete your interviews first. Visit the Assessments page to complete them.",
+        "documentsDescriptionInterview": "Complete your interviews first. Visit dashboard to complete important tasks.",
         "emptyState": "No compliance documents yet. Choose a type above to add your first row.",
         "columnDocument": "Document",
         "columnFile": "File",
@@ -1741,7 +1826,9 @@
         "starting": "Starting…",
         "start": "Start interview",
         "resume": "Resume interview",
-        "languageLabel": "What language would you like to take your interview in?"
+        "languageLabel": "What language would you like to take your interview in?",
+        "backToResume": "Back to resume upload",
+        "backTitle": "Dashboard"
       },
       "controls": {
         "mute": "Mute",
@@ -2088,6 +2175,127 @@
         "highTitle": "High demand",
         "highDetail": "Prices reflect a surge for these dates. Booking earlier can reduce the rate."
       }
+    }
+  },
+  "screening": {
+    "meta": {
+      "title": "AI Candidate Screening",
+      "description": "ReadyKare runs structured AI interviews on every applicant and delivers a ranked shortlist — skip the scheduling, no-shows, and guesswork.",
+      "ogDescription": "From open role to hired in days. AI-powered screening that never sleeps."
+    },
+    "hero": {
+      "badge": "AI-Powered Candidate Screening",
+      "titleLead": "From open role",
+      "titleAccent": "to hired.",
+      "titleTail": "In days.",
+      "subtitle": "We run structured AI interviews on every applicant and deliver a ranked shortlist — so you skip the scheduling, the no-shows, and the gut-feel guesswork.",
+      "ctaGetStarted": "Get started",
+      "ctaHowItWorks": "See how it works"
+    },
+    "pain": {
+      "overline": "The problem",
+      "title": "Manual hiring is broken.",
+      "tagline": "Every step that depends on a human calendar is a bottleneck you can't afford.",
+      "items": [
+        {
+          "num": "01",
+          "stat": "60–80%",
+          "statLabel": "of recruiter time",
+          "title": "Hours lost to phone screens",
+          "body": "First-round calls that go nowhere eat the majority of every recruiter's week — time that should be spent on the people who actually made the cut."
+        },
+        {
+          "num": "02",
+          "stat": "1 in 4",
+          "statLabel": "candidates ghost",
+          "title": "No-shows and late reschedules",
+          "body": "A booked slot is not a kept slot. Every ghost knocks your timeline back by days, and the next available time is never soon enough."
+        },
+        {
+          "num": "03",
+          "stat": "0 data",
+          "statLabel": "to compare on",
+          "title": "Inconsistent evaluations",
+          "body": "Different interviewers ask different questions. Without a structured benchmark, you're comparing apples to opinions — not to candidates."
+        }
+      ]
+    },
+    "how": {
+      "overline": "How it works",
+      "titleLead": "Your role filled.",
+      "titleAccent": "Zero legwork.",
+      "subtitle": "You tell us what you need. We take care of everything in between.",
+      "steps": [
+        {
+          "icon": "ClipboardList",
+          "title": "Describe the role",
+          "body": "Tell us who you're looking for — the position, the must-haves, and what success looks like in the first 90 days."
+        },
+        {
+          "icon": "Wand2",
+          "title": "We handle the rest",
+          "body": "Every applicant goes through our rigorous screening process on their own time. No calendar coordination required from you."
+        },
+        {
+          "icon": "ListChecks",
+          "title": "Meet your shortlist",
+          "body": "Within 48 hours, you receive a curated shortlist of candidates who have already proven they meet your bar — ready for your final conversation."
+        }
+      ]
+    },
+    "candidate": {
+      "overline": "For candidates",
+      "titleLead": "Respectful of their time.",
+      "titleAccent": "Better for your pipeline.",
+      "subtitle": "A frictionless experience means more candidates finish — which means you see more of the talent pool, not just the ones who cleared a scheduling hurdle.",
+      "perks": [
+        {
+          "icon": "CalendarCheck",
+          "title": "On their schedule",
+          "body": "Candidates complete screening whenever it suits them — no interview slots to juggle, no drop-offs from scheduling conflicts."
+        },
+        {
+          "icon": "Timer",
+          "title": "Under 20 minutes",
+          "body": "A focused, structured process that respects their time and keeps completion rates high."
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Any device, anywhere",
+          "body": "Phone, tablet, laptop — wherever they are, the experience works seamlessly."
+        },
+        {
+          "icon": "CheckCircle2",
+          "title": "Always open",
+          "body": "Your pipeline keeps moving around the clock. No waiting for office hours to receive applicants."
+        }
+      ]
+    },
+    "stats": {
+      "items": [
+        {
+          "value": "< 48h",
+          "label": "Average time to shortlist"
+        },
+        {
+          "value": "100%",
+          "label": "Candidates evaluated equally"
+        },
+        {
+          "value": "3×",
+          "label": "Faster than traditional screening"
+        },
+        {
+          "value": "0",
+          "label": "Scheduling headaches"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to fill your role?",
+      "subtitle": "Post your opening today and receive a shortlist of qualified, pre-screened candidates within 48 hours.",
+      "ctaGetStarted": "Get started",
+      "ctaHowItWorks": "How ReadyKare works"
     }
   }
 }
