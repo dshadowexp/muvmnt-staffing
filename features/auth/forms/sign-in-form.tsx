@@ -24,7 +24,6 @@ import {
   OrDivider,
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, loginWithEmail } from "@/services/firebase/auth";
-import { useRouter } from "@/i18n/navigation";
 import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import posthog from "posthog-js";
 
@@ -43,9 +42,8 @@ export function SignInForm({
   showGoogle = true,
   showFooterLink = true,
 }: SignInFormProps = {}) {
-  const router = useRouter();
   const { loading } = useAuth();
-  const { redirectTo, withAuthParams } = useAuthRedirect();
+  const { withAuthParams } = useAuthRedirect();
   const [error, setError] = useState("");
   const t = useTranslations("auth.signIn");
   const tValidation = useTranslations("auth.validation");
@@ -79,11 +77,10 @@ export function SignInForm({
       await loginWithEmail(data.email.trim(), data.password);
       posthog.identify(data.email.trim(), { email: data.email.trim() });
       posthog.capture("user_signed_in", { method: "email" });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push(redirectTo as Parameters<typeof router.push>[0]);
-      }
+      // Navigation is handled by auth-provider after setSession completes,
+      // so the middleware sees the correct isActive value. onSuccess is kept
+      // for portal contexts that register setSuccessHandler separately.
+      onSuccess?.();
     } catch (err) {
       const key = getAuthErrorKey(err);
       setError(key ? tErrors(key) : "");

@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ShiftsTable } from "@/features/shifts/components/shifts-table";
 import {
   countCompletedShiftsForWorker,
@@ -15,7 +15,7 @@ import {
   type WorkerPendingAction,
 } from "@/features/workers/dal/queries";
 import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import {
   Card,
   CardContent,
@@ -290,9 +290,10 @@ function ShiftsTableSkeleton() {
 }
 
 export default async function WorkerHomePage() {
+  const locale = await getLocale();
   const worker = await getWorkerProfile();
   if (!worker) {
-    return redirect("/")
+    return redirect({ href: "/onboarding", locale })
   };
 
   const t = await getTranslations("dashboard.worker.home");

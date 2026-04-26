@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,9 +50,8 @@ export function SignUpForm({
   showFooterLink = true,
 }: SignUpFormProps) {
   const { loading: authLoading, setPendingRole, setPendingReferralCode } = useAuth();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { redirectTo, withAuthParams } = useAuthRedirect();
+  const { withAuthParams } = useAuthRedirect();
   const referralCode = searchParams.get("ref");
   const t = useTranslations("auth.signUp");
   const tValidation = useTranslations("auth.validation");
@@ -119,11 +117,8 @@ export function SignUpForm({
         role,
         has_referral: !!referralCode,
       });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push(redirectTo as Parameters<typeof router.push>[0]);
-      }
+      // Navigation is handled by auth-provider after setSession completes.
+      onSuccess?.();
     } catch (err) {
       const key = getAuthErrorKey(err);
       form.setError("root", { message: key ? tErrors(key) : "" });

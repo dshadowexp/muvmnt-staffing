@@ -18,7 +18,7 @@ const COOLDOWN_SECONDS = 60;
 
 export function EmailVerification() {
   const router = useRouter();
-  const { firebaseUser: user, loading: authLoading } = useAuth();
+  const { firebaseUser: user, loading: authLoading, reloadFirebaseUser } = useAuth();
   const [sending, setSending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [sent, setSent] = useState(false);
@@ -104,7 +104,7 @@ export function EmailVerification() {
     setError("");
     try {
       stopPolling();
-      await auth.currentUser.reload();
+      await reloadFirebaseUser();
       if (auth.currentUser.emailVerified) {
         handleVerified();
       } else {
@@ -115,7 +115,7 @@ export function EmailVerification() {
     } finally {
       if (mountedRef.current) setChecking(false);
     }
-  }, [handleVerified, startPolling, stopPolling, t]);
+  }, [handleVerified, startPolling, stopPolling, t, reloadFirebaseUser]);
 
   const disabled = sending || cooldown > 0;
   const needsVerification = !user?.emailVerified;

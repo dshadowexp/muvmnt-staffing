@@ -51,7 +51,7 @@ const COUNTRIES: ReadonlyArray<{
 ];
 
 export function PhoneVerification() {
-  const { firebaseUser: user, loading: authLoading } = useAuth();
+  const { firebaseUser: user, loading: authLoading, reloadFirebaseUser } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<PhoneStep>("input");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
@@ -188,6 +188,7 @@ export function PhoneVerification() {
       posthog.capture("phone_verified");
       setVerifiedPhone(formatted);
       setStep("done");
+      await reloadFirebaseUser();
       router.refresh();
       
     } catch (e) {

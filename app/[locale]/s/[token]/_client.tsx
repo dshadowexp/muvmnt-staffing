@@ -28,7 +28,7 @@ export function ScreeningCandidateClient({
   locale,
   showIdentityStep = false,
 }: Props) {
-  const { authUser, setNotFoundHandler, setEmailTakenHandler } = useAuth();
+  const { authUser, setNotFoundHandler, setEmailTakenHandler, setSuccessHandler } = useAuth();
   const router = useRouter();
   const prevAuthUser = useRef(authUser);
   // Workers already have an account — default straight to sign-in and hide sign-up
@@ -52,11 +52,15 @@ export function ScreeningCandidateClient({
     if (candidate) return;
     setNotFoundHandler(() => setAuthView("signup"));
     setEmailTakenHandler(() => setAuthView("signin"));
+    // Suppress provider-level navigation on success — router.refresh() via
+    // the authUser effect above handles re-rendering the server component.
+    setSuccessHandler(() => {});
     return () => {
       setNotFoundHandler(null);
       setEmailTakenHandler(null);
+      setSuccessHandler(null);
     };
-  }, [candidate, setNotFoundHandler, setEmailTakenHandler]);
+  }, [candidate, setNotFoundHandler, setEmailTakenHandler, setSuccessHandler]);
 
   // Not authenticated — show auth gate
   if (!candidate) {

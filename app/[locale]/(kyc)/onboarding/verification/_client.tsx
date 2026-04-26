@@ -14,7 +14,9 @@ export function VerificationClient() {
     const [state, formAction] = useActionState(verifyDetailsAction, undefined);
     useOnboardingFormNavigate(state);
 
-    const continueCheck = useMemo(() => authUser?.role === "worker" ? (firebaseUser?.emailVerified && firebaseUser?.phoneNumber) : firebaseUser?.emailVerified, [authUser, firebaseUser]);
+    const continueCheck = authUser?.role === "worker"
+        ? (firebaseUser?.emailVerified && !!firebaseUser?.phoneNumber)
+        : firebaseUser?.emailVerified;
 
     return (
         <div className="space-y-6">

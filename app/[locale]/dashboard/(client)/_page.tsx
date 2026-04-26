@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ShiftsTable } from "@/features/shifts/components/shifts-table";
 import {
   completedShiftStatsForClient,
@@ -8,7 +8,7 @@ import {
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
 import { attachResolvedWorkerPhotos } from "@/features/shifts/lib/resolve-worker-photo-url";
 import { getClientProfile } from "@/features/profile/dal/queries";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { CheckCircle2Icon, ClockIcon, FingerprintIcon, PlusIcon, TargetIcon, UserRoundSearchIcon } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
@@ -135,11 +135,15 @@ function ShiftsTableSkeleton() {
 }
 
 export default async function ClientHomePage() {
-
+  const locale = await getLocale();
   const [client, t] = await Promise.all([
     getClientProfile(),
     getTranslations("dashboard.client.home"),
   ]);
+
+  if (!client) {
+    return redirect({ href: "/onboarding", locale })
+  }
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-6">

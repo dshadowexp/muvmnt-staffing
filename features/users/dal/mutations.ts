@@ -60,6 +60,8 @@ export async function findOrCreateUser(params: {
       throw new Error(`Failed to find user by auth_id: ${lookupError.message}`);
     }
     if (existing) return existing;
+
+    console.log(params)
    
     // 2. No row for this auth_id — only relevant during sign-up
     if (!params.role) return "NOT_FOUND";
@@ -87,7 +89,7 @@ export async function findOrCreateUser(params: {
         email: params.email,
         role: params.role,
         is_email_verified: params.emailVerified,
-        is_active: params.role === "candidate" ? false : true,
+        is_active: params.role === "candidate" ? true : false,
       })
       .select()
       .single();

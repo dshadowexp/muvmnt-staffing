@@ -35,9 +35,16 @@ type AuthContextType = {
   setNotFoundHandler: (fn: (() => void) | null) => void;
   /** Register a handler that fires instead of navigating on email_taken. */
   setEmailTakenHandler: (fn: (() => void) | null) => void;
+  /** Register a handler that fires instead of the provider navigating on
+   *  successful sign-in (e.g. portal contexts that manage their own refresh). */
+  setSuccessHandler: (fn: ((user: UserAuth) => void) | null) => void;
+  reloadFirebaseUser: () => Promise<void>;
 };
 
-type ExchangeOutcome = "ok" | "not_found" | "email_taken";
+type ExchangeOutcome =
+  | { status: "ok"; user: UserAuth }
+  | "not_found"
+  | "email_taken";
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
@@ -55,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const pendingReferralCodeRef = useRef<string | null>(null);
     const onNotFoundRef = useRef<(() => void) | null>(null);
     const onEmailTakenRef = useRef<(() => void) | null>(null);
+    const onSuccessRef = useRef<((user: UserAuth) => void) | null>(null);
 
     const setPendingRole = useCallback((role: UserRole | null) => {
         pendingRoleRef.current = role;
@@ -71,6 +79,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const setEmailTakenHandler = useCallback((fn: (() => void) | null) => {
         onEmailTakenRef.current = fn;
     }, []);
+
+    const setSuccessHandler = useCallback((fn: ((user: UserAuth) => void) | null) => {
+        onSuccessRef.current = fn;
+    }, []);
+
+    async function reloadFirebaseUser() {
+        if (!firebaseUser) return;
+        await firebaseUser.reload();
+        // After reload, the firebaseUser object is mutated in place by Firebase SDK
+        // Force a re-render by re-setting it
+        const refreshed = auth.currentUser;
+        setFirebaseUser(refreshed);
+    }
 
     /**
      * Exchanges a Firebase user for a Supabase-backed UserAuth session.
@@ -113,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
         }
 
-        return "ok";
+        return { status: "ok", user: result.user };
     }
 
     async function clearAuth() {
@@ -158,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         return;
                     }
                     const redirectParam =
-                        searchParams.get("redirect") ?? searchParams.get("callbackUrl");
+                        searchParams.get("redirect") ?? searchParams.get("ref") ?? searchParams.get("as") ?? searchParams.get("token");
                     router.push(
                         redirectParam
                         ? `/sign-up?redirect=${encodeURIComponent(redirectParam)}`
@@ -182,11 +203,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     return;
                 }
 
-                // outcome === "ok"
+                // outcome.status === "ok" — session cookie is already set
                 posthog.identify(user.email ?? user.uid, {
                     email: user.email ?? undefined,
                 });
                 setFirebaseUser(user);
+
+                // Navigate now that setSession has completed. If a handler is
+                // registered (e.g. portal), defer to it instead of navigating.
+                if (onSuccessRef.current) {
+                    onSuccessRef.current(outcome.user);
+                } else {
+                    const redirectParam =
+                        searchParams.get("redirect") ?? searchParams.get("callbackUrl");
+                    const safeParam =
+                        redirectParam &&
+                        redirectParam.startsWith("/") &&
+                        !redirectParam.startsWith("//")
+                            ? redirectParam
+                            : null;
+
+                    if (!outcome.user.isActive && outcome.user.role !== "candidate") {
+                        // Inactive worker / client → review queue
+                        router.replace("/review" as Parameters<typeof router.replace>[0]);
+                    } else {
+                        const defaultDest =
+                            outcome.user.role === "admin" ? "/dashboard/admin" : "/dashboard";
+                        router.push(
+                            (safeParam ?? defaultDest) as Parameters<typeof router.push>[0],
+                        );
+                    }
+                }
             } catch {
                 // runTokenExchange already surfaced a toast for the specific error.
                 // Clean up so the user isn't stuck in a broken session.
@@ -213,6 +260,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 reloadToken,
                 setNotFoundHandler,
                 setEmailTakenHandler,
+                setSuccessHandler,
+                reloadFirebaseUser,
             }}
         >
             {children}
