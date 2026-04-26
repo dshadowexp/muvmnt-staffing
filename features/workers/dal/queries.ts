@@ -1,6 +1,7 @@
 import "server-only";
 
-import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
+import { getOrCreateCombinedInterview } from "@/features/interviews/lib/get-or-create-combined-interview";
+import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";
 import { getIdentityVerification, getWorkAuthorization, getWorkerProfile } from "@/features/profile/dal/queries";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -40,9 +41,9 @@ export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> 
     const actions: WorkerPendingAction[] = [];
     
     if (stage === "interview") {
-        const combinedInterview = await getInterviewBySubjectForUser("combined", user_id);
-        if (!combinedInterview?.completed_at) {
-            actions.push({ id: "assessment-interview", href: "/interviews/combined" });
+        const interview = await getOrCreateCombinedInterview(user_id);
+        if (!isAssessmentInterviewLocked(interview)) {
+            actions.push({ id: "assessment-interview", href: `/interviews/${interview.id}` });
         }
     } else if (stage === "compliance") {
         const [workAuth, identityVerification] = await Promise.all([

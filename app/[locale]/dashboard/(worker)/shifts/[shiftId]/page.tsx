@@ -145,7 +145,7 @@ export default async function WorkerShiftDetailPage({
   if (!worker) redirect("/onboarding/profile");
 
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-8">
+    <div className="flex w-full max-w-2xl mx-auto flex-col gap-8">
       <BackLink backHref="/dashboard/shifts" title="Shifts" />
 
       <Suspense fallback={<DetailSkeleton />}>

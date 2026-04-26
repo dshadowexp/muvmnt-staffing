@@ -30,7 +30,7 @@ export const generateInterviewFeedbackTask = schemaTask({
     // 1. Load interview row
     const { data: interview, error: interviewError } = await supabase
       .from("interviews")
-      .select("id, hume_chat_id, chat_group_id, subject, subject_ref, user_id")
+      .select("id, hume_chat_id, chat_group_id, subject, subject_ref, user_id, screening_id")
       .eq("id", interviewId)
       .maybeSingle();
 
@@ -97,6 +97,13 @@ export const generateInterviewFeedbackTask = schemaTask({
     }
 
     logger.log("Interview feedback saved", { interviewId, decision: result.decision });
+
+    // Screening interviews don't go through worker auto-review.
+    // The candidate stage was already advanced to "completed" in finalizeInterviewRecording.
+    if (interview.screening_id) {
+      logger.log("Screening interview — skipping auto-review", { interviewId });
+      return { interviewId, decision: result.decision };
+    }
 
     // Attempt auto-review — non-fatal, runs only if video analysis is also ready
     logger.log("Attempting auto-review after feedback generation", { interviewId });

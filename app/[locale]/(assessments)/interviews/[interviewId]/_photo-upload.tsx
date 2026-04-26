@@ -14,16 +14,30 @@ import {
 } from "@/components/ui/card";
 import { PhotoUpload } from "@/features/storage/components/photo-upload";
 import { deleteFile } from "@/features/storage/dal/mutations";
-import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import { InterviewHeader } from "../_components/interview-header";
 import { getPresignedDownloadUrl } from "@/features/storage/dal/queries";
 
+export type SavePhotoResult = { error: true; message: string } | { error: false };
+
 type Props = {
-    initialPhotoKey?: string;
-    onComplete: (photoUrl: string) => void;
+  initialPhotoKey?: string;
+  /** Where the header back-link points. Defaults to /dashboard for workers. */
+  backHref?: string;
+  /**
+   * Persists the uploaded S3 key to the appropriate record.
+   * Workers: updateWorkerPhotoAction
+   * Candidates: saveCandidatePhotoAction (bound to screeningId)
+   */
+  onSavePhoto: (key: string) => Promise<SavePhotoResult>;
+  onComplete: (photoUrl: string) => void;
 };
 
-export function PhotoUploadStep({ initialPhotoKey, onComplete }: Props) {
+export function PhotoUploadStep({
+  initialPhotoKey,
+  backHref = "/dashboard",
+  onSavePhoto,
+  onComplete,
+}: Props) {
   const t = useTranslations("assessments.interview.photo");
   const [hasExisting, setHasExisting] = useState(!!initialPhotoKey);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
@@ -31,13 +45,13 @@ export function PhotoUploadStep({ initialPhotoKey, onComplete }: Props) {
 
   async function handleContinue() {
     setIsSaving(true);
-  
-    // User uploaded a new photo — save it to the DB then resolve its URL
+
+    // New upload — persist it, then resolve a display URL
     if (pendingKey) {
-      const { error, message } = await updateWorkerPhotoAction(pendingKey);
-      if (error) {
+      const result = await onSavePhoto(pendingKey);
+      if (result.error) {
         setIsSaving(false);
-        toast.error(message);
+        toast.error(result.message);
         await deleteFile(pendingKey).catch(() => undefined);
         setPendingKey(null);
         return;
@@ -47,24 +61,21 @@ export function PhotoUploadStep({ initialPhotoKey, onComplete }: Props) {
       onComplete(url);
       return;
     }
-  
-    // User kept their existing photo — just resolve its URL, no DB write needed
+
+    // Existing photo — resolve URL, no write needed
     if (initialPhotoKey) {
       const { url } = await getPresignedDownloadUrl(initialPhotoKey);
       setIsSaving(false);
       onComplete(url);
       return;
     }
-  
+
     setIsSaving(false);
   }
 
   return (
     <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
-      <InterviewHeader
-        backHref="/dashboard"
-        backTitle={t("backTitle")}
-      />
+      <InterviewHeader backHref={backHref} backTitle={t("backTitle")} />
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
         <Card className="w-full max-w-lg">
@@ -82,22 +93,22 @@ export function PhotoUploadStep({ initialPhotoKey, onComplete }: Props) {
 
           <CardContent className="flex flex-col items-center gap-6">
             <PhotoUpload
-                context="avatars"
-                initialFileKey={initialPhotoKey}
-                disabled={isSaving}
-                className="items-center"   
-                onUploaded={({ key }) => {
-                    if (key) {
-                    setPendingKey(key);
-                    setHasExisting(false); // new upload replaces existing
-                    }
-                }}
-                onFileChange={(hasFile) => {
-                    if (!hasFile) {
-                    setPendingKey(null);
-                    setHasExisting(false); // user removed the photo entirely
-                    }
-                }}
+              context="avatars"
+              initialFileKey={initialPhotoKey}
+              disabled={isSaving}
+              className="items-center"
+              onUploaded={({ key }) => {
+                if (key) {
+                  setPendingKey(key);
+                  setHasExisting(false);
+                }
+              }}
+              onFileChange={(hasFile) => {
+                if (!hasFile) {
+                  setPendingKey(null);
+                  setHasExisting(false);
+                }
+              }}
             />
 
             <Button

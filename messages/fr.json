@@ -190,10 +190,10 @@
   "landing": {
     "hero": {
       "badge": "La dotation en santé, simplifiée",
-      "titleLead": "Couvrir des quarts",
+      "titleLead": "Combler les quarts ouverts",
       "titleAccent": "en moins de",
       "titleTail": "5 minutes.",
-      "subtitle": "readykare connecte les équipes de santé et les familles à des professionnels accrédités et pré-qualifiés — rapidement. Dites-nous votre horaire, confirmez les jumelages, et obtenez une couverture instantanée.",
+      "subtitle": "readykare vous met en relation avec des professionnels de la santé à la demande, présélectionnés et certifiés, prêts à couvrir des quarts de travail lorsque vous en avez besoin.",
       "ctaRequest": "Demander du personnel →",
       "ctaProfessional": "Je suis un professionnel",
       "stats": [
@@ -246,7 +246,7 @@
     "why": {
       "overline": "Pourquoi ReadyKare",
       "title": "Au rythme des soins.",
-      "subtitle": "Les soins ne peuvent pas attendre. Nous non plus. ReadyKare a été conçu pour la pression quotidienne des équipes canadiennes.",
+      "subtitle": "Les soins ne peuvent pas attendre. Nous non plus. ReadyKare a été conçu pour la pression quotidienne des équipes de santé.",
       "points": [
         {
           "icon": "Zap",
@@ -769,8 +769,20 @@
     "signUp": {
       "meta": {
         "title": "Inscription",
-        "description": "Créez votre compte ReadyKare gratuit. Inscrivez-vous comme professionnel ou comme établissement."
+        "description": "Créez votre compte ReadyKare gratuit. Inscrivez-vous comme professionnel ou comme établissement.",
+        "titleWorker": "Inscription comme professionnel",
+        "titleClient": "Inscription comme établissement",
+        "descriptionWorker": "...",
+        "descriptionClient": "..."
       },
+      "choiceTitle": "Comment voulez-vous rejoindre ReadyKare?",
+      "choiceSubtitle": "Sélectionnez l'option qui décrit vous",
+      "roleWorkerDescription": "Trouvez du travail en santé près de chez vous",
+      "roleClientDescription": "Trouvez du personnel temporaire près de chez vous pour combler vos quarts",
+      "titleWorker": "Créez votre compte professionnel",
+      "titleClient": "Créez votre compte établissement",
+      "subtitleWorker": "Trouvez du travail en santé flexible près de chez vous",
+      "subtitleClient": "Trouvez du personnel temporaire près de chez vous pour combler vos quarts",
       "overline": "Créez votre compte readykare",
       "referralBanner": "Vous avez été référé! Inscrivez-vous pour commencer.",
       "referralInvalidToast": "Ce lien de référence est invalide ou expiré.",
@@ -886,6 +898,7 @@
       "compliance": "Conformité",
       "payroll": "Paie",
       "requests": "Demandes",
+      "screenings": "Vérifications",
       "account": "Compte",
       "billing": "Facturation",
       "authorization": "Autorisation",
@@ -1133,8 +1146,10 @@
         "subtitle": "Voici un aperçu de votre activité.",
         "shiftsCompleted": "Quarts terminés",
         "totalTimeCovered": "Temps total couvert",
-        "makeRequest": "Passer une demande",
+        "makeRequest": "Besoin de personnel temporaire?",
         "makeRequestSubtitle": "Créez une demande de personnel temporaire pour commencer.",
+        "createScreening": "Créer une vérification",
+        "createScreeningSubtitle": "Créez une vérification pour commencer.",
         "newStaffRequest": "Demander du personnel temporaire",
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
@@ -1150,9 +1165,9 @@
       },
       "billing": {
         "title": "Compte de facturation",
-        "subtitle": "Gérez les modes de paiement et l'historique des factures.",
+        "subtitle": "Gérez vos préférences de souscription et de facturation.",
         "portalCardTitle": "Votre facturation",
-        "portalCardDescription": "Gérez les modes de paiement et l'historique des factures.",
+        "portalCardDescription": "Gérez vos préférences de souscription et de facturation.",
         "manageBilling": "Gérer la facturation",
         "manageBillingPending": "Ouverture…",
         "cardsTitle": "Cartes de crédit/débit",
@@ -1945,7 +1960,7 @@
       "apply": "Appliquer"
     },
     "wizard": {
-      "step1Title": "Planifier la demande",
+      "step1Title": "Demander du personnel temporaire",
       "step1Description": "Indiquez le nombre de {profession} requis, les dates et les heures de quart.",
       "step2Title": "Choisir le palier",
       "step2Description": "Sélectionnez le palier qui convient le mieux à votre demande.",
@@ -1979,7 +1994,7 @@
       "startDate": "Date de début",
       "endDate": "Date de fin",
       "sameDay": "Même jour",
-      "submitSchedule": "Soumettre",
+      "submitSchedule": "Remplir ces quarts",
       "perHour": "/h",
       "noTiers": "Aucun palier tarifaire disponible.",
       "backToSchedule": "Retour à l'horaire",

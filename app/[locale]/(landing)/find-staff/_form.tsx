@@ -1,12 +1,19 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Users } from "lucide-react";
 
 import { CardContent } from "@/components/ui/card";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { AddressCard } from "@/features/geo/components/address-card";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { ScheduleRequestForm } from "@/features/requests/components/schedule-request-form";
@@ -18,10 +25,10 @@ import {
     DEFAULT_STAFF_REQUEST_PROFESSION,
     mergePersistedStaffRequestRequirements,
 } from "@/features/requests/constants";
-import { createStaffRequestDraftAction } from "@/features/requests/server/actions";
 import { useRouter } from "@/i18n/navigation";
 import { latLngToCell } from "h3-js";
-import { H3_RESOLUTION } from "@/lib/constants";
+import { H3_RESOLUTION, PROFESSIONAL_ROLES } from "@/lib/constants";
+import { normalizeProfessionId } from "@/lib/professions";
 
 /**
  * sessionStorage key read by `/dashboard/requests/new` to prefill the schedule a
@@ -48,6 +55,7 @@ export type PendingScheduleRequest = {
 
 type FindStaffFormProps = {
     jobProfile: StaffRequestJobProfileApplyPayload;
+    onProfessionChange: (profession: string) => void;
 };
 
 /**
@@ -61,10 +69,12 @@ type FindStaffFormProps = {
  *    on the wizard step they expected after authenticating — sign-in or
  *    sign-up, whichever they chose.
  */
-function FindStaffForm({ jobProfile }: FindStaffFormProps) {
+function FindStaffForm({ jobProfile, onProfessionChange }: FindStaffFormProps) {
     const router = useRouter();
     const { authUser } = useAuth();
     const t = useTranslations("findStaff.form");
+    const tWizard = useTranslations("staffRequest.wizard");
+    const tProf = useTranslations("professions");
     const cellIdRef = useRef<string | null>(null);
 
     const isClient = authUser?.role === "client";
@@ -81,6 +91,26 @@ function FindStaffForm({ jobProfile }: FindStaffFormProps) {
                     }}
                 />
             </Field>
+
+            <Field>
+                <FieldLabel>{tWizard("professionLabel")}</FieldLabel>
+                <Select
+                    value={jobProfile.profession}
+                    onValueChange={(v) => onProfessionChange(normalizeProfessionId(v))}
+                >
+                    <SelectTrigger className="w-full">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {PROFESSIONAL_ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                                {tProf(role)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </Field>
+
             <ScheduleRequestForm
                 submitLabel={t("submit")}
                 onSubmit={async (values) => {
@@ -105,7 +135,6 @@ function FindStaffForm({ jobProfile }: FindStaffFormProps) {
                     };
 
                     if (isClient) {
-                        
                         router.push(
                             `/dashboard/requests/new` as Parameters<
                                 typeof router.push
@@ -124,9 +153,10 @@ function FindStaffForm({ jobProfile }: FindStaffFormProps) {
                     } catch {
                         /* sessionStorage may be unavailable — continue regardless */
                     }
-
+                    
+                    
                     router.push(
-                        "/dashboard/requests/new" as Parameters<typeof router.push>[0],
+                        "/sign-up/client?redirect=/dashboard/requests/new" as Parameters<typeof router.push>[0],
                     );
                 }}
             />
@@ -140,20 +170,11 @@ export type FindStaffLeadCardProps = {
 };
 
 export function FindStaffLeadCard({ cardTitle, cardSubtitle }: FindStaffLeadCardProps) {
-    const [jobProfile, setJobProfile] = useState<StaffRequestJobProfileApplyPayload>(
-        () => ({
-            profession: DEFAULT_STAFF_REQUEST_PROFESSION,
-            tasks: [],
-            requirements: [],
-        }),
-    );
-
-    const handleApplyJobProfile = useCallback(
-        (payload: StaffRequestJobProfileApplyPayload) => {
-            setJobProfile(payload);
-        },
-        [],
-    );
+    const [jobProfile, setJobProfile] = useState<StaffRequestJobProfileApplyPayload>({
+        profession: DEFAULT_STAFF_REQUEST_PROFESSION,
+        tasks: [],
+        requirements: [],
+    });
 
     return (
         <>
@@ -164,7 +185,7 @@ export function FindStaffLeadCard({ cardTitle, cardSubtitle }: FindStaffLeadCard
                         profession={jobProfile.profession}
                         tasks={jobProfile.tasks}
                         requirements={jobProfile.requirements}
-                        onApply={handleApplyJobProfile}
+                        onApply={setJobProfile}
                         triggerOnPrimary
                         rowClassName="items-start"
                     >
@@ -186,7 +207,12 @@ export function FindStaffLeadCard({ cardTitle, cardSubtitle }: FindStaffLeadCard
             </div>
 
             <CardContent className="p-7">
-                <FindStaffForm jobProfile={jobProfile} />
+                <FindStaffForm
+                    jobProfile={jobProfile}
+                    onProfessionChange={(profession) =>
+                        setJobProfile((prev) => ({ ...prev, profession }))
+                    }
+                />
             </CardContent>
         </>
     );

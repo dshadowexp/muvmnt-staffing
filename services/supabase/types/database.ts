@@ -292,8 +292,10 @@ export type Database = {
           recording_url: string | null
           result: string | null
           reviewed: boolean
+          screening_id: string | null
           subject: string
           subject_ref: Json | null
+          survey: Json | null
           updated_at: string
           user_id: string
           video_feedback: Json | null
@@ -310,8 +312,10 @@ export type Database = {
           recording_url?: string | null
           result?: string | null
           reviewed?: boolean
+          screening_id?: string | null
           subject: string
           subject_ref?: Json | null
+          survey?: Json | null
           updated_at?: string
           user_id: string
           video_feedback?: Json | null
@@ -328,14 +332,23 @@ export type Database = {
           recording_url?: string | null
           result?: string | null
           reviewed?: boolean
+          screening_id?: string | null
           subject?: string
           subject_ref?: Json | null
+          survey?: Json | null
           updated_at?: string
           user_id?: string
           video_feedback?: Json | null
           video_feedback_status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "interviews_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "screenings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "interviews_user_id_fkey"
             columns: ["user_id"]
@@ -706,6 +719,139 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      screening_candidates: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          invite_id: string | null
+          last_name: string | null
+          photo_url: string | null
+          screening_id: string
+          stage: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          invite_id?: string | null
+          last_name?: string | null
+          photo_url?: string | null
+          screening_id: string
+          stage?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          invite_id?: string | null
+          last_name?: string | null
+          photo_url?: string | null
+          screening_id?: string
+          stage?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screening_candidates_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "screening_invites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "screening_candidates_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screening_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          screening_id: string
+          sent_at: string | null
+          status: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          screening_id: string
+          sent_at?: string | null
+          status?: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          screening_id?: string
+          sent_at?: string | null
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screening_invites_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screenings: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description: string
+          id?: string
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screenings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shift_ratings: {
         Row: {

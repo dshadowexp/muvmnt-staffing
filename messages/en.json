@@ -189,10 +189,10 @@
   "landing": {
     "hero": {
       "badge": "Healthcare staffing, simplified",
-      "titleLead": "Cover shifts",
+      "titleLead": "Fill open shifts",
       "titleAccent": "in less than",
       "titleTail": "5 minutes.",
-      "subtitle": "readykare connects healthcare teams and families with pre-screened, credentialed professionals — fast. Tell us your schedule, confirm staff match, and get covered instantly.",
+      "subtitle": "readykare connects you to on-demand, pre-screened, credentialed healtcare professionals ready to cover shiftswhen you need them.",
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
@@ -245,7 +245,7 @@
     "why": {
       "overline": "Why readykare",
       "title": "We move at the speed of care.",
-      "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the pressures Canadian teams face every day.",
+      "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the pressures healthcare teams face every day.",
       "points": [
         {
           "icon": "Zap",
@@ -341,8 +341,8 @@
       "Support"
     ],
     "card": {
-      "title": "Request shift coverage",
-      "subtitle": "Get matched with staff instantly."
+      "title": "Request temporary staff",
+      "subtitle": "Get matched with temporary staff instantly."
     },
     "form": {
       "addressTitle": "Site address",
@@ -768,8 +768,20 @@
     "signUp": {
       "meta": {
         "title": "Sign Up",
-        "description": "Create your free ReadyKare account. Join as a healthcare worker or staffing facility."
+        "description": "Create your free ReadyKare account. Join as a healthcare worker or staffing facility.",
+        "titleWorker": "Sign Up as a Worker",
+        "titleClient": "Sign Up as a Client",
+        "descriptionWorker": "...",
+        "descriptionClient": "..."
       },
+      "choiceTitle": "How can we help you today?",
+      "choiceSubtitle": "Select the option that describes you",
+      "roleWorkerDescription": "Are you a healthcare professional looking for flexible work?",
+      "roleClientDescription": "Are you a healthcare facility looking for staffing solutions?",
+      "titleWorker": "Create your worker account",
+      "titleClient": "Create your account",
+      "subtitleWorker": "Flexible healthcare work at your fingertips",
+      "subtitleClient": "AI powered staffing solutions at your fingertips",
       "overline": "Create your readykare account",
       "referralBanner": "You've been referred! Sign up to get started.",
       "referralInvalidToast": "That referral link is invalid or has expired.",
@@ -885,6 +897,7 @@
       "compliance": "Compliance",
       "payroll": "Payroll",
       "requests": "Requests",
+      "screenings": "Screenings",
       "account": "Account",
       "billing": "Billing",
       "authorization": "Authorization",
@@ -1134,15 +1147,18 @@
         "subtitle": "Here's a snapshot of your activity.",
         "shiftsCompleted": "Shifts completed",
         "totalTimeCovered": "Total time covered",
-        "makeRequest": "Place request",
+        "makeRequest": "Need temporary staff?",
         "makeRequestSubtitle": "Create a temporary staff request to get started.",
-        "newStaffRequest": "Request temporary staff",
+        "createScreening": "Have a position to fill?",
+        "createScreeningSubtitle": "Create a screening to evaluate candidates.",
+        "newStaffRequest": "Get one now",
+        "newScreening": "Create a screening to evaluate candidates.",
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today."
       },
       "requests": {
-        "title": "Your requests",
+        "title": "Staff requests",
         "newRequest": "New request",
         "staffRequestId": "Staff request {id}",
         "emptyPrefix": "You have no staff requests yet. Create one with",
@@ -1151,9 +1167,9 @@
       },
       "billing": {
         "title": "Billing account",
-        "subtitle": "Manage payment methods and invoice history.",
+        "subtitle": "Manage your subscription and invoicing preferences.",
         "portalCardTitle": "Your billing",
-        "portalCardDescription": "Manage payment methods and invoice history.",
+        "portalCardDescription": "Manage your subscription and invoicing preferences.",
         "manageBilling": "Manage billing",
         "manageBillingPending": "Opening…",
         "cardsTitle": "Credit/debit cards",
@@ -1946,7 +1962,7 @@
       "apply": "Apply"
     },
     "wizard": {
-      "step1Title": "Schedule request",
+      "step1Title": "Temporary staff request",
       "step1Description": "Choose how many {profession} you need, your dates, and shift times.",
       "step2Title": "Select tier",
       "step2Description": "Select the tier that best fits your request.",
@@ -1980,7 +1996,7 @@
       "startDate": "Start date",
       "endDate": "End date",
       "sameDay": "Same day",
-      "submitSchedule": "Submit",
+      "submitSchedule": "Fill these shifts",
       "perHour": "/hr",
       "noTiers": "No pricing tiers available.",
       "backToSchedule": "Back to schedule",

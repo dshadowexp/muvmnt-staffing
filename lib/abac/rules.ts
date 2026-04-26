@@ -84,4 +84,5 @@ export const ROLES = {
         todo.completed,
     },
   },
+  candidate: {},
 } as const satisfies RolesWithPermissions

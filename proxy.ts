@@ -63,7 +63,7 @@ function isPublicPath(path: string): boolean {
 }
 
 function isAuthPath(path: string): boolean {
-    return AUTH_PATHS.has(path);
+    return AUTH_PATHS.has(path) || hasPrefix(path, "/sign-up");
 }
 
 function isInactivePath(path: string): boolean {
@@ -124,6 +124,7 @@ export async function proxy(req: NextRequest) {
         if (!isInactivePath(path)) {
             return NextResponse.redirect(new URL("/review", req.url));
         }
+        
         return intlMiddleware(req);
     }
 

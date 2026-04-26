@@ -27,7 +27,6 @@ export function useAuthRedirect(): UseAuthRedirect {
         return raw;
     }, [searchParams, authUser?.role]);
     
-
     const withAuthParams = useCallback(
         (href: string): string => {
             const carry = new URLSearchParams();

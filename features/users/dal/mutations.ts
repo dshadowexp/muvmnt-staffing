@@ -5,16 +5,6 @@ import type { Database } from "@/services/supabase/types/database";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { env } from "@/data/env/server";
 
-
-// import arcjet, { validateEmail } from "@/services/arcjet/client";
-
-// const aj = arcjet.withRule(
-//     validateEmail({
-//         mode: "LIVE",
-//         deny: ["INVALID", "DISPOSABLE", "NO_MX_RECORDS", "NO_GRAVATAR"],
-//     })
-// )
-
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
 
 export async function updateUserIsActive(id: string, isActive: boolean) {
@@ -35,74 +25,99 @@ export async function updateUserIsActive(id: string, isActive: boolean) {
 }
 
 /**
+ * Sentinel values returned instead of throwing for expected failure states.
+ * Real DB/network errors still throw so callers can treat throw as unrecoverable.
+ */
+export type FindOrCreateResult = UserRow | "NOT_FOUND" | "EMAIL_TAKEN";
+
+/**
  * Look up a user by their Firebase `auth_id`, falling back to inserting a new
- * row when none exists. Returns `null` when no row exists **and** no `role`
- * was supplied — mirrors the server-side {@link findOrCreateUser} contract:
- * a sign-in attempt without a known role and without a pending row is treated
- * as "user not found" so the caller can route the user to sign-up.
+ * row when none exists.
+ *
+ * Returns:
+ *   UserRow       → existing or newly created user
+ *   "NOT_FOUND"   → no row for this auth_id and no role supplied (sign-in
+ *                   attempt without an account — caller routes to sign-up)
+ *   "EMAIL_TAKEN" → no row for this auth_id but the email already belongs to a
+ *                   different account — caller routes to sign-in
  */
 export async function findOrCreateUser(params: {
     authId: string;
     email: string;
     emailVerified: boolean;
     role?: UserRole;
-}): Promise<UserRow | null> {
+  }): Promise<FindOrCreateResult> {
     const supabase = await createAdminClient();
-
-    const existing = await supabase
-        .from("users")
-        .select("*")
-        .eq("auth_id", params.authId)
-        .maybeSingle();
-
-    if (existing.error) {
-        throw new Error(
-            `Failed to find user by auth_id: ${existing.error.message}`,
-        );
+   
+    // 1. Check by auth_id first — the happy path for returning users
+    const { data: existing, error: lookupError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("auth_id", params.authId)
+      .maybeSingle();
+   
+    if (lookupError) {
+      throw new Error(`Failed to find user by auth_id: ${lookupError.message}`);
     }
-    if (existing.data) return existing.data;
-
-    if (!params.role) return null;
-
+    if (existing) return existing;
+   
+    // 2. No row for this auth_id — only relevant during sign-up
+    if (!params.role) return "NOT_FOUND";
+   
+    // 3. Before inserting, check whether this email is already registered
+    //    under a different auth_id (e.g. previously signed up with Google)
+    const { data: emailMatch, error: emailLookupError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", params.email)
+      .maybeSingle();
+   
+    if (emailLookupError) {
+      throw new Error(
+        `Failed to check email uniqueness: ${emailLookupError.message}`,
+      );
+    }
+    if (emailMatch) return "EMAIL_TAKEN";
+   
+    // 4. Email is free — create the new user row
     const { data: newUser, error: insertError } = await supabase
-        .from("users")
-        .insert({
-            auth_id: params.authId,
-            email: params.email,
-            role: params.role,
-            is_email_verified: params.emailVerified,
-        })
-        .select()
-        .single();
-
+      .from("users")
+      .insert({
+        auth_id: params.authId,
+        email: params.email,
+        role: params.role,
+        is_email_verified: params.emailVerified,
+      })
+      .select()
+      .single();
+   
     if (insertError || !newUser) {
-        throw new Error(
-            `Failed to create user: ${insertError?.message ?? "unknown error"}`,
-        );
+      throw new Error(
+        `Failed to create user: ${insertError?.message ?? "unknown error"}`,
+      );
     }
-
-    // First-time sign-up — schedule a follow-up nudge 10 minutes from now.
-    // Idempotent on user id, so retries / double-clicks collapse.
+   
     const baseUrl = env.APP_URL;
-
+   
     await enqueueNotification({
-        userId: newUser.id,
-        channels: [
-            {
-                channel:  "email",
-                subject: "A few quick next steps",
-                template: "welcome-followup",
-                data: {
-                    firstName: null,
-                    isWorker: newUser.role === "worker",
-                    dashboardUrl: `${baseUrl}/dashboard`,
-                    previewText: "A few quick next steps",
-                    unsubscribeUrl: `${baseUrl}/`,
-                    privacyUrl: `${baseUrl}/`,
-                },
-            },
-        ],
+      userId: newUser.id,
+      channels: [
+        {
+          channel: "email",
+          subject: "A few quick next steps",
+          template: "welcome-followup",
+          data: {
+            firstName: null,
+            isWorker: newUser.role === "worker",
+            dashboardUrl: `${baseUrl}/dashboard`,
+            previewText: "A few quick next steps",
+            unsubscribeUrl: `${baseUrl}/`,
+            privacyUrl: `${baseUrl}/`,
+          },
+        },
+      ],
     });
-
+   
     return newUser;
-}
+  }
+   

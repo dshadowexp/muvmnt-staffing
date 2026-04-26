@@ -9,7 +9,7 @@ import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-ti
 import { attachResolvedWorkerPhotos } from "@/features/shifts/lib/resolve-worker-photo-url";
 import { getClientProfile } from "@/features/profile/dal/queries";
 import { Link } from "@/i18n/navigation";
-import { CheckCircle2Icon, ClockIcon, PlusIcon } from "lucide-react";
+import { CheckCircle2Icon, ClockIcon, FingerprintIcon, PlusIcon, TargetIcon, UserRoundSearchIcon } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import {
@@ -34,7 +34,13 @@ async function StatsCards() {
     getTranslations("dashboard.client.home"),
   ]);
 
+  if (stats.count === 0) return null;
+
   return (
+    <>
+    <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
+      {t("subtitle")}
+    </p>
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <Card size="sm">
         <CardHeader>
@@ -62,6 +68,7 @@ async function StatsCards() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
 
@@ -91,8 +98,13 @@ async function TodayShifts() {
   const shiftsRaw = await listTodayShiftsForClientUser(dayStart, dayEnd);
   const shifts = await attachResolvedWorkerPhotos(shiftsRaw);
 
+  if (shifts.length === 0) return null;
+
   return (
     <>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("todaysShifts")}
+      </h1>
       <p className="text-muted-foreground mt-1 mb-4 max-w-2xl text-sm">
         {shifts.length === 0
           ? t("noShifts")
@@ -140,14 +152,14 @@ export default async function ClientHomePage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <h1 className="text-sm text-muted-foreground font-semibold tracking-tight">
+        <h1 className="text-sm font-bold tracking-tight">
           {t("makeRequest")}
         </h1>
         <div>
           <Link className="transition-opacity" href="/dashboard/requests/new" prefetch={true}>
             <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
               <div className="text-lg flex items-center gap-2">
-                <PlusIcon className="size-6" />
+                <UserRoundSearchIcon className="size-6" />
                 {t("newStaffRequest")}
               </div>
             </Card>
@@ -156,18 +168,28 @@ export default async function ClientHomePage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-            {t("subtitle")}
-        </p>
+        <h1 className="text-sm font-bold tracking-tight">
+          {t("createScreening")}
+        </h1>
+        <div>
+          <Link className="transition-opacity" href="/dashboard/screenings/new" prefetch={true}>
+            <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
+              <div className="text-lg flex items-center gap-2">
+                <FingerprintIcon className="size-6" />
+                {t("newScreening")}
+              </div>
+            </Card>
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4">
         <Suspense fallback={<StatsCardsSkeleton />}>
           <StatsCards />
         </Suspense>
       </div>
 
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          {t("todaysShifts")}
-        </h1>
         <Suspense fallback={<ShiftsTableSkeleton />}>
           <TodayShifts />
         </Suspense>

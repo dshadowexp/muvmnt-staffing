@@ -59,7 +59,7 @@ export function StaffRequestClientDetail({
   const id = staffRequest.id;
 
   return (
-    <div className="w-full max-w-5xl space-y-8">
+    <div className="w-full max-w-4xl space-y-8">
       <BackLink backHref="/dashboard/requests" title="Staff requests" />
 
       <StaffRequestHeader staffRequest={staffRequest} />

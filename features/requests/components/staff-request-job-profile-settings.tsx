@@ -24,21 +24,12 @@ import {
     MultiSelectTrigger,
     MultiSelectValue,
 } from "@/components/ui/multi-select";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { PROFESSIONAL_ROLES } from "@/lib/constants";
 import { OPTIONAL_COMPLIANCE_IDS } from "@/lib/compliance";
 import { STAFF_REQUEST_SKILL_IDS } from "@/lib/skills";
 
 import {
     STAFF_REQUEST_LOCKED_COMPLIANCE_REQUIREMENTS,
 } from "../constants";
-import { normalizeProfessionId } from "@/lib/professions";
 
 const lockedComplianceSet = new Set<string>(
     STAFF_REQUEST_LOCKED_COMPLIANCE_REQUIREMENTS,
@@ -67,13 +58,9 @@ export function StaffRequestJobProfileSettings({
     triggerOnPrimary = false,
 }: StaffRequestJobProfileSettingsProps) {
     const t = useTranslations("staffRequest.wizard");
-    const tProf = useTranslations("professions");
     const tCompliance = useTranslations("compliance");
     const tSkills = useTranslations("skills");
     const [open, setOpen] = useState(false);
-    const [profession, setProfession] = useState(
-        normalizeProfessionId(initialProfession),
-    );
     const [tasks, setTasks] = useState<string[]>(initialTasks);
     const [extraRequirements, setExtraRequirements] = useState<string[]>(() =>
         initialRequirements.filter((r) => !lockedComplianceSet.has(r)),
@@ -81,12 +68,11 @@ export function StaffRequestJobProfileSettings({
 
     useEffect(() => {
         if (!open) return;
-        setProfession(normalizeProfessionId(initialProfession));
         setTasks(initialTasks);
         setExtraRequirements(
             initialRequirements.filter((r) => !lockedComplianceSet.has(r)),
         );
-    }, [open, initialProfession, initialTasks, initialRequirements]);
+    }, [open, initialTasks, initialRequirements]);
 
     const fullRequirements = useMemo(
         () => [
@@ -100,7 +86,7 @@ export function StaffRequestJobProfileSettings({
 
     function handleSave() {
         onApply({
-            profession,
+            profession: initialProfession,
             tasks,
             requirements: fullRequirements,
         });
@@ -112,7 +98,8 @@ export function StaffRequestJobProfileSettings({
             <Button
                 type="button"
                 variant="outline"
-                size="icon-sm"
+                size="icon-lg"
+
                 className={cn(
                     "shrink-0 self-start",
                     triggerOnPrimary &&
@@ -121,7 +108,7 @@ export function StaffRequestJobProfileSettings({
                 aria-label={t("preferencesOpenAria")}
                 onClick={() => setOpen(true)}
             >
-                <Settings className="size-4" aria-hidden />
+                <Settings className="size-4 text-primary" aria-hidden />
             </Button>
 
             <Dialog open={open} onOpenChange={setOpen}>
@@ -137,27 +124,6 @@ export function StaffRequestJobProfileSettings({
                     </DialogHeader>
 
                     <div className="flex flex-col gap-5">
-                        <Field>
-                            <FieldLabel>{t("professionLabel")}</FieldLabel>
-                            <Select
-                                value={profession}
-                                onValueChange={(v) =>
-                                    setProfession(normalizeProfessionId(v))
-                                }
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {PROFESSIONAL_ROLES.map((role) => (
-                                        <SelectItem key={role} value={role}>
-                                            {tProf(role)}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </Field>
-
                         <Field>
                             <FieldLabel>{t("skillsLabel")}</FieldLabel>
                             <FieldDescription>

@@ -4,41 +4,62 @@ import { getAdminAuth } from "@/services/firebase/admin";
 import { findOrCreateUser } from "@/features/users/dal/mutations";
 import type { UserAuth, UserRole } from "@/features/auth/types";
 
-/**
- * Frontend-side equivalent of the legacy server `AuthService.exchangeToken`.
- *
- * Verifies the inbound Firebase ID token, then upserts/loads the matching
- * Supabase `users` row via {@link findOrCreateUser}. Unlike the original it
- * does **not** mint an internal JWT — sessions on the frontend are derived
- * from the Firebase token + cookie, so the returned `token` is intentionally
- * an empty string. Returning the same {@link UserAuth} shape keeps the
- * call-site contract identical to {@link exchangeToken}.
- *
- * Returns `null` when the Firebase user has no Supabase row yet **and** no
- * `role` was supplied — the caller (e.g. auth provider) treats this as
- * "needs sign-up".
- */
-export async function exchangeFirebaseUser({ 
-    authId, email, emailVerified, role 
-}: { authId: string, email: string, emailVerified: boolean, role: UserRole | undefined }): Promise<UserAuth> {
-    const user = await findOrCreateUser({
-        authId,
-        email,
-        emailVerified,
-        role,
-    });
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-    if (!user) throw new Error("User not found");
+/**
+ * Discriminated union returned by exchangeFirebaseUser — never throws.
+ *
+ * - "ok"          → user exists and session is ready, `user` is populated
+ * - "not_found"   → no Supabase row and no role supplied — route to sign-up
+ * - "email_taken" → email already registered under a different account —
+ *                   route to sign-in
+ * - "error"       → unexpected server/db failure, `message` describes it
+ */
+export type ExchangeResult =
+  | { status: "ok"; user: UserAuth }
+  | { status: "not_found" }
+  | { status: "email_taken" }
+  | { status: "error"; message: string };
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+
+export async function exchangeFirebaseUser({
+  authId,
+  email,
+  emailVerified,
+  role,
+}: {
+  authId: string;
+  email: string;
+  emailVerified: boolean;
+  role: UserRole | undefined;
+}): Promise<ExchangeResult> {
+  try {
+    const result = await findOrCreateUser({ authId, email, emailVerified, role });
+
+    if (result === "NOT_FOUND") return { status: "not_found" };
+    if (result === "EMAIL_TAKEN") return { status: "email_taken" };
 
     return {
+      status: "ok",
+      user: {
         token: "",
-        userId: user.id,
-        role: (user.role ?? "client") as UserRole,
-        isActive: user.is_active,
+        userId: result.id,
+        role: (result.role ?? "client") as UserRole,
+        isActive: result.is_active,
+      },
     };
+  } catch (err) {
+    return {
+      status: "error",
+      message:
+        err instanceof Error
+          ? err.message
+          : "Unexpected error during authentication",
+    };
+  }
 }
 
 export async function getFirebaseUser(authId: string) {
-    const firebaseUser = await getAdminAuth().getUser(authId);
-    return firebaseUser;
+  return getAdminAuth().getUser(authId);
 }

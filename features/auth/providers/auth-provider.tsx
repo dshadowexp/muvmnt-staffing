@@ -1,16 +1,13 @@
 "use client";
 
-import {
-    type User,
-    onAuthStateChanged,
-} from "firebase/auth";
-import React, { 
-    createContext, 
-    useCallback, 
-    useContext, 
-    useEffect, 
-    useRef, 
-    useState,
+import { type User, onAuthStateChanged } from "firebase/auth";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
 import { auth } from "@/services/firebase/auth";
 import { deleteSession, setSession } from "@/lib/session";
@@ -22,23 +19,30 @@ import { deregisterPushTokenAction } from "@/features/notifications/actions";
 import { exchangeFirebaseUser } from "../actions";
 import posthog from "posthog-js";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
 type AuthContextType = {
-    firebaseUser:               User | null;
-    authUser:           UserAuth | null;
-    loading:            boolean;
-    setPendingRole:     (role: UserRole | null) => void;
-    setPendingReferralCode: (code: string | null) => void;
-    reloadToken: () => Promise<void>;
+  firebaseUser: User | null;
+  authUser: UserAuth | null;
+  loading: boolean;
+  setPendingRole: (role: UserRole | null) => void;
+  setPendingReferralCode: (code: string | null) => void;
+  reloadToken: () => Promise<void>;
 };
 
+type ExchangeOutcome = "ok" | "not_found" | "email_taken";
+
 // ─── Context ──────────────────────────────────────────────────────────────────
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
     const [authUser, setAuthUser] = useState<UserAuth | null>(null);
     const [loading, setLoading] = useState(true);
@@ -53,31 +57,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         pendingReferralCodeRef.current = code;
     }, []);
 
-
-    async function runTokenExchange(firebaseUser: User) {
-        const authUser = await exchangeFirebaseUser({
-            authId: firebaseUser.uid,
-            email: firebaseUser.email ?? "",
-            emailVerified: firebaseUser.emailVerified ?? false,
+    /**
+     * Exchanges a Firebase user for a Supabase-backed UserAuth session.
+     *
+     * Returns a typed outcome string — throws only on real server errors
+     * (status "error") after surfacing a toast, so the caller can treat
+     * throw as "unrecoverable, clean up and stop".
+     */
+    async function runTokenExchange(user: User): Promise<ExchangeOutcome> {
+        const result = await exchangeFirebaseUser({
+            authId: user.uid,
+            email: user.email ?? "",
+            emailVerified: user.emailVerified ?? false,
             role: pendingRoleRef.current ?? undefined,
         });
-       
-        setAuthUser(authUser);
-        await setSession(authUser);
-        
-        // Capture refs before nulling them
-        const pendingReferral = pendingReferralCodeRef.current;
-        const pendingRole     = pendingRoleRef.current;
 
-        pendingRoleRef.current         = null;
+        if (result.status === "not_found") return "not_found";
+        if (result.status === "email_taken") return "email_taken";
+
+        if (result.status === "error") {
+            toast.error(`Sign in failed: ${result.message}`);
+            throw new Error(result.message);
+        }
+
+        // status === "ok" — persist session and update state
+        setAuthUser(result.user);
+        await setSession(result.user);
+
+        // Capture and clear pending refs before any async work
+        const pendingReferral = pendingReferralCodeRef.current;
+        const pendingRole = pendingRoleRef.current;
+        pendingRoleRef.current = null;
         pendingReferralCodeRef.current = null;
 
+        // Fire-and-forget — non-fatal
         if (pendingReferral && pendingRole) {
             recordReferralAction().then(({ success }) => {
                 if (success) toast.success("Referral recorded successfully");
-                else         toast.error("Failed to record referral");
+                else toast.error("Failed to record referral");
             });
         }
+
+        return "ok";
     }
 
     async function clearAuth() {
@@ -85,57 +106,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await deleteSession();
         setFirebaseUser(null);
         setAuthUser(null);
-        setLoading(false);
     }
 
     async function reloadToken() {
         if (!firebaseUser) return;
         setLoading(true);
-        await runTokenExchange(firebaseUser);
-        setLoading(false);  
+        try {
+            await runTokenExchange(firebaseUser);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setLoading(true);
 
-            if (!firebaseUser) {
+            if (!user) {
                 await clearAuth();
                 setLoading(false);
                 return;
             }
 
             try {
-                await runTokenExchange(firebaseUser);
-            } catch (err) {
-                toast.info("First sign up to create your account");
-                await logout();
-                await deleteSession();  
-                router.push("/sign-up");
-                return;
-            }
+                const outcome = await runTokenExchange(user);
 
-            posthog.identify(firebaseUser.email ?? firebaseUser.uid, { email: firebaseUser.email ?? undefined });
-            setFirebaseUser(firebaseUser);
-            setLoading(false);
+                if (outcome === "not_found") {
+                    // Firebase account exists but no Supabase row — needs to sign up
+                    await logout();
+                    await deleteSession();
+                    toast.info("No account found. Please sign up to get started.");
+                    const redirectParam =
+                        searchParams.get("redirect") ?? searchParams.get("callbackUrl");
+                    router.push(
+                        redirectParam
+                        ? `/sign-up?redirect=${encodeURIComponent(redirectParam)}`
+                        : "/sign-up",
+                    );
+                    return;
+                }
+
+                if (outcome === "email_taken") {
+                    // Email is registered under a different auth provider — sign them
+                    // out of Firebase and send to sign-in with an explanatory toast
+                    await logout();
+                    await deleteSession();
+                    toast.error(
+                        "An account with this email already exists. Please sign in instead.",
+                    );
+                    router.push("/sign-in");
+                    return;
+                }
+
+                // outcome === "ok"
+                posthog.identify(user.email ?? user.uid, {
+                    email: user.email ?? undefined,
+                });
+                setFirebaseUser(user);
+            } catch {
+                // runTokenExchange already surfaced a toast for the specific error.
+                // Clean up so the user isn't stuck in a broken session.
+                await logout();
+                await deleteSession();
+                setFirebaseUser(null);
+                setAuthUser(null);
+            } finally {
+                setLoading(false);
+            }
         });
 
         return () => unsubscribe();
     }, []);
 
     return (
-        <AuthContext.Provider value={{
-            firebaseUser, authUser, loading, setPendingRole, setPendingReferralCode, reloadToken,
-        }}>
+        <AuthContext.Provider
+            value={{
+                firebaseUser,
+                authUser,
+                loading,
+                setPendingRole,
+                setPendingReferralCode,
+                reloadToken,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
 }
 
-// ─── Hook ────────────────────────────────────────────────────────────────────
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) throw new Error("useAuth must be used inside AuthProvider");
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used inside AuthProvider");
+  return context;
 }

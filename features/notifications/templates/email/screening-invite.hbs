@@ -1,0 +1,14 @@
+{{#> email-base previewText="You've been invited to complete a screening"}}
+  {{#*inline "body"}}
+    <p class="label">Screening Invitation</p>
+    <h1>You've been invited to complete a candidate screening.</h1>
+    <p><strong>{{clientName}}</strong> has invited you to apply for <strong>{{screeningTitle}}</strong>.</p>
+    <p>Click the button below to get started. You'll complete a short profile, upload your resume, and do a brief AI-powered interview — all in one place.</p>
+    <a href="{{inviteUrl}}" class="btn">Start Screening</a>
+    <div class="divider"></div>
+    <p style="font-size:13px;color:#888;">
+      If the button doesn't work, copy and paste this link into your browser:<br>
+      <a href="{{inviteUrl}}" style="color:#888;word-break:break-all;">{{inviteUrl}}</a>
+    </p>
+  {{/inline}}
+{{/email-base}}

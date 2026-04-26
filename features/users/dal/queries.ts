@@ -12,7 +12,7 @@ export async function getUser(id: string) {
     // "use cache"
     // cacheTag(getGlobalTag("users"))
 
-    const supabase = await createAdminClient();   
+    const supabase = await createAdminClient();
     const { data, error } = await supabase
         .from("users")
         .select("*")
@@ -23,5 +23,20 @@ export async function getUser(id: string) {
     if (data == null) return null;
 
     return data;
+}
+
+/**
+ * Returns true if the given email belongs to an existing user with role "worker".
+ * Used to decide which auth gate to show on the screening invite page.
+ */
+export async function isWorkerEmail(email: string): Promise<boolean> {
+    const supabase = await createAdminClient();
+    const { data } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", email)
+        .eq("role", "worker")
+        .maybeSingle();
+    return data !== null;
 }
 

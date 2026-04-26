@@ -21,7 +21,7 @@ export default async function ClientAccountPage() {
   const tBilling = await getTranslations("dashboard.client.billing");
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-6">
+    <div className="flex w-full max-w-5xl mx-auto flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{tAccount("title")}</h1>
         <p className="text-muted-foreground mt-1 text-sm">{tAccount("subtitle")}</p>
@@ -30,7 +30,7 @@ export default async function ClientAccountPage() {
         clientProfilePromise={clientProfilePromise}
         locationPromise={locationPromise}
       />
-      <div className="flex w-full max-w-5xl flex-col gap-6">
+      <div className="flex w-full max-w-5xl mx-auto flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{tBilling("title")}</h1>
         <p className="text-muted-foreground mt-1 text-sm">{tBilling("subtitle")}</p>

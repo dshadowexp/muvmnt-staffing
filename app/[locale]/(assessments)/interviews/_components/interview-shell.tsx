@@ -585,7 +585,7 @@ export function InterviewShell({
   const [interviewId, setInterviewId] = useState<string | null>(
     initialInterviewId ?? null,
   );
-  const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp, sendSessionSettings } = useVoice();
+  const { connect, disconnect, readyState, chatMetadata, callDurationTimestamp, sendSessionSettings, messages } = useVoice();
   const { start: startRecording, stop: stopRecording, uploading: uploadingRecording } = useRecorder(interviewId);
   const [selectedLocale, setSelectedLocale] = useState<string>(currentLocale);
   const [finalizing, setFinalizing] = useState(false);
@@ -703,6 +703,28 @@ export function InterviewShell({
     });
   }, [remaining, readyState, sendSessionSettings]);
 
+  // After closing signal is sent, watch for AI to go quiet then auto-disconnect
+  useEffect(() => {
+    if (!closingSignalSentRef.current) return;
+    if (readyState !== VoiceReadyState.OPEN) return;
+    if (disconnectedRef.current) return;
+
+    // Only start the timer after the AI has delivered at least one message
+    // since the closing signal was sent
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.type !== "assistant_message") return;
+
+    // AI has spoken — start a silence window. If nothing new arrives in
+    // 6 seconds, treat the interview as concluded and disconnect.
+    const timer = setTimeout(() => {
+      if (disconnectedRef.current) return;
+      disconnectedRef.current = true;
+      disconnectRef.current();
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, [messages, readyState]);
+
   // Auto-disconnect when time is up
   useEffect(() => {
     if (interviewId == null) return;
@@ -759,7 +781,7 @@ export function InterviewShell({
         stopCamera();
         isNavigatingRef.current = true;
         if (durationIntervalRef.current) clearInterval(durationIntervalRef.current); // kill interval NOW
-        router.push(`/interviews/${interviewId}`);
+        router.push(`/interviews/${interviewId}/survey`);
       }
     })();
   }, [readyState]);

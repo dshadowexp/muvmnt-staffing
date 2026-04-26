@@ -48,7 +48,6 @@ import type { InterviewRow } from "@/features/interviews/dal/queries";
 import {
   bumpInterviewSubjectRefUpload,
   clearInterviewSubjectRefFile,
-  createAssessmentInterview,
   updateInterviewSubjectRefBody,
 } from "@/features/interviews/actions";
 import { InterviewHeader } from "../_components/interview-header";
@@ -261,24 +260,6 @@ export function ResumeUpload({ existingInterview, candidateName, professionLabel
         if (previousKey && previousKey !== key) {
           deleteFile(previousKey).catch(() => undefined);
         }
-      } else {
-        const created = await createAssessmentInterview({
-          subject: "combined",
-          subjectRef: { 
-            resumeUrl: key,
-            resumeSummary: "",
-            uploadCount: 1,
-            profession: "",
-            professionContext: "",
-          },
-        });
-        if (created.error) {
-          toast.error(created.message);
-          return;
-        }
-        interviewIdRef.current = created.id;
-        setInterviewId(created.id);
-        setUploadLimit(1);
       }
     } catch {
       toast.error(t("errorUploadFailed"));

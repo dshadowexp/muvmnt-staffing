@@ -368,6 +368,24 @@ export async function generateInterviewFeedback(
   }
 }
 
+export async function saveInterviewSurveyAction(
+  interviewId: string,
+  survey: { rating: number; comment?: string },
+): Promise<{ error: boolean; message?: string }> {
+  const session = await getSession();
+  if (!session) return { error: true, message: "Not authenticated" };
+
+  try {
+    const row = await updateInterviewByOwner(interviewId, session.userId, {
+      survey,
+    });
+    if (row == null) return { error: true, message: "Interview not found" };
+    return { error: false };
+  } catch (e) {
+    return { error: true, message: e instanceof Error ? e.message : "Failed to save survey" };
+  }
+}
+
 export async function getInterview(
   id: string,
 ): Promise<GetInterviewResult> {
@@ -471,6 +489,21 @@ export async function finalizeInterviewRecording(
     });
     if (updated == null) {
       return { error: true, message: "Interview not found" };
+    }
+
+    // If this is a screening interview, advance the candidate to completed now
+    // (best-effort — non-fatal if it fails)
+    if (updated.screening_id) {
+      const { updateCandidateStage } = await import(
+        "@/features/screenings/dal/mutations"
+      );
+      await updateCandidateStage(
+        session.userId,
+        updated.screening_id,
+        "completed",
+      ).catch((err) => {
+        console.error("[finalizeInterviewRecording] candidate stage advance failed", err);
+      });
     }
 
     // Kick off background processing (feedback generation + video analysis)

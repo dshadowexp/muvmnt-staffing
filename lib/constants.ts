@@ -19,6 +19,7 @@ export const PUBLIC_PATHS = new Set([
   "/",
   "/find-staff",
   "/find-work",
+  "/screening",
   "/faq",
   "/privacy",
   "/terms",
@@ -48,9 +49,10 @@ export const INACTIVE_PREFIXES: string[] = [
 // Only the root prefix is needed — startsWith handles all sub-routes
 
 export const DASHBOARD_PREFIXES: Record<UserRole, string[]> = {
-  worker: ["/dashboard", "/interviews", ], // "/quiizes feature is implemented
-  client: ["/dashboard"],
-  admin:  ["/dashboard/admin", "/dashboard/referrals"],
+  worker:    ["/dashboard", "/interviews", "/s"],
+  client:    ["/dashboard"],
+  admin:     ["/dashboard/admin", "/dashboard/referrals"],
+  candidate: ["/s"],
 };
 
 export type RequesterType =

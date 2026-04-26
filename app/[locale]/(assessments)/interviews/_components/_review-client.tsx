@@ -54,7 +54,7 @@ type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedbac
 export type InterviewReviewClientProps = {
   interview: {
     id: string;
-    subject: "combined" | string;
+    subject: string;
     duration: string | null;
     completedAt: string | null;
     completedOnLabel: string;

@@ -19,7 +19,7 @@ const getPendingStaffRequestDraftCached = cache(getPendingPricingStaffRequestFor
 
 function NewStaffRequestPageSkeleton() {
     return (
-        <div className="w-full max-w-5xl space-y-6">
+        <div className="w-full max-w-4xl mx-auto space-y-6">
             <div className="space-y-6">
                 <div className="-ml-1 flex items-center gap-2 py-1.5">
                     <Skeleton className="size-4 shrink-0 rounded" />

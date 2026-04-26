@@ -70,7 +70,7 @@ export function clientStaffRequestHref(row: {
   if (row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
     return `/dashboard/requests/${row.id}`;
   }
-  return `/dashboard/requests/${row.id}/pricing`;
+  return `/dashboard/requests/new`;
 }
 
 /** Legacy tier IDs — kept so existing rows and the matching filter don't break. */

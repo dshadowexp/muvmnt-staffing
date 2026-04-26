@@ -31,7 +31,10 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="input-otp-group"
-      className={cn("flex items-center gap-2", className)}
+      className={cn(
+        "flex items-center rounded-md has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40",
+        className
+      )}
       {...props}
     />
   )
@@ -51,20 +54,8 @@ function InputOTPSlot({
     <div
       data-slot="input-otp-slot"
       data-active={isActive}
-      data-filled={!!char}
       className={cn(
-        // Base surface
-        "relative flex h-12 w-11 items-center justify-center rounded-xl border border-border bg-background text-lg font-semibold tabular-nums text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all outline-none",
-        // Dark mode surface — use `card` token so the slot has visible contrast
-        // against `background` without relying on semi-transparent fills.
-        "dark:border-white/15 dark:bg-card dark:text-white dark:shadow-none",
-        // Filled state — subtle emphasis on a completed slot
-        "data-[filled=true]:border-foreground/25 dark:data-[filled=true]:border-white/25",
-        // Active (focused) state — brand primary ring
-        "data-[active=true]:z-10 data-[active=true]:border-primary data-[active=true]:bg-primary/5 data-[active=true]:ring-[3px] data-[active=true]:ring-primary/25 dark:data-[active=true]:bg-primary/10",
-        // Invalid state
-        "aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-        "data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/25",
+        "relative flex size-9 items-center justify-center border-y border-r border-input text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
         className
       )}
       {...props}
@@ -72,7 +63,7 @@ function InputOTPSlot({
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-5 w-px animate-caret-blink bg-primary duration-1000" />
+          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
         </div>
       )}
     </div>

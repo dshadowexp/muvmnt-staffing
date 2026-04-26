@@ -44,7 +44,7 @@ export default async function WorkerShiftsPage() {
   const t = await getTranslations("dashboard.worker.shifts");
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-6">
+    <div className="flex w-full max-w-5xl mx-auto flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="text-muted-foreground mt-1 max-w-2xl text-sm">

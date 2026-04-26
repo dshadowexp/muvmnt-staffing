@@ -28,7 +28,15 @@ import { upsertStaffRequestScheduleAction } from "@/features/requests/server/act
 import { useRouter } from "@/i18n/navigation";
 import { normalizeProfessionId } from "@/lib/professions";
 import { latLngToCell } from "h3-js";
-import { H3_RESOLUTION } from "@/lib/constants";
+import { H3_RESOLUTION, PROFESSIONAL_ROLES } from "@/lib/constants";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 
 export type { PendingScheduleRequest };
 
@@ -50,6 +58,7 @@ export type NewStaffRequestFormProps = {
     onJobProfileFromLanding?: (
         profile: StaffRequestJobProfileApplyPayload,
     ) => void;
+    onProfessionChange?: (profession: string) => void;
 };
 
 function draftToFormValues(draft: ExistingScheduleDraft): Partial<ScheduleRequestFormValues> {
@@ -68,9 +77,12 @@ export function NewStaffRequestForm({
     existingDraft,
     jobProfile,
     onJobProfileFromLanding,
+    onProfessionChange,
 }: NewStaffRequestFormProps) {
     const router = useRouter();
     const t = useTranslations("staffRequest.newPage");
+    const tWizard = useTranslations("staffRequest.wizard");
+    const tProf = useTranslations("professions");
     const [initialValues, setInitialValues] = useState<
         Partial<ScheduleRequestFormValues> | undefined
     >(undefined);
@@ -164,6 +176,27 @@ export function NewStaffRequestForm({
                 />
             </Field>
 
+            <Field>
+                <FieldLabel>{tWizard("professionLabel")}</FieldLabel>
+                <Select
+                    value={jobProfile.profession}
+                    onValueChange={(v) =>
+                        onProfessionChange?.(normalizeProfessionId(v))
+                    }
+                >
+                    <SelectTrigger className="w-full">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {PROFESSIONAL_ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                                {tProf(role)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </Field>
+
             <ScheduleRequestForm
                 key={resumeRequestId ?? "new"}
                 initialValues={initialValues}
@@ -252,9 +285,11 @@ export function NewStaffRequestPageClient({
     );
 
     return (
-        <div className="w-full max-w-5xl space-y-6">
+        <div className="w-full max-w-4xl mx-auto space-y-6">
+            
             <div className="space-y-6">
                 <BackLink backHref="/dashboard/requests" title={backTitle} />
+                
                 <StaffRequestJobProfileSettingsRow
                     profession={jobProfile.profession}
                     tasks={jobProfile.tasks}
@@ -262,10 +297,10 @@ export function NewStaffRequestPageClient({
                     onApply={handleApplyJobProfile}
                 >
                     <header className="space-y-2">
-                        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                        <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
                             {step1Title}
                         </h1>
-                        <p className="text-muted-foreground text-sm md:text-base">
+                        <p className="text-sm text-muted-foreground mt-1">
                             {tWizard("step1Description", {
                                 profession: tProf(jobProfile.profession),
                             })}
@@ -273,13 +308,20 @@ export function NewStaffRequestPageClient({
                     </header>
                 </StaffRequestJobProfileSettingsRow>
             </div>
-
+            <Card>
+            <CardContent>
             <NewStaffRequestForm
                 initialLocation={initialLocation}
                 existingDraft={existingDraft}
                 jobProfile={jobProfile}
                 onJobProfileFromLanding={handleJobProfileFromLanding}
+                onProfessionChange={(profession) =>
+                    handleApplyJobProfile({ ...jobProfile, profession })
+                }
             />
+       
+            </CardContent>
+            </Card>
         </div>
     );
 }

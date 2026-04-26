@@ -96,7 +96,8 @@ const clientSteps: MultistepFormStep[] = [
 // ─── Step registry ────────────────────────────────────────────────────────────
 
 export const STEPS_BY_ROLE: Record<UserRole, MultistepFormStep[]> = {
-    worker: workerSteps,
-    client: clientSteps,
-    admin: []
+    worker:    workerSteps,
+    client:    clientSteps,
+    admin:     [],
+    candidate: [],
 }
