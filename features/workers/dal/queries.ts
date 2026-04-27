@@ -44,6 +44,8 @@ export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> 
         const interview = await getOrCreateCombinedInterview(user_id);
         if (!isAssessmentInterviewLocked(interview)) {
             actions.push({ id: "assessment-interview", href: `/interviews/${interview.id}` });
+        } else {
+            actions.push({ id: "processing", href: "/dashboard" });
         }
     } else if (stage === "compliance") {
         const [workAuth, identityVerification] = await Promise.all([
@@ -51,21 +53,19 @@ export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> 
             getIdentityVerification(),
         ]);
 
-        if (!workAuth) {
-            actions.push({ id: "work-authorization", href: "/dashboard/compliance" });
-        }
-
         if (!identityVerification?.verified) {
             actions.push({ id: "identity-verification", href: "/dashboard/compliance" });
-        }
-
-        if (workAuth && identityVerification?.verified) {
+        } else if (!workAuth) {
+            actions.push({ id: "work-authorization", href: "/dashboard/compliance" });
+        } else {
             actions.push({ id: "processing", href: "/dashboard" });
         }
     } else if (stage === "payroll") {
         actions.push({ id: "payroll-onboarding", href: "/payroll" });
     } else if (stage === "live") {
         // actions.push({ id: "processing", href: "/dashboard" });
+    } else {
+        actions.push({ id: "processing", href: "/dashboard" })
     }
 
     return actions;

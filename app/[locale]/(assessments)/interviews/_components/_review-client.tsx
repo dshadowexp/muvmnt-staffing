@@ -155,11 +155,11 @@ export function InterviewReviewClient({
                     {interview.duration}
                   </Badge>
                 )}
-                <MessagesDialogTrigger
+                {/* <MessagesDialogTrigger
                   messagesPromise={messagesPromise}
                   user={user}
                   subjectLabel={subjectLabel}
-                />
+                /> */}
               </div>
             </div>
           </CardHeader>
@@ -536,83 +536,4 @@ function RetakeNotice({
   }
 
   return null;
-}
-
-// ---------------------------------------------------------------------------
-// Messages dialog
-// ---------------------------------------------------------------------------
-
-function MessagesDialogTrigger({
-  messagesPromise,
-  user,
-  subjectLabel,
-}: {
-  messagesPromise: Promise<{ isUser: boolean; content: string[] }[]>;
-  user: { name: string; imageUrl: string };
-  subjectLabel: string;
-}) {
-  const t = useTranslations("assessments.interview.review");
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-1.5">
-          <MessagesSquareIcon className="size-4" />
-          {t("viewMessages")}
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        showCloseButton
-        className="flex h-[min(90vh,900px)] max-h-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl lg:max-w-5xl"
-      >
-        <DialogHeader className="shrink-0 border-b px-6 py-4">
-          <DialogTitle className="flex items-center gap-2">
-            <FileTextIcon className="size-4 text-muted-foreground" />
-            {t("messagesTitle")}
-          </DialogTitle>
-          <DialogDescription>
-            {t("messagesDescription", { subject: subjectLabel })}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
-          <Suspense fallback={<MessagesFallback />}>
-            <MessagesBody promise={messagesPromise} user={user} />
-          </Suspense>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function MessagesBody({
-  promise,
-  user,
-}: {
-  promise: Promise<{ isUser: boolean; content: string[] }[]>;
-  user: { name: string; imageUrl: string };
-}) {
-  const t = useTranslations("assessments.interview.review");
-  const messages = use(promise);
-
-  if (messages.length === 0) {
-    return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        {t("transcriptEmpty")}
-      </p>
-    );
-  }
-
-  return (
-    <CondensedMessages messages={messages} user={user} className="w-full" />
-  );
-}
-
-function MessagesFallback() {
-  return (
-    <div className="flex flex-col gap-3 py-4">
-      <Skeleton className="h-16 w-3/4" />
-      <Skeleton className="h-16 w-2/3 self-end" />
-      <Skeleton className="h-24 w-4/5" />
-      <Skeleton className="h-16 w-3/5 self-end" />
-    </div>
-  );
 }

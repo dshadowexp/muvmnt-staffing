@@ -3,13 +3,17 @@
 // Admin-only interview queries (no user_id ownership check)
 
 import { createAdminClient } from "@/services/supabase/server";
+import { Json } from "@/services/supabase/types/database";
 
 export type AdminInterviewRow = {
   id: string;
   user_id: string;
   worker_name: string | null;
   subject: string;
+  subject_ref: Json | null;
   result: string | null;
+  hume_chat_id: string | null;
+  chat_group_id: string | null;
   reviewed: boolean;
   video_feedback_status: string | null;
   video_feedback: unknown;
@@ -46,7 +50,7 @@ export async function listAdminInterviews(): Promise<AdminInterviewRow[]> {
   const { data, error } = await supabase
     .from("interviews")
     .select(
-      "id, user_id, subject, result, reviewed, video_feedback_status, video_feedback, feedback, recording_url, duration, completed_at, created_at",
+      "id, user_id, subject, result, reviewed, video_feedback_status, video_feedback, subject_ref, hume_chat_id, chat_group_id, feedback, recording_url, duration, completed_at, created_at",
     )
     .not("completed_at", "is", null)
     .order("created_at", { ascending: false });
@@ -63,7 +67,11 @@ export async function listAdminInterviews(): Promise<AdminInterviewRow[]> {
     user_id: row.user_id,
     worker_name: workerNames.get(row.user_id) ?? null,
     subject: row.subject,
+    subject_ref: row.subject_ref,
+    hume_chat_id: row.hume_chat_id,
+    chat_group_id: row.chat_group_id,
     result: row.result,
+
     reviewed: row.reviewed,
     video_feedback_status: row.video_feedback_status,
     video_feedback: row.video_feedback,
@@ -84,7 +92,7 @@ export async function getAdminInterview(
   const { data, error } = await supabase
     .from("interviews")
     .select(
-      "id, user_id, subject, result, reviewed, video_feedback_status, video_feedback, feedback, recording_url, duration, completed_at, created_at",
+      "id, user_id, subject, result, reviewed, video_feedback_status, video_feedback, subject_ref, hume_chat_id, chat_group_id, feedback, recording_url, duration, completed_at, created_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -99,6 +107,9 @@ export async function getAdminInterview(
     user_id: data.user_id,
     worker_name: workerNames.get(data.user_id) ?? null,
     subject: data.subject,
+    subject_ref: data.subject_ref,
+    hume_chat_id: data.hume_chat_id,
+    chat_group_id: data.chat_group_id,
     result: data.result,
     reviewed: data.reviewed,
     video_feedback_status: data.video_feedback_status,

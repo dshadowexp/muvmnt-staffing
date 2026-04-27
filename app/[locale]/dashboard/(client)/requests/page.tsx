@@ -23,7 +23,6 @@ import {
 } from "@/features/requests/constants";
 import { getStaffRequests } from "@/features/requests/dal/queries";
 import { formatJobHourlyRateLine } from "@/lib/formatters";
-import { cn } from "@/lib/utils";
 import { normalizeProfessionId } from "@/lib/professions";
 
 export default async function RequestsPage() {

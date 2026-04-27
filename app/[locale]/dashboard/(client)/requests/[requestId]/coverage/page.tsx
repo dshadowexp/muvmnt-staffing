@@ -55,7 +55,7 @@ export default async function CoverageStepPage({ params }: PageProps) {
     }
 
     return (
-        <div className="w-full max-w-5xl mx-auto space-y-5">
+        <div className="w-full max-w-4xl mx-auto space-y-5">
             <header className="space-y-2">
                 <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                     {t("step3Title")}

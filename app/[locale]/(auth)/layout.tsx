@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AuthLayout({ children }: { children: React.ReactNode; }) {
+export default async function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const tF = await getTranslations("footer.legal");
   const FOOTER_LINKS = [
     { label: tF("privacy"), href: "/privacy" },
@@ -21,40 +25,58 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   ];
 
   return (
-    <div className="flex min-h-screen">
-      {/* LEFT — ORBIT VISUAL */}
-      <div className="relative hidden w-1/2 flex-col overflow-hidden bg-zinc-950 lg:flex">
-        
-        {/* Background glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,184,166,0.12),transparent_60%)]" />
+    <div className="flex min-h-screen bg-background">
 
-        {/* Centered Orbit */}
-        <div className="relative flex flex-1 items-center justify-center">
+      {/* LEFT — orbital panel */}
+      <div className="relative hidden w-1/2 shrink-0 flex-col overflow-hidden border-r border-border/50 lg:flex">
+
+        {/* Shared ambient glow */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-primary/[0.03]" />
+          <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[80px]" />
+        </div>
+
+        {/* Centered orbital — takes all space, logo sits just above it */}
+        <div className="relative flex flex-1 flex-col items-center justify-center">
+          <div className="relative z-10 mb-20">
+            <Logo />
+          </div>
           <OrbitalVisual />
         </div>
 
-        {/* Footer Links (restored, clean) */}
-        <div className="relative z-10 flex gap-6 border-t border-white/[0.07] px-10 py-6 text-[0.72rem] text-white/30">
-            {FOOTER_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-[0.72rem] font-light text-white/28 no-underline transition-colors hover:text-white/50"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
+        {/* Footer links */}
+        <div className="relative z-10 flex gap-5 border-t border-border/50 px-10 py-5">
+          {FOOTER_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="text-[0.72rem] font-light text-muted-foreground/50 no-underline transition-colors hover:text-muted-foreground"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      <div className="flex min-h-screen flex-1 flex-col items-center justify-center overflow-y-auto bg-background px-5 py-10 sm:px-8 lg:px-8">
-        <div className="mb-8 flex w-full justify-center lg:hidden">
+      {/* RIGHT — auth content, same background as left */}
+      <div className="relative flex flex-1 flex-col items-center justify-center overflow-y-auto px-5 py-10 sm:px-8">
+
+        {/* Same ambient glow mirrored on the right */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-primary/[0.03]" />
+          <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[80px]" />
+        </div>
+
+        {/* Logo — mobile only since it's on the left panel for desktop */}
+        <div className="relative z-10 mb-8 flex w-full justify-center lg:hidden">
           <Logo />
         </div>
 
-        <AuthRedirectGate>
-          {children}
-        </AuthRedirectGate>
+        <div className="relative z-10 flex w-full flex-col items-center">
+          <AuthRedirectGate>
+            {children}
+          </AuthRedirectGate>
+        </div>
       </div>
     </div>
   );

@@ -1,14 +1,30 @@
-{{#> email-base previewText="Your interview result is in"}}
+{{#> email-base previewText="We appreciate your effort — here's an update on your interview"}}
   {{#*inline "body"}}
     <p class="label">Interview result</p>
-    <h1>Your interview result</h1>
+    <h1>Thank you for your effort, {{firstName}}</h1>
     <p>Hi {{firstName}},</p>
     <p>
-      Thank you for completing your interview. After careful review, we were not able to advance your application at this time.
+      We truly appreciate the time and effort you put into your interview, and we want you to know that this decision was not made lightly.
     </p>
     <p>
-      You&apos;re welcome to try again in <strong>2 weeks</strong>. We encourage you to review any feedback on your dashboard and prepare before your next attempt.
+      After careful review, we were unfortunately unable to move your application forward at this time. Please don&apos;t be discouraged — this is not a reflection of your worth or potential, and we would love to see you try again.
     </p>
-    <a href="{{dashboardUrl}}" class="btn">Go to dashboard</a>
+    {{#if retryDate}}
+    <p>
+      You are welcome to retake the interview from <strong>{{retryDate}}</strong>. We encourage you to use this time to review your responses, revisit any feedback on your dashboard, and come back feeling more prepared.
+    </p>
+    {{else}}
+    <p>
+      You are welcome to retake the interview in <strong>21 days</strong>. We encourage you to use this time to review your responses, revisit any feedback on your dashboard, and come back feeling more prepared.
+    </p>
+    {{/if}}
+    <p>
+      We are rooting for you and hope to see you back soon.
+    </p>
+    <a href="{{dashboardUrl}}" class="btn">Go to your dashboard</a>
+    <p style="margin-top:28px;font-size:13px;color:#888">
+      If the button does not work, copy this link into your browser:<br>
+      <a href="{{dashboardUrl}}" style="color:#888">{{dashboardUrl}}</a>
+    </p>
   {{/inline}}
 {{/email-base}}

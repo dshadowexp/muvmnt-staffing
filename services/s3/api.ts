@@ -259,7 +259,8 @@ class S3Api {
 
     /**
      * Step 3 — called once after all parts are uploaded.
-     * Returns the permanent public URL of the assembled object.
+     * Returns the S3 key of the assembled object. Callers that need a
+     * playable URL should resolve it via presignedDownloadUrl(key).
      */
     async completeMultipartUpload(params: {
         key:      string;
@@ -272,7 +273,7 @@ class S3Api {
             UploadId:         params.uploadId,
             MultipartUpload:  { Parts: params.parts },
         }));
-        return this.buildPublicUrl(params.key);
+        return params.key;
     }
 
     /**

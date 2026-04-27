@@ -1369,7 +1369,7 @@ export type Database = {
           profession: string
           rating_avg: number | null
           rating_count: number | null
-          stage: string | null
+          stage: string
           user_id: string
           years_exp: number
         }
@@ -1388,7 +1388,7 @@ export type Database = {
           profession: string
           rating_avg?: number | null
           rating_count?: number | null
-          stage?: string | null
+          stage?: string
           user_id: string
           years_exp: number
         }
@@ -1407,7 +1407,7 @@ export type Database = {
           profession?: string
           rating_avg?: number | null
           rating_count?: number | null
-          stage?: string | null
+          stage?: string
           user_id?: string
           years_exp?: number
         }

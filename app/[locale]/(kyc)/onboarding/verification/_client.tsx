@@ -21,7 +21,6 @@ export function VerificationClient() {
     return (
         <div className="space-y-6">
             <EmailVerification />
-            
             {authUser?.role === "worker" && 
                 <>
                     <Separator className="my-6" />

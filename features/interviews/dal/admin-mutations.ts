@@ -50,8 +50,6 @@ export async function promoteWorkerToCompliance(
     .from("workers")
     .update({ stage: "compliance" })
     .eq("user_id", userId)
-    .or("stage.is.null,stage.eq.interview")
-    .select("user_id")
     .maybeSingle();
 
   if (error) throw new Error(error.message);
