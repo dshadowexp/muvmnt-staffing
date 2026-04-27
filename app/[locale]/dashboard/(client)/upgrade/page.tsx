@@ -1,3 +1,3 @@
 export default function UpgradePage() {
-  return <div>UpgradePage</div>;
+    return <div>UpgradePage</div>;
 }

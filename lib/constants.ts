@@ -20,6 +20,7 @@ export const PUBLIC_PATHS = new Set([
   "/find-staff",
   "/find-work",
   "/screening",
+  "/pricing",
   "/faq",
   "/privacy",
   "/terms",
@@ -51,7 +52,7 @@ export const INACTIVE_PREFIXES: string[] = [
 
 export const DASHBOARD_PREFIXES: Record<UserRole, string[]> = {
   worker:    ["/dashboard", "/interviews", "/s"],
-  client:    ["/dashboard", "upgrade"],
+  client:    ["/dashboard", "/upgrade"],
   admin:     ["/dashboard/admin", "/dashboard/referrals"],
   candidate: ["/s", "/interviews"],
 };

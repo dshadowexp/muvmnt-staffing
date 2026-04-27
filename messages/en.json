@@ -159,6 +159,10 @@
           {
             "label": "AI Screening",
             "href": "/screening"
+          },
+          {
+            "label": "Pricing",
+            "href": "/pricing"
           }
         ]
       },
@@ -2296,6 +2300,187 @@
       "subtitle": "Post your opening today and receive a shortlist of qualified, pre-screened candidates within 48 hours.",
       "ctaGetStarted": "Get started",
       "ctaHowItWorks": "How ReadyKare works"
+    }
+  },
+  "pricing": {
+    "meta": {
+      "title": "Pricing — ReadyKare",
+      "description": "Transparent staffing rates and AI screening plans for healthcare organizations."
+    },
+    "back": "Back to dashboard",
+    "hero": {
+      "badge": "AI Candidate Screening",
+      "title": "Hire smarter, not harder.",
+      "subtitle": "Structured AI interviews on every applicant. A ranked shortlist delivered — no scheduling, no guesswork.",
+      "monthlyLabel": "Monthly",
+      "annualLabel": "Annual",
+      "annualBadge": "2 months free",
+      "billedAnnually": "C${total}/year billed annually",
+      "perMonth": "/mo",
+      "free": "Free"
+    },
+    "tiers": {
+      "mostPopular": "Most Popular",
+      "currentPlan": "Current plan",
+      "ctaContact": "Contact sales",
+      "free": {
+        "name": "Free",
+        "description": "Try AI screening with no commitment.",
+        "cta": "Get started",
+        "features": [
+          "1 active screening at a time",
+          "5 candidates per screening",
+          "AI text interviews",
+          "Basic candidate ranking",
+          "7-day candidate deadline"
+        ]
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "For growing teams hiring regularly.",
+        "cta": "Upgrade to Starter",
+        "features": [
+          "5 active screenings",
+          "50 candidates per screening",
+          "AI video + text interviews",
+          "Advanced ranking & scoring",
+          "Identity verification",
+          "Email & push notifications",
+          "Priority email support"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For teams that hire at scale.",
+        "cta": "Upgrade to Pro",
+        "features": [
+          "Unlimited active screenings",
+          "Unlimited candidates",
+          "AI video + text interviews",
+          "Custom interview questions",
+          "Detailed reports & analytics",
+          "Identity verification",
+          "Dedicated account manager"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you need to know about AI screening.",
+      "items": [
+        {
+          "q": "How do AI interviews work?",
+          "a": "Candidates receive an invite link and complete a structured video or text interview. Our AI asks consistent, role-specific questions, evaluates every response, and returns a ranked shortlist with clear reasoning — no human scheduler required."
+        },
+        {
+          "q": "Can I customize the interview questions?",
+          "a": "On the Pro plan you can add your own questions on top of the AI-generated set. On Free and Starter, our AI generates optimized questions from the role title, description, and requirements you provide."
+        },
+        {
+          "q": "What counts as a candidate?",
+          "a": "A candidate is anyone who receives a screening invite. Each invite counts toward your plan limit regardless of whether the candidate completes the interview."
+        },
+        {
+          "q": "What happens when I reach my plan limits?",
+          "a": "You will receive a notification before hitting your limits. You can upgrade at any time and the remaining cost is prorated to your next billing date."
+        },
+        {
+          "q": "Is identity verification included?",
+          "a": "Identity verification is available on Starter and Pro plans. It confirms that candidates are who they say they are before you invest time reviewing their interview results."
+        },
+        {
+          "q": "Can I cancel or change plans at any time?",
+          "a": "Yes. Upgrade, downgrade, or cancel from your billing settings at any time. Annual plan cancellations retain full access until the end of the paid billing period."
+        }
+      ]
+    },
+    "staffing": {
+      "badge": "Temporary Staffing",
+      "title": "Transparent, demand-driven rates.",
+      "subtitle": "Every request is priced in real time based on your profession, shift details, and regional demand — so you always know what you're paying before you confirm.",
+      "ratesTitle": "How rates are set",
+      "ratesSubtitle": "Four factors shape every quote.",
+      "factors": [
+        {
+          "icon": "stethoscope",
+          "label": "Profession & experience",
+          "detail": "Each healthcare role has a regulated base rate. Workers with more experience sit in higher tiers, reflected in the quoted rate."
+        },
+        {
+          "icon": "clock",
+          "label": "Shift timing",
+          "detail": "Overnight and early-morning shifts carry a premium. Weekend and holiday shifts are priced accordingly."
+        },
+        {
+          "icon": "trending-up",
+          "label": "Regional demand",
+          "detail": "Rates adjust with real-time coverage availability in your area. High-demand windows are flagged clearly before you confirm."
+        },
+        {
+          "icon": "layers",
+          "label": "Staff tier",
+          "detail": "Choose from Pulse (standard), Vetted (top performers), or Veteran (most experienced) depending on your coverage needs."
+        }
+      ],
+      "tiersTitle": "Staff tiers explained",
+      "tiers": [
+        {
+          "key": "pulse",
+          "name": "Pulse",
+          "tagline": "Core staff pool",
+          "detail": "Qualified, screened professionals who meet all compliance requirements for your request."
+        },
+        {
+          "key": "vetted",
+          "name": "Vetted",
+          "tagline": "Top performers",
+          "detail": "Workers with consistently high ratings and positive client feedback across multiple engagements."
+        },
+        {
+          "key": "veteran",
+          "name": "Veteran",
+          "tagline": "Most experienced",
+          "detail": "Senior professionals with extensive field experience — ideal for complex or high-acuity environments."
+        }
+      ],
+      "lockNote": "Your quoted rate is locked once you confirm coverage. It will not change mid-shift.",
+      "billingTitle": "How billing works",
+      "billingSubtitle": "Simple, predictable invoicing tied to the shifts you actually use.",
+      "steps": [
+        {
+          "num": "01",
+          "label": "Request posted",
+          "detail": "You post a staffing request with your dates, times, and required profession. A live rate quote is generated immediately."
+        },
+        {
+          "num": "02",
+          "label": "Coverage confirmed",
+          "detail": "Once you confirm, the rate locks in and matched workers are dispatched. Your billing period opens."
+        },
+        {
+          "num": "03",
+          "label": "Shifts completed",
+          "detail": "Workers check in and out digitally. Timesheets are submitted for your review within your approval window."
+        },
+        {
+          "num": "04",
+          "label": "Invoice generated",
+          "detail": "At the close of your billing period, a consolidated invoice is issued for all approved shifts — collected via your preferred payment method."
+        }
+      ],
+      "billingNote": "Invoices reflect only approved timesheets. Disputed hours are held until resolved.",
+      "netTermsNote": "Net-30 terms available for qualifying organizations.",
+      "surgeBadge": "Surge pricing active",
+      "surgeExplain": "When demand exceeds regional supply, a surge indicator appears on your quote. You can still confirm at the surged rate or adjust your dates."
+    },
+    "pageHero": {
+      "title": "Simple, honest pricing.",
+      "subtitle": "One place for everything — your staffing rates and AI screening plans, side by side."
+    },
+    "screeningSection": {
+      "badge": "AI Candidate Screening",
+      "title": "Build your bench before you need it.",
+      "subtitle": "Run structured AI interviews on applicants and get a ranked shortlist — so your next staffing request fills faster."
     }
   }
 }

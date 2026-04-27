@@ -2293,5 +2293,186 @@
       "ctaGetStarted": "Commencer",
       "ctaHowItWorks": "Comment ReadyKare fonctionne"
     }
+  },
+  "pricing": {
+    "meta": {
+      "title": "Tarification — ReadyKare",
+      "description": "Tarifs de dotation transparents et plans de présélection IA pour les organisations de soins de santé."
+    },
+    "back": "Retour au tableau de bord",
+    "hero": {
+      "badge": "Présélection IA de candidats",
+      "title": "Recrutez mieux, pas plus.",
+      "subtitle": "Des entretiens IA structurés pour chaque candidat. Une liste classée vous est livrée — sans planification, sans approximation.",
+      "monthlyLabel": "Mensuel",
+      "annualLabel": "Annuel",
+      "annualBadge": "2 mois offerts",
+      "billedAnnually": "C${total}/an facturé annuellement",
+      "perMonth": "/mois",
+      "free": "Gratuit"
+    },
+    "tiers": {
+      "mostPopular": "Le plus populaire",
+      "currentPlan": "Plan actuel",
+      "ctaContact": "Contacter les ventes",
+      "free": {
+        "name": "Gratuit",
+        "description": "Essayez la présélection IA sans engagement.",
+        "cta": "Commencer gratuitement",
+        "features": [
+          "1 présélection active à la fois",
+          "5 candidats par présélection",
+          "Entretiens texte par IA",
+          "Classement de base des candidats",
+          "Délai candidat de 7 jours"
+        ]
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Pour les équipes en croissance qui recrutent régulièrement.",
+        "cta": "Passer à Starter",
+        "features": [
+          "5 présélections actives",
+          "50 candidats par présélection",
+          "Entretiens vidéo + texte par IA",
+          "Classement et notation avancés",
+          "Vérification d'identité",
+          "Notifications par courriel et push",
+          "Support courriel prioritaire"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les équipes qui recrutent à grande échelle.",
+        "cta": "Passer à Pro",
+        "features": [
+          "Présélections actives illimitées",
+          "Candidats illimités",
+          "Entretiens vidéo + texte par IA",
+          "Questions d'entretien personnalisées",
+          "Rapports et analytiques détaillés",
+          "Vérification d'identité",
+          "Gestionnaire de compte dédié"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "subtitle": "Tout ce que vous devez savoir sur la présélection IA.",
+      "items": [
+        {
+          "q": "Comment fonctionnent les entretiens IA?",
+          "a": "Les candidats reçoivent un lien d'invitation et complètent un entretien vidéo ou texte structuré. Notre IA pose des questions cohérentes et spécifiques au rôle, évalue chaque réponse et retourne une liste classée avec des explications claires."
+        },
+        {
+          "q": "Puis-je personnaliser les questions d'entretien?",
+          "a": "Sur le plan Pro, vous pouvez ajouter vos propres questions en plus de celles générées par l'IA. Sur les plans Gratuit et Starter, l'IA génère des questions optimisées à partir du titre du poste, de la description et des exigences que vous fournissez."
+        },
+        {
+          "q": "Qu'est-ce qui compte comme un candidat?",
+          "a": "Un candidat est toute personne qui reçoit une invitation de présélection. Chaque invitation compte vers votre limite de plan, que le candidat complète ou non l'entretien."
+        },
+        {
+          "q": "Que se passe-t-il lorsque j'atteins les limites de mon plan?",
+          "a": "Vous recevrez une notification avant d'atteindre vos limites. Vous pouvez mettre à niveau à tout moment et le coût restant est calculé au prorata de votre prochaine date de facturation."
+        },
+        {
+          "q": "La vérification d'identité est-elle incluse?",
+          "a": "La vérification d'identité est disponible sur les plans Starter et Pro. Elle confirme que les candidats sont bien qui ils prétendent être avant que vous investissiez du temps à examiner leurs résultats d'entretien."
+        },
+        {
+          "q": "Puis-je annuler ou changer de plan à tout moment?",
+          "a": "Oui. Mettez à niveau, rétrogradez ou annulez depuis vos paramètres de facturation à tout moment. Les annulations de plan annuel conservent un accès complet jusqu'à la fin de la période de facturation payée."
+        }
+      ]
+    },
+    "staffing": {
+      "badge": "Dotation temporaire",
+      "title": "Des tarifs transparents, ajustés en temps réel.",
+      "subtitle": "Chaque demande est tarifée en direct selon la profession, les détails du quart et la demande régionale — vous savez toujours ce que vous payez avant de confirmer.",
+      "ratesTitle": "Comment les tarifs sont établis",
+      "ratesSubtitle": "Quatre facteurs définissent chaque devis.",
+      "factors": [
+        {
+          "icon": "stethoscope",
+          "label": "Profession et expérience",
+          "detail": "Chaque rôle de soins de santé a un tarif de base réglementé. Les travailleurs plus expérimentés se situent dans des niveaux plus élevés, reflétés dans le tarif proposé."
+        },
+        {
+          "icon": "clock",
+          "label": "Horaire du quart",
+          "detail": "Les quarts de nuit et tôt le matin comportent une prime. Les quarts de fin de semaine et jours fériés sont tarifés en conséquence."
+        },
+        {
+          "icon": "trending-up",
+          "label": "Demande régionale",
+          "detail": "Les tarifs s'ajustent en fonction de la disponibilité de la couverture en temps réel dans votre région. Les périodes à forte demande sont clairement indiquées avant votre confirmation."
+        },
+        {
+          "icon": "layers",
+          "label": "Niveau du personnel",
+          "detail": "Choisissez parmi Pulse (standard), Vetted (meilleurs éléments) ou Veteran (plus expérimenté) selon vos besoins de couverture."
+        }
+      ],
+      "tiersTitle": "Les niveaux de personnel expliqués",
+      "tiers": [
+        {
+          "key": "pulse",
+          "name": "Pulse",
+          "tagline": "Bassin de personnel de base",
+          "detail": "Professionnels qualifiés et sélectionnés qui satisfont à toutes les exigences de conformité de votre demande."
+        },
+        {
+          "key": "vetted",
+          "name": "Vetted",
+          "tagline": "Meilleurs éléments",
+          "detail": "Travailleurs avec des évaluations constamment élevées et des commentaires positifs des clients sur de multiples missions."
+        },
+        {
+          "key": "veteran",
+          "name": "Veteran",
+          "tagline": "Les plus expérimentés",
+          "detail": "Professionnels chevronnés avec une vaste expérience sur le terrain — idéals pour les environnements complexes ou à forte acuité."
+        }
+      ],
+      "lockNote": "Votre tarif proposé est verrouillé dès que vous confirmez la couverture. Il ne changera pas en cours de quart.",
+      "billingTitle": "Comment fonctionne la facturation",
+      "billingSubtitle": "Une facturation simple et prévisible liée aux quarts que vous utilisez réellement.",
+      "steps": [
+        {
+          "num": "01",
+          "label": "Demande publiée",
+          "detail": "Vous publiez une demande de personnel avec vos dates, horaires et la profession requise. Un devis de tarif en direct est généré immédiatement."
+        },
+        {
+          "num": "02",
+          "label": "Couverture confirmée",
+          "detail": "Une fois confirmé, le tarif est verrouillé et les travailleurs appariés sont envoyés. Votre période de facturation s'ouvre."
+        },
+        {
+          "num": "03",
+          "label": "Quarts complétés",
+          "detail": "Les travailleurs s'enregistrent et se déconnectent numériquement. Les feuilles de temps sont soumises pour votre révision dans votre fenêtre d'approbation."
+        },
+        {
+          "num": "04",
+          "label": "Facture générée",
+          "detail": "À la clôture de votre période de facturation, une facture consolidée est émise pour tous les quarts approuvés — perçue via votre mode de paiement préféré."
+        }
+      ],
+      "billingNote": "Les factures ne reflètent que les feuilles de temps approuvées. Les heures contestées sont retenues jusqu'à résolution.",
+      "netTermsNote": "Conditions net-30 disponibles pour les organisations admissibles.",
+      "surgeBadge": "Tarification de pointe active",
+      "surgeExplain": "Lorsque la demande dépasse l'offre régionale, un indicateur de pointe apparaît sur votre devis. Vous pouvez toujours confirmer au tarif de pointe ou ajuster vos dates."
+    },
+    "pageHero": {
+      "title": "Une tarification simple et honnête.",
+      "subtitle": "Tout en un seul endroit — vos tarifs de dotation et vos plans de présélection IA, côte à côte."
+    },
+    "screeningSection": {
+      "badge": "Présélection IA de candidats",
+      "title": "Constituez votre banque avant d'en avoir besoin.",
+      "subtitle": "Menez des entretiens IA structurés avec les candidats et obtenez une liste classée — pour que votre prochaine demande de personnel se comble plus rapidement."
+    }
   }
 }
