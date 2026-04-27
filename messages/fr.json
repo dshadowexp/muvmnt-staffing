@@ -185,6 +185,12 @@
     "legal": {
       "privacy": "Politique de confidentialité",
       "terms": "Conditions d'utilisation"
+    },
+    "cta": {
+      "title": "Prêt à simplifier votre dotation en soins de santé ?",
+      "subtitle": "Remplissez des quarts ouverts en quelques minutes ou bâtissez votre équipe permanente — ReadyKare s'occupe de tout.",
+      "primaryLabel": "Demander du personnel",
+      "secondaryLabel": "Rejoindre en tant que professionnel"
     }
   },
   "landing": {
@@ -353,6 +359,35 @@
         ],
         "outputLabel": "Décisions basées sur les données"
       }
+    },
+    "bridge": {
+      "overline": "Au-delà du quart",
+      "titleLead": "Ne comblez pas juste les écarts.",
+      "titleAccent": "Bâtissez une équipe qui dure.",
+      "subtitle": "readykare maintient votre établissement en activité aujourd'hui — et vous donne les outils pour développer votre effectif permanent demain, avec la même rapidité et confiance.",
+      "cards": [
+        {
+          "icon": "sparkles",
+          "eyebrow": "Embauche permanente",
+          "title": "Présélectionnez et embauchez avec l'IA.",
+          "body": "Publiez un poste permanent, menez des entretiens vidéo IA structurés avec chaque candidat et recevez une liste classée en jours — pas en semaines. Sans planification laborieuse, sans approximation."
+        },
+        {
+          "icon": "user-check",
+          "eyebrow": "Convertir le personnel temporaire",
+          "title": "Transformez vos meilleurs intérimaires en employés permanents.",
+          "body": "Lorsqu'un professionnel du réseau readykare excelle dans votre établissement, vous pouvez lui offrir un poste permanent directement — sans frais de recruteur, sans recommencer de zéro."
+        }
+      ],
+      "journeyLabel": "Le chemin du temporaire au permanent",
+      "journey": [
+        "Quart publié",
+        "Le travailleur excelle",
+        "Offre permanente",
+        "Votre équipe"
+      ],
+      "cta": "Explorer la présélection IA",
+      "ctaSub": "ou parcourir les travailleurs disponibles"
     }
   },
   "findStaff": {
@@ -2303,7 +2338,8 @@
     "hero": {
       "badge": "Présélection IA de candidats",
       "title": "Recrutez mieux, pas plus.",
-      "subtitle": "Des entretiens IA structurés pour chaque candidat. Une liste classée vous est livrée — sans planification, sans approximation.",
+      "subtitle1": "Des entretiens IA structurés pour chaque candidat. Une liste classée vous est livrée — sans planification, sans approximation.",
+      "subtitle2": "Publiez votre offre aujourd'hui et recevez une liste de candidats qualifiés et présélectionnés dans les 48 heures.",
       "monthlyLabel": "Mensuel",
       "annualLabel": "Annuel",
       "annualBadge": "2 mois offerts",

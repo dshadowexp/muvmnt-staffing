@@ -7,45 +7,45 @@ import { useTranslations } from "next-intl";
 const STEP_STYLES = [
   {
     number: "01",
-    color: "from-teal-500/20 to-teal-600/10",
+    color: "from-teal-500/10 to-teal-600/5",
     accent: "bg-teal-500",
-    textAccent: "text-teal-400",
-    borderAccent: "border-teal-500/30",
+    textAccent: "text-teal-700",
+    borderAccent: "border-teal-500/25",
   },
   {
     number: "02",
-    color: "from-sky-500/20 to-sky-600/10",
+    color: "from-sky-500/10 to-sky-600/5",
     accent: "bg-sky-500",
-    textAccent: "text-sky-400",
-    borderAccent: "border-sky-500/30",
+    textAccent: "text-sky-700",
+    borderAccent: "border-sky-500/25",
   },
   {
     number: "03",
-    color: "from-violet-500/20 to-violet-600/10",
+    color: "from-violet-500/10 to-violet-600/5",
     accent: "bg-violet-500",
-    textAccent: "text-violet-400",
-    borderAccent: "border-violet-500/30",
+    textAccent: "text-violet-700",
+    borderAccent: "border-violet-500/25",
   },
   {
     number: "04",
-    color: "from-amber-500/20 to-amber-600/10",
+    color: "from-amber-500/10 to-amber-600/5",
     accent: "bg-amber-500",
-    textAccent: "text-amber-400",
-    borderAccent: "border-amber-500/30",
+    textAccent: "text-amber-700",
+    borderAccent: "border-amber-500/25",
   },
   {
     number: "05",
-    color: "from-orange-500/20 to-orange-600/10",
+    color: "from-orange-500/10 to-orange-600/5",
     accent: "bg-orange-500",
-    textAccent: "text-orange-400",
-    borderAccent: "border-orange-500/30",
+    textAccent: "text-orange-700",
+    borderAccent: "border-orange-500/25",
   },
   {
     number: "06",
-    color: "from-emerald-500/20 to-emerald-600/10",
+    color: "from-emerald-500/10 to-emerald-600/5",
     accent: "bg-emerald-500",
-    textAccent: "text-emerald-400",
-    borderAccent: "border-emerald-500/30",
+    textAccent: "text-emerald-700",
+    borderAccent: "border-emerald-500/25",
   },
 ] as const;
 
@@ -102,28 +102,28 @@ function StepCard({ step, index, total }: { step: Step; index: number; total: nu
         {/* phase badge + step number */}
         <div className="mb-4 flex items-center justify-between">
           <span
-            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${step.textAccent} bg-white/5`}
+            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${step.textAccent} bg-foreground/5`}
           >
             {step.phase}
           </span>
-          <span className="font-[var(--font-display)] text-2xl font-extrabold text-white/10">
+          <span className="font-[var(--font-display)] text-2xl font-extrabold text-foreground/10">
             {step.number}
           </span>
         </div>
 
         <div className={`mb-3 h-0.5 w-8 rounded-full ${step.accent}`} />
 
-        <h3 className="mb-2 font-[var(--font-display)] text-base font-bold text-white">
+        <h3 className="mb-2 font-[var(--font-display)] text-base font-bold text-foreground">
           {step.title}
         </h3>
-        <p className="text-sm font-light leading-relaxed text-white/60">
+        <p className="text-sm font-light leading-relaxed text-muted-foreground">
           {step.description}
         </p>
 
         {/* branch indicator — only rendered when translation provides branchLabel */}
         {step.branchLabel && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-            <span className="text-xs text-white/40">{step.branchLabel}</span>
+          <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
+            <span className="text-xs text-muted-foreground">{step.branchLabel}</span>
           </div>
         )}
       </div>
@@ -141,17 +141,17 @@ export function HowItWorks() {
   }));
 
   return (
-    <section className="border-t bg-[var(--charcoal)] px-6 py-16 lg:px-12 lg:py-20">
+    <section className="bg-muted/30 px-6 py-16 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-5xl">
         <div className="mb-12">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-primary">
             {t("howOverline")}
           </p>
-          <h2 className="font-[var(--font-display)] text-[clamp(1.8rem,3vw,2.4rem)] font-extrabold tracking-tight text-white">
+          <h2 className="font-[var(--font-display)] text-[clamp(1.8rem,3vw,2.4rem)] font-extrabold tracking-tight text-foreground">
             {t("howTitle").replace(t("howTitleAccent"), "").trim()}{" "}
-            <span className="text-[var(--teal-mid)]">{t("howTitleAccent")}</span>
+            <span className="text-primary">{t("howTitleAccent")}</span>
           </h2>
-          <p className="mt-3 max-w-xl text-sm font-light leading-relaxed text-white/50">
+          <p className="mt-3 max-w-xl text-sm font-light leading-relaxed text-muted-foreground">
             {t("howSubtitle")}
           </p>
         </div>

@@ -23,7 +23,7 @@ function NavbarAuthButtons() {
   return (
     <div className="flex items-center gap-2">
       <Link href="/find-work" className={ctaGhostSm}>{t("findWork")}</Link>
-      <Link href="/find-staff" className={ctaPrimarySm}>{t("requestStaff")}</Link>
+      <Link href="/dashboard/requests/new" className={ctaPrimarySm}>{t("requestStaff")}</Link>
     </div>
   );
 }

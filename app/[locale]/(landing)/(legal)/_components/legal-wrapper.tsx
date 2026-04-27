@@ -57,15 +57,14 @@ export default function LegalWrapper({
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b bg-[var(--charcoal)] px-6 pb-16 pt-10 lg:px-12">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_80%_50%,rgba(13,148,136,0.12)_0%,transparent_60%),linear-gradient(135deg,#0f1a18_0%,#0d2420_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.04)_1px,transparent_1px)] bg-[size:60px_60px]" />
+      <section className="relative overflow-hidden border-b bg-background px-6 pb-16 pt-10 lg:px-12">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_85%_30%,oklch(0.527_0.154_150.069/0.06),transparent_60%)]" />
 
         <div className="relative z-10 mx-auto max-w-3xl">
-          <div className="mb-6 flex items-center gap-2 text-xs font-light text-white/35">
+          <div className="mb-6 flex items-center gap-2 text-xs font-light text-muted-foreground/70">
             <Link
               href="/"
-              className="text-white/40 no-underline transition-colors hover:text-white/60"
+              className="text-muted-foreground no-underline transition-colors hover:text-foreground"
             >
               {strings.home}
             </Link>
@@ -73,14 +72,14 @@ export default function LegalWrapper({
             <span className="text-primary">{strings.breadcrumb}</span>
           </div>
 
-          <Badge className="mb-4 gap-1.5 border border-[rgba(13,148,136,0.3)] bg-[rgba(13,148,136,0.15)] text-primary">
+          <Badge className="mb-4 gap-1.5 border border-primary/20 bg-primary/8 text-primary">
             {strings.badge}
           </Badge>
 
-          <h1 className="font-[var(--font-display)] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+          <h1 className="font-[var(--font-display)] text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
             {title}
           </h1>
-          <p className="mt-4 max-w-2xl text-base font-light leading-relaxed text-white/65">
+          <p className="mt-4 max-w-2xl text-base font-light leading-relaxed text-muted-foreground">
             {subtitle}
           </p>
 
@@ -150,11 +149,11 @@ export default function LegalWrapper({
 
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5">
+    <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
       {label && (
-        <span className="text-[0.7rem] text-white/40">{label}:</span>
+        <span className="text-[0.7rem] text-muted-foreground">{label}:</span>
       )}
-      <span className="text-[0.78rem] font-semibold text-white/80">{value}</span>
+      <span className="text-[0.78rem] font-semibold text-foreground">{value}</span>
     </div>
   );
 }

@@ -44,15 +44,14 @@ export default async function FaqPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <section className="relative overflow-hidden border-b bg-[var(--charcoal)] px-6 pb-16 pt-10 lg:px-12">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_80%_50%,rgba(13,148,136,0.12)_0%,transparent_60%),linear-gradient(135deg,#0f1a18_0%,#0d2420_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.04)_1px,transparent_1px)] bg-[size:60px_60px]" />
+      <section className="relative overflow-hidden border-b bg-background px-6 pb-16 pt-10 lg:px-12">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_85%_30%,oklch(0.527_0.154_150.069/0.06),transparent_60%)]" />
 
         <div className="relative z-10 mx-auto max-w-3xl">
-          <div className="mb-8 flex items-center gap-2 text-xs font-light text-white/35">
+          <div className="mb-8 flex items-center gap-2 text-xs font-light text-muted-foreground/70">
             <Link
               href="/"
-              className="text-white/40 no-underline transition-colors hover:text-white/60"
+              className="text-muted-foreground no-underline transition-colors hover:text-foreground"
             >
               {tCommon("home")}
             </Link>
@@ -60,10 +59,10 @@ export default async function FaqPage() {
             <span className="text-primary">{t("breadcrumb")}</span>
           </div>
 
-          <h1 className="font-[var(--font-display)] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+          <h1 className="font-[var(--font-display)] text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
             {t("title")}
           </h1>
-          <p className="mt-4 max-w-2xl text-base font-light leading-relaxed text-white/65">
+          <p className="mt-4 max-w-2xl text-base font-light leading-relaxed text-muted-foreground">
             {t("subtitle")}
           </p>
         </div>
@@ -72,7 +71,7 @@ export default async function FaqPage() {
       <section className="mx-auto max-w-3xl px-6 py-14 lg:px-8">
         <FaqAccordion items={items} />
 
-        <div className="mt-14 rounded-2xl border bg-muted/30 px-6 py-8 text-center">
+        <div className="mt-14 rounded-2xl border bg-card px-6 py-8 text-center shadow-sm">
           <p className="mb-4 text-sm font-medium text-foreground">
             {t("cta.title")}
           </p>

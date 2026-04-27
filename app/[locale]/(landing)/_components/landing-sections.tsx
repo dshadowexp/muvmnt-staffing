@@ -2,11 +2,15 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { TRUST_LOGOS } from "@/lib/constants";
 import {
-  Zap,
-  BadgeCheck,
-  MapPin,
   MessageCircle,
   ArrowRight,
+  SparklesIcon,
+  UserCheckIcon,
+  ShieldCheck,
+  Heart,
+  Users,
+  UsersRound,
+  UserRoundCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +18,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
-import { ctaPrimary, ctaOutline, ctaOutlineDark } from "../_lib/cta-classes";
+import { PipelineDiagram } from "./pipeline-diagram";
+import { ctaPrimary, ctaOutline } from "../_lib/cta-classes";
 
 /* Shared overline pill used in light-mode content sections */
 const SectionOverline = ({
@@ -36,9 +41,9 @@ const SectionOverline = ({
 );
 
 const WHY_ICONS: Record<string, LucideIcon> = {
-  Zap,
-  BadgeCheck,
-  MapPin,
+  Heart,
+  ShieldCheck,
+  UsersRound,
   MessageCircle,
 };
 
@@ -65,56 +70,58 @@ export async function HeroSection() {
   const stats = t.raw("stats") as HeroStat[];
 
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden bg-[var(--charcoal)] px-6 py-20 pt-[120px] lg:px-12 lg:pb-20">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_70%_50%,rgba(13,148,136,0.18)_0%,transparent_60%),radial-gradient(ellipse_40%_40%_at_20%_80%,rgba(20,184,166,0.10)_0%,transparent_50%),linear-gradient(135deg,#0f1a18_0%,#0d2420_50%,#0a1f1c_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.05)_1px,transparent_1px)] bg-[size:60px_60px]" />
+    <section className="relative flex min-h-screen items-center overflow-hidden bg-background px-6 py-20 pt-[120px] lg:px-12 lg:pb-20">
+      {/* Lines grid */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.06)_1px,transparent_1px)] bg-[size:60px_60px]" />
+      {/* Soft teal bloom — top-right atmospheric glow, sits above grid */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_85%_10%,oklch(0.527_0.154_150.069/0.07),transparent_60%),radial-gradient(ellipse_40%_50%_at_5%_90%,oklch(0.527_0.154_150.069/0.04),transparent_60%)]" />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
           <div>
-            <div className="mb-7 inline-flex animate-fade-up items-center gap-2 rounded-full border border-[rgba(13,148,136,0.3)] bg-[rgba(13,148,136,0.15)] px-3.5 py-1.5 text-[0.8rem] font-medium tracking-wide text-[var(--teal-mid)]">
-              <span className="inline-block h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[var(--teal-mid)]" />
+            <div className="mb-7 inline-flex animate-fade-up items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3.5 py-1.5 text-[0.8rem] font-medium tracking-wide text-primary">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary" />
               {t("badge")}
             </div>
 
-            <h1 className="mb-6 animate-fade-up-1 font-[var(--font-display)] text-[clamp(2.8rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tighter text-white">
+            <h1 className="mb-6 animate-fade-up-1 font-[var(--font-display)] text-[clamp(2.8rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tighter text-foreground">
               {t("titleLead")}
               <br />
-              <span className="text-[var(--teal-mid)]">{t("titleAccent")}</span>
+              <span className="text-primary">{t("titleAccent")}</span>
               <br />
               <span className="relative inline-block">
                 {t("titleTail")}
-                <span className="absolute inset-x-0 bottom-1 h-[3px] rounded-sm bg-[var(--teal-mid)]" />
+                <span className="absolute inset-x-0 bottom-1 h-[3px] rounded-sm bg-primary" />
               </span>
             </h1>
 
-            <p className="mb-10 max-w-lg animate-fade-up-2 text-lg font-light leading-7 text-white/60">
-              {t("subtitle")}
+            <p className="mb-10 max-w-lg animate-fade-up-2 text-lg font-light leading-7 text-muted-foreground">
+              {t("subtitle1")}
             </p>
 
             <div className="flex animate-fade-up-3 flex-wrap items-center gap-4">
-              <Link href="/find-staff" className={ctaPrimary}>{t("ctaRequest")}</Link>
-              <Link href="/find-work" className={ctaOutlineDark}>{t("ctaProfessional")}</Link>
+              <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaRequest")}</Link>
+              <Link href="/find-work" className={ctaOutline}>{t("ctaProfessional")}</Link>
             </div>
           </div>
 
-          <div className="grid animate-fade-up-4 grid-cols-3 overflow-hidden rounded-2xl border border-[rgba(13,148,136,0.2)] bg-[rgba(13,148,136,0.08)]">
+          <div className="grid animate-fade-up-4 grid-cols-3 overflow-hidden rounded-2xl border border-primary/15 bg-primary/5">
             {stats.map(({ value, label }, i) => {
               const suffix = value.match(/[<>%+h]+$/)?.[0] ?? "";
               return (
                 <div
                   key={label}
-                  className={`bg-white/[0.03] px-5 py-7 text-center ${
+                  className={`px-5 py-7 text-center ${
                     i < stats.length - 1
-                      ? "border-r border-[rgba(13,148,136,0.1)]"
+                      ? "border-r border-primary/10"
                       : ""
                   }`}
                 >
-                  <div className="font-[var(--font-display)] text-3xl font-extrabold leading-none text-white lg:text-4xl">
+                  <div className="font-[var(--font-display)] text-3xl font-extrabold leading-none text-foreground lg:text-4xl">
                     {value.replace(/[<>%+h]/g, "")}
-                    <span className="text-[var(--teal-mid)]">{suffix}</span>
+                    <span className="text-primary">{suffix}</span>
                   </div>
-                  <div className="mt-1.5 text-xs text-white/45">{label}</div>
+                  <div className="mt-1.5 text-xs text-muted-foreground">{label}</div>
                 </div>
               );
             })}
@@ -224,150 +231,10 @@ export async function HowItWorksSection() {
 
         {/* CTAs */}
         <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/find-staff" className={ctaPrimary}>{t("ctaRequest")}</Link>
-          <Link href="/find-work" className={ctaOutline}>{t("ctaJoin")}</Link>
+          <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaRequest")}</Link>
         </div>
       </div>
     </section>
-  );
-}
-
-/* ──────────────────────────────────────────
-   PipelineDiagram
-────────────────────────────────────────── */
-
-interface PipelineDiagramProps {
-  zoneLabel: string;
-  /** Labels for the top (permanent/roles) track: [node0, node1, node2, node3] */
-  clientTrack: string[];
-  /** Labels for the bottom (temporary/shifts) track */
-  proTrack: string[];
-  /** Sub-label under first node of top track */
-  clientSub: string;
-  /** Sub-label under first node of bottom track */
-  proSub: string;
-}
-
-function PipelineDiagram({ zoneLabel, clientTrack, proTrack, clientSub, proSub }: PipelineDiagramProps) {
-  const teal = "rgba(13,148,136,";
-  const green = "rgba(16,185,129,";
-
-  type NodeVariant = "neutral" | "teal" | "green";
-  type TrackNode = { x: number; label: string; variant: NodeVariant; sub?: string };
-
-  const pw = 62, ph = 26, pr = 13;
-  const xs = [44, 158, 276, 392];
-  const ay = 78, by = 155;
-
-  const tracks: { y: number; nodes: TrackNode[] }[] = [
-    {
-      y: by,
-      nodes: [
-        { x: xs[0], label: proTrack[0],  variant: "neutral", sub: proSub },
-        { x: xs[1], label: proTrack[1],  variant: "teal"    },
-        { x: xs[2], label: proTrack[2],  variant: "teal"    },
-        { x: xs[3], label: proTrack[3],  variant: "green"   },
-      ],
-    },
-    {
-      y: ay,
-      nodes: [
-        { x: xs[0], label: clientTrack[0], variant: "neutral", sub: clientSub },
-        { x: xs[1], label: clientTrack[1], variant: "teal"    },
-        { x: xs[2], label: clientTrack[2], variant: "teal"    },
-        { x: xs[3], label: clientTrack[3], variant: "green"   },
-      ],
-    },
-  ];
-
-  return (
-    <svg
-      viewBox="0 0 444 222"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full"
-      aria-hidden
-    >
-      {/* ReadyKare zone bracket */}
-      <rect x="114" y="46" width="198" height="141" rx="14"
-        fill={`${teal}0.07)`} stroke={`${teal}0.22)`}
-        strokeWidth="1.2" strokeDasharray="5 3" />
-      <text x="213" y="38" textAnchor="middle" fontSize="8" fontWeight="700"
-        fill={`${teal}1)`} letterSpacing="2"
-        fontFamily="system-ui, -apple-system, sans-serif">{zoneLabel}</text>
-
-      {tracks.map(({ y, nodes }) => (
-        <g key={`track-${y}`}>
-          {/* Connector lines + arrows */}
-          {nodes.slice(0, -1).map((node, i) => {
-            const x1 = node.x + pw / 2;
-            const x2 = nodes[i + 1].x - pw / 2;
-            const isTeal = node.variant === "teal";
-            return (
-              <g key={`conn-${y}-${i}`}>
-                <line
-                  x1={x1} y1={y} x2={x2 - 6} y2={y}
-                  stroke={isTeal ? `${teal}0.55)` : "currentColor"}
-                  strokeOpacity={isTeal ? undefined : "0.18"}
-                  strokeWidth={isTeal ? 1.5 : 1.2}
-                  strokeDasharray={isTeal ? undefined : "3 2"}
-                />
-                <path
-                  d={`M${x2 - 6} ${y - 4} L${x2} ${y} L${x2 - 6} ${y + 4}`}
-                  stroke={isTeal ? `${teal}0.55)` : "currentColor"}
-                  strokeOpacity={isTeal ? undefined : "0.2"}
-                  strokeWidth="1.2" strokeLinecap="round"
-                />
-              </g>
-            );
-          })}
-
-          {/* Pill nodes */}
-          {nodes.map((node) => {
-            const fill =
-              node.variant === "teal"  ? `${teal}0.12)` :
-              node.variant === "green" ? `${green}0.12)` : "transparent";
-            const stroke =
-              node.variant === "teal"  ? `${teal}0.42)` :
-              node.variant === "green" ? `${green}0.42)` : "currentColor";
-            const strokeOp  = node.variant === "neutral" ? "0.2"  : undefined;
-            const textFill  =
-              node.variant === "teal"  ? `${teal}0.9)` :
-              node.variant === "green" ? `${green}0.9)` : "currentColor";
-            const textOp    = node.variant === "neutral" ? "0.55" : undefined;
-
-            return (
-              <g key={`node-${y}-${node.label}`}>
-                <rect
-                  x={node.x - pw / 2} y={y - ph / 2}
-                  width={pw} height={ph} rx={pr}
-                  fill={fill} stroke={stroke}
-                  strokeOpacity={strokeOp} strokeWidth="1.5"
-                />
-                <text
-                  x={node.x} y={y + 4.5}
-                  textAnchor="middle" fontSize="8.5" fontWeight="600"
-                  fill={textFill} fillOpacity={textOp}
-                  fontFamily="system-ui, -apple-system, sans-serif"
-                >
-                  {node.label}
-                </text>
-                {node.sub && (
-                  <text
-                    x={node.x} y={y + ph / 2 + 13}
-                    textAnchor="middle" fontSize="7.5"
-                    fill="currentColor" fillOpacity="0.3"
-                    fontFamily="system-ui, -apple-system, sans-serif"
-                  >
-                    {node.sub}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-        </g>
-      ))}
-    </svg>
   );
 }
 
@@ -376,13 +243,14 @@ function PipelineDiagram({ zoneLabel, clientTrack, proTrack, clientSub, proSub }
 ────────────────────────────────────────── */
 export async function WhyUsSection() {
   const t = await getTranslations("landing.why");
+  const tHow = await getTranslations("landing.how");
   const points = t.raw("points") as WhyPoint[];
   const pipeline = t.raw("pipeline") as Pipeline;
 
   return (
     <section
       id="why"
-      className="relative overflow-hidden bg-secondary/40 px-6 py-24 dark:bg-muted/40 lg:px-12 lg:py-32"
+      className="relative overflow-hidden bg-background px-6 py-24 lg:px-12 lg:py-32"
     >
       {/* Soft primary-tinted glow from the bottom — mirror of HowItWorks */}
       <div
@@ -455,6 +323,11 @@ export async function WhyUsSection() {
             </div>
           </div>
         </div>
+
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+          <Link href="/find-staff" className={ctaPrimary}>{tHow("ctaRequest")}</Link>
+          <Link href="/find-work" className={ctaOutline}>{tHow("ctaJoin")}</Link>
+        </div>
       </div>
     </section>
   );
@@ -468,7 +341,7 @@ export async function TestimonialsSection() {
   const items = t.raw("items") as Testimonial[];
 
   return (
-    <section className="relative overflow-hidden bg-background px-6 py-24 lg:px-12 lg:py-32">
+    <section className="relative overflow-hidden bg-muted/30 px-6 py-24 lg:px-12 lg:py-32">
       {/* Matching top hairline for rhythm with the two sections above */}
       <div
         aria-hidden
@@ -517,9 +390,114 @@ export async function TestimonialsSection() {
         </div>
 
         <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/find-staff" className={ctaPrimary}>{t("ctaRequest")}</Link>
-          <Link href="/find-work" className={ctaOutline}>{t("ctaFindWork")}</Link>
+          <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaGetStarted")}</Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────
+   BridgeSection
+   Sits between WhyUsSection and ScreeningSection.
+   Pivots the narrative from "fill shifts fast" →
+   "build your permanent team".
+────────────────────────────────────────── */
+
+type BridgeCard = { icon: string; eyebrow: string; title: string; body: string };
+
+const BRIDGE_ICONS: Record<string, React.ElementType> = {
+  sparkles: SparklesIcon,
+  "user-check": UserRoundCheck,
+};
+
+export async function BridgeSection() {
+  const t = await getTranslations("landing.bridge");
+  const cards = t.raw("cards") as BridgeCard[];
+  const journey = t.raw("journey") as string[];
+
+  return (
+    <section className="relative overflow-hidden bg-primary/[0.04] px-6 py-24 lg:px-12 lg:py-32">
+      {/* Soft left-side bloom */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_5%_55%,oklch(0.527_0.154_150.069/0.07),transparent_65%)]" />
+      {/* Hairlines for section rhythm */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <div className="relative mx-auto max-w-7xl">
+
+        {/* ── Header ── */}
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3.5 py-1.5 text-[0.8rem] font-medium tracking-wide text-primary">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary opacity-70" />
+            {t("overline")}
+          </div>
+          <h2 className="font-[var(--font-display)] text-[clamp(2rem,3.5vw,2.8rem)] font-extrabold leading-[1.1] tracking-tight text-foreground">
+            {t("titleLead")}
+            <br />
+            <span className="text-primary">{t("titleAccent")}</span>
+          </h2>
+          <p className="mt-5 text-base font-light leading-relaxed text-muted-foreground">
+            {t("subtitle")}
+          </p>
+        </div>
+
+        {/* ── Feature cards ── */}
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-7">
+          {cards.map((card, i) => {
+            const Icon = BRIDGE_ICONS[card.icon] ?? SparklesIcon;
+            return (
+              <div
+                key={i}
+                className="group/bc relative overflow-hidden rounded-2xl border border-border bg-background p-8 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_24px_-8px_rgba(13,148,136,0.12)] lg:p-10"
+              >
+                {/* Subtle inner glow on hover */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_at_top_left,rgba(13,148,136,0.10),transparent_60%)] opacity-0 transition-opacity duration-300 group-hover/bc:opacity-100"
+                />
+
+                {/* Icon */}
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 transition-transform duration-300 group-hover/bc:scale-105">
+                  <Icon className="size-5 text-primary" />
+                </div>
+
+                {/* Eyebrow */}
+                <p className="mb-2 text-[0.68rem] font-semibold uppercase tracking-[2px] text-primary/70">
+                  {card.eyebrow}
+                </p>
+
+                {/* Title */}
+                <h3 className="mb-3 font-[var(--font-display)] text-xl font-bold leading-snug text-foreground">
+                  {card.title}
+                </h3>
+
+                {/* Body */}
+                <p className="text-sm font-light leading-relaxed text-muted-foreground">
+                  {card.body}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── CTAs ── */}
+        <div className="mt-14 flex flex-col items-center gap-3">
+          <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/screening" className={ctaPrimary}>
+              {t("cta")}
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link href="/find-work" className={ctaOutline}>{t("ctaExplore")}</Link>
+          </div>
+          <Link
+            href="/dashboard/requests/new"
+            className="text-[0.82rem] font-medium text-muted-foreground/60 underline-offset-4 transition-colors hover:text-muted-foreground hover:underline"
+          >
+            {t("ctaSub")}
+          </Link>
+        </div>
+
       </div>
     </section>
   );
@@ -705,11 +683,10 @@ export async function ScreeningSection() {
   const diagram = t.raw("diagram") as ScreeningDiagramData;
 
   return (
-    <section className="relative overflow-hidden bg-[var(--charcoal)] px-6 py-24 lg:px-12 lg:py-32">
-      {/* Background effects matching hero */}
-      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_80%_50%,rgba(13,148,136,0.14)_0%,transparent_60%)]" />
-      <div aria-hidden className="absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.04)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(13,148,136,0.3)] to-transparent" />
+    <section className="relative overflow-hidden bg-background px-6 py-24 lg:px-12 lg:py-32">
+      {/* Soft right-side bloom — mirrors Bridge section's left bloom */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_95%_50%,oklch(0.527_0.154_150.069/0.07),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="relative mx-auto max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
@@ -718,12 +695,12 @@ export async function ScreeningSection() {
           <div className="flex flex-col items-start justify-center">
             <Badge
               variant="secondary"
-              className="mb-5 h-7 rounded-full border border-[rgba(13,148,136,0.3)] bg-[rgba(13,148,136,0.15)] px-3 text-[0.68rem] font-semibold tracking-[2.5px] text-[var(--teal-mid)]"
+              className="mb-5 h-7 rounded-full border border-primary/20 bg-primary/10 px-3 text-[0.68rem] font-semibold tracking-[2.5px] text-primary"
             >
               {t("badge")}
             </Badge>
-            <div className="relative w-full max-w-md rounded-3xl border border-[rgba(13,148,136,0.15)] bg-[rgba(13,148,136,0.06)] p-8 lg:p-10">
-              <div aria-hidden className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(13,148,136,0.12),transparent_70%)]" />
+            <div className="relative w-full max-w-md rounded-3xl border border-primary/15 bg-primary/5 p-8 lg:p-10">
+              <div aria-hidden className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(ellipse_at_center,oklch(0.527_0.154_150.069/0.06),transparent_70%)]" />
               <ScreeningDiagram
                 painLabels={diagram.painLabels}
                 outputLabel={diagram.outputLabel}
@@ -733,13 +710,13 @@ export async function ScreeningSection() {
 
           {/* ── Right: copy ── */}
           <div>
-            <h2 className="font-[var(--font-display)] text-[clamp(2rem,3.5vw,2.8rem)] font-extrabold leading-[1.1] tracking-tight text-white">
+            <h2 className="font-[var(--font-display)] text-[clamp(2rem,3.5vw,2.8rem)] font-extrabold leading-[1.1] tracking-tight text-foreground">
               {t("titleLead")}
               <br />
-              <span className="text-[var(--teal-mid)]">{t("titleAccent")}</span>
+              <span className="text-primary">{t("titleAccent")}</span>
             </h2>
 
-            <p className="mt-5 max-w-md text-base font-light leading-7 text-white/55">
+            <p className="mt-5 max-w-md text-base font-light leading-7 text-muted-foreground">
               {t("subtitle")}
             </p>
 
@@ -748,17 +725,17 @@ export async function ScreeningSection() {
                 {t("ctaLearnMore")}
                 <ArrowRight className="size-4" />
               </Link>
-              <Link href="/find-staff" className={ctaOutlineDark}>{t("ctaStartHiring")}</Link>
+              <Link href="/find-staff" className={ctaOutline}>{t("ctaStartHiring")}</Link>
             </div>
 
             {/* Mini stats row */}
-            <div className="mt-10 flex items-center gap-8 border-t border-white/10 pt-8">
+            <div className="mt-10 flex items-center gap-8 border-t border-border pt-8">
               {stats.map(s => (
                 <div key={s.label}>
-                  <div className="font-[var(--font-display)] text-xl font-extrabold text-white">
+                  <div className="font-[var(--font-display)] text-xl font-extrabold text-foreground">
                     {s.value}
                   </div>
-                  <div className="mt-0.5 text-xs text-white/40">{s.label}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">{s.label}</div>
                 </div>
               ))}
             </div>

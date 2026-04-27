@@ -2,7 +2,7 @@ import {
   HeroSection,
   TrustBar,
   HowItWorksSection,
-  ScreeningSection,
+  BridgeSection,
   WhyUsSection,
   TestimonialsSection,
 } from "@/app/[locale]/(landing)/_components/landing-sections";
@@ -13,8 +13,8 @@ export default function HomePage() {
       <HeroSection />
       <TrustBar />
       <HowItWorksSection />
+      <BridgeSection />
       <WhyUsSection />
-      <ScreeningSection />
       <TestimonialsSection />
     </>
   );

@@ -139,10 +139,14 @@
       {
         "label": "Why us",
         "href": "/#why"
+      },
+      {
+        "label": "Pricing",
+        "href": "/pricing"
       }
     ],
     "findWork": "Find work",
-    "requestStaff": "Request staff",
+    "requestStaff": "Find staff",
     "dashboard": "Dashboard",
     "menu": "Menu"
   },
@@ -188,6 +192,12 @@
     "legal": {
       "privacy": "Privacy Policy",
       "terms": "Terms of Use"
+    },
+    "cta": {
+      "title": "Ready to simplify your healthcare staffing?",
+      "subtitle": "Fill open shifts in minutes or build your permanent team — ReadyKare handles it all.",
+      "primaryLabel": "Request staff",
+      "secondaryLabel": "Join as a professional"
     }
   },
   "landing": {
@@ -196,7 +206,8 @@
       "titleLead": "Cover your",
       "titleAccent": "staffing gaps",
       "titleTail": "in minutes.",
-      "subtitle": "Fill healthcare shifts in under 5 minutes - with pre-screened, credentialed healtcare professionals when you need them.",
+      "subtitle1": "Fill open shifts in under 5 minutes - with pre-screened, credential-verified healthcare professionals.",
+      "subtitle2": "",
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
@@ -243,7 +254,7 @@
           "description": "Staff clock in, you approve hours, we handle payouts and follow-up."
         }
       ],
-      "ctaRequest": "Request staff →",
+      "ctaRequest": "Find staff now →",
       "ctaJoin": "Join as a professional"
     },
     "why": {
@@ -252,19 +263,19 @@
       "subtitle": "Healthcare can't wait. Neither can we. readykare was built for the staffings pressures healthcare teams face every day.",
       "points": [
         {
-          "icon": "Zap",
-          "title": "Fast coverage",
-          "description": "Most requests are matched the same day — including emergency relief."
+          "icon": "Heart",
+          "title": "Empathy in Care",
+          "description": "We know every shift matters. Our solutions center on the compassion your team needs."
         },
         {
-          "icon": "BadgeCheck",
-          "title": "AI-led Screening",
-          "description": "Effortless AI-driven candidate review, and you can use it too!"
+          "icon": "ShieldCheck",
+          "title": "Integrity in Practice",
+          "description": "We ensure every professional is fully verified and compliant, so you can trust every hire."
         },
         {
-          "icon": "MapPin",
-          "title": "Local reach",
-          "description": "Active coverage near you, don't search too far."
+          "icon": "UsersRound",
+          "title": "Partnership for Growth",
+          "description": "We’re more than staffing—we grow with you, helping you build a strong, lasting team."
         }
       ],
       "statCards": [
@@ -324,6 +335,7 @@
           "role": "HR Manager — Kitchener"
         }
       ],
+      "ctaGetStarted": "Get started →",
       "ctaRequest": "Request staff →",
       "ctaFindWork": "Find work"
     },
@@ -331,7 +343,7 @@
       "badge": "AI-powered Screening",
       "titleLead": "Streamline staff",
       "titleAccent": "screening.",
-      "subtitle": "Scheduling calls, reading CVs, scoring candidates — it takes weeks. ReadyKare runs structured AI-led screenings for your candidates, so you can make data-driven decisions about who to hire faster.",
+      "subtitle": "Scheduling calls, screening CVs, vetting candidates — it takes weeks. ReadyKare's AI-led screening fast-tracks your hiring, so you can make data-driven decisions quickly.",
       "ctaLearnMore": "Learn more",
       "ctaStartHiring": "Start hiring",
       "stats": [
@@ -356,6 +368,36 @@
         ],
         "outputLabel": "Data-Driven Screening"
       }
+    },
+    "bridge": {
+      "overline": "Beyond the shift",
+      "titleLead": "Don't just fill gaps.",
+      "titleAccent": "Build a team that stays.",
+      "subtitle": "readykare keeps your facility running today — and gives you the tools to grow your permanent workforce tomorrow, with the same speed and confidence.",
+      "cards": [
+        {
+          "icon": "sparkles",
+          "eyebrow": "Permanent hiring",
+          "title": "Screen & hire with AI efficiency.",
+          "body": "Hiring for a permanent role? Run structured AI-powered accessments on every applicant, and fill the role in days — not weeks. No scheduling headaches, no guesswork."
+        },
+        {
+          "icon": "user-check",
+          "eyebrow": "Convert proven staff",
+          "title": "Turn your best temps into permanent hires.",
+          "body": "When a professional from the readykare network consistently excels at your facility, you can extend a permanent offer directly — no recruiter fees, no search from scratch."
+        }
+      ],
+      "journeyLabel": "The path from temporary to permanent",
+      "journey": [
+        "Temp shift posted",
+        "Worker excels",
+        "Permanent offer",
+        "Your team"
+      ],
+      "cta": "Start now",
+      "ctaExplore": "Learn more",
+      "ctaSub": "or match with available workers"
     }
   },
   "findStaff": {
@@ -2314,7 +2356,7 @@
       "subtitle": "Structured AI interviews on every applicant. A ranked shortlist delivered — no scheduling, no guesswork.",
       "monthlyLabel": "Monthly",
       "annualLabel": "Annual",
-      "annualBadge": "2 months free",
+      "annualBadge": "1 month free",
       "billedAnnually": "C${total}/year billed annually",
       "perMonth": "/mo",
       "free": "Free"
