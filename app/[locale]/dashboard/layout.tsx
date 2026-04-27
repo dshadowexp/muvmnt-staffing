@@ -5,6 +5,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/lib/session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
 const shellStyle = {
     "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -12,7 +14,9 @@ const shellStyle = {
 } as React.CSSProperties;
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const locale = await getLocale();
     const session = await getSession();
+    if (!session) return redirect({ href: "/sign-in", locale });
     let avatarSrc: string | null = null;
     let displayName: string | null = null;
 
