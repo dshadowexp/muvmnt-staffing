@@ -127,17 +127,22 @@ export function StaffRequestDailyTimeRows({
                     <div className="ml-auto flex shrink-0 items-center gap-1">
                       {slotIdx === 0 ? (
                         <>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-9 shrink-0"
-                            disabled={disabled}
-                            onClick={() => addSlot(dayIdx)}
-                            aria-label={t("addRangeAria", { date: w.date })}
-                          >
-                            <Plus className="size-4" />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-9 shrink-0"
+                                disabled={disabled}
+                                onClick={() => addSlot(dayIdx)}
+                                aria-label={t("addRangeAria", { date: w.date })}
+                              >
+                                <Plus className="size-4" />
+                              </Button>
+                              </TooltipTrigger>
+                            <TooltipContent>{t("addRangeAria", { date: w.date })}</TooltipContent>
+                          </Tooltip>
                           <CopyStaffRequestDayTimesPopover
                             sourceDate={w.date}
                             allDates={dates}

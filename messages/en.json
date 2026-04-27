@@ -157,8 +157,8 @@
             "href": "/find-staff"
           },
           {
-            "label": "How it works",
-            "href": "/#how"
+            "label": "AI Screening",
+            "href": "/screening"
           }
         ]
       },
@@ -189,10 +189,10 @@
   "landing": {
     "hero": {
       "badge": "Healthcare staffing, simplified",
-      "titleLead": "Fill open shifts",
-      "titleAccent": "in less than",
-      "titleTail": "5 minutes.",
-      "subtitle": "readykare connects you to on-demand, pre-screened, credentialed healtcare professionals ready to cover shiftswhen you need them.",
+      "titleLead": "Cover your",
+      "titleAccent": "staffing gaps",
+      "titleTail": "in minutes.",
+      "subtitle": "Fill healthcare shifts in under 5 minutes - with pre-screened, credentialed healtcare professionals when you need them.",
       "ctaRequest": "Request staff →",
       "ctaProfessional": "I'm a professional",
       "stats": [
@@ -201,12 +201,12 @@
           "label": "Facilities served"
         },
         {
-          "value": "98%",
-          "label": "Shift fill rate"
+          "value": "100%",
+          "label": "Credential verified"
         },
         {
           "value": "<5m",
-          "label": "Avg. response"
+          "label": "Avg. fill time"
         }
       ]
     },
@@ -220,13 +220,13 @@
       "steps": [
         {
           "num": "01",
-          "title": "Request your shift",
-          "description": "Tell us the dates and hours. Takes under three minutes."
+          "title": "Set the time",
+          "description": "Tell us where, when, and the count. Takes under a minute."
         },
         {
           "num": "02",
-          "title": "We match fast",
-          "description": "Our roster of credentialed and vetted professionals is ready to cover shifts day or night."
+          "title": "Get matched fast",
+          "description": "Our network of credentialed and vetted professionals is ready for you."
         },
         {
           "num": "03",
@@ -254,13 +254,13 @@
         },
         {
           "icon": "BadgeCheck",
-          "title": "AI Screening",
+          "title": "AI-led Screening",
           "description": "Effortless AI-driven candidate review, and you can use it too!"
         },
         {
           "icon": "MapPin",
           "title": "Local reach",
-          "description": "Active coverage across Ontario, with more provinces rolling out."
+          "description": "Active coverage near you, don't search too far."
         }
       ],
       "statCards": [
@@ -305,34 +305,34 @@
           "stars": 5,
           "text": "ReadyKare filled three RN shifts over a holiday weekend. Honestly a lifesaver.",
           "name": "Sandra K.",
-          "role": "Director of Care — Toronto"
+          "role": "Director of Care - Toronto"
         },
         {
           "stars": 5,
           "text": "The PSWs they send are professional and warm. Residents have noticed the difference.",
           "name": "James L.",
-          "role": "Administrator — Calgary"
+          "role": "Administrator - Midland"
         },
         {
           "stars": 5,
-          "text": "Signed up and had vetted staff on the floor within 48 hours. Impressive.",
+          "text": "Signed up and had vetted staff on the floor within 3 hours. Impressive.",
           "name": "Maria T.",
-          "role": "HR Manager — Vancouver"
+          "role": "HR Manager — Kitchener"
         }
       ],
       "ctaRequest": "Request staff →",
       "ctaFindWork": "Find work"
     },
     "screening": {
-      "badge": "AI Screening",
-      "titleLead": "Eliminate manual",
+      "badge": "AI-powered Screening",
+      "titleLead": "Streamline staff",
       "titleAccent": "screening.",
-      "subtitle": "Scheduling calls, reading CVs, scoring candidates — it takes weeks. ReadyKare runs structured AI-led interviews for your candidates, so you can make data-driven decisions about who to hire.",
+      "subtitle": "Scheduling calls, reading CVs, scoring candidates — it takes weeks. ReadyKare runs structured AI-led screenings for your candidates, so you can make data-driven decisions about who to hire faster.",
       "ctaLearnMore": "Learn more",
       "ctaStartHiring": "Start hiring",
       "stats": [
         {
-          "value": "< 48h",
+          "value": "< 24h",
           "label": "Time to shortlist"
         },
         {
@@ -386,7 +386,7 @@
     ],
     "card": {
       "title": "Request temporary staff",
-      "subtitle": "Get matched with temporary staff instantly."
+      "subtitle": "Get covered instantly."
     },
     "form": {
       "addressTitle": "Site address",
@@ -413,13 +413,13 @@
       "steps": [
         {
           "num": "01",
-          "title": "Tell us your need",
-          "description": "Dates, hours, and how many staff you need."
+          "title": "Tell us when and where",
+          "description": "Location, dates, and the count you need."
         },
         {
           "num": "02",
           "title": "We match fast",
-          "description": "Review proposed coverage and pick a pricing tier."
+          "description": "Pick a pricing tier and review live coverage."
         },
         {
           "num": "03",
@@ -2035,7 +2035,7 @@
     },
     "dailyRows": {
       "sectionTitle": "Times by day",
-      "addRangeAria": "Add time range for {date}",
+      "addRangeAria": "Add another time range for {date}",
       "removeRangeAria": "Remove this time range",
       "removeRangeTooltip": "Remove this time range",
       "dayStartTimeAria": "{day} start time",

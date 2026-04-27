@@ -108,7 +108,7 @@ export function StaffRequestJobProfileSettings({
                 aria-label={t("preferencesOpenAria")}
                 onClick={() => setOpen(true)}
             >
-                <Settings className="size-4 text-primary" aria-hidden />
+                <Settings className="size-4" aria-hidden />
             </Button>
 
             <Dialog open={open} onOpenChange={setOpen}>

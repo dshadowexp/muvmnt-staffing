@@ -2031,7 +2031,7 @@
     },
     "dailyRows": {
       "sectionTitle": "Heures par jour",
-      "addRangeAria": "Ajouter une plage horaire pour le {date}",
+      "addRangeAria": "Ajouter une autre plage horaire pour le {date}",
       "removeRangeAria": "Supprimer cette plage horaire",
       "removeRangeTooltip": "Supprimer cette plage horaire",
       "dayStartTimeAria": "Heure de début — {day}",
