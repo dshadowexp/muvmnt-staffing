@@ -69,10 +69,10 @@ export default async function SignUpPage({ searchParams }: Props) {
 
       <div className="flex w-full max-w-[440px] flex-col gap-3">
         {roles.map((role) => (
-          <Link key={role.value} href={role.href} className="group no-underline">
-            <Card className="w-full cursor-pointer rounded-2xl border-2 shadow-sm transition-all duration-150 hover:border-primary/60 hover:shadow-md">
+          <Link key={role.value} href={role.href} className="hover:scale-[1.02] transition-[transform_opacity]">
+            <Card className="w-full cursor-pointer rounded-2xl shadow-sm transition-all duration-150 hover:shadow-md">
               <CardContent className="flex items-center gap-4 px-6 py-5">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-muted text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary">
                   <role.icon className="size-5" />
                 </div>
                 <div className="flex-1">
