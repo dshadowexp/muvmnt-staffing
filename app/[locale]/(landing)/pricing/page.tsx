@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
   CheckIcon,
-  SparklesIcon,
   StethoscopeIcon,
   ClockIcon,
   TrendingUpIcon,
@@ -20,7 +19,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { ScreeningTiers } from "./_client";
+import { PricingTiers } from "@/features/billing/components/pricing-tiers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,7 +81,43 @@ export default async function PricingPage() {
           </p>
         </div>
 
-        {/* ══ SECTION A: Temporary Staffing ══════════════════════════════════ */}
+        {/* ══ Section divider ════════════════════════════════════════════════ */}
+        <div className="mb-16 flex items-center gap-4">
+          <Separator className="flex-1" />
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {t("screeningSection.badge")}
+          </span>
+          <Separator className="flex-1" />
+        </div>
+
+        {/* ══ SECTION A: Subscription Plans ═════════════════════════════════ */}
+        <section className="mb-20">
+          <div className="mb-10 text-center">
+            <Badge variant="outline" className="mb-3 border-primary/30 bg-primary/5 text-primary">
+              {t("screeningSection.badge")}
+            </Badge>
+            <h2 className="mb-2 text-2xl font-semibold tracking-tight md:text-3xl">
+              {t("screeningSection.title")}
+            </h2>
+            <p className="mx-auto max-w-lg text-sm text-muted-foreground">
+              {t("screeningSection.subtitle")}
+            </p>
+          </div>
+
+          {/* Subscription plan cards */}
+          <PricingTiers />
+        </section>
+
+        {/* ══ Section divider ════════════════════════════════════════════════ */}
+        <div className="mb-16 flex items-center gap-4">
+          <Separator className="flex-1" />
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {t("staffing.badge")}
+          </span>
+          <Separator className="flex-1" />
+        </div>
+
+        {/* ══ SECTION B: Temporary Staffing ══════════════════════════════════ */}
         <section className="mb-20">
           <div className="mb-10 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -201,33 +236,13 @@ export default async function PricingPage() {
           </div>
         </section>
 
-        {/* ══ Section divider ════════════════════════════════════════════════ */}
         <div className="mb-16 flex items-center gap-4">
           <Separator className="flex-1" />
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {t("screeningSection.badge")}
+            {t("faq.badge")}
           </span>
           <Separator className="flex-1" />
         </div>
-
-        {/* ══ SECTION B: AI Screening ════════════════════════════════════════ */}
-        <section className="mb-20">
-          <div className="mb-10 text-center">
-            <Badge variant="outline" className="mb-3 border-primary/30 bg-primary/5 text-primary">
-              <SparklesIcon className="size-3" />
-              {t("screeningSection.badge")}
-            </Badge>
-            <h2 className="mb-2 text-2xl font-semibold tracking-tight md:text-3xl">
-              {t("screeningSection.title")}
-            </h2>
-            <p className="mx-auto max-w-lg text-sm text-muted-foreground">
-              {t("screeningSection.subtitle")}
-            </p>
-          </div>
-
-          {/* Billing toggle + tier cards — only interactive bit */}
-          <ScreeningTiers />
-        </section>
 
         {/* ══ FAQ ════════════════════════════════════════════════════════════ */}
         <section className="mx-auto max-w-2xl">

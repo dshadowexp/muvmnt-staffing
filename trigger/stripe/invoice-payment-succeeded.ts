@@ -4,8 +4,8 @@ import type Stripe from "stripe";
 import {
   stripeWebhookJobSchema,
   type StripeWebhookJobPayload,
-} from "@/features/payments/stripe-webhook/schemas";
-import { handleInvoicePaymentSucceeded } from "@/features/payments/stripe-webhook/handlers/invoice-payment-succeeded";
+} from "@/services/stripe/stripe-webhook/schemas";
+import { handleInvoicePaymentSucceeded } from "@/services/stripe/stripe-webhook/handlers/invoice-payment-succeeded";
 
 export const stripeInvoicePaymentSucceededTask = task({
   id: "stripe.invoice.payment_succeeded",

@@ -55,8 +55,8 @@ export const autoApproveTimesheetTask = schemaTask({
       return { skipped: true, reason: "not_submitted", status: shift.timesheet_status };
     }
 
-    const approvalWindowHours = shift.clients?.approval_window_hours ?? 48;
-    logger.log("Waiting for client approval window", { shiftId, approvalWindowHours });
+    const approvalWindowHours = shift.facilities?.approval_window_hours ?? 48;
+    logger.log("Waiting for facility approval window", { shiftId, approvalWindowHours });
 
     // ── 2. Wait for the approval window (Trigger.dev checkpoint) ─────────────
     await wait.for({ hours: approvalWindowHours });

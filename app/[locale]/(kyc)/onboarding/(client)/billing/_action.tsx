@@ -6,7 +6,7 @@ import {
   onboardingStepRawError,
 } from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
-import { hasPaymentMethod } from "@/features/payments/billing/dal/queries";
+import { hasPaymentMethod } from "@/features/billing/dal/payment-methods";
 import { updateUserIsActive } from "@/features/users/dal/mutations";
 import { getSession } from "@/lib/session";
 

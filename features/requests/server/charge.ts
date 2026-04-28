@@ -3,7 +3,7 @@ import "server-only";
 import Stripe from "stripe";
 import { getStripeServer } from "@/services/stripe/server";
 import { createAdminClient } from "@/services/supabase/server";
-import { getBillingAccount } from "@/features/payments/billing/dal/queries";
+import { getBillingAccount } from "@/features/billing/dal/payment-methods";
 
 /** Minimal card snapshot persisted on `payments.payment_method` (jsonb). */
 export type StaffRequestPaymentMethodCardSnapshot = {

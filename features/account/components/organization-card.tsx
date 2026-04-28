@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { updateClientProfileAction } from "@/features/account/actions";
+import { updateFacilityProfileAction } from "@/features/account/actions";
 import { ClientProfileForm } from "@/features/account/components/client-profile-form";
 import {
   buildClientSchema,
@@ -15,6 +15,7 @@ import {
   type ClientProfileFormInput,
   type ClientProfileValues,
 } from "@/features/account/schemas/client";
+import { AddressLocationReadonlySummary } from "@/features/geo/components/address-location-readonly-summary";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,7 +36,7 @@ export function OrganizationCard({
 
   const defaults: ClientProfileValues = client
     ? mapClientProfileToFormValues(client)
-    : { name: "", type: "" };
+    : { name: "", type: "", address: null };
   const tVal = useTranslations("kyc.onboarding.validation");
   const schema = useMemo(() => buildClientSchema(tVal), [tVal]);
 
@@ -49,13 +50,12 @@ export function OrganizationCard({
   } = form;
 
   async function onSubmit(values: ClientProfileValues) {
-    const res = await updateClientProfileAction(values);
+    const res = await updateFacilityProfileAction(values);
     if (res.error) {
       toast.error(res.message);
       return;
     }
     toast.success(res.message);
-    // Rebaseline RHF so `isDirty` resets against the freshly saved values.
     form.reset(values);
     setIsEditing(false);
     router.refresh();
@@ -66,6 +66,8 @@ export function OrganizationCard({
     setIsEditing(false);
   }
 
+  const address = client?.address ?? null;
+
   return (
     <Card size="sm">
       <CardHeader>
@@ -73,7 +75,7 @@ export function OrganizationCard({
           <div>
             <CardTitle className="py-1">Organization</CardTitle>
             <CardDescription>
-              Your facility or business name and type.
+              Basic information about your organization.
             </CardDescription>
           </div>
           {!isEditing && (
@@ -100,7 +102,7 @@ export function OrganizationCard({
               aria-busy={isSubmitting}
               className="contents"
             >
-              <ClientProfileForm form={form} />
+              <ClientProfileForm form={form} disabled={isSubmitting} />
 
               <div className="flex gap-2 mt-5 justify-end">
                 <Button type="button" variant="ghost" onClick={cancelEdit}>
@@ -116,12 +118,18 @@ export function OrganizationCard({
           </form>
         ) : (
           <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(8rem,10rem)_1fr] sm:gap-x-4">
-            <dt className="text-muted-foreground font-medium">
-              Organization name
-            </dt>
+            <dt className="text-muted-foreground font-medium">Name</dt>
             <dd>{client?.name || "—"}</dd>
             <dt className="text-muted-foreground font-medium">Type</dt>
             <dd>{client?.type || "—"}</dd>
+            {address && (
+              <>
+                <dt className="text-muted-foreground font-medium">Address</dt>
+                <dd>
+                  <AddressLocationReadonlySummary location={address} />
+                </dd>
+              </>
+            )}
           </dl>
         )}
       </CardContent>

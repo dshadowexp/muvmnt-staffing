@@ -83,8 +83,8 @@ export type Database = {
       }
       billing_periods: {
         Row: {
-          client_id: string
           created_at: string
+          facility_id: string
           id: string
           period_end: string
           period_start: string
@@ -92,8 +92,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          client_id: string
           created_at?: string
+          facility_id: string
           id?: string
           period_end: string
           period_start: string
@@ -101,8 +101,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          client_id?: string
           created_at?: string
+          facility_id?: string
           id?: string
           period_end?: string
           period_start?: string
@@ -112,7 +112,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "billing_periods_client_id_fkey"
-            columns: ["client_id"]
+            columns: ["facility_id"]
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
@@ -198,6 +198,99 @@ export type Database = {
           {
             foreignKeyName: "certifications_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facilities: {
+        Row: {
+          address: Json | null
+          approval_window_hours: number
+          billing_mode: string
+          created_at: string
+          id: string
+          name: string
+          net_terms_days: number
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          stripe_customer_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address?: Json | null
+          approval_window_hours?: number
+          billing_mode?: string
+          created_at?: string
+          id?: string
+          name: string
+          net_terms_days?: number
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          stripe_customer_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          address?: Json | null
+          approval_window_hours?: number
+          billing_mode?: string
+          created_at?: string
+          id?: string
+          name?: string
+          net_terms_days?: number
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          stripe_customer_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      facility_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          facility_id: string
+          id: string
+          invited_by: string
+          permission: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          facility_id: string
+          id?: string
+          invited_by: string
+          permission?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          facility_id?: string
+          id?: string
+          invited_by?: string
+          permission?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_invites_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facility_invites_invited_by_fkey"
+            columns: ["invited_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -521,6 +614,55 @@ export type Database = {
           },
         ]
       }
+      operators: {
+        Row: {
+          created_at: string
+          facility_id: string
+          id: string
+          invited_by: string | null
+          permission: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          facility_id: string
+          id?: string
+          invited_by?: string | null
+          permission?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          facility_id?: string
+          id?: string
+          invited_by?: string | null
+          permission?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operators_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operators_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount_cents: number | null
@@ -824,10 +966,10 @@ export type Database = {
       screenings: {
         Row: {
           allowed_languages: string[]
-          client_id: string
           created_at: string
           deadline_days: number
           description: string
+          facility_id: string
           id: string
           interview_duration: number
           require_identity: boolean
@@ -837,10 +979,10 @@ export type Database = {
         }
         Insert: {
           allowed_languages?: string[]
-          client_id: string
           created_at?: string
           deadline_days?: number
           description: string
+          facility_id: string
           id?: string
           interview_duration?: number
           require_identity?: boolean
@@ -850,10 +992,10 @@ export type Database = {
         }
         Update: {
           allowed_languages?: string[]
-          client_id?: string
           created_at?: string
           deadline_days?: number
           description?: string
+          facility_id?: string
           id?: string
           interview_duration?: number
           require_identity?: boolean
@@ -864,7 +1006,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "screenings_client_id_fkey"
-            columns: ["client_id"]
+            columns: ["facility_id"]
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
@@ -1027,11 +1169,11 @@ export type Database = {
           billing_period_id: string | null
           checkin_time: string | null
           checkout_time: string | null
-          client_id: string
           complete_time: string | null
           confirm_time: string | null
           created_at: string
           end_time: string
+          facility_id: string
           hourly_rate: number | null
           id: string
           location: Json | null
@@ -1049,11 +1191,11 @@ export type Database = {
           billing_period_id?: string | null
           checkin_time?: string | null
           checkout_time?: string | null
-          client_id: string
           complete_time?: string | null
           confirm_time?: string | null
           created_at?: string
           end_time: string
+          facility_id: string
           hourly_rate?: number | null
           id?: string
           location?: Json | null
@@ -1071,11 +1213,11 @@ export type Database = {
           billing_period_id?: string | null
           checkin_time?: string | null
           checkout_time?: string | null
-          client_id?: string
           complete_time?: string | null
           confirm_time?: string | null
           created_at?: string
           end_time?: string
+          facility_id?: string
           hourly_rate?: number | null
           id?: string
           location?: Json | null
@@ -1090,7 +1232,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "shifts_client_id_fkey"
-            columns: ["client_id"]
+            columns: ["facility_id"]
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
@@ -1229,6 +1371,68 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          facility_id: string
+          id: string
+          interviews_limit: number | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          screenings_limit: number | null
+          seats_limit: number | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          facility_id: string
+          id?: string
+          interviews_limit?: number | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          screenings_limit?: number | null
+          seats_limit?: number | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          facility_id?: string
+          id?: string
+          interviews_limit?: number | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          screenings_limit?: number | null
+          seats_limit?: number | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: true
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transfers: {
         Row: {
           amount_cents: number
@@ -1355,6 +1559,7 @@ export type Database = {
       }
       workers: {
         Row: {
+          address: Json | null
           auto_confirm: boolean
           availability_timezone: string | null
           cell_id: string | null
@@ -1374,6 +1579,7 @@ export type Database = {
           years_exp: number
         }
         Insert: {
+          address?: Json | null
           auto_confirm?: boolean
           availability_timezone?: string | null
           cell_id?: string | null
@@ -1393,6 +1599,7 @@ export type Database = {
           years_exp: number
         }
         Update: {
+          address?: Json | null
           auto_confirm?: boolean
           availability_timezone?: string | null
           cell_id?: string | null
@@ -1436,7 +1643,14 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      subscription_plan: "starter" | "pro" | "enterprise"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "incomplete"
+        | "unpaid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1563,6 +1777,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_plan: ["starter", "pro", "enterprise"],
+      subscription_status: [
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "incomplete",
+        "unpaid",
+      ],
+    },
   },
 } as const

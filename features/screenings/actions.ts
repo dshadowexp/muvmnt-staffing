@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
-import { getClientProfile } from "@/features/profile/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { getCurrentUser } from "@/features/users/dal/queries";
 import { createAdminClient } from "@/services/supabase/server";
 import { env } from "@/data/env/server";
@@ -32,12 +32,12 @@ export async function createScreeningAction(data: {
     return { error: true, message: "Not authorized" };
   }
 
-  const client = await getClientProfile();
-  if (!client) return { error: true, message: "Client profile not found" };
+  const facility = await getFacilityProfile();
+  if (!facility) return { error: true, message: "Facility profile not found" };
 
   try {
     const screening = await insertScreening({
-      client_id: client.id,
+      facility_id: facility.id,
       title: data.title.trim(),
       description: data.description.trim(),
       deadline_days: data.deadline_days,
@@ -66,11 +66,11 @@ export async function updateScreeningStatusAction(
     return { error: true, message: "Not authorized" };
   }
 
-  const client = await getClientProfile();
-  if (!client) return { error: true, message: "Client profile not found" };
+  const facility = await getFacilityProfile();
+  if (!facility) return { error: true, message: "Facility profile not found" };
 
   try {
-    await updateScreeningStatus(screeningId, client.id, status);
+    await updateScreeningStatus(screeningId, facility.id, status);
     revalidatePath(`/dashboard/screenings/${screeningId}`);
     revalidatePath("/dashboard/screenings");
     return { error: false };
@@ -100,11 +100,11 @@ export async function updateScreeningAction(
     return { error: true, message: "Not authorized" };
   }
 
-  const client = await getClientProfile();
-  if (!client) return { error: true, message: "Client profile not found" };
+  const facility = await getFacilityProfile();
+  if (!facility) return { error: true, message: "Facility profile not found" };
 
   try {
-    await updateScreening(screeningId, client.id, data);
+    await updateScreening(screeningId, facility.id, data);
     revalidatePath(`/dashboard/screenings/${screeningId}`);
     revalidatePath(`/dashboard/screenings/${screeningId}/edit`);
     return { error: false };
@@ -127,10 +127,10 @@ export async function sendScreeningInviteAction(
     return { error: true, message: "Not authorized" };
   }
 
-  const client = await getClientProfile();
-  if (!client) return { error: true, message: "Client profile not found" };
+  const facility = await getFacilityProfile();
+  if (!facility) return { error: true, message: "Facility profile not found" };
 
-  const screening = await getScreeningById(screeningId, client.id);
+  const screening = await getScreeningById(screeningId, facility.id);
   if (!screening) return { error: true, message: "Screening not found" };
   if (screening.status !== "active") {
     return { error: true, message: "Screening is not active" };
@@ -147,7 +147,7 @@ export async function sendScreeningInviteAction(
     });
     const inviteUrl = `${env.APP_URL}/s/${invite.token}`;
     const clientUser = await getCurrentUser();
-    const clientName = client.name ?? clientUser?.email ?? "ReadyKare";
+    const clientName = facility.name ?? clientUser?.email ?? "ReadyKare";
 
     // Pre-compute deadline date from the moment the invite is sent
     const deadlineDate = new Date(

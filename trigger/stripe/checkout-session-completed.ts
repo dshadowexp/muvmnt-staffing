@@ -3,8 +3,8 @@ import type Stripe from "stripe";
 import {
     stripeWebhookJobSchema,
     type StripeWebhookJobPayload,
-} from "@/features/payments/stripe-webhook/schemas";
-import { handleCheckoutSessionCompleted } from "@/features/payments/stripe-webhook/handlers/checkout-session-completed";
+} from "@/services/stripe/stripe-webhook/schemas";
+import { handleCheckoutSessionCompleted } from "@/services/stripe/stripe-webhook/handlers/checkout-session-completed";
 
 export const stripeCheckoutSessionCompletedTask = task({
     id: "stripe.checkout.session.completed",

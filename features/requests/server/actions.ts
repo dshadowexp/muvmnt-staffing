@@ -25,7 +25,7 @@ import {
     type CoverageDataCache,
 } from "./staff-request";
 import { confirmAndChargeTask } from "@/trigger/staff-requests";
-import { getBillingAccount } from "@/features/payments/billing/dal/queries";
+import { getBillingAccount } from "@/features/billing/dal/payment-methods";
 import { getStripeServer } from "@/services/stripe/server";
 import { env } from "@/data/env/client";
 import { getSession } from "@/lib/session";

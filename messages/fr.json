@@ -892,9 +892,9 @@
         "descriptionClient": "..."
       },
       "choiceTitle": "Comment voulez-vous rejoindre ReadyKare?",
-      "choiceSubtitle": "Sélectionnez l'option qui décrit vous",
-      "roleWorkerDescription": "Trouvez du travail en santé près de chez vous",
-      "roleClientDescription": "Trouvez du personnel temporaire près de chez vous pour combler vos quarts",
+      "choiceSubtitle": "Choisissez l'option qui vous décrit le mieux pour commencer.",
+      "roleWorkerDescription": "Parcourez les quarts disponibles et soyez jumelé à des établissements locaux.",
+      "roleClientDescription": "Publiez des quarts et trouvez des professionnels de santé vérifiés.",
       "titleWorker": "Créez votre compte professionnel",
       "titleClient": "Créez votre compte établissement",
       "titleCandidate": "Créez votre compte",
@@ -905,15 +905,49 @@
       "referralBanner": "Vous avez été référé! Inscrivez-vous pour commencer.",
       "referralInvalidToast": "Ce lien de référence est invalide ou expiré.",
       "roleLabel": "Je cherche",
-      "roleClient": "Du personnel",
-      "roleWorker": "Du travail",
+      "roleClient": "Établissement de santé",
+      "roleWorker": "Professionnel de santé",
       "emailLabel": "Adresse courriel",
       "emailPlaceholder": "vous@organisation.ca",
+      "firstNameLabel": "Prénom",
+      "firstNamePlaceholder": "Jean",
+      "lastNameLabel": "Nom",
+      "lastNamePlaceholder": "Tremblay",
+      "companyEmailLabel": "Courriel professionnel",
+      "companyEmailPlaceholder": "vous@entreprise.ca",
+      "companyEmailNote": "Nous acceptons uniquement les adresses courriel d'entreprise ou d'organisation.",
+      "inviteEmailLabel": "Adresse courriel",
+      "inviteEmailPlaceholder": "vous@courriel.com",
+      "inviteEmailNote": "Utilisez l'adresse courriel à laquelle votre invitation de présélection a été envoyée.",
       "passwordLabel": "Mot de passe",
       "passwordPlaceholder": "Créez un mot de passe",
       "submit": "Créer un compte →",
       "haveAccount": "Vous avez déjà un compte?",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "roleCandidate": "Candidat",
+      "roleCandidateDescription": "Ici pour une invitation de présélection? Commencez votre candidature.",
+      "submitMagicLink": "S'inscrire",
+      "magicLinkSentTitle": "Vérifiez votre courriel",
+      "magicLinkSentSubtitle": "Nous avons envoyé un lien de connexion à {email}. Cliquez dessus pour finaliser la création de votre compte — les liens expirent après 15 minutes.",
+      "magicLinkResendLabel": "Vous ne l'avez pas reçu?",
+      "magicLinkResend": "Renvoyer le lien",
+      "magicLinkChangeEmail": "Utiliser une autre adresse",
+      "magicLinkChangeEmailSubtitle": "Entrez une nouvelle adresse courriel pour recevoir un nouveau lien."
+    },
+    "verify": {
+      "metaTitle": "Vérifiez votre courriel",
+      "metaDescription": "Cliquez sur le lien dans votre courriel pour finaliser la configuration de votre compte ReadyKare.",
+      "overline": "Encore une étape",
+      "title": "Connexion en cours…",
+      "subtitle": "Veuillez patienter pendant que nous vérifions votre lien.",
+      "emailPromptTitle": "Confirmez votre adresse courriel",
+      "emailPromptSubtitle": "Il semble que vous ayez ouvert ce lien sur un autre appareil. Entrez l'adresse courriel que vous avez utilisée pour demander le lien de connexion.",
+      "emailLabel": "Courriel professionnel",
+      "emailPlaceholder": "vous@entreprise.ca",
+      "submit": "Continuer →",
+      "invalidLinkTitle": "Lien expiré ou invalide",
+      "invalidLinkSubtitle": "Ce lien de connexion a expiré ou a déjà été utilisé. Veuillez en demander un nouveau.",
+      "backToSignUp": "← Demander un nouveau lien"
     },
     "forgot": {
       "meta": {
@@ -2506,9 +2540,65 @@
       "subtitle": "Tout en un seul endroit — vos tarifs de dotation et vos plans de présélection IA, côte à côte."
     },
     "screeningSection": {
-      "badge": "Présélection IA de candidats",
-      "title": "Constituez votre banque avant d'en avoir besoin.",
-      "subtitle": "Menez des entretiens IA structurés avec les candidats et obtenez une liste classée — pour que votre prochaine demande de personnel se comble plus rapidement."
+      "badge": "Plans de la plateforme",
+      "title": "Choisissez le plan adapté à votre établissement.",
+      "subtitle": "Tous les plans comprennent la présélection IA, la dotation temporaire et l'accès complet à la plateforme. Changez ou annulez à tout moment."
+    },
+    "plans": {
+      "mostPopular": "Le plus populaire",
+      "currentPlan": "Plan actuel",
+      "ctaSignedIn": "Choisir {name}",
+      "ctaSignedOut": "Commencer",
+      "perMonth": "/mois",
+      "starter": {
+        "name": "Starter",
+        "price": "99 $",
+        "description": "Pour les petits établissements qui débutent.",
+        "features": [
+          "3 utilisateurs par établissement",
+          "10 présélections de candidats / mois",
+          "10 entretiens / mois",
+          "Demandes de dotation temporaire",
+          "Support par courriel"
+        ],
+        "priceAnnual": "83 $",
+        "totalAnnual": "996"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "249 $",
+        "description": "Pour les établissements en croissance à volume élevé.",
+        "features": [
+          "10 utilisateurs par établissement",
+          "50 présélections de candidats / mois",
+          "50 entretiens / mois",
+          "Demandes de dotation temporaire",
+          "Support prioritaire",
+          "Analytiques avancées"
+        ],
+        "priceAnnual": "207 $",
+        "totalAnnual": "2484"
+      },
+      "enterprise": {
+        "name": "Entreprise",
+        "price": "599 $",
+        "description": "Évolutivité illimitée pour les grandes organisations.",
+        "features": [
+          "Utilisateurs illimités",
+          "Présélections illimitées",
+          "Entretiens illimités",
+          "Demandes de dotation temporaire",
+          "Gestionnaire de compte dédié",
+          "Intégrations personnalisées",
+          "Garantie SLA"
+        ],
+        "priceAnnual": "499 $",
+        "totalAnnual": "5988"
+      },
+      "annualBadge": "2 mois offerts",
+      "billedAnnually": "C${total}/an facturé annuellement",
+      "monthlyLabel": "Mensuel",
+      "annualLabel": "Annuel"
     }
   }
 }

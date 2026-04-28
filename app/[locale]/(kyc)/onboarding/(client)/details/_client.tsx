@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { ContinueButton } from "@/features/onboarding/components/continue-button";
@@ -9,8 +9,8 @@ import { useTranslatedStepError } from "@/features/onboarding/lib/use-translated
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import {
   buildClientSchema,
-  ClientProfileFormInput,
-  ClientProfileValues,
+  type ClientProfileFormInput,
+  type ClientProfileValues,
   mapClientProfileToFormValues,
 } from "@/features/account/schemas/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +18,14 @@ import { useForm } from "react-hook-form";
 import { detailsAction } from "./_action";
 import { useRouter } from "@/i18n/navigation";
 import { ClientProfileForm } from "@/features/account/components/client-profile-form";
+import posthog from "posthog-js";
+import { useState } from "react";
 
-export function OrganizationClient({ clientProfile }: { clientProfile: ClientProfileFormInput | null }) {
+export function OrganizationClient({
+  clientProfile,
+}: {
+  clientProfile: ClientProfileFormInput | null;
+}) {
   const router = useRouter();
   const { applyStepsFromServer } = useOnboarding();
   const { loading: authLoading } = useAuth();
@@ -32,7 +38,7 @@ export function OrganizationClient({ clientProfile }: { clientProfile: ClientPro
   const form = useForm<ClientProfileValues>({
     defaultValues: clientProfile
       ? mapClientProfileToFormValues(clientProfile)
-      : { name: "", type: "" },
+      : { name: "", type: "", address: null },
     resolver: zodResolver(schema),
   });
 
@@ -48,6 +54,9 @@ export function OrganizationClient({ clientProfile }: { clientProfile: ClientPro
               toast.error(resolveError(result));
               return;
             }
+            posthog.capture("onboarding_details_completed", {
+              type: data.type,
+            });
             applyStepsFromServer(result.steps);
             router.push(result.redirectTo);
           } catch (e) {
@@ -63,7 +72,7 @@ export function OrganizationClient({ clientProfile }: { clientProfile: ClientPro
       })}
     >
       <fieldset disabled={disabled} className="space-y-6 disabled:opacity-60">
-        <ClientProfileForm form={form} />
+        <ClientProfileForm form={form} disabled={disabled} />
         <ContinueButton pending={isPending} />
       </fieldset>
     </form>

@@ -23,13 +23,11 @@ import {
   LayoutDashboardIcon,
   ScanSearchIcon,
   ShieldCheckIcon,
-  UserIcon,
   UsersIcon,
   WalletIcon,
   CircleDashedIcon,
   VideoIcon,
   UserRoundSearchIcon,
-  TargetIcon,
   FingerprintIcon,
   CircleUserRoundIcon,
 } from "lucide-react";
@@ -78,6 +76,7 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
       { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
       { title: t("requests"), url: "/dashboard/requests", icon: <UserRoundSearchIcon className="size-4" /> },
       { title: t("screenings"), url: "/dashboard/screenings", icon: <FingerprintIcon className="size-4" /> },
+      { title: t("billing"), url: "/dashboard/billing", icon: <WalletIcon className="size-4" /> },
       { title: t("account"), url: "/dashboard/account", icon: <CircleUserRoundIcon className="size-4" /> },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];

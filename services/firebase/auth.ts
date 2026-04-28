@@ -1,10 +1,15 @@
-import { 
-    AuthError, GoogleAuthProvider, 
-    sendPasswordResetEmail, signInWithEmailAndPassword, 
+import {
+    AuthError, GoogleAuthProvider,
+    sendPasswordResetEmail, signInWithEmailAndPassword,
     signInWithPopup, signOut as firebaseSignOut,
     createUserWithEmailAndPassword,
+    updateProfile,
     signInAnonymously,
-    getAuth, 
+    getAuth,
+    sendSignInLinkToEmail,
+    isSignInWithEmailLink as firebaseIsSignInWithEmailLink,
+    signInWithEmailLink as firebaseSignInWithEmailLink,
+    type ActionCodeSettings,
 } from "firebase/auth";
 import { firebaseApp } from "./client";
 
@@ -91,8 +96,15 @@ export async function loginWithEmail(email: string, password: string) {
     await signInWithEmailAndPassword(auth, email, password);
 }
 
-export async function signUpWithEmail(email: string, password: string) {
-    await createUserWithEmailAndPassword(auth, email, password);
+export async function signUpWithEmail(
+    email: string,
+    password: string,
+    displayName?: string,
+) {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    if (displayName) {
+        await updateProfile(cred.user, { displayName });
+    }
 }
 
 export async function resetPassword(email: string) {
@@ -109,6 +121,46 @@ export async function loginWithGoogle() {
 
 export async function signInAsAnonymously() {
     await signInAnonymously(auth);
+}
+
+// ─── Email link (magic link / passwordless) ───────────────────────────────────
+
+/** localStorage keys used during the email-link sign-in flow. */
+export const EMAIL_LINK_LS_EMAIL = "readykare_email_link_email";
+export const EMAIL_LINK_LS_NAME  = "readykare_email_link_display_name";
+
+/**
+ * Sends a Firebase email sign-in link to `email`.
+ * `continueUrl` must be the full URL the user lands on after clicking the link.
+ */
+export async function sendMagicLink(
+    email: string,
+    continueUrl: string,
+): Promise<void> {
+    const settings: ActionCodeSettings = {
+        url: continueUrl,
+        handleCodeInApp: true,
+    };
+    await sendSignInLinkToEmail(auth, email, settings);
+}
+
+/** Returns true when the current browser URL is a valid Firebase email sign-in link. */
+export function isEmailSignInLink(url: string): boolean {
+    return firebaseIsSignInWithEmailLink(auth, url);
+}
+
+/**
+ * Completes sign-in with the email link in the current URL.
+ * Optionally sets the Firebase user's displayName immediately after sign-in.
+ */
+export async function signInWithMagicLink(
+    email: string,
+    displayName?: string,
+): Promise<void> {
+    const cred = await firebaseSignInWithEmailLink(auth, email, window.location.href);
+    if (displayName) {
+        await updateProfile(cred.user, { displayName });
+    }
 }
 
 export async function logout() {

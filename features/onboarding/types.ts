@@ -1,4 +1,5 @@
 import type { MultistepFormStep } from "@/hooks/use-multistep-form";
+import { UserRole } from "../auth/types";
 
 /** Persisted state for a single onboarding step (stored in `onboarding.steps` JSON). */
 export interface OnboardingStepState {
@@ -106,9 +107,10 @@ export function getRedirectForIncompleteDependencies(
   step: MultistepFormStep,
   completion: OnboardingStepsJson,
   allSteps: MultistepFormStep[],
+  role: UserRole,
 ): string {
   return (
     getOnboardingBlockerRoute(step, completion, allSteps) ??
-    "/onboarding/verification"
+    (role === "client" ? "/onboarding/details" : "/onboarding/verification")
   );
 }

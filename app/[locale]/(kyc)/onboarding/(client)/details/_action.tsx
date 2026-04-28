@@ -6,9 +6,9 @@ import {
   onboardingStepRawError,
 } from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
-import { createClientAction } from "@/features/account/actions";
+import { createFacilityAction } from "@/features/account/actions";
 import { clientSchema, type ClientProfileValues } from "@/features/account/schemas/client";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 
 export async function detailsAction(
   input: ClientProfileValues,
@@ -17,12 +17,15 @@ export async function detailsAction(
   if (!session) return onboardingStepError("userNotFound");
   if (session.role !== "client") return onboardingStepError("userNotAuthorized");
 
+  // ── 1. Validate ───────────────────────────────────────────────────────────
   const { success, data } = clientSchema.safeParse(input);
   if (!success) return onboardingStepError("invalidClientData");
 
-  const { error, message } = await createClientAction(data);
+  // ── 2. Save facility + address in one call ────────────────────────────────
+  const { error, message } = await createFacilityAction(data);
   if (error) return onboardingStepRawError(message);
 
+  // ── 3. Mark step complete ─────────────────────────────────────────────────
   const persist = await completeOnboardingStep("details");
   if (persist.error) {
     return persist.message
@@ -30,5 +33,5 @@ export async function detailsAction(
       : onboardingStepError("persistFailed");
   }
 
-  return { ok: true, redirectTo: "/onboarding/location", steps: persist.steps };
+  return { ok: true, redirectTo: "/onboarding/billing", steps: persist.steps };
 }

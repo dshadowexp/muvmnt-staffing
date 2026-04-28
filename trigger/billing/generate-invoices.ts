@@ -41,7 +41,7 @@ export const generateInvoicesTask = schedules.task({
       pendingPeriods.map((period) => ({
         payload: {
           billingPeriodId: period.id,
-          clientId: period.client_id,
+          facilityId: period.facility_id,
         },
       })),
     );

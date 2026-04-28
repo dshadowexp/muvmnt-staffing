@@ -291,7 +291,7 @@ export function AdminShiftsTable({
                   {s.worker_name ?? "—"}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {s.client_name ?? "—"}
+                  {s.facility_name ?? "—"}
                 </TableCell>
                 <TableCell className="text-muted-foreground whitespace-nowrap">
                   {formatDateTimeShort(new Date(s.start_time))}

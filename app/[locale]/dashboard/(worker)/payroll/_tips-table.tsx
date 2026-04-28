@@ -1,6 +1,6 @@
 "use client";
 
-import type { WorkerTipRow } from "@/features/payments/payroll/dal/queries";
+import type { WorkerTipRow } from "@/features/payroll/dal/queries";
 import {
   Table,
   TableBody,

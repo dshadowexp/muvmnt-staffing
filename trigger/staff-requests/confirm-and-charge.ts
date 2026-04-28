@@ -42,11 +42,12 @@ function loadLocation(staffRequestLocation: Json): ShiftLocationPayload | null {
 async function loadClientName(clientUserId: string): Promise<string> {
     const supabase = await createAdminClient();
     const { data } = await supabase
-        .from("clients")
-        .select("name")
-        .eq("id", clientUserId)
+        .from("operators")
+        .select("facilities(name)")
+        .eq("user_id", clientUserId)
         .maybeSingle();
-    return data?.name ?? "there";
+    const facilityName = (data?.facilities as { name: string } | null)?.name;
+    return facilityName ?? "there";
 }
 
 function formatWorkerShiftsEmailData(params: {

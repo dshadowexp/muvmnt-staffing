@@ -127,10 +127,10 @@ export async function proxy(req: NextRequest) {
         return intlMiddleware(req);
     }
 
-    // Role guard → bounce to own dashboard root if accessing wrong role's area
-    if (!isAllowedForRole(path, session.role)) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
+    // // Role guard → bounce to own dashboard root if accessing wrong role's area
+    // if (!isAllowedForRole(path, session.role)) {
+    //     return NextResponse.redirect(new URL("/dashboard", req.url));
+    // }
 
     return intlMiddleware(req);
 }

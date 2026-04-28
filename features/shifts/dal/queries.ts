@@ -51,14 +51,17 @@ export type ShiftWithStaffRequestAndWorker = ShiftRow & {
   workers: WorkerNameEmbed | null;
 };
 
-export type ClientNameEmbed = Pick<
-  Database["public"]["Tables"]["clients"]["Row"],
-  "id" | "name"
->;
+export type FacilityNameEmbed = {
+  id: string;
+  name: string;
+};
 
-/** Shift row with staff request, assigned worker, and billing client (for detail screens). */
+/** @deprecated Use FacilityNameEmbed */
+export type ClientNameEmbed = FacilityNameEmbed;
+
+/** Shift row with staff request, assigned worker, and facility name (for detail screens). */
 export type ShiftDetail = ShiftWithStaffRequestAndWorker & {
-  clients: ClientNameEmbed | null;
+  facilities: FacilityNameEmbed | null;
 };
 
 const staffRequestSelect = `
@@ -74,7 +77,7 @@ const workerSelect = `first_name, last_name, photo_url`;
 
 const clientSelect = `id, name`;
 
-const shiftDetailSelect = `*, staff_requests ( ${staffRequestSelect} ), workers ( ${workerSelect} ), clients ( ${clientSelect} )`;
+const shiftDetailSelect = `*, staff_requests ( ${staffRequestSelect} ), workers ( ${workerSelect} ), facilities ( ${clientSelect} )`;
 
 /** Number of shifts with status `completed` (or `done` / `paid`) for a worker. */
 export async function countCompletedShiftsForWorker(
@@ -192,7 +195,7 @@ export async function getShiftForClientUser(
   const { data, error } = await supabase
     .from("shifts")
     .select(
-      `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} ), clients ( ${clientSelect} )`,
+      `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} ), facilities ( ${clientSelect} )`,
     )
     .eq("id", shiftId)
     .eq("staff_requests.client_user_id", clientUserId)

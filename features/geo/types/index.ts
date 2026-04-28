@@ -24,7 +24,8 @@ export interface AddressFields {
 }
 
 export interface AddressLocation {
-    id: string;
+    /** Client-side only — used for change-detection in AddressCard. Not persisted to the database. */
+    id?: string;
     lat: number;
     lng: number;
     address: string;

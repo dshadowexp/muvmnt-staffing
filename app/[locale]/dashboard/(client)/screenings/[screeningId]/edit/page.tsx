@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { getClientProfile } from "@/features/profile/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { getScreeningById } from "@/features/screenings/dal/queries";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
@@ -30,10 +30,10 @@ async function EditPageContent({
   const { screeningId } = await params;
   const locale = await getLocale();
 
-  const client = await getClientProfile();
-  if (!client) return redirect({ href: "/dashboard", locale });
+  const facility = await getFacilityProfile();
+  if (!facility) return redirect({ href: "/dashboard", locale });
 
-  const screening = await getScreeningById(screeningId, client.id);
+  const screening = await getScreeningById(screeningId, facility.id);
   if (!screening) return redirect({ href: "/dashboard/screenings", locale });
 
   // Only allow edits when the screening is active

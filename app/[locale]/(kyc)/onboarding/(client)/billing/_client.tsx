@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { billingAction } from "./_action";
 import { useOnboardingSkip } from "@/features/onboarding/hooks/use-onboarding-skip";
-import { setupBillingPortalAction } from "@/features/payments/billing/actions";
+import { setupBillingPortalAction } from "@/features/billing/actions";
 import { Check } from "lucide-react";
 
 export function BillingClient({

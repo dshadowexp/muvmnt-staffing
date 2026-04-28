@@ -40,7 +40,7 @@ async function ShiftContent({
     shift.end_time,
     sr?.start_date ?? null,
   );
-  const clientName = shift.clients?.name?.trim() || "—";
+  const clientName = shift.facilities?.name?.trim() || "—";
 
   return (
     <div className="flex flex-col gap-6">

@@ -20,7 +20,7 @@ import { SelectedPricingTierCard } from "@/features/requests/components/selected
 import { StaffRequestLocationCard } from "@/features/requests/components/staff-request-location-card";
 import { StaffRequestScheduleSummaryCard } from "@/features/requests/components/staff-request-schedule-summary-card";
 import { parseStaffRequestDailyWindows } from "@/features/requests/lib/parse-staff-request-daily-windows";
-import { hasPaymentMethod } from "@/features/payments/billing/dal/queries";
+import { hasPaymentMethod } from "@/features/billing/dal/payment-methods";
 
 type PageProps = {
     params: Promise<{ requestId: string; locale: string }>;

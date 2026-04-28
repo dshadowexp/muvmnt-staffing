@@ -6,9 +6,8 @@ import type { Database } from "@/services/supabase/types/database";
 export type BillingPeriodRow = Database["public"]["Tables"]["billing_periods"]["Row"];
 export type InvoiceRow = Database["public"]["Tables"]["invoices"]["Row"];
 
-export type ClientBillingConfig = {
+export type FacilityBillingConfig = {
   id: string;
-  user_id: string;
   name: string;
   billing_mode: string;
   net_terms_days: number;
@@ -16,9 +15,12 @@ export type ClientBillingConfig = {
   stripe_customer_id: string | null;
 };
 
+/** @deprecated Use FacilityBillingConfig */
+export type ClientBillingConfig = FacilityBillingConfig;
+
 export type BillableShift = {
   id: string;
-  client_id: string;
+  facility_id: string;
   worker_id: string | null;
   hourly_rate: number | null;
   checkin_time: string | null;
@@ -31,64 +33,81 @@ export type BillableShift = {
 
 export type ShiftForAutoApprove = {
   id: string;
-  client_id: string;
+  facility_id: string;
   timesheet_status: string | null;
-  clients: { approval_window_hours: number } | null;
+  facilities: { approval_window_hours: number } | null;
 };
 
-// ─── Clients ──────────────────────────────────────────────────────────────────
+// ─── Facilities ───────────────────────────────────────────────────────────────
 
-/** All clients that have at least one completed shift in the given period. */
-export async function getClientIdsWithCompletedShiftsInPeriod(
+/** All facility IDs that have at least one completed shift in the given period. */
+export async function getFacilityIdsWithCompletedShiftsInPeriod(
   periodStart: string,
   periodEnd: string,
 ): Promise<string[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("shifts")
-    .select("client_id")
+    .select("facility_id")
     .eq("status", "completed")
     .gte("start_time", periodStart)
     .lte("start_time", periodEnd);
 
   if (error) throw new Error(error.message);
 
-  const unique = [...new Set((data ?? []).map((r) => r.client_id))];
+  const unique = [...new Set((data ?? []).map((r) => r.facility_id))];
   return unique;
 }
 
-/** Billing config for a single client. */
-export async function getClientBillingConfig(
-  clientId: string,
-): Promise<ClientBillingConfig | null> {
+/** @deprecated Use getFacilityIdsWithCompletedShiftsInPeriod */
+export const getClientIdsWithCompletedShiftsInPeriod =
+  getFacilityIdsWithCompletedShiftsInPeriod;
+
+/** Billing config for a single facility. */
+export async function getFacilityBillingConfig(
+  facilityId: string,
+): Promise<FacilityBillingConfig | null> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("clients")
-    .select("id, user_id, name, billing_mode, net_terms_days, approval_window_hours, stripe_customer_id")
-    .eq("id", clientId)
+    .from("facilities")
+    .select("id, name, billing_mode, net_terms_days, approval_window_hours, stripe_customer_id")
+    .eq("id", facilityId)
     .maybeSingle();
 
   if (error && error.code !== "PGRST116") throw new Error(error.message);
-  return (data ?? null) as ClientBillingConfig | null;
+  return (data ?? null) as FacilityBillingConfig | null;
 }
 
+/** @deprecated Use getFacilityBillingConfig */
+export const getClientBillingConfig = getFacilityBillingConfig;
+
 /**
- * Resolve the Stripe customer ID for a client.
- * First checks `clients.stripe_customer_id`, then falls back to `billing_accounts`
- * (linked via `clients.user_id`). Returns null if neither is set.
+ * Resolve the Stripe customer ID for a facility.
+ * Checks facilities.stripe_customer_id first, then falls back to
+ * billing_accounts via the facility owner's user_id.
  */
 export async function resolveStripeCustomerId(
-  clientId: string,
-  clientUserId: string,
+  facilityId: string,
   directCustomerId: string | null,
 ): Promise<string | null> {
   if (directCustomerId) return directCustomerId;
 
   const supabase = await createAdminClient();
+
+  // Fall back: find the owner's billing_account
+  const { data: owner } = await supabase
+    .from("operators")
+    .select("user_id")
+    .eq("facility_id", facilityId)
+    .eq("permission", "owner")
+    .maybeSingle();
+
+  if (!owner) return null;
+
   const { data, error } = await supabase
     .from("billing_accounts")
     .select("stripe_customer_id")
-    .eq("user_id", clientUserId)
+    .eq("user_id", owner.user_id)
     .maybeSingle();
 
   if (error && error.code !== "PGRST116") throw new Error(error.message);
@@ -114,14 +133,14 @@ export async function getBillingPeriodById(
 
 /** Find an existing billing period for a client + period_start. */
 export async function getBillingPeriod(
-  clientId: string,
+  facilityId: string,
   periodStart: string,
 ): Promise<BillingPeriodRow | null> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("billing_periods")
     .select("*")
-    .eq("client_id", clientId)
+    .eq("facility_id", facilityId)
     .eq("period_start", periodStart)
     .maybeSingle();
 
@@ -148,7 +167,7 @@ export async function getPendingInvoicePeriods(): Promise<BillingPeriodRow[]> {
  * at close time (billing_period_id not yet assigned).
  */
 export async function getSubmittedShiftsForClientInPeriod(
-  clientId: string,
+  facilityId: string,
   periodStart: string,
   periodEnd: string,
 ): Promise<{ id: string }[]> {
@@ -156,7 +175,7 @@ export async function getSubmittedShiftsForClientInPeriod(
   const { data, error } = await supabase
     .from("shifts")
     .select("id")
-    .eq("client_id", clientId)
+    .eq("facility_id", facilityId)
     .eq("status", "completed")
     .eq("timesheet_status", "submitted")
     .is("billing_period_id", null)
@@ -172,7 +191,7 @@ export async function getSubmittedShiftsForClientInPeriod(
  * that haven't been assigned to a billing period yet.
  */
 export async function getApprovedShiftsForClientInPeriod(
-  clientId: string,
+  facilityId: string,
   periodStart: string,
   periodEnd: string,
 ): Promise<BillableShift[]> {
@@ -180,9 +199,9 @@ export async function getApprovedShiftsForClientInPeriod(
   const { data, error } = await supabase
     .from("shifts")
     .select(
-      "id, client_id, worker_id, hourly_rate, checkin_time, checkout_time, start_time, end_time, timesheet_status, workers(first_name, last_name)",
+      "id, facility_id, worker_id, hourly_rate, checkin_time, checkout_time, start_time, end_time, timesheet_status, workers(first_name, last_name)",
     )
-    .eq("client_id", clientId)
+    .eq("facility_id", facilityId)
     .eq("status", "completed")
     .in("timesheet_status", ["approved", "auto_approved"])
     .is("billing_period_id", null)
@@ -204,7 +223,7 @@ export async function getShiftsForBillingPeriod(
   const { data, error } = await supabase
     .from("shifts")
     .select(
-      "id, client_id, worker_id, hourly_rate, checkin_time, checkout_time, start_time, end_time, timesheet_status, workers(first_name, last_name)",
+      "id, facility_id, worker_id, hourly_rate, checkin_time, checkout_time, start_time, end_time, timesheet_status, workers(first_name, last_name)",
     )
     .eq("billing_period_id", billingPeriodId)
     .in("timesheet_status", ["approved", "auto_approved"]);
@@ -220,7 +239,7 @@ export async function getShiftForAutoApprove(
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("shifts")
-    .select("id, client_id, timesheet_status, clients(approval_window_hours)")
+    .select("id, facility_id, timesheet_status, facilities(approval_window_hours)")
     .eq("id", shiftId)
     .maybeSingle();
 

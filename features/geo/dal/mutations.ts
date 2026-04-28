@@ -1,67 +1,59 @@
 "use server";
 
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import type { AddressLocation } from "@/features/geo/types";
 import { latLngToCell } from "h3-js";
 import { H3_RESOLUTION } from "@/lib/constants";
+import { toAddressJson } from "../lib/build-address-location";
 
+
+/**
+ * Saves an address for the current user directly into the entity table:
+ * - Workers  → workers.address  (also syncs workers.cell_id)
+ * - Clients  → facilities.address
+ */
 export async function upsertLocationAction(location: AddressLocation) {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
-  const { userId } = session;
 
   const supabase = await createAdminClient();
-  const basePayload = {
-    address: location.address,
-    lat: location.lat,
-    lng: location.lng,
-    user_id: userId,
-    address_line_1: location.addressLine1,
-    address_line_2: location.addressLine2,
-    admin_area: location.adminArea,
-    city: location.city,
-    country_code: location.countryCode,
-    postal_code: location.postalCode,
-    instructions: location.instructions,
-  };
+  const addressJson = toAddressJson(location);
 
-  const { data: existing } = await supabase
-    .from("locations")
-    .select("id")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (existing) {
-    // Avoid setting `updated_at` to an ISO string: a `timetz` column rejects it
-    // ("Invalid input syntax for type time with time zone"). Prefer DB defaults/triggers.
+  if (session.role === "worker") {
     const { error } = await supabase
-      .from("locations")
-      .update(basePayload)
-      .eq("user_id", userId);
+      .from("workers")
+      .update({ address: addressJson })
+      .eq("user_id", session.userId);
 
-    if (error) {
-      return { error: true, message: error.message };
-    }
-    await syncWorkerCellId(userId, location.lat, location.lng);
+    if (error) return { error: true, message: error.message };
+
+    await syncWorkerCellId(session.userId, location.lat, location.lng);
     return { error: false, message: "Address updated successfully" };
   }
 
-  const { error } = await supabase.from("locations").insert(basePayload);
+  if (session.role === "client") {
+    const { facilityId } = session;
+    if (!facilityId) return { error: true, message: "No facility found" };
 
-  if (error) {
-    return { error: true, message: error.message };
+    const { error } = await supabase
+      .from("facilities")
+      .update({ address: addressJson })
+      .eq("id", facilityId);
+
+    if (error) return { error: true, message: error.message };
+
+    return { error: false, message: "Address updated successfully" };
   }
-  await syncWorkerCellId(userId, location.lat, location.lng);
-  return { error: false, message: "Address saved successfully" };
+
+  return { error: true, message: "Not supported for this role" };
 }
 
 /**
- * Keeps `workers.cell_id` in sync with the user's latest location so the
+ * Keeps `workers.cell_id` in sync with the worker's lat/lng so the
  * matcher (which scans workers by H3 cell) sees the new region immediately.
- * No-op for non-worker users.
  */
-async function syncWorkerCellId(
+export async function syncWorkerCellId(
   userId: string,
   lat: number,
   lng: number,
@@ -69,14 +61,10 @@ async function syncWorkerCellId(
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
   const supabase = await createAdminClient();
-  const { data: worker } = await supabase
-    .from("workers")
-    .select("id")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (!worker) return;
-
   const cellId = latLngToCell(lat, lng, H3_RESOLUTION);
-  await supabase.from("workers").update({ cell_id: cellId }).eq("id", worker.id);
+
+  await supabase
+    .from("workers")
+    .update({ cell_id: cellId })
+    .eq("user_id", userId);
 }

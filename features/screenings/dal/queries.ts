@@ -24,30 +24,33 @@ export type CandidateWithResult = ScreeningCandidateRow & {
 
 // ─── Screenings ───────────────────────────────────────────────────────────────
 
-export async function getScreeningsForClient(
-  clientId: string,
+export async function getScreeningsForFacility(
+  facilityId: string,
 ): Promise<ScreeningRow[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("screenings")
     .select("*")
-    .eq("client_id", clientId)
+    .eq("facility_id", facilityId)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
+/** @deprecated Use getScreeningsForFacility */
+export const getScreeningsForClient = getScreeningsForFacility;
+
 export async function getScreeningById(
   id: string,
-  clientId: string,
+  facilityId: string,
 ): Promise<ScreeningRow | null> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("screenings")
     .select("*")
     .eq("id", id)
-    .eq("client_id", clientId)
+    .eq("facility_id", facilityId)
     .maybeSingle();
 
   if (error && error.code !== "PGRST116") throw new Error(error.message);

@@ -14,7 +14,7 @@ import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
-import { setupBillingPortalAction } from "@/features/payments/billing/actions";
+import { setupBillingPortalAction } from "@/features/billing/actions";
 import {
     TriggerAuthContext,
     useRealtimeRun,

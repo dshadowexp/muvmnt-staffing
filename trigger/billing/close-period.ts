@@ -1,7 +1,7 @@
 import { logger, schedules } from "@trigger.dev/sdk/v3";
 
 import {
-  getClientIdsWithCompletedShiftsInPeriod,
+  getFacilityIdsWithCompletedShiftsInPeriod,
   getSubmittedShiftsForClientInPeriod,
   getApprovedShiftsForClientInPeriod,
 } from "@/features/billing/dal/queries";
@@ -67,26 +67,26 @@ export const closeBillingPeriodTask = schedules.task({
 
     logger.log("Closing billing period", { periodStart: periodStartIso, periodEnd: periodEndIso });
 
-    // Find clients that have activity this week
-    const clientIds = await getClientIdsWithCompletedShiftsInPeriod(
+    // Find facilities that have activity this week
+    const facilityIds = await getFacilityIdsWithCompletedShiftsInPeriod(
       periodStartIso,
       periodEndIso,
     );
 
-    logger.log("Clients with activity this period", { count: clientIds.length });
+    logger.log("Facilities with activity this period", { count: facilityIds.length });
 
     const summary = {
-      clients: clientIds.length,
+      facilities: facilityIds.length,
       autoApproved: 0,
       shiftsAssigned: 0,
       periodsCreated: 0,
     };
 
-    for (const clientId of clientIds) {
+    for (const facilityId of facilityIds) {
       try {
         // 1. Auto-approve any remaining "submitted" timesheets
         const submittedShifts = await getSubmittedShiftsForClientInPeriod(
-          clientId,
+          facilityId,
           periodStartIso,
           periodEndIso,
         );
@@ -95,23 +95,23 @@ export const closeBillingPeriodTask = schedules.task({
           const ids = submittedShifts.map((s) => s.id);
           await bulkAutoApproveTimesheets(ids);
           summary.autoApproved += ids.length;
-          logger.log("Auto-approved timesheets at period close", { clientId, count: ids.length });
+          logger.log("Auto-approved timesheets at period close", { facilityId, count: ids.length });
         }
 
         // 2. Collect all approved / auto_approved shifts not yet in a period
         const approvedShifts = await getApprovedShiftsForClientInPeriod(
-          clientId,
+          facilityId,
           periodStartIso,
           periodEndIso,
         );
 
         if (approvedShifts.length === 0) {
-          logger.log("No billable shifts for client, skipping period creation", { clientId });
+          logger.log("No billable shifts for facility, skipping period creation", { facilityId });
           continue;
         }
 
         // 3. Upsert billing period and assign shifts
-        const periodId = await upsertBillingPeriod(clientId, periodStartIso, periodEndIso);
+        const periodId = await upsertBillingPeriod(facilityId, periodStartIso, periodEndIso);
         await assignShiftsToBillingPeriod(
           approvedShifts.map((s) => s.id),
           periodId,
@@ -124,14 +124,14 @@ export const closeBillingPeriodTask = schedules.task({
         summary.periodsCreated += 1;
 
         logger.log("Billing period closed", {
-          clientId,
+          facilityId,
           periodId,
           shiftCount: approvedShifts.length,
         });
       } catch (err) {
-        // Non-fatal per client — log and continue so one bad client doesn't block the rest
-        logger.error("Failed to close period for client", {
-          clientId,
+        // Non-fatal per facility — log and continue so one bad facility doesn't block the rest
+        logger.error("Failed to close period for facility", {
+          facilityId,
           error: err instanceof Error ? err.message : String(err),
         });
       }

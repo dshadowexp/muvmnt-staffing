@@ -35,6 +35,6 @@ export async function requireOnboardingStepAccess(
   const completion = await getOnboardingStepsJson(session.userId);
   if (canAccessStep(step, completion, steps)) return;
 
-  const href = getRedirectForIncompleteDependencies(step, completion, steps);
+  const href = getRedirectForIncompleteDependencies(step, completion, steps, session.role);
   redirect({ href, locale });
 }

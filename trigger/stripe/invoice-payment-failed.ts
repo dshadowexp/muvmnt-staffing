@@ -4,8 +4,8 @@ import type Stripe from "stripe";
 import {
   stripeWebhookJobSchema,
   type StripeWebhookJobPayload,
-} from "@/features/payments/stripe-webhook/schemas";
-import { handleInvoicePaymentFailed } from "@/features/payments/stripe-webhook/handlers/invoice-payment-failed";
+} from "@/services/stripe/stripe-webhook/schemas";
+import { handleInvoicePaymentFailed } from "@/services/stripe/stripe-webhook/handlers/invoice-payment-failed";
 
 export const stripeInvoicePaymentFailedTask = task({
   id: "stripe.invoice.payment_failed",

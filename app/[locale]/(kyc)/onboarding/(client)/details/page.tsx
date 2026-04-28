@@ -1,12 +1,19 @@
-import { getClientProfile } from "@/features/profile/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { OrganizationClient } from "./_client";
+import type { AddressLocation } from "@/features/geo/types";
+import type { ClientProfileFormInput } from "@/features/account/schemas/client";
 
 export default async function OrganizationPage() {
-    const clientProfile = await getClientProfile();
+    const row = await getFacilityProfile();
 
-    return (
-        <>
-            <OrganizationClient clientProfile={clientProfile ?? null} />
-        </>
-    )
+    const clientProfile: ClientProfileFormInput | null = row
+        ? {
+              id:      row.id,
+              name:    row.name,
+              type:    row.type,
+              address: (row.address as AddressLocation | null) ?? null,
+          }
+        : null;
+
+    return <OrganizationClient clientProfile={clientProfile} />;
 }

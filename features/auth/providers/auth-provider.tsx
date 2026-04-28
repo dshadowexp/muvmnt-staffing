@@ -44,7 +44,9 @@ type AuthContextType = {
 type ExchangeOutcome =
   | { status: "ok"; user: UserAuth }
   | "not_found"
-  | "email_taken";
+  | "email_taken"
+  | "personal_email"
+  | "invite_not_found";
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
@@ -110,6 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (result.status === "not_found") return "not_found";
         if (result.status === "email_taken") return "email_taken";
+        if (result.status === "personal_email") return "personal_email";
+        if (result.status === "invite_not_found") return "invite_not_found";
 
         if (result.status === "error") {
             toast.error(`Sign in failed: ${result.message}`);
@@ -200,6 +204,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         return;
                     }
                     router.push("/sign-in");
+                    return;
+                }
+
+                if (outcome === "personal_email") {
+                    await logout();
+                    await deleteSession();
+                    toast.error(
+                        "Please sign up with your company or organization email — personal addresses like Gmail or Outlook are not accepted.",
+                    );
+                    return;
+                }
+
+                if (outcome === "invite_not_found") {
+                    await logout();
+                    await deleteSession();
+                    toast.error(
+                        "No screening invite was found for this email address. Please use the email address your invite was sent to.",
+                    );
                     return;
                 }
 

@@ -16,13 +16,15 @@ export type AdminWorkerRow = {
   created_at: string;
 };
 
-export type AdminClientRow = {
+export type AdminFacilityRow = {
   id: string;
   name: string;
   type: string;
-  user_id: string;
   created_at: string;
 };
+
+/** @deprecated Use AdminFacilityRow */
+export type AdminClientRow = AdminFacilityRow;
 
 export type AdminJobRow = {
   id: string;
@@ -38,8 +40,8 @@ export type AdminJobRow = {
 export type AdminShiftRow = {
   id: string;
   request_id: string;
-  client_id: string;
-  client_name: string | null;
+  facility_id: string;
+  facility_name: string | null;
   worker_id: string | null;
   worker_name: string | null;
   start_time: string;
@@ -213,14 +215,17 @@ export async function getAdminClientsList(
   await requireAdminSession();
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("clients")
-    .select("id, name, type, user_id, created_at")
+    .from("facilities")
+    .select("id, name, type, created_at")
     .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(error.message);
   return data ?? [];
 }
+
+/** @deprecated Use getAdminClientsList */
+export const getAdminFacilitiesList = getAdminClientsList;
 
 export type AdminClientReview = {
   client: Tables<"clients">;
@@ -254,65 +259,80 @@ export const getAdminClientReview = cache(
     await requireAdminSession();
     const supabase = await createAdminClient();
 
-    const { data: client, error: cErr } = await supabase
-      .from("clients")
+    const { data: facility, error: fErr } = await supabase
+      .from("facilities")
       .select("*")
       .eq("id", clientId)
       .single();
 
-    if (cErr || !client) return null;
+    if (fErr || !facility) return null;
 
-    const uid = client.user_id;
+    // Resolve the owner's user_id via operators
+    const { data: ownerOp } = await supabase
+      .from("operators")
+      .select("user_id")
+      .eq("facility_id", clientId)
+      .eq("permission", "owner")
+      .maybeSingle();
+    const uid = ownerOp?.user_id ?? null;
 
     const [userRes, locRes, requestsRes, shiftsRes] = await Promise.all([
-      supabase
-        .from("users")
-        .select(
-          "email, phone_number, is_email_verified, is_phone_verified, is_active",
-        )
-        .eq("id", uid)
-        .maybeSingle(),
-      supabase
-        .from("locations")
-        .select(
-          "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
-        )
-        .eq("user_id", uid)
-        .maybeSingle(),
-      supabase
-        .from("staff_requests")
-        .select("id", { count: "exact", head: true })
-        .eq("client_user_id", uid),
+      uid
+        ? supabase
+            .from("users")
+            .select(
+              "email, phone_number, is_email_verified, is_phone_verified, is_active",
+            )
+            .eq("id", uid)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      uid
+        ? supabase
+            .from("locations")
+            .select(
+              "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
+            )
+            .eq("user_id", uid)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      uid
+        ? supabase
+            .from("staff_requests")
+            .select("id", { count: "exact", head: true })
+            .eq("client_user_id", uid)
+        : Promise.resolve({ count: 0 }),
       supabase
         .from("shifts")
         .select("id", { count: "exact", head: true })
-        .eq("client_id", clientId),
+        .eq("facility_id", clientId),
     ]);
 
-    // Sum payments succeeded for this client's requests.
+    // Sum payments succeeded for this facility's requests.
     let paidCents = 0;
-    const { data: clientRequests } = await supabase
-      .from("staff_requests")
-      .select("id")
-      .eq("client_user_id", uid);
-    const ids = (clientRequests ?? []).map((r) => r.id);
-    if (ids.length > 0) {
-      const { data: pays } = await supabase
-        .from("payments")
-        .select("amount_cents, status")
-        .in("request_id", ids);
-      paidCents = (pays ?? [])
-        .filter((p) => p.status === "succeeded" || p.status === "paid")
-        .reduce((sum, p) => sum + (p.amount_cents ?? 0), 0);
+    if (uid) {
+      const { data: clientRequests } = await supabase
+        .from("staff_requests")
+        .select("id")
+        .eq("client_user_id", uid);
+      const ids = (clientRequests ?? []).map((r) => r.id);
+      if (ids.length > 0) {
+        const { data: pays } = await supabase
+          .from("payments")
+          .select("amount_cents, status")
+          .in("request_id", ids);
+        paidCents = (pays ?? [])
+          .filter((p) => p.status === "succeeded" || p.status === "paid")
+          .reduce((sum, p) => sum + (p.amount_cents ?? 0), 0);
+      }
     }
 
     return {
-      client,
-      user: userRes.data ?? null,
-      location: locRes.data ?? null,
+      client: facility as unknown as Tables<"clients">,
+      user: (userRes as { data: unknown }).data as AdminClientReview["user"] ?? null,
+      location: (locRes as { data: unknown }).data as AdminClientReview["location"] ?? null,
       totals: {
-        requestsCount: requestsRes.count ?? 0,
-        shiftsCount: shiftsRes.count ?? 0,
+        requestsCount: (requestsRes as { count: number | null }).count ?? 0,
+        shiftsCount: (shiftsRes as { count: number | null }).count ?? 0,
         paidCents,
       },
     };
@@ -326,13 +346,15 @@ async function joinClientNamesByUserId(
 ): Promise<Map<string, string>> {
   if (userIds.length === 0) return new Map();
   const supabase = await createAdminClient();
+  // Resolve user_id → facility name via operators → facilities join
   const { data } = await supabase
-    .from("clients")
-    .select("user_id, name")
+    .from("operators")
+    .select("user_id, facilities(name)")
     .in("user_id", Array.from(new Set(userIds)));
   const map = new Map<string, string>();
-  for (const c of data ?? []) {
-    if (c.user_id) map.set(c.user_id, c.name);
+  for (const op of data ?? []) {
+    const name = (op.facilities as { name: string } | null)?.name;
+    if (op.user_id && name) map.set(op.user_id, name);
   }
   return map;
 }
@@ -399,8 +421,8 @@ export const getAdminRequestReview = cache(
 
     const [clientRes, locRes, shiftsRes, paysRes] = await Promise.all([
       supabase
-        .from("clients")
-        .select("id, name, user_id")
+        .from("operators")
+        .select("facility_id, facilities(id, name)")
         .eq("user_id", request.client_user_id)
         .maybeSingle(),
       supabase
@@ -422,9 +444,15 @@ export const getAdminRequestReview = cache(
         .order("created_at", { ascending: false }),
     ]);
 
+    // Reshape operator+facility into the { id, name, user_id } shape the type expects
+    const facilityData = clientRes.data?.facilities as { id: string; name: string } | null;
+    const clientFormatted = facilityData
+      ? { id: facilityData.id, name: facilityData.name, user_id: request.client_user_id }
+      : null;
+
     return {
       request,
-      client: clientRes.data ?? null,
+      client: clientFormatted,
       location: locRes.data ?? null,
       shifts: shiftsRes.data ?? [],
       payments: paysRes.data ?? [],
@@ -469,17 +497,17 @@ async function joinWorkerNamesByWorkerId(
 }
 
 async function joinClientNamesByClientId(
-  clientIds: string[],
+  facilityIds: string[],
 ): Promise<Map<string, string>> {
-  if (clientIds.length === 0) return new Map();
+  if (facilityIds.length === 0) return new Map();
   const supabase = await createAdminClient();
   const { data } = await supabase
-    .from("clients")
+    .from("facilities")
     .select("id, name")
-    .in("id", Array.from(new Set(clientIds)));
+    .in("id", Array.from(new Set(facilityIds)));
   const map = new Map<string, string>();
-  for (const c of data ?? []) {
-    map.set(c.id, c.name);
+  for (const f of data ?? []) {
+    map.set(f.id, f.name);
   }
   return map;
 }
@@ -492,7 +520,7 @@ export async function getAdminShiftsList(
   const { data, error } = await supabase
     .from("shifts")
     .select(
-      "id, request_id, client_id, worker_id, start_time, end_time, status, hourly_rate, created_at",
+      "id, request_id, facility_id, worker_id, start_time, end_time, status, hourly_rate, created_at",
     )
     .order("start_time", { ascending: false })
     .limit(limit);
@@ -500,16 +528,16 @@ export async function getAdminShiftsList(
   if (error) throw new Error(error.message);
 
   const rows = data ?? [];
-  const [clientNames, workerNames] = await Promise.all([
-    joinClientNamesByClientId(rows.map((r) => r.client_id)),
+  const [facilityNames, workerNames] = await Promise.all([
+    joinClientNamesByClientId(rows.map((r) => r.facility_id)),
     joinWorkerNamesByWorkerId(rows.map((r) => r.worker_id ?? "")),
   ]);
 
   return rows.map((r) => ({
     id: r.id,
     request_id: r.request_id,
-    client_id: r.client_id,
-    client_name: clientNames.get(r.client_id) ?? null,
+    facility_id: r.facility_id,
+    facility_name: facilityNames.get(r.facility_id) ?? null,
     worker_id: r.worker_id,
     worker_name: workerNames.get(r.worker_id ?? "") ?? null,
     start_time: r.start_time,
@@ -545,9 +573,9 @@ export const getAdminShiftReview = cache(
 
     const [clientRes, workerRes, requestRes] = await Promise.all([
       supabase
-        .from("clients")
+        .from("facilities")
         .select("id, name")
-        .eq("id", shift.client_id)
+        .eq("id", shift.facility_id)
         .maybeSingle(),
       supabase
         .from("workers")
@@ -720,8 +748,8 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
       .order("created_at", { ascending: false })
       .limit(8),
     supabase
-      .from("clients")
-      .select("id, name, type, user_id, created_at", { count: "exact" })
+      .from("facilities")
+      .select("id, name, type, created_at", { count: "exact" })
       .order("created_at", { ascending: false })
       .limit(8),
     supabase
@@ -735,7 +763,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     supabase
       .from("shifts")
       .select(
-        "id, request_id, client_id, worker_id, start_time, end_time, status, hourly_rate, created_at",
+        "id, request_id, facility_id, worker_id, start_time, end_time, status, hourly_rate, created_at",
         { count: "exact" },
       )
       .order("start_time", { ascending: false })
@@ -787,7 +815,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
   const [jobClientNames, shiftClientNames, shiftWorkerNames, authWorkerNames, compWorkerNames] =
     await Promise.all([
       joinClientNamesByUserId(jobsRaw.map((r) => r.client_user_id)),
-      joinClientNamesByClientId(shiftsRaw.map((r) => r.client_id)),
+      joinClientNamesByClientId(shiftsRaw.map((r) => r.facility_id)),
       joinWorkerNamesByWorkerId(shiftsRaw.map((r) => r.worker_id ?? "")),
       joinWorkerNamesByUserId(authsRaw.map((r) => r.user_id)),
       joinWorkerNamesByUserId(compsRaw.map((r) => r.user_id)),
@@ -818,8 +846,8 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     shifts: shiftsRaw.map((r) => ({
       id: r.id,
       request_id: r.request_id,
-      client_id: r.client_id,
-      client_name: shiftClientNames.get(r.client_id) ?? null,
+      facility_id: r.facility_id,
+      facility_name: shiftClientNames.get(r.facility_id) ?? null,
       worker_id: r.worker_id,
       worker_name: shiftWorkerNames.get(r.worker_id ?? "") ?? null,
       start_time: r.start_time,

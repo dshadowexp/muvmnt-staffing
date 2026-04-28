@@ -2,41 +2,43 @@ import { getSession } from "@/lib/session";
 import { createAdminClient } from "@/services/supabase/server";
 import { redirect } from "next/navigation";
 
-export async function getClientProfile() {
+export async function getFacilityProfile() {
   const session = await getSession();
   if (!session) return redirect("/sign-in");
 
-  const { userId } = session;
+  const { facilityId } = session;
+  if (!facilityId) return null;
+
   const supabase = await createAdminClient();
   const { data, error } = await supabase
-    .from("clients")
+    .from("facilities")
     .select("*")
-    .eq("user_id", userId)
-    .single();
+    .eq("id", facilityId)
+    .maybeSingle();
 
-  if (error && error.code !== "PGRST116") {
-    throw new Error(error.message);
-  }
-  if (data == null) return null;
-  return data;
+  if (error && error.code !== "PGRST116") throw new Error(error.message);
+  return data ?? null;
 }
 
-export async function getClients() {
+/** @deprecated Use getFacilityProfile */
+export const getClientProfile = getFacilityProfile;
+
+export async function getFacilities() {
   const session = await getSession();
   if (!session) return redirect("/sign-in");
-  
+
   const { role } = session;
-  if (role !== "admin")
-    throw new Error("Unauthorized");
+  if (role !== "admin") throw new Error("Unauthorized");
 
   const supabase = await createAdminClient();
-  const { data, error } = await supabase
-    .from("clients")
-    .select("*");
+  const { data, error } = await supabase.from("facilities").select("*");
 
   if (error && error.code !== "PGRST116") throw new Error(error.message);
   return data;
 }
+
+/** @deprecated Use getFacilities */
+export const getClients = getFacilities;
 
 export async function getWorkerProfile() {
   const session = await getSession();

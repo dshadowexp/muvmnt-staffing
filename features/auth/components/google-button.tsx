@@ -19,7 +19,7 @@ function GoogleIcon() {
     );
 }
 
-export function GoogleButton() {
+export function GoogleButton({ text }: { text: string }) {
     const { loading } = useAuth();
     const t = useTranslations("auth");
     const tErrors = useTranslations("auth.errors");
@@ -46,7 +46,7 @@ export function GoogleButton() {
         >
             <GoogleIcon />
             <LoadingSwap isLoading={loading}>
-                <span>{t("google")}</span>
+                <span>{text}</span>
             </LoadingSwap>
         </Button>
     );

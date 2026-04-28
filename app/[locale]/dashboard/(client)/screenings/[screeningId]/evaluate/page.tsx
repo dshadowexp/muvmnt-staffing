@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { CircleDashedIcon } from "lucide-react";
 import { getLocale } from "next-intl/server";
-import { getClientProfile } from "@/features/profile/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { getScreeningById, getCandidatesForScreening } from "@/features/screenings/dal/queries";
 import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
 import { redirect } from "@/i18n/navigation";
@@ -33,11 +33,11 @@ async function EvaluateContent({
   const { screeningId } = await params;
   const locale = await getLocale();
 
-  const client = await getClientProfile();
-  if (!client) return redirect({ href: "/dashboard", locale });
+  const facility = await getFacilityProfile();
+  if (!facility) return redirect({ href: "/dashboard", locale });
 
   const [screening, candidates] = await Promise.all([
-    getScreeningById(screeningId, client.id),
+    getScreeningById(screeningId, facility.id),
     getCandidatesForScreening(screeningId),
   ]);
 

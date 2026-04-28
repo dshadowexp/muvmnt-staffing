@@ -10,3 +10,6 @@ export { stripeCheckoutSessionCompletedTask } from "./checkout-session-completed
 export { stripeIdentityVerificationSessionRequiresInputTask, stripeIdentityVerificationSessionVerifiedTask } from "./identity-verification-session";
 export { stripeInvoicePaymentSucceededTask } from "./invoice-payment-succeeded";
 export { stripeInvoicePaymentFailedTask } from "./invoice-payment-failed";
+export { stripeSubscriptionCreatedTask } from "./subscription-created";
+export { stripeSubscriptionUpdatedTask } from "./subscription-updated";
+export { stripeSubscriptionDeletedTask } from "./subscription-deleted";

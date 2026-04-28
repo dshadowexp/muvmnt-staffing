@@ -135,10 +135,6 @@ export async function createCheckoutSession(priceId: string) {
     return { data: { url: checkoutSession.url } };
 }
 
-export async function createInvoice(requestId: string, shiftIds: string[]) {
-
-}
-
 export async function createPortalSession(): Promise<
     | { error: string; data: null }
     | { error: null; data: { url: string } }

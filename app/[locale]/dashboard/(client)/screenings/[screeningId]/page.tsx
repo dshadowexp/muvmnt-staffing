@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getClientProfile } from "@/features/profile/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
 import {
   getScreeningById,
   getInvitesForScreening,
@@ -35,10 +35,10 @@ async function ScreeningDetail({
   const { screeningId } = await params;
   const locale = await getLocale();
 
-  const client = await getClientProfile();
-  if (!client) return redirect({ href: "/dashboard", locale });
+  const facility = await getFacilityProfile();
+  if (!facility) return redirect({ href: "/dashboard", locale });
 
-  const screening = await getScreeningById(screeningId, client.id);
+  const screening = await getScreeningById(screeningId, facility.id);
   if (!screening) return redirect({ href: "/dashboard/screenings", locale });
 
   const [invites, candidates] = await Promise.all([

@@ -4,8 +4,8 @@ import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getClientProfile } from "@/features/profile/dal/queries";
-import { getScreeningsForClient } from "@/features/screenings/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
+import { getScreeningsForFacility } from "@/features/screenings/dal/queries";
 
 export default async function ScreeningsPage() {
   return (
@@ -47,10 +47,10 @@ export default async function ScreeningsPage() {
 }
 
 async function ScreeningsList() {
-  const client = await getClientProfile();
-  if (!client) return <p className="text-muted-foreground text-sm">Client profile not found.</p>;
+  const facility = await getFacilityProfile();
+  if (!facility) return <p className="text-muted-foreground text-sm">Facility profile not found.</p>;
 
-  const screenings = await getScreeningsForClient(client.id);
+  const screenings = await getScreeningsForFacility(facility.id);
 
   if (screenings.length === 0) {
     return (

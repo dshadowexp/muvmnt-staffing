@@ -77,20 +77,20 @@ export async function insertShiftsFromCoverage(params: {
     ];
     if (userIds.length === 0) return { ok: true, inserted: 0, workerShifts: new Map() };
 
-    const [clientRes, workerRes] = await Promise.all([
-        supabase.from("clients").select("id").eq("user_id", params.clientUserId).single(),
+    const [operatorRes, workerRes] = await Promise.all([
+        supabase.from("operators").select("facility_id").eq("user_id", params.clientUserId).single(),
         supabase.from("workers").select("id, user_id").in("user_id", userIds),
     ]);
 
-    if (clientRes.error || !clientRes.data) {
-        return { ok: false, message: clientRes.error?.message ?? "Could not resolve client id" };
+    if (operatorRes.error || !operatorRes.data) {
+        return { ok: false, message: operatorRes.error?.message ?? "Could not resolve facility id" };
     }
     if (workerRes.error || !workerRes.data?.length) {
         return { ok: false, message: workerRes.error?.message ?? "Could not resolve workers" };
     }
 
     const userToWorker = new Map(workerRes.data.map((w) => [w.user_id, w.id]));
-    const clientId     = clientRes.data.id;
+    const facilityId   = operatorRes.data.facility_id;
     const shiftRate    =
         Number.isFinite(params.hourlyRate) && params.hourlyRate > 0
             ? Math.round(params.hourlyRate * SHIFT_HOURLY_RATE_SHARE_OF_REQUEST * 100) / 100
@@ -98,7 +98,7 @@ export async function insertShiftsFromCoverage(params: {
 
     type ShiftRow = {
         request_id:         string;
-        client_id:          string;
+        facility_id:        string;
         worker_id:          string;
         start_time:         string;
         end_time:           string;
@@ -123,7 +123,7 @@ export async function insertShiftsFromCoverage(params: {
 
             rows.push({
                 request_id:          params.staffRequestId,
-                client_id:           clientId,
+                facility_id:         facilityId,
                 worker_id:           wid,
                 start_time:          startIso,
                 end_time:            endIso,

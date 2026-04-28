@@ -873,7 +873,8 @@
       "and": "and",
       "terms": "Terms of Use"
     },
-    "google": "Continue with Google",
+    "googleSignUp": "Sign up with Google",
+    "googleSignIn": "Continue with Google",
     "or": "OR",
     "signIn": {
       "meta": {
@@ -898,14 +899,17 @@
         "description": "Create your free ReadyKare account. Join as a healthcare worker or staffing facility.",
         "titleWorker": "Sign Up as a Worker",
         "titleClient": "Sign Up as a Client",
-        "descriptionWorker": "...",
-        "descriptionClient": "..."
+        "titleCandidate": "Sign Up as a Candidate",
+        "descriptionWorker": "Create your ReadyKare worker account. Find flexible healthcare shifts near you.",
+        "descriptionClient": "Create your ReadyKare client account. Access AI-powered staffing solutions.",
+        "descriptionCandidate": "Create your ReadyKare candidate account to begin your screening."
       },
+      "google": "Sign up with Google",
       "choiceTitle": "How can we help you today?",
-      "choiceSubtitle": "Select the option that describes you",
-      "roleWorkerDescription": "Are you a healthcare professional looking for flexible work?",
-      "roleClientDescription": "Are you a healthcare facility looking for staffing solutions?",
-      "roleCandidateDescription": "Are you here for a screening?",
+      "choiceSubtitle": "We'll personalize your experience accordingly.",
+      "roleWorkerDescription": "Looking for active work in healthcare",
+      "roleClientDescription": "Access to AI-powered staffing solutions",
+      "roleCandidateDescription": "Received an invitation to complete your screening",
       "titleWorker": "Create your worker account",
       "titleClient": "Create your account",
       "titleCandidate": "Create your account",
@@ -916,16 +920,50 @@
       "referralBanner": "You've been referred! Sign up to get started.",
       "referralInvalidToast": "That referral link is invalid or has expired.",
       "roleLabel": "I am looking for",
-      "roleClient": "Staffing",
-      "roleWorker": "Work",
-      "roleCandidate": "Candidate",
+      "roleClient": "Healthcare Facility",
+      "roleWorker": "I'm a healthcare professional",
+      "roleCandidate": "I'm a job candidate",
       "emailLabel": "Email address",
       "emailPlaceholder": "you@organization.ca",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "Jane",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Smith",
+      "companyEmailLabel": "Work email address",
+      "companyEmailPlaceholder": "you@company.ca",
+      "companyEmailNote": "We only accept company or organization email addresses.",
+      "inviteEmailLabel": "Email address",
+      "inviteEmailPlaceholder": "you@email.com",
+      "inviteEmailNote": "Use the email address your screening invite was sent to.",
       "passwordLabel": "Password",
       "passwordPlaceholder": "Create a password",
       "submit": "Create account →",
       "haveAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "lookingForWork": "Looking for work?",
+      "joinOurNetwork": "Join our network",
+      "submitMagicLink": "Sign up",
+      "magicLinkSentTitle": "Check your email",
+      "magicLinkSentSubtitle": "We've sent a magic link to your email. Click the link to sign in.",
+      "magicLinkResendLabel": "Didn't receive the email?",
+      "magicLinkResend": "Resend email",
+      "magicLinkChangeEmail": "Change email",
+      "magicLinkChangeEmailSubtitle": "Enter a new email address to receive a new link."
+    },
+    "verify": {
+      "metaTitle": "Verify your email",
+      "metaDescription": "Click the link in your email to complete your ReadyKare account setup.",
+      "overline": "One more step",
+      "title": "Signing you in…",
+      "subtitle": "Hang tight while we verify your link.",
+      "emailPromptTitle": "Confirm your email",
+      "emailPromptSubtitle": "It looks like you opened this link on a different device. Enter the email address you used to request the sign-in link.",
+      "emailLabel": "Work email",
+      "emailPlaceholder": "you@company.ca",
+      "submit": "Continue →",
+      "invalidLinkTitle": "Link expired or invalid",
+      "invalidLinkSubtitle": "This sign-in link has expired or already been used. Please request a new one.",
+      "backToSignUp": "← Request a new link"
     },
     "forgot": {
       "meta": {
@@ -956,7 +994,11 @@
       "passwordLength": "Use 9+ characters for a stronger password.",
       "passwordUpper": "Include at least one uppercase letter.",
       "passwordNumber": "Include at least one number.",
-      "passwordSpecial": "Include at least one special character."
+      "passwordSpecial": "Include at least one special character.",
+      "firstNameRequired": "First name is required.",
+      "lastNameRequired": "Last name is required.",
+      "companyEmailPersonal": "Please use a valid business email address. Please contact support@readykare.com if you believe this is an error.",
+      "inviteNotFound": "No screening invite was found for this email. Please use the email address your invite was sent to."
     },
     "errors": {
       "invalidCredentials": "Invalid email or password.",
@@ -2407,6 +2449,7 @@
       }
     },
     "faq": {
+      "badge": "FAQ",
       "title": "Frequently asked questions",
       "subtitle": "Everything you need to know about AI screening.",
       "items": [
@@ -2520,9 +2563,65 @@
       "subtitle": "One place for everything — your staffing rates and AI screening plans, side by side."
     },
     "screeningSection": {
-      "badge": "AI Candidate Screening",
-      "title": "Build your bench before you need it.",
-      "subtitle": "Run structured AI interviews on applicants and get a ranked shortlist — so your next staffing request fills faster."
+      "badge": "Platform Plans",
+      "title": "Pick the plan that fits your facility.",
+      "subtitle": "All plans include AI screening, temporary staffing, and full platform access. Upgrade or cancel anytime."
+    },
+    "plans": {
+      "mostPopular": "Most popular",
+      "currentPlan": "Current plan",
+      "ctaSignedIn": "Choose {name}",
+      "ctaSignedOut": "Get started",
+      "perMonth": "/mo",
+      "starter": {
+        "name": "Starter",
+        "price": "$99",
+        "description": "For small facilities getting started.",
+        "features": [
+          "3 facility users",
+          "10 candidate screenings / month",
+          "10 interviews / month",
+          "Temporary staffing requests",
+          "Email support"
+        ],
+        "priceAnnual": "$83",
+        "totalAnnual": "996"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$249",
+        "description": "For growing facilities with higher volume.",
+        "features": [
+          "10 facility users",
+          "50 candidate screenings / month",
+          "50 interviews / month",
+          "Temporary staffing requests",
+          "Priority support",
+          "Advanced analytics"
+        ],
+        "priceAnnual": "$207",
+        "totalAnnual": "2484"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "$599",
+        "description": "Unlimited scale for large organizations.",
+        "features": [
+          "Unlimited users",
+          "Unlimited screenings",
+          "Unlimited interviews",
+          "Temporary staffing requests",
+          "Dedicated account manager",
+          "Custom integrations",
+          "SLA guarantee"
+        ],
+        "priceAnnual": "$499",
+        "totalAnnual": "5988"
+      },
+      "annualBadge": "1 month free",
+      "billedAnnually": "C${total}/year billed annually",
+      "monthlyLabel": "Monthly",
+      "annualLabel": "Annual"
     }
   }
 }

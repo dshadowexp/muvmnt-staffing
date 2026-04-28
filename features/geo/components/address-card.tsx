@@ -157,7 +157,7 @@ export function AddressCard({
         >
           <CardContent
             className={cn(
-              "flex min-w-0 items-center justify-between gap-3 py-2.5 px-4 transition-opacity",
+              "flex min-w-0 items-center justify-between gap-3 py-1.5 px-3 transition-opacity",
               resolving && "opacity-60",
             )}
           >

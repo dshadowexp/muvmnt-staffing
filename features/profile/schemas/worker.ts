@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizeProfessionId, tryNormalizeProfessionId } from "@/lib/professions";
+import type { AddressLocation } from "@/features/geo/types";
 
 export const WORKER_GENDERS = ["male", "female"] as const;
 export type WorkerGender = (typeof WORKER_GENDERS)[number];
@@ -65,6 +66,7 @@ export function buildWorkerSchema(t?: (key: WorkerValidationKey) => string) {
       .number()
       .min(0, msg("yearsMin"))
       .int(msg("yearsInt")),
+    address: z.custom<AddressLocation>().nullable().optional(),
   });
 }
 
@@ -89,6 +91,7 @@ export type WorkerProfileFormInput = {
   gender?: string | null;
   profession: string;
   years_exp: number;
+  address?: AddressLocation | null;
 };
 
 export function mapWorkerProfileToFormValues(
@@ -98,11 +101,12 @@ export function mapWorkerProfileToFormValues(
   const gender =
     g === "male" || g === "female" ? g : ("" as WorkerGender);
   return {
-    firstName: row.first_name,
-    lastName: row.last_name,
+    firstName:   row.first_name,
+    lastName:    row.last_name,
     dateOfBirth: row.date_of_birth ?? "",
     gender,
-    profession: normalizeProfessionId(row.profession),
-    yearsExp: row.years_exp,
+    profession:  normalizeProfessionId(row.profession),
+    yearsExp:    row.years_exp,
+    address:     row.address ?? null,
   };
 }

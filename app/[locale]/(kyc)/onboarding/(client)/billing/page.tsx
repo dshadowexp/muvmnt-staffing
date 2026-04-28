@@ -1,4 +1,4 @@
-import { hasPaymentMethod } from "@/features/payments/billing/dal/queries";
+import { hasPaymentMethod } from "@/features/billing/dal/payment-methods";
 import { BillingClient } from "./_client";
 
 export default async function BillingPage() {

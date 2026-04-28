@@ -12,6 +12,19 @@ export const getStripeServer = () => {
 }
 
 export const STRIPE_PRICE_IDS = {
-    premium: "price_1S59rEAQ8LO0b8GGageAqzMu",
-    pro: "price_1S59rZAQ8LO0b8GG7EngHjNX",
+    starter:            env.STRIPE_PRICE_ID_STARTER,
+    pro:                env.STRIPE_PRICE_ID_PRO,
+    enterprise:         env.STRIPE_PRICE_ID_ENTERPRISE,
+    starter_annual:     env.STRIPE_PRICE_ID_STARTER_ANNUAL,
+    pro_annual:         env.STRIPE_PRICE_ID_PRO_ANNUAL,
+    enterprise_annual:  env.STRIPE_PRICE_ID_ENTERPRISE_ANNUAL,
 } as const;
+
+export type SubscriptionPlan  = "starter" | "pro" | "enterprise";
+export type BillingPeriod     = "monthly" | "annual";
+
+/** Returns the Stripe price ID for the given plan + billing period. */
+export function getPriceId(plan: SubscriptionPlan, period: BillingPeriod): string {
+    const key = period === "annual" ? `${plan}_annual` : plan;
+    return STRIPE_PRICE_IDS[key as keyof typeof STRIPE_PRICE_IDS];
+}

@@ -1,4 +1,5 @@
 import type { AddressFields, AddressLocation, PlaceDetails } from "@/features/geo/types";
+import { Json } from "@/services/supabase/types/database";
 
 function nonEmpty(s: string | undefined | null): string | null {
   const t = s?.trim();
@@ -52,3 +53,20 @@ export function addressLocationFromFields(
     instructions: null,
   };
 }
+
+/** Serialises an AddressLocation to the JSONB shape stored in the database. */
+export function toAddressJson(location: AddressLocation): Json {
+  return {
+    address:      location.address,
+    lat:          location.lat,
+    lng:          location.lng,
+    addressLine1: location.addressLine1,
+    addressLine2: location.addressLine2,
+    city:         location.city,
+    adminArea:    location.adminArea,
+    postalCode:   location.postalCode,
+    countryCode:  location.countryCode,
+    instructions: location.instructions,
+  } as Json;
+}
+

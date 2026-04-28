@@ -1,7 +1,7 @@
 import { logger, task } from "@trigger.dev/sdk/v3";
-import { type StripeWebhookJobPayload, stripeWebhookJobSchema } from "@/features/payments/stripe-webhook/schemas";
-import { handleIdentityVerificationSessionVerified } from "@/features/payments/stripe-webhook/handlers/identity-verification_session-verified";
-import { handleIdentityVerificationSessionRequiresInput } from "@/features/payments/stripe-webhook/handlers/identity-verification_session-requires_input";
+import { type StripeWebhookJobPayload, stripeWebhookJobSchema } from "@/services/stripe/stripe-webhook/schemas";
+import { handleIdentityVerificationSessionVerified } from "@/services/stripe/stripe-webhook/handlers/identity-verification_session-verified";
+import { handleIdentityVerificationSessionRequiresInput } from "@/services/stripe/stripe-webhook/handlers/identity-verification_session-requires_input";
 import type Stripe from "stripe";
 
 export const stripeIdentityVerificationSessionVerifiedTask = task({

@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { Hospital, Stethoscope, ArrowRight, User, UserRoundCheckIcon } from "lucide-react";
+import { Hospital, Stethoscope, ArrowRight, UserRoundCheckIcon } from "lucide-react";
 import { SITE_NAME } from "@/lib/constants";
-import { Card, CardContent } from "@/components/ui/card";
 import { withAuthParams } from "@/features/auth/lib/auth-params";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: `Sign Up | ${SITE_NAME}`,
@@ -24,8 +24,8 @@ export default async function SignUpPage({ searchParams }: Props) {
 
   // Server-side redirect — no flash, no client JS needed
   const as = typeof params.as === "string" ? params.as : null;
-  if (as === "worker") redirect(`/sign-up/worker${refSuffix}`);
-  if (as === "client") redirect(`/sign-up/client${refSuffix}`);
+  if (as === "worker")    redirect(`/sign-up/worker${refSuffix}`);
+  if (as === "client")    redirect(`/sign-up/client${refSuffix}`);
   if (as === "candidate") redirect(`/sign-up/candidate${refSuffix}`);
 
   const t = await getTranslations("auth.signUp");
@@ -37,6 +37,7 @@ export default async function SignUpPage({ searchParams }: Props) {
       icon: Hospital,
       title: t("roleClient"),
       description: t("roleClientDescription"),
+      featured: false,
     },
     {
       value: "worker",
@@ -44,50 +45,87 @@ export default async function SignUpPage({ searchParams }: Props) {
       icon: Stethoscope,
       title: t("roleWorker"),
       description: t("roleWorkerDescription"),
+      featured: false,
     },
     {
       value: "candidate",
-      // href: `/sign-up/candidate${refSuffix}`,
       href: withAuthParams("/sign-up/candidate", params),
       icon: UserRoundCheckIcon,
       title: t("roleCandidate"),
       description: t("roleCandidateDescription"),
-    }
+      featured: false,
+    },
   ];
 
   return (
     <>
+      {/* Header */}
       <div className="mb-8 w-full max-w-[440px] text-center">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-primary">
           {t("overline")}
         </p>
         <h1 className="text-2xl font-bold tracking-tight">{t("choiceTitle")}</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          {t("choiceSubtitle")}
-        </p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{t("choiceSubtitle")}</p>
       </div>
 
+      {/* Role cards */}
       <div className="flex w-full max-w-[440px] flex-col gap-3">
         {roles.map((role) => (
-          <Link key={role.value} href={role.href} className="hover:scale-[1.02] transition-[transform_opacity]">
-            <Card className="w-full cursor-pointer rounded-2xl shadow-sm transition-all duration-150 hover:shadow-md">
-              <CardContent className="flex items-center gap-4 px-6 py-5">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary">
-                  <role.icon className="size-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold leading-tight">{role.title}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {role.description}
-                  </p>
-                </div>
-                <ArrowRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-              </CardContent>
-            </Card>
+          <Link
+            key={role.value}
+            href={role.href}
+            className="group block transition-transform duration-150 hover:scale-[1.015] active:scale-[0.99]"
+          >
+            <div
+              className={cn(
+                "relative flex items-center gap-4 rounded-lg border bg-card p-5 transition-shadow duration-150",
+                role.featured
+                  ? "border-primary/40 shadow-sm ring-1 ring-primary/20"
+                  : "border-border hover:border-primary/30",
+              )}
+            >
+              {/* Icon container */}
+              <div
+                className={cn(
+                  "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
+                  role.featured
+                    ? "text-primary"
+                    : "group-hover:text-primary",
+                )}
+              >
+                <role.icon className="size-5" />
+              </div>
+
+              {/* Text */}
+              <div className="min-w-0 flex-1">
+                <p
+                  className={cn(
+                    "text-sm font-semibold leading-tight",
+                    role.featured ? "text-primary" : "text-foreground",
+                  )}
+                >
+                  {role.title}
+                </p>
+                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  {role.description}
+                </p>
+              </div>
+
+              {/* Arrow */}
+              <ArrowRight
+                className={cn(
+                  "size-4 shrink-0 transition-all duration-150",
+                  role.featured
+                    ? "text-primary/60 group-hover:translate-x-0.5 group-hover:text-primary"
+                    : "text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary/60",
+                )}
+              />
+            </div>
           </Link>
         ))}
       </div>
 
+      {/* Sign-in link */}
       <p className="mt-6 text-center text-[0.82rem] font-light text-muted-foreground">
         {t("haveAccount")}{" "}
         <Link

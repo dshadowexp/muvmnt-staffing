@@ -7,6 +7,8 @@ import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PROFESSIONAL_ROLES } from "@/lib/constants";
 import { ProfessionalRole } from "@/lib/professions";
+import type { AddressLocation } from "@/features/geo/types";
+import { AddressCard } from "@/features/geo/components/address-card";
 import {
   WORKER_GENDERS,
   getLatestAllowedWorkerBirthDate,
@@ -228,6 +230,17 @@ export function WorkerProfileForm({
             })}
           />
           <FieldError>{errors.yearsExp?.message}</FieldError>
+        </Field>
+
+        <Field>
+          <FieldLabel>Address</FieldLabel>
+          <FieldDescription>Your home or primary work address</FieldDescription>
+          <AddressCard
+            value={watch("address") ?? undefined}
+            onChange={(loc: AddressLocation) =>
+              setValue("address", loc, { shouldValidate: true })
+            }
+          />
         </Field>
       </FieldGroup>
     </>

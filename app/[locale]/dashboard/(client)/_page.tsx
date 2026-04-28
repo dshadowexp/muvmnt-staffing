@@ -7,7 +7,7 @@ import {
 } from "@/features/shifts/dal/queries";
 import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
 import { attachResolvedWorkerPhotos } from "@/features/shifts/lib/resolve-worker-photo-url";
-import { getClientProfile } from "@/features/profile/dal/queries";
+import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { Link, redirect } from "@/i18n/navigation";
 import { CheckCircle2Icon, ClockIcon, FingerprintIcon, PlusIcon, TargetIcon, UserRoundSearchIcon } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
@@ -136,21 +136,21 @@ function ShiftsTableSkeleton() {
 
 export default async function ClientHomePage() {
   const locale = await getLocale();
-  const [client, t] = await Promise.all([
-    getClientProfile(),
+  const [facility, t] = await Promise.all([
+    getFacilityProfile(),
     getTranslations("dashboard.client.home"),
   ]);
 
-  if (!client) {
+  if (!facility) {
     return redirect({ href: "/onboarding", locale })
   }
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-6">
+    <div className="flex w-full max-w-4xl flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">
-          {client?.name
-            ? t("welcomeWithName", { name: client.name })
+          {facility?.name
+            ? t("welcomeWithName", { name: facility.name })
             : t("welcome")}
         </h1>
       </div>

@@ -12,7 +12,7 @@ export type InvoiceInsert = Database["public"]["Tables"]["invoices"]["Insert"];
  * Always returns the canonical id for that client+period_start pair.
  */
 export async function upsertBillingPeriod(
-  clientId: string,
+  facilityId: string,
   periodStart: string,
   periodEnd: string,
 ): Promise<string> {
@@ -22,7 +22,7 @@ export async function upsertBillingPeriod(
   await supabase
     .from("billing_periods")
     .insert({
-      client_id: clientId,
+      facility_id: facilityId,
       period_start: periodStart,
       period_end: periodEnd,
       status: "open",
@@ -34,7 +34,7 @@ export async function upsertBillingPeriod(
   const { data, error } = await supabase
     .from("billing_periods")
     .select("id")
-    .eq("client_id", clientId)
+    .eq("facility_id", facilityId)
     .eq("period_start", periodStart)
     .single();
 
@@ -176,17 +176,20 @@ export async function updateInvoiceStatusByStripeId(
 }
 
 /**
- * Backfill `clients.stripe_customer_id` when we resolve it from `billing_accounts`.
+ * Backfill `facilities.stripe_customer_id` when we resolve it from `billing_accounts`.
  * Saves a join on future invoice runs.
  */
-export async function backfillClientStripeCustomerId(
-  clientId: string,
+export async function backfillFacilityStripeCustomerId(
+  facilityId: string,
   stripeCustomerId: string,
 ): Promise<void> {
   const supabase = await createAdminClient();
   await supabase
-    .from("clients")
+    .from("facilities")
     .update({ stripe_customer_id: stripeCustomerId, updated_at: new Date().toISOString() })
-    .eq("id", clientId)
+    .eq("id", facilityId)
     .is("stripe_customer_id", null); // only if not already set
 }
+
+/** @deprecated Use backfillFacilityStripeCustomerId */
+export const backfillClientStripeCustomerId = backfillFacilityStripeCustomerId;

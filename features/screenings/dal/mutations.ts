@@ -16,7 +16,7 @@ function generateToken(): string {
 // ─── Screenings ───────────────────────────────────────────────────────────────
 
 export async function insertScreening(payload: {
-  client_id: string;
+  facility_id: string;
   title: string;
   description: string;
   deadline_days: number;
@@ -36,7 +36,7 @@ export async function insertScreening(payload: {
 
 export async function updateScreening(
   id: string,
-  clientId: string,
+  facilityId: string,
   payload: {
     title: string;
     description: string;
@@ -51,13 +51,13 @@ export async function updateScreening(
     .from("screenings")
     .update({ ...payload, updated_at: new Date().toISOString() })
     .eq("id", id)
-    .eq("client_id", clientId);
+    .eq("facility_id", facilityId);
   if (error) throw new Error(error.message);
 }
 
 export async function updateScreeningStatus(
   id: string,
-  clientId: string,
+  facilityId: string,
   status: string,
 ): Promise<void> {
   const supabase = await createAdminClient();
@@ -65,7 +65,7 @@ export async function updateScreeningStatus(
     .from("screenings")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id)
-    .eq("client_id", clientId);
+    .eq("facility_id", facilityId);
   if (error) throw new Error(error.message);
 }
 

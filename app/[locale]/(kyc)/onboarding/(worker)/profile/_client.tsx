@@ -10,8 +10,8 @@ import { WorkerProfileForm } from "@/features/profile/components/worker-profile-
 import {
   buildWorkerSchema,
   mapWorkerProfileToFormValues,
-  WorkerProfileFormInput,
-  WorkerProfileValues,
+  type WorkerProfileFormInput,
+  type WorkerProfileValues,
   type WorkerGender,
 } from "@/features/profile/schemas/worker";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,8 +19,8 @@ import { useForm } from "react-hook-form";
 import { profileAction } from "./_action";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import type { ProfessionalRole } from "@/lib/professions";
 import posthog from "posthog-js";
-import { ProfessionalRole } from "@/lib/professions";
 
 export function ProfileClient({
   workerProfile,
@@ -31,23 +31,23 @@ export function ProfileClient({
   const { applyStepsFromServer } = useOnboarding();
   const { loading: authLoading } = useAuth();
   const [isPending, setIsPending] = useState(false);
-  const formLocked = isPending || authLoading;
 
   const tVal = useTranslations("kyc.onboarding.validation");
   const resolveError = useTranslatedStepError();
-
   const schema = useMemo(() => buildWorkerSchema(tVal), [tVal]);
+  const disabled = isPending || authLoading;
 
   const form = useForm<WorkerProfileValues>({
     defaultValues: workerProfile
       ? mapWorkerProfileToFormValues(workerProfile)
       : {
-          firstName: "",
-          lastName: "",
+          firstName:   "",
+          lastName:    "",
           dateOfBirth: "",
-          gender: "" as WorkerGender,
-          profession: "" as ProfessionalRole,
-          yearsExp: 0,
+          gender:      "" as WorkerGender,
+          profession:  "" as ProfessionalRole,
+          yearsExp:    0,
+          address:     null,
         },
     resolver: zodResolver(schema),
   });
@@ -66,7 +66,7 @@ export function ProfileClient({
             }
             posthog.capture("onboarding_profile_completed", {
               profession: data.profession,
-              years_exp: data.yearsExp,
+              years_exp:  data.yearsExp,
             });
             applyStepsFromServer(result.steps);
             router.push(result.redirectTo);
@@ -75,11 +75,7 @@ export function ProfileClient({
             toast.error(
               e instanceof Error
                 ? e.message
-                : resolveError({
-                    ok: false,
-                    error: "Something went wrong",
-                    errorKey: "somethingWentWrong",
-                  }),
+                : resolveError({ ok: false, error: "Something went wrong", errorKey: "somethingWentWrong" }),
             );
           } finally {
             setIsPending(false);
@@ -87,8 +83,10 @@ export function ProfileClient({
         })();
       })}
     >
-      <WorkerProfileForm form={form} disabled={formLocked} />
-      <ContinueButton pending={isPending} />
+      <fieldset disabled={disabled} className="space-y-6 disabled:opacity-60">
+        <WorkerProfileForm form={form} disabled={disabled} />
+        <ContinueButton pending={isPending} />
+      </fieldset>
     </form>
   );
 }

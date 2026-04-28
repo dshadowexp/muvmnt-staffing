@@ -12,6 +12,8 @@ import { stripeCheckoutSessionCompletedTask } from "@/trigger/stripe/checkout-se
 import { stripeIdentityVerificationSessionRequiresInputTask, stripeIdentityVerificationSessionVerifiedTask } from "@/trigger/stripe/identity-verification-session";
 import { stripeInvoicePaymentSucceededTask } from "@/trigger/stripe/invoice-payment-succeeded";
 import { stripeInvoicePaymentFailedTask } from "@/trigger/stripe/invoice-payment-failed";
+import { stripeSubscriptionUpdatedTask } from "@/trigger/stripe/subscription-updated";
+import { stripeSubscriptionDeletedTask } from "@/trigger/stripe/subscription-deleted";
 
 /**
  * Typed registry of Stripe event → Trigger.dev task binding.
@@ -29,6 +31,8 @@ const BINDINGS = {
     "identity.verification_session.requires_input": { id: "stripe.identity.verification_session.requires_input" } satisfies EventBinding<typeof stripeIdentityVerificationSessionRequiresInputTask>,
     "invoice.payment_succeeded": { id: "stripe.invoice.payment_succeeded" } satisfies EventBinding<typeof stripeInvoicePaymentSucceededTask>,
     "invoice.payment_failed": { id: "stripe.invoice.payment_failed" } satisfies EventBinding<typeof stripeInvoicePaymentFailedTask>,
+    "customer.subscription.updated": { id: "stripe.subscription.updated" } satisfies EventBinding<typeof stripeSubscriptionUpdatedTask>,
+    "customer.subscription.deleted": { id: "stripe.subscription.deleted" } satisfies EventBinding<typeof stripeSubscriptionDeletedTask>,
 } as const;
 
 type HandledEventType = keyof typeof BINDINGS;
@@ -71,6 +75,12 @@ export async function dispatchStripeEvent(event: Stripe.Event): Promise<StripeDi
             break;
         case "invoice.payment_failed":
             task = stripeInvoicePaymentFailedTask;
+            break;
+        case "customer.subscription.updated":
+            task = stripeSubscriptionUpdatedTask;
+            break;
+        case "customer.subscription.deleted":
+            task = stripeSubscriptionDeletedTask;
             break;
         default:
             break;

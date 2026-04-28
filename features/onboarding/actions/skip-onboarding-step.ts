@@ -12,7 +12,7 @@ import { canAccessStep } from "@/features/onboarding/types";
 import { getSession } from "@/lib/get-session";
 import { updateUserIsActive } from "@/features/users/dal/mutations";
 
-const SKIPPABLE_IDS = ["compliance", "billing", "payroll"] as const;
+const SKIPPABLE_IDS = ["billing"] as const;
 type SkippableStepId = (typeof SKIPPABLE_IDS)[number];
 
 function isSkippableStepId(id: string): id is SkippableStepId {
@@ -20,9 +20,8 @@ function isSkippableStepId(id: string): id is SkippableStepId {
 }
 
 /**
- * Marks a skippable onboarding step complete and returns the same redirects as a
- * successful Continue on that step, without step-specific validation (billing /
- * payroll account checks, etc.).
+ * Marks a skippable onboarding step complete without the step's usual
+ * validation (e.g. billing can be skipped before a payment method is added).
  */
 export async function skipOnboardingStepAction(
   _prev: OnboardingStepFormState | undefined,

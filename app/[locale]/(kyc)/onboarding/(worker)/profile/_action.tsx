@@ -7,11 +7,9 @@ import {
 } from "@/features/onboarding/lib/step-error";
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { upsertWorkerAction } from "@/features/profile/actions/worker-actions";
-import {
-  workerSchema,
-  type WorkerProfileValues,
-} from "@/features/profile/schemas/worker";
-import { getSession } from "@/lib/session";
+import { workerSchema, type WorkerProfileValues } from "@/features/profile/schemas/worker";
+import { getSession } from "@/lib/get-session";
+import { updateUserIsActive } from "@/features/users/dal/mutations";
 
 export async function profileAction(
   input: WorkerProfileValues,
@@ -20,18 +18,25 @@ export async function profileAction(
   if (!session) return onboardingStepError("userNotFound");
   if (session.role !== "worker") return onboardingStepError("userNotAuthorized");
 
+  // ── 1. Validate ───────────────────────────────────────────────────────────
   const { success, data } = workerSchema.safeParse(input);
   if (!success) return onboardingStepError("invalidWorkerData");
 
+  // ── 2. Save worker profile + address in one call ──────────────────────────
   const { error, message } = await upsertWorkerAction(data);
   if (error) return onboardingStepRawError(message);
 
-  const persist = await completeOnboardingStep("personal-details");
+  // ── 3. Mark step complete + finish onboarding ─────────────────────────────
+  const persist = await completeOnboardingStep("personal-details", {
+    markOnboardingCompleted: true,
+  });
   if (persist.error) {
     return persist.message
       ? onboardingStepRawError(persist.message)
       : onboardingStepError("persistFailed");
   }
 
-  return { ok: true, redirectTo: "/onboarding/location", steps: persist.steps };
+  await updateUserIsActive(session.userId, true);
+
+  return { ok: true, redirectTo: "/review", steps: persist.steps };
 }

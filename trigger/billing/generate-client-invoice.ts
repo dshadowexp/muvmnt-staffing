@@ -3,21 +3,21 @@ import { z } from "zod";
 
 import { getStripeServer } from "@/services/stripe/server";
 import {
-  getClientBillingConfig,
+  getFacilityBillingConfig,
   getBillingPeriodById,
   getInvoiceForBillingPeriod,
   getShiftsForBillingPeriod,
   resolveStripeCustomerId,
 } from "@/features/billing/dal/queries";
 import {
-  backfillClientStripeCustomerId,
+  backfillFacilityStripeCustomerId,
   insertInvoiceRecord,
   markBillingPeriodInvoiced,
 } from "@/features/billing/dal/mutations";
 
 const payloadSchema = z.object({
   billingPeriodId: z.string().min(1),
-  clientId: z.string().min(1),
+  facilityId: z.string().min(1),
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -64,9 +64,9 @@ export const generateClientInvoiceTask = schemaTask({
     randomize: true,
   },
   run: async (payload) => {
-    const { billingPeriodId, clientId } = payload;
+    const { billingPeriodId, facilityId } = payload;
 
-    logger.log("Generating client invoice", { billingPeriodId, clientId });
+    logger.log("Generating client invoice", { billingPeriodId, facilityId });
 
     // ── 1. Idempotency: skip if already invoiced ──────────────────────────────
     const existing = await getInvoiceForBillingPeriod(billingPeriodId);
@@ -78,10 +78,10 @@ export const generateClientInvoiceTask = schemaTask({
       return { skipped: true, invoiceId: existing.id };
     }
 
-    // ── 2. Load billing period + client config in parallel ────────────────────
-    const [period, client] = await Promise.all([
+    // ── 2. Load billing period + facility config in parallel ──────────────────
+    const [period, facility] = await Promise.all([
       getBillingPeriodById(billingPeriodId),
-      getClientBillingConfig(clientId),
+      getFacilityBillingConfig(facilityId),
     ]);
 
     if (!period) {
@@ -90,25 +90,24 @@ export const generateClientInvoiceTask = schemaTask({
 
     const periodStart = period.period_start;
     const periodEnd = period.period_end;
-    if (!client) {
-      throw new Error(`Client not found: ${clientId}`);
+    if (!facility) {
+      throw new Error(`Facility not found: ${facilityId}`);
     }
 
     // ── 3. Resolve Stripe customer ────────────────────────────────────────────
     let stripeCustomerId = await resolveStripeCustomerId(
-      clientId,
-      client.user_id,
-      client.stripe_customer_id,
+      facilityId,
+      facility.stripe_customer_id,
     );
 
     if (!stripeCustomerId) {
-      logger.error("No Stripe customer ID found for client — invoice skipped", { clientId });
+      logger.error("No Stripe customer ID found for facility — invoice skipped", { facilityId });
       return { skipped: true, reason: "no_stripe_customer" };
     }
 
-    // Backfill clients.stripe_customer_id if we resolved it from billing_accounts
-    if (!client.stripe_customer_id) {
-      await backfillClientStripeCustomerId(clientId, stripeCustomerId);
+    // Backfill facilities.stripe_customer_id if we resolved it from billing_accounts
+    if (!facility.stripe_customer_id) {
+      await backfillFacilityStripeCustomerId(facilityId, stripeCustomerId);
     }
 
     // ── 4. Load approved shifts ───────────────────────────────────────────────
@@ -125,20 +124,20 @@ export const generateClientInvoiceTask = schemaTask({
     // ── 5. Create Stripe invoice (draft, no auto_advance yet) ─────────────────
     const stripe = getStripeServer();
     const collectionMethod =
-      client.billing_mode === "auto_charge" ? "charge_automatically" : "send_invoice";
+      facility.billing_mode === "auto_charge" ? "charge_automatically" : "send_invoice";
 
     const invoice = await stripe.invoices.create(
       {
         customer: stripeCustomerId,
         collection_method: collectionMethod,
         ...(collectionMethod === "send_invoice"
-          ? { days_until_due: client.net_terms_days }
+          ? { days_until_due: facility.net_terms_days }
           : {}),
         currency: "cad",
         auto_advance: false, // We finalise manually after adding all items
         metadata: {
           billing_period_id: billingPeriodId,
-          client_id: clientId,
+          facility_id: facilityId,
         },
       },
       { idempotencyKey: `inv_create_${billingPeriodId}` },
@@ -197,9 +196,11 @@ export const generateClientInvoiceTask = schemaTask({
     const dueDate =
       finalized.due_date != null ? new Date(finalized.due_date * 1000).toISOString() : null;
 
+    // `facility_id` replaces `client_id` post-migration; cast until DB types are regenerated
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await insertInvoiceRecord({
       billing_period_id: billingPeriodId,
-      client_id: clientId,
+      facility_id: facilityId,
       stripe_invoice_id: finalized.id,
       stripe_customer_id: stripeCustomerId,
       period_start: periodStart,
@@ -209,7 +210,7 @@ export const generateClientInvoiceTask = schemaTask({
       collection_method: collectionMethod,
       due_date: dueDate,
       status: finalized.status ?? "open",
-    });
+    } as any);
 
     // ── 10. Mark billing period as invoiced ───────────────────────────────────
     await markBillingPeriodInvoiced(billingPeriodId);

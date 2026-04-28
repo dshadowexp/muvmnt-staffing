@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { retrievePayrollAccountAction } from "@/features/payments/payroll/actions";
+import { retrievePayrollAccountAction } from "@/features/payroll/actions";
 import {
   getTipsForWorker,
   getTransfersForWorker,
-} from "@/features/payments/payroll/dal/queries";
-import { CompletePayrollSetupButton } from "@/features/payments/payroll/components/complete-payroll-setup-button";
-import { WorkerPayrollBalances } from "@/features/payments/payroll/components/worker-payroll-balances";
+} from "@/features/payroll/dal/queries";
+import { CompletePayrollSetupButton } from "@/features/payroll/components/complete-payroll-setup-button";
+import { WorkerPayrollBalances } from "@/features/payroll/components/worker-payroll-balances";
 import { TipsTable } from "./_tips-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
