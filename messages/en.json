@@ -214,7 +214,7 @@
       "badge": "Healthcare staffing, simplified",
       "titleLead": "Cover your",
       "titleAccent": "staffing gaps",
-      "titleTail": "fast!!!",
+      "titleTail": "in minutes",
       "subtitle1": "We help healthcare teams close staffing gaps quickly with AI-powered, data-driven solutions, ensuring teams are consistently staffed with the right professionals for every shift.",
       "subtitle2": "",
       "ctaRequest": "Request staff →",
@@ -222,7 +222,7 @@
       "stats": [
         {
           "value": "50+",
-          "label": "Facilities served"
+          "label": "Screenings a week"
         },
         {
           "value": "100%",
@@ -244,8 +244,8 @@
       "steps": [
         {
           "num": "01",
-          "title": "Set the time",
-          "description": "Tell us where, when, and the count. Takes under a minute."
+          "title": "Define your request",
+          "description": "Tell us where, when, who, and the count. Takes under a minute."
         },
         {
           "num": "02",
@@ -260,7 +260,7 @@
         {
           "num": "04",
           "title": "Shift runs smoothly",
-          "description": "Staff clock in, you approve hours, we handle payouts and follow-up."
+          "description": "Staff clock in, you approve hours, we handle the rest."
         }
       ],
       "ctaRequest": "Find staff now →",
@@ -352,12 +352,12 @@
       "worker": {
         "title": "For healthcare professionals",
         "body": "Join a network of nurses, PSWs, and allied staff. Choose shifts near you, get matched fast, and get paid reliably — on your terms.",
-        "cta": "Find work"
+        "cta": "Join the Community"
       },
       "facility": {
         "title": "For facilities & operators",
         "body": "Post open shifts, see live coverage, and book credentialed staff in minutes. Same-day relief to long-term coverage — with compliance built in.",
-        "cta": "Find staff"
+        "cta": "Get started now"
       }
     },
     "screening": {
@@ -670,7 +670,7 @@
     "howSteps": [
       {
         "phase": "Interview",
-        "title": "AI-Led Interview",
+        "title": "Screening Interview",
         "description": "Complete a guided AI interview covering your resume and professional experience. It's conversational, fair, and done entirely online."
       },
       {

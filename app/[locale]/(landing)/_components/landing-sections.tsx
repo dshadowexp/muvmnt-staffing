@@ -100,7 +100,7 @@ export async function HeroSection() {
             </p>
 
             <div className="flex animate-fade-up-3 flex-wrap items-center justify-center gap-4">
-              <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaRequest")}</Link>
+              <Link href="/sign-up/client" className={ctaPrimary}>{t("ctaRequest")}</Link>
               <Link href="/find-work" className={ctaOutline}>{t("ctaProfessional")}</Link>
             </div>
           </div>
@@ -429,7 +429,7 @@ export async function AudienceSplitSection() {
               {t("worker.body")}
             </p>
             <div className="mt-8">
-              <Link href="/find-work" className={ctaOutlineDark}>
+              <Link href="/sign-up/worker" className={ctaOutlineDark}>
                 {t("worker.cta")}
                 <ArrowRight className="size-4 opacity-80" aria-hidden />
               </Link>
@@ -444,7 +444,7 @@ export async function AudienceSplitSection() {
               {t("facility.body")}
             </p>
             <div className="mt-8">
-              <Link href="/find-staff" className={ctaOutlineDark}>
+              <Link href="/sign-up/client" className={ctaOutlineDark}>
                 {t("facility.cta")}
                 <ArrowRight className="size-4 opacity-80" aria-hidden />
               </Link>
@@ -543,11 +543,11 @@ export async function BridgeSection() {
         {/* ── CTAs ── */}
         <div className="mt-14 flex flex-col items-center gap-3">
           <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/screening" className={ctaPrimary}>
+            <Link href="/sign-up/client" className={ctaPrimary}>
               {t("cta")}
               <ArrowRight className="size-4" />
             </Link>
-            <Link href="/find-work" className={ctaOutline}>{t("ctaExplore")}</Link>
+            <Link href="/screening" className={ctaOutline}>{t("ctaExplore")}</Link>
           </div>
           <Link
             href="/dashboard/requests/new"
