@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getAuthErrorKey, loginWithGoogle } from "@/services/firebase/auth";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { LoadingSwap } from "@/components/ui/loading-swap";
+import { cn } from "@/lib/utils";
 import posthog from "posthog-js";
 
 function GoogleIcon() {
@@ -19,13 +20,21 @@ function GoogleIcon() {
     );
 }
 
-export function GoogleButton({ text }: { text: string }) {
+export function GoogleButton({
+    text = "Google",
+    className,
+    disabled = false,
+}: {
+    text?: string;
+    className?: string;
+    disabled?: boolean;
+}) {
     const { loading } = useAuth();
-    const t = useTranslations("auth");
     const tErrors = useTranslations("auth.errors");
+    const busy = loading || disabled;
 
     const handleGoogle = async () => {
-        if (loading) return;
+        if (busy) return;
         try {
             await loginWithGoogle();
             posthog.capture("user_signed_in_with_google", { method: "google" });
@@ -41,11 +50,14 @@ export function GoogleButton({ text }: { text: string }) {
             type="button"
             variant="outline"
             onClick={handleGoogle}
-            disabled={loading}
-            className="w-full gap-2.5 text-[0.9rem] font-medium"
+            disabled={busy}
+            className={cn(
+                "gap-2.5 text-[0.9rem] font-medium",
+                className ?? "w-full",
+            )}
         >
             <GoogleIcon />
-            <LoadingSwap isLoading={loading}>
+            <LoadingSwap isLoading={busy}>
                 <span>{text}</span>
             </LoadingSwap>
         </Button>

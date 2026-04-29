@@ -17,6 +17,7 @@ function generateToken(): string {
 
 export async function insertScreening(payload: {
   facility_id: string;
+  operator_id: string;
   title: string;
   description: string;
   deadline_days: number;

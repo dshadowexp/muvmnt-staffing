@@ -8,7 +8,7 @@ import {
 import type { OnboardingStepFormState } from "@/features/onboarding/types";
 import { hasPaymentMethod } from "@/features/billing/dal/payment-methods";
 import { updateUserIsActive } from "@/features/users/dal/mutations";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 
 export const billingAction = async (
   _prevState: OnboardingStepFormState | undefined,

@@ -12,6 +12,7 @@ export default async function OrganizationPage() {
               name:    row.name,
               type:    row.type,
               address: (row.address as AddressLocation | null) ?? null,
+              domains: row.domains ?? null,
           }
         : null;
 

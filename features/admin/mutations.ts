@@ -1,5 +1,10 @@
 "use server";
 
+import type { WorkerLifecycleStage } from "@/features/workers/lib/worker-stage-order";
+import {
+  setWorkerLifecycleStage,
+  tryPromoteWorkerAfterComplianceChecks,
+} from "@/features/workers/server/stage-promotion";
 import { createAdminClient } from "@/services/supabase/server";
 import { s3Api } from "@/services/s3/api";
 import { revalidatePath } from "next/cache";
@@ -14,21 +19,13 @@ function revalidateAdminWorkerPaths(workerId: string) {
   revalidatePath(`/admin/workers/${workerId}`);
 }
 
-export async function updateAdminWorkerStatus(
+export async function updateAdminWorkerLifecycleStage(
   workerId: string,
-  status: boolean,
+  stage: WorkerLifecycleStage,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   await requireAdminSession();
-  const supabase = await createAdminClient();
-
-  const { error } = await supabase
-    .from("workers")
-    .update({ live: status })
-    .eq("id", workerId);
-
-  if (error) {
-    return { ok: false, message: error.message };
-  }
+  const res = await setWorkerLifecycleStage(workerId, stage);
+  if (!res.ok) return res;
 
   revalidateAdminWorkerPaths(workerId);
   return { ok: true };
@@ -92,6 +89,13 @@ export async function verifyAdminWorkAuthorization(
     .eq("id", authorizationId);
 
   if (error) return { ok: false, message: error.message };
+
+  const { data: w } = await supabase
+    .from("workers")
+    .select("user_id")
+    .eq("id", workerId)
+    .maybeSingle();
+  if (w?.user_id) await tryPromoteWorkerAfterComplianceChecks(w.user_id);
 
   revalidateAdminWorkerPaths(workerId);
   return { ok: true };

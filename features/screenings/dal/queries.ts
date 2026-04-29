@@ -58,7 +58,8 @@ export async function getScreeningById(
 }
 
 // ─── Token resolution ─────────────────────────────────────────────────────────
-// All screening links are invite-only: /s/[token] where token is screening_invites.token
+// All screening links are invite-only: /s/[token] where token is screening_invites.token.
+// Soft-revoked invites (`status = revoked`) still resolve here — the link remains usable for candidates.
 
 export async function resolveScreeningToken(token: string): Promise<{
   screening: ScreeningRow;
@@ -80,9 +81,13 @@ export async function resolveScreeningToken(token: string): Promise<{
 
 // ─── Invites ─────────────────────────────────────────────────────────────────
 
+export type ScreeningInviteWithAudit = ScreeningInviteRow & {
+  revoked_by_email: string | null;
+};
+
 export async function getInvitesForScreening(
   screeningId: string,
-): Promise<ScreeningInviteRow[]> {
+): Promise<ScreeningInviteWithAudit[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("screening_invites")
@@ -91,7 +96,45 @@ export async function getInvitesForScreening(
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data ?? [];
+  const invites = data ?? [];
+  const revokerIds = [
+    ...new Set(
+      invites.map((r) => r.revoked_by).filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  let emailById = new Map<string, string | null>();
+  if (revokerIds.length > 0) {
+    const { data: users } = await supabase
+      .from("users")
+      .select("id, email")
+      .in("id", revokerIds);
+    emailById = new Map((users ?? []).map((u) => [u.id, u.email]));
+  }
+
+  return invites.map((inv) => ({
+    ...inv,
+    revoked_by_email: inv.revoked_by
+      ? emailById.get(inv.revoked_by) ?? null
+      : null,
+  }));
+}
+
+/** Lowercase emails already invited for this screening (used for batch quota math). */
+export async function getExistingScreeningInviteEmails(
+  screeningId: string,
+  emails: string[],
+): Promise<Set<string>> {
+  if (emails.length === 0) return new Set();
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("screening_invites")
+    .select("email")
+    .eq("screening_id", screeningId)
+    .in("email", emails)
+    .neq("status", "revoked");
+
+  if (error) throw new Error(error.message);
+  return new Set((data ?? []).map((r) => r.email.trim().toLowerCase()));
 }
 
 // ─── Candidates ──────────────────────────────────────────────────────────────

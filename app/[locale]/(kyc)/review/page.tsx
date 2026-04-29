@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { getOnboardingCompletionStatus } from "@/features/onboarding/dal/queries";
 import { redirect } from "@/i18n/navigation";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import ReviewClient from "./_client";
 
 export async function generateMetadata({

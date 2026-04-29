@@ -4,6 +4,7 @@ import type Stripe from "stripe";
 import { createAdminClient } from "@/services/supabase/server";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { env } from "@/data/env/server";
+import { tryPromoteWorkerAfterComplianceChecks } from "@/features/workers/server/stage-promotion";
 
 export async function handleIdentityVerificationSessionVerified(
   session: Stripe.Identity.VerificationSession,
@@ -124,4 +125,6 @@ export async function handleIdentityVerificationSessionVerified(
   });
 
   console.log("[identity-verified] Notification enqueued", { userId });
+
+  await tryPromoteWorkerAfterComplianceChecks(userId);
 }

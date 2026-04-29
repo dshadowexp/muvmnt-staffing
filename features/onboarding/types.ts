@@ -107,10 +107,10 @@ export function getRedirectForIncompleteDependencies(
   step: MultistepFormStep,
   completion: OnboardingStepsJson,
   allSteps: MultistepFormStep[],
-  role: UserRole,
+  _role: UserRole,
 ): string {
   return (
     getOnboardingBlockerRoute(step, completion, allSteps) ??
-    (role === "client" ? "/onboarding/details" : "/onboarding/verification")
+    "/onboarding/verification"
   );
 }

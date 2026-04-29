@@ -32,7 +32,7 @@ async function requireWorker(): Promise<
 }
 
 async function requireClient(): Promise<
-    | { ok: true; userId: string }
+    | { ok: true; userId: string; facilityId: string | null }
     | { ok: false; error: string }
 > {
     const session = await getSession();
@@ -43,7 +43,11 @@ async function requireClient(): Promise<
             error: "Only clients can update shifts from this page.",
         };
     }
-    return { ok: true, userId: session.userId };
+    return {
+        ok: true,
+        userId: session.userId,
+        facilityId: session.facilityId ?? null,
+    };
 }
 
 function toResult(
@@ -125,7 +129,12 @@ export async function completeClientShiftAction(
 ): Promise<ShiftActionResult> {
     const auth = await requireClient();
     if (!auth.ok) return { error: auth.error };
-    return toResult(await completeClientShift(auth.userId, shiftId));
+    if (!auth.facilityId) {
+        return { error: "Your account is not linked to a facility." };
+    }
+    return toResult(
+        await completeClientShift(auth.facilityId, auth.userId, shiftId),
+    );
 }
 
 /** Client rates a completed shift (1–5 stars, optional comment). */
@@ -135,7 +144,15 @@ export async function rateClientShiftAction(
 ): Promise<ShiftActionResult> {
     const auth = await requireClient();
     if (!auth.ok) return { error: auth.error };
-    const result = await rateClientShift(auth.userId, shiftId, input);
+    if (!auth.facilityId) {
+        return { error: "Your account is not linked to a facility." };
+    }
+    const result = await rateClientShift(
+        auth.facilityId,
+        auth.userId,
+        shiftId,
+        input,
+    );
     return result.ok ? { error: null } : { error: result.message };
 }
 
@@ -153,7 +170,15 @@ export async function tipClientShiftAction(
 }> {
     const auth = await requireClient();
     if (!auth.ok) return { error: auth.error };
-    const result = await tipClientShift(auth.userId, shiftId, input);
+    if (!auth.facilityId) {
+        return { error: "Your account is not linked to a facility." };
+    }
+    const result = await tipClientShift(
+        auth.facilityId,
+        auth.userId,
+        shiftId,
+        input,
+    );
     if (!result.ok) return { error: result.message };
     return {
         error: null,

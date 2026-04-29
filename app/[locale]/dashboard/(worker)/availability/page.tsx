@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import { getWorkerAvailabilityInitial } from "@/features/availability/dal/queries";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getAddressLocation } from "@/features/geo/dal/queries";
@@ -23,8 +24,9 @@ async function SummarySection({ locked }: { locked: boolean }) {
 }
 
 export default async function AvailabilityPage() {
+  const locale = await getLocale();
   const worker = await getWorkerProfile();
-  if (!worker) redirect("/onboarding/profile");
+  if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
   const stage = worker.stage ?? null;
   const locked = !stage || stage === "picture" || stage === "interview" || stage === "compliance";

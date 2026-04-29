@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { fetchChatMessages } from "@/services/hume/lib/api";

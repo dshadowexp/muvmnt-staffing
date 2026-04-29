@@ -1,7 +1,7 @@
 import { CircleDashedIcon } from "lucide-react";
 import { Suspense } from "react";
 import { getLocale } from "next-intl/server";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { redirect } from "@/i18n/navigation";
 import { SurveyClient } from "./_client";

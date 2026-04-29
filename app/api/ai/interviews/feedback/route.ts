@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { professionLabelEn } from "@/lib/labels-en";
 import { getPostHogClient } from "@/lib/posthog-server";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";

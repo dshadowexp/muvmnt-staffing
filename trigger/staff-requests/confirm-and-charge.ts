@@ -1,10 +1,5 @@
-import { logger, metadata, schemaTask, tasks } from "@trigger.dev/sdk/v3";
+import { logger, metadata, schemaTask } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
-import { formatInTimeZone } from "date-fns-tz";
-import { parseISO } from "date-fns";
-import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
-import type { DaySchedule } from "@/features/requests/server/matching";
-import { chargeStaffRequestOffSession } from "@/features/requests/server/charge";
 import {
     getStaffRequestById,
     markRequestConfirmed,
@@ -14,15 +9,13 @@ import {
 import {
     insertShiftsFromCoverage,
     type ShiftLocationPayload,
-    type InsertedWorkerShift,
 } from "@/features/requests/server/shifts";
 import { createAdminClient } from "@/services/supabase/server";
 import { parseShiftLocationFromStaffRequestLocation } from "@/features/requests/lib/staff-request-location-json";
 import { STAFF_REQUEST_STATUS_CONFIRMED } from "@/features/requests/constants";
 import type { Json } from "@/services/supabase/types/database";
-import { enqueueNotification } from "@/features/notifications/service/enqueue";
-import { createShiftResponseToken } from "@/features/shifts/lib/shift-response-token";
-import { env } from "@/data/env/server";
+import { runStaffRequestBookingSideEffects } from "@/features/shifts/server/post-shift-insert-booking";
+import { getUserIdForOperator } from "@/features/account/server/operator-context";
 
 export const confirmAndChargePayloadSchema = z.object({
     requestId: z.string().min(1),
@@ -39,96 +32,14 @@ function loadLocation(staffRequestLocation: Json): ShiftLocationPayload | null {
     return parseShiftLocationFromStaffRequestLocation(staffRequestLocation);
 }
 
-async function loadClientName(clientUserId: string): Promise<string> {
+async function loadFacilityDisplayName(facilityId: string): Promise<string> {
     const supabase = await createAdminClient();
     const { data } = await supabase
-        .from("operators")
-        .select("facilities(name)")
-        .eq("user_id", clientUserId)
+        .from("facilities")
+        .select("name")
+        .eq("id", facilityId)
         .maybeSingle();
-    const facilityName = (data?.facilities as { name: string } | null)?.name;
-    return facilityName ?? "there";
-}
-
-function formatWorkerShiftsEmailData(params: {
-    shifts:      InsertedWorkerShift[];
-    clientName:  string;
-    requirements: string[];
-    tasks:        string[];
-    acceptUrl:   string;
-    declineUrl:  string;
-}) {
-    const { shifts, clientName, requirements, tasks, acceptUrl, declineUrl } = params;
-
-    const formattedShifts = shifts
-        .slice()
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .map((s) => ({
-            dateLine: formatInTimeZone(
-                parseISO(`${s.date}T12:00:00Z`),
-                SHIFT_SCHEDULE_TIMEZONE,
-                "EEEE, MMM d",  // e.g. "Monday, May 1"
-            ),
-            timeLine: `${s.startTime} – ${s.endTime}`,
-        }));
-
-    return {
-        previewText:      `New shift${shifts.length > 1 ? "s" : ""} from ${clientName} — respond within 24 hours`,
-        workerFirstName:  shifts[0]!.displayName.split(" ")[0],
-        clientName,
-        shiftCount:       shifts.length,
-        multipleShifts:   shifts.length > 1,
-        address:          shifts[0]!.location?.address ?? "TBD",
-        rateLine:         `$${shifts[0]!.hourlyRate.toFixed(2)}/hr`,
-        requirements:     requirements.length ? requirements.join(", ") : null,
-        tasks:            tasks.length ? tasks.join(", ") : null,
-        shifts:           formattedShifts,
-        acceptUrl,
-        declineUrl,
-    };
-}
-
-function formatClientBookedEmailData(params: {
-    clientName: string;
-    requestId:       string;
-    schedule:        DaySchedule[];
-    hourlyRate:      number;
-    totalShifts:     number;
-}) {
-    const { clientName, requestId, schedule, hourlyRate, totalShifts } = params;
-
-    // Collect all unique dates that have assignments
-    const coveredDates = schedule
-        .filter((d) => d.assignments.length > 0)
-        .map((d) => d.date)
-        .sort();
-
-    // e.g. "May 1 – May 7" or "May 1" for a single day
-    const formatDate = (ymd: string) =>
-        formatInTimeZone(parseISO(`${ymd}T12:00:00Z`), SHIFT_SCHEDULE_TIMEZONE, "MMM d");
-
-    const scheduleLine =
-        coveredDates.length === 0
-            ? "TBD"
-            : coveredDates.length === 1
-              ? formatDate(coveredDates[0]!)
-              : `${formatDate(coveredDates[0]!)} – ${formatDate(coveredDates[coveredDates.length - 1]!)}`;
-
-    // e.g. "6 shifts across 3 days"
-    const dayCount   = coveredDates.length;
-    const shiftsLine = `${totalShifts} shift${totalShifts !== 1 ? "s" : ""} across ${dayCount} day${dayCount !== 1 ? "s" : ""}`;
-
-    const rateLine = `$${hourlyRate.toFixed(2)}/hr`;
-
-    return {
-        previewText: `Your staff request is confirmed — ${shiftsLine}`,
-        name:        clientName,
-        scheduleLine,
-        shiftsLine,
-        rateLine,
-        requestId,
-        requestUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}`,
-    };
+    return data?.name ?? "there";
 }
 
 export const confirmAndChargeTask = schemaTask({
@@ -189,153 +100,72 @@ export const confirmAndChargeTask = schemaTask({
             step: "scheduling", label: "Booking your shifts",
         } satisfies ConfirmAndChargeProgress);
 
+        const creatorUserId = await getUserIdForOperator(row.operator_id);
+        if (!creatorUserId) {
+            throw new Error("Staff request creator operator could not be resolved");
+        }
+
         const [location, clientName] = await Promise.all([
             Promise.resolve(loadLocation(row.location)),
-            loadClientName(row.client_user_id),
+            loadFacilityDisplayName(row.facility_id),
         ]);
 
         const inserted = await insertShiftsFromCoverage({
             staffRequestId: payload.requestId,
-            clientUserId:   row.client_user_id,
+            facilityId:     row.facility_id,
             hourlyRate:     row.pricing_rate,
             schedule:       cache.schedule,
             location,
         });
 
         if (!inserted.ok) {
-            logger.warn("Shift insertion failed after successful charge", {
-                requestId: payload.requestId,
-                message:   inserted.message,
-            });
+            await metadata.set("progress", {
+                step:   "failed",
+                label:  "Scheduling failed",
+                detail: inserted.message,
+            } satisfies ConfirmAndChargeProgress);
+            throw new Error(inserted.message);
+        }
+
+        if (inserted.inserted < 1) {
+            await metadata.set("progress", {
+                step:   "failed",
+                label:  "No shifts created",
+                detail: "Coverage produced no shift rows",
+            } satisfies ConfirmAndChargeProgress);
+            throw new Error("No shifts inserted from coverage");
         }
 
         await markRequestConfirmed(payload.requestId);
 
-        // ── 4. Notify ─────────────────────────────────────────────────────────
+        // ── 4. Notify client + workers & schedule offer-worker passes ───────────
         await metadata.set("progress", {
             step: "notifying", label: "Sending confirmations",
         } satisfies ConfirmAndChargeProgress);
 
-        const notifyAll: Promise<unknown>[] = [];
+        await runStaffRequestBookingSideEffects({
+            inserted,
+            requestId: payload.requestId,
+            creatorUserId,
+            clientName,
+            schedule: cache.schedule,
+            hourlyRate: row.pricing_rate,
+            requirements: row.requirements ?? [],
+            tasks: row.tasks ?? [],
+        });
 
-        // Client confirmation
-        notifyAll.push(
-            enqueueNotification({
-                userId: row.client_user_id,
-                channels: [
-                    {
-                        channel:  "email",
-                        subject:  "Your request has been confirmed",
-                        template: "staff-request-booked",
-                        data:     formatClientBookedEmailData({
-                            clientName,
-                            requestId:   payload.requestId,
-                            schedule:    cache.schedule,
-                            hourlyRate:  row.pricing_rate,
-                            totalShifts: inserted.ok ? inserted.inserted : 0,
-                        }),
-                    },
-                    {
-                        channel:  "push",
-                        template: "staff-request-booked",
-                        data: {
-                            name: clientName,
-                            requestId: payload.requestId,
-                            link: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${payload.requestId}`,
-                        },
-                    },
-                ],
-            }),
-        );
-
-        // One email + push per worker, grouped by all their shifts
-        if (inserted.ok) {
-            for (const [workerUserId, shifts] of inserted.workerShifts) {
-                const [acceptToken, declineToken] = await Promise.all([
-                    createShiftResponseToken({
-                        workerId:  workerUserId,
-                        requestId: payload.requestId,
-                        action:    "accept",
-                    }),
-                    createShiftResponseToken({
-                        workerId:  workerUserId,
-                        requestId: payload.requestId,
-                        action:    "decline",
-                    }),
-                ]);
-            
-                const acceptUrl  = `${env.APP_URL}/api/shifts/respond?token=${acceptToken}`;
-                const declineUrl = `${env.APP_URL}/api/shifts/respond?token=${declineToken}`;
-            
-                notifyAll.push(
-                    enqueueNotification({
-                        userId: workerUserId,
-                        channels: [
-                            {
-                                channel:  "email",
-                                subject:  `New shift${shifts.length > 1 ? "s" : ""} assigned — respond within 24 hours`,
-                                template: "shift-assigned",
-                                data:     formatWorkerShiftsEmailData({
-                                    shifts,
-                                    clientName:   " ",
-                                    requirements: row.requirements ?? [],
-                                    tasks:        row.tasks ?? [],
-                                    acceptUrl,
-                                    declineUrl,
-                                }),
-                            },
-                            {
-                                channel:  "push",
-                                template: "shift-assigned",
-                                data: {
-                                    count: shifts.length,
-                                    link:  `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/shifts/requests/${payload.requestId}`,
-                                },
-                            },
-                        ],
-                    }),
-                );
-            }
-        }
-
-        await Promise.allSettled(notifyAll);
-
-        // ── 5. Schedule offer-worker check per shift (fires after 25 h if no response) ──
-        if (inserted.ok) {
-            const offerTriggers: Promise<unknown>[] = [];
-            for (const shifts of inserted.workerShifts.values()) {
-                for (const shift of shifts) {
-                    offerTriggers.push(
-                        tasks.trigger(
-                            "shifts.offer-worker",
-                            { shiftId: shift.shiftId },
-                            { delay: "25h" },
-                        ).catch((err) =>
-                            logger.error("confirm-and-charge: failed to schedule offer-worker", {
-                                shiftId: shift.shiftId,
-                                err: err instanceof Error ? err.message : String(err),
-                            }),
-                        ),
-                    );
-                }
-            }
-            await Promise.allSettled(offerTriggers);
-        }
-
-        // ── 6. Done ───────────────────────────────────────────────────────────
+        // ── 5. Done ───────────────────────────────────────────────────────────
         await metadata.set("progress", {
             step:   "done",
             label:  "Confirmed",
-            detail: inserted.ok
-                ? `${inserted.inserted} shifts created`
-                : "Shifts will be created shortly",
+            detail: `${inserted.inserted} shifts created`,
         } satisfies ConfirmAndChargeProgress);
 
         return {
             requestId:       payload.requestId,
             paymentIntentId: "charge.paymentIntentId",
             amountCents,
-            shiftsInserted:  inserted.ok ? inserted.inserted : 0,
+            shiftsInserted:  inserted.inserted,
         };
     },
 });

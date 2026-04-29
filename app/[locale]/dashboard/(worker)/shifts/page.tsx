@@ -4,8 +4,9 @@ import { listShiftsForWorker } from "@/features/shifts/dal/queries";
 import { ShiftsTable } from "@/features/shifts/components/shifts-table";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { Skeleton } from "@/components/ui/skeleton";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
+import { getLocale } from "next-intl/server";
 
 async function WorkerShiftsTableContent({ workerId }: { workerId: string }) {
   const shifts = await listShiftsForWorker(workerId);
@@ -38,8 +39,9 @@ function TableSkeleton() {
 }
 
 export default async function WorkerShiftsPage() {
+  const locale = await getLocale();
   const worker = await getWorkerProfile();
-  if (!worker) redirect("/onboarding/profile");
+  if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
   const t = await getTranslations("dashboard.worker.shifts");
 

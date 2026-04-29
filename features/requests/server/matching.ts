@@ -10,6 +10,7 @@ import {
     PRICING_TIER_VETTED,
 } from "../constants";
 import { normalizeProfessionId } from "@/lib/professions";
+import { wallClockShiftToUtcRange } from "@/features/shifts/lib/wall-clock-shift-range";
 
 /**
  * In-memory time interval (minutes since midnight). All time math runs in
@@ -180,18 +181,14 @@ export async function buildCandidatePool(params: {
 
     const { data: workerRows } = await supabase
         .from("workers")
-        .select("id, user_id, first_name, last_name, photo_url, years_exp, profession, live, auto_confirm, rating_avg, rating_count")
+        .select("id, user_id, first_name, last_name, photo_url, years_exp, profession, auto_confirm, rating_avg, rating_count")
         .in("cell_id", params.ring)
-        .eq("live", true);
+        .eq("stage", "live");
 
     await params.progress?.({ kind: "workers", workerCount: workerRows?.length ?? 0 });
     if (!workerRows?.length) return fail(params.ring.length);
 
-    const activeWorkerUserIds = new Set(
-        (workerRows ?? [])
-            .filter((u) => u.live !== false)
-            .map((u) => u.user_id),
-    );
+    const activeWorkerUserIds = new Set((workerRows ?? []).map((u) => u.user_id));
 
     const uniqueDows = uniqueDayOfWeekFromDailyWindows(params.dailyWindows);
     if (uniqueDows.length === 0) return fail(params.ring.length);
@@ -441,6 +438,58 @@ export type FindFirstAvailableWorkerParams = {
  * Replaces the old `findReplacementUserIdForShiftWindow` — callers now pass
  * `cellId` instead of a pre-built ring, keeping H3 details internal.
  */
+/** Workers already booked for an overlapping interval (same wall-clock window semantics as shifts storage). */
+async function userIdsWithShiftTimeOverlap(
+    startIso: string,
+    endIso: string,
+): Promise<string[]> {
+    const supabase = await createAdminClient();
+    const { data, error } = await supabase
+        .from("shifts")
+        .select("worker_id")
+        .not("worker_id", "is", null)
+        .in("status", ["scheduled", "confirmed", "in_progress"])
+        .lt("start_time", endIso)
+        .gt("end_time", startIso);
+
+    if (error || !data?.length) return [];
+
+    const workerPkIds = [
+        ...new Set(
+            data
+                .map((r) => r.worker_id)
+                .filter((id): id is string => typeof id === "string"),
+        ),
+    ];
+    if (workerPkIds.length === 0) return [];
+
+    const { data: workers, error: wErr } = await supabase
+        .from("workers")
+        .select("user_id")
+        .in("id", workerPkIds);
+
+    if (wErr || !workers?.length) return [];
+    return [...new Set(workers.map((w) => w.user_id))];
+}
+
+/** Drop candidates who already have another shift overlapping this wall-clock window. */
+async function filterCandidatesExcludingShiftOverlap(
+    candidates: MatchCandidate[],
+    dateYmd: string,
+    startHHmm: string,
+    endHHmm: string,
+): Promise<MatchCandidate[]> {
+    const { startIso, endIso } = wallClockShiftToUtcRange(
+        dateYmd.slice(0, 10),
+        startHHmm,
+        endHHmm,
+    );
+    const busy = await userIdsWithShiftTimeOverlap(startIso, endIso);
+    if (busy.length === 0) return candidates;
+    const busySet = new Set(busy);
+    return candidates.filter((c) => !busySet.has(c.userId));
+}
+
 export async function findFirstAvailableWorker(
     params: FindFirstAvailableWorkerParams,
 ): Promise<string | null> {
@@ -451,13 +500,24 @@ export async function findFirstAvailableWorker(
         slots: [{ startTime: params.startHHmm, endTime: params.endHHmm }],
     }];
 
+    const { startIso, endIso } = wallClockShiftToUtcRange(
+        params.dateYmd.slice(0, 10),
+        params.startHHmm,
+        params.endHHmm,
+    );
+
+    const busyOverlap = await userIdsWithShiftTimeOverlap(startIso, endIso);
+    const excludeUserIds = [
+        ...new Set([...(params.excludeUserIds ?? []), ...busyOverlap]),
+    ];
+
     const candidates = await resolveCandidatesForRing({
         ring: allCells,
         dailyWindows,
         pricingTierId: params.pricingTierId,
         profession: params.profession,
         requirements: params.requirements,
-        excludeUserIds: params.excludeUserIds,
+        excludeUserIds,
     });
 
     const reqStart = toMinutes(params.startHHmm);
@@ -595,6 +655,13 @@ export async function matchWorkersForStaffRequest(
             const reqStart = toMinutes(slot.startTime);
             const reqEnd   = toMinutes(slot.endTime);
 
+            const candidatesForSlot = await filterCandidatesExcludingShiftOverlap(
+                candidates,
+                date,
+                slot.startTime,
+                slot.endTime,
+            );
+
             // Existing assignments for this slot (from prior rings)
             const priorAssignments = (existingDay?.assignments ?? []).filter(
                 (a) => toMinutes(a.startTime) >= reqStart && toMinutes(a.endTime) <= reqEnd
@@ -606,7 +673,7 @@ export async function matchWorkersForStaffRequest(
                 reqStart,
                 reqEnd,
                 priorAssignments,
-                candidates,
+                candidatesForSlot,
             );
 
             assignments.push(...improved.assignments);

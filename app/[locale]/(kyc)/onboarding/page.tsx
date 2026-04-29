@@ -4,7 +4,7 @@ import {
 } from "@/features/onboarding/dal/queries";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import type { UserRole } from "@/features/auth/types";
 
 import { getOnboardingResumeRoute } from "@/features/onboarding/lib/resume-route";

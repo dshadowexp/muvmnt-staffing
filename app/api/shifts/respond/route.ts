@@ -15,7 +15,9 @@ const redirect = (path: string) => NextResponse.redirect(`${APP_URL}${path}`);
 
 type ActionContext = {
     /** workers.id (internal UUID — used for DB shift queries) */
-    workerId:  string;
+    workerId: string;
+    /** Firebase user id (matches `offered_worker_ids` entries and notifications) */
+    workerUserId: string;
     requestId: string;
 };
 
@@ -46,19 +48,43 @@ async function handleAccept(ctx: ActionContext): Promise<ActionResult> {
 async function handleDecline(ctx: ActionContext): Promise<ActionResult> {
     const supabase = await createAdminClient();
 
-    // Bug fix: was "confirmed" — must be "declined"
-    const { data, error, count } = await supabase
+    /** Clear assignee but keep shift bookable; append decliner so `offer-worker` skips them. */
+    const { data: rows, error: selErr } = await supabase
         .from("shifts")
-        .update({ status: "declined" })
+        .select("id, offered_worker_ids")
         .eq("request_id", ctx.requestId)
-        .eq("worker_id",  ctx.workerId)
-        .eq("status",     "scheduled")
-        .select("id, start_time")
-        .overrideTypes<ShiftMeta[]>();
+        .eq("worker_id", ctx.workerId)
+        .eq("status", "scheduled");
 
-    if (error)  return { ok: false, reason: "error" };
-    if (!count) return { ok: false, reason: "invalid_state" };
-    return { ok: true, shifts: data ?? [] };
+    if (selErr) return { ok: false, reason: "error" };
+    if (!rows?.length) return { ok: false, reason: "invalid_state" };
+
+    const shiftsOut: ShiftMeta[] = [];
+
+    for (const row of rows) {
+        const prev = Array.isArray(row.offered_worker_ids)
+            ? (row.offered_worker_ids as string[])
+            : [];
+        const next = [...new Set([...prev, ctx.workerUserId])];
+
+        const { data, error, count } = await supabase
+            .from("shifts")
+            .update({
+                status: "scheduled",
+                worker_id: null,
+                offered_worker_ids: next,
+            })
+            .eq("id", row.id)
+            .eq("status", "scheduled")
+            .select("id, start_time")
+            .overrideTypes<ShiftMeta[]>();
+
+        if (error) return { ok: false, reason: "error" };
+        if (!count) return { ok: false, reason: "invalid_state" };
+        if (data?.[0]) shiftsOut.push(data[0]);
+    }
+
+    return { ok: true, shifts: shiftsOut };
 }
 
 async function handleTransfer(ctx: ActionContext): Promise<ActionResult> {
@@ -208,8 +234,9 @@ export async function GET(req: NextRequest) {
     // 4. Dispatch to action handler
     const handler = ACTION_HANDLERS[payload.action];
     const result  = await handler({
-        workerId:  workerRow.id,   // workers.id for shift queries
-        requestId: payload.requestId,
+        workerId:     workerRow.id,
+        workerUserId: payload.workerId,
+        requestId:    payload.requestId,
     });
 
     // 5. Post-dispatch side-effects (fire-and-forget — don't block the redirect)

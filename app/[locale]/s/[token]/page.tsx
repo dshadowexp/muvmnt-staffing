@@ -1,8 +1,8 @@
 import { CircleDashedIcon } from "lucide-react";
 import { Suspense } from "react";
 import { getLocale } from "next-intl/server";
-import { getSession } from "@/lib/session";
-import { getCurrentUser, isWorkerEmail } from "@/features/users/dal/queries";
+import { getSession } from "@/lib/get-session";
+import { getCurrentUser } from "@/features/users/dal/queries";
 import { createAdminClient } from "@/services/supabase/server";
 import { resolveScreeningToken, type CandidateIdentityVerification } from "@/features/screenings/dal/queries";
 import { getOrCreateScreeningCandidate } from "@/features/screenings/dal/mutations";
@@ -62,27 +62,22 @@ async function SuspendedContent({
 
   const { screening, invite } = resolved;
 
-  // Check if the invite email belongs to a worker — runs before auth so the
-  // unauthenticated gate can show the right UI even for logged-out workers.
-  const workerInvite = await isWorkerEmail(invite.email);
-
   const session = await getSession();
 
-  // Not authenticated — hand off to client (auth gate uses workerInvite to
-  // decide whether to show sign-up or sign-in first).
+  // Not authenticated — hand off to client.
   if (!session) {
     return (
       <ScreeningCandidateClient
         token={token}
         screening={screening}
         candidate={null}
-        isWorkerInvite={workerInvite}
+        inviteEmail={invite.email}
         locale={locale}
       />
     );
   }
 
-  // Wrong role — only candidates and workers may access screening links
+  // Only candidates and workers may access screening links
   if (session.role !== "candidate" && session.role !== "worker") {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
@@ -102,7 +97,7 @@ async function SuspendedContent({
         token={token}
         screening={screening}
         candidate={null}
-        isWorkerInvite={workerInvite}
+        inviteEmail={invite.email}
         locale={locale}
       />
     );
@@ -166,7 +161,7 @@ async function SuspendedContent({
       token={token}
       screening={screening}
       candidate={candidate}
-      isWorkerInvite={workerInvite}
+      inviteEmail={invite.email}
       locale={locale}
       showIdentityStep={showIdentityStep}
     />

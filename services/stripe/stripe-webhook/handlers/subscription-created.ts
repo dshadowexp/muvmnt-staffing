@@ -2,6 +2,7 @@ import "server-only";
 
 import type Stripe from "stripe";
 import { upsertSubscription } from "@/features/billing/dal/subscriptions";
+import { subscriptionPeriodUnixBounds } from "@/services/stripe/subscription-period";
 import type { SubscriptionPlan } from "@/services/stripe/server";
 
 /**
@@ -21,15 +22,16 @@ export async function handleSubscriptionCreated(
         return;
     }
 
-    const item = subscription.items.data[0];
+    const bounds = subscriptionPeriodUnixBounds(subscription);
+    if (!bounds) return;
 
     await upsertSubscription({
         facilityId,
         plan,
         stripeSubscriptionId: subscription.id,
-        stripeCustomerId: subscription.customer as string,
         status: subscription.status,
-        currentPeriodStart: item?.period?.start ?? subscription.current_period_start,
-        currentPeriodEnd: item?.period?.end ?? subscription.current_period_end,
+        currentPeriodStart: bounds.start,
+        currentPeriodEnd: bounds.end,
+        stripePriceId: subscription.items.data[0]?.price?.id ?? null,
     });
 }

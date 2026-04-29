@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import {
   getWorkerAvailabilityInitial,
   type WorkerAvailabilityInitial,
@@ -8,8 +9,9 @@ import { defaultWeekSchedule } from "@/features/availability/lib/week-state";
 import { AvailabilitySettingsClient } from "../_client";
 
 export default async function AvailabilityEditPage() {
+  const locale = await getLocale();
   const worker = await getWorkerProfile();
-  if (!worker) redirect("/onboarding/profile");
+  if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
   // Kick off the availability fetch without awaiting so the client can render
   // the header/Save button immediately and stream the form fields in behind

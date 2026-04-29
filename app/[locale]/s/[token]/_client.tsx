@@ -1,43 +1,141 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/features/auth/providers/auth-provider";
-import { SignUpForm } from "@/features/auth/forms/sign-up-form";
-import { SignInForm } from "@/features/auth/forms/sign-in-form";
-import { useState } from "react";
 import type { ScreeningRow, ScreeningCandidateRow } from "@/features/screenings/dal/queries";
 import { DetailsStep } from "./_steps/details";
 import { IdentityStep } from "./_steps/identity";
 import { CompletedStep } from "./_steps/completed";
+import { generateCandidateTokenAction } from "@/features/screenings/actions/candidate-auth";
+import { signInWithCustomToken } from "@/services/firebase/auth";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { ArrowRightIcon, MailIcon, ShieldCheckIcon } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   token: string;
   screening: ScreeningRow;
   candidate: ScreeningCandidateRow | null;
-  isWorkerInvite: boolean;
+  inviteEmail: string;
   locale: string;
   showIdentityStep?: boolean;
 };
+
+// ─── Candidate Magic-Link Gate ────────────────────────────────────────────────
+
+function CandidateAccessGate({
+  token,
+  screening,
+  inviteEmail,
+}: {
+  token: string;
+  screening: ScreeningRow;
+  inviteEmail: string;
+}) {
+  const { setPendingRole } = useAuth();
+  const [isPending, startTransition] = useTransition();
+
+  function handleContinue() {
+    startTransition(async () => {
+      // Set role before sign-in so the auth provider creates a candidate row
+      setPendingRole("candidate");
+
+      const result = await generateCandidateTokenAction(token);
+
+      if ("error" in result) {
+        toast.error(result.error);
+        setPendingRole(null);
+        return;
+      }
+
+      try {
+        await signInWithCustomToken(result.firebaseToken);
+        // onAuthStateChanged in AuthProvider handles the rest:
+        // runTokenExchange → setSession → router.refresh()
+      } catch {
+        toast.error("Sign-in failed. Please try again.");
+        setPendingRole(null);
+      }
+    });
+  }
+
+  return (
+    <div className="flex min-h-svh flex-col items-center justify-center p-6">
+      <div className="w-full max-w-sm space-y-8">
+
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center size-12 rounded-full bg-primary/10 mb-4">
+            <ShieldCheckIcon className="size-6 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight">{screening.title}</h1>
+          <p className="text-sm text-muted-foreground">
+            You&apos;ve been invited to complete this screening.
+          </p>
+        </div>
+
+        {/* Email card */}
+        <div className="rounded-xl border bg-card shadow-sm p-6 space-y-5">
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Signing in as
+            </p>
+            <div className="flex items-center gap-2.5 rounded-lg border bg-muted/40 px-3.5 py-2.5">
+              <MailIcon className="size-4 shrink-0 text-muted-foreground" />
+              <span className="text-sm font-medium truncate">{inviteEmail}</span>
+            </div>
+          </div>
+
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={isPending}
+            onClick={handleContinue}
+          >
+            <LoadingSwap isLoading={isPending}>
+              <>
+                Continue to screening
+                <ArrowRightIcon className="size-4 ml-1.5" />
+              </>
+            </LoadingSwap>
+          </Button>
+
+          <p className="text-center text-xs text-muted-foreground leading-relaxed">
+            By continuing you agree to our{" "}
+            <a href="/legal/terms" className="underline hover:text-foreground transition-colors">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/legal/privacy" className="underline hover:text-foreground transition-colors">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function ScreeningCandidateClient({
   token,
   screening,
   candidate,
-  isWorkerInvite,
+  inviteEmail,
   locale,
   showIdentityStep = false,
 }: Props) {
   const { authUser, setNotFoundHandler, setEmailTakenHandler, setSuccessHandler } = useAuth();
   const router = useRouter();
   const prevAuthUser = useRef(authUser);
-  // Workers already have an account — default straight to sign-in and hide sign-up
-  const [authView, setAuthView] = useState<"signup" | "signin">(
-    isWorkerInvite ? "signin" : "signup"
-  );
 
-  // When the user transitions from unauthenticated to authenticated, refresh
-  // the server page so it can fetch the candidate row and route accordingly.
+  // When the user transitions from unauthenticated → authenticated, refresh
+  // the server component so it can fetch the candidate row and route accordingly.
   useEffect(() => {
     if (authUser && !prevAuthUser.current) {
       router.refresh();
@@ -46,14 +144,12 @@ export function ScreeningCandidateClient({
   }, [authUser, router]);
 
   // While the auth gate is visible, intercept auth-provider navigation so that
-  // error outcomes (no Supabase row, email taken) flip the view instead of
-  // navigating away from the portal and losing the screening context.
+  // error outcomes flip views instead of navigating away and losing context.
   useEffect(() => {
     if (candidate) return;
-    setNotFoundHandler(() => setAuthView("signup"));
-    setEmailTakenHandler(() => setAuthView("signin"));
-    // Suppress provider-level navigation on success — router.refresh() via
-    // the authUser effect above handles re-rendering the server component.
+    setNotFoundHandler(() => {}); // no-op — magic link always creates the user
+    setEmailTakenHandler(() => {}); // no-op
+    // Suppress provider-level navigation on success — router.refresh() handles it
     setSuccessHandler(() => {});
     return () => {
       setNotFoundHandler(null);
@@ -62,63 +158,14 @@ export function ScreeningCandidateClient({
     };
   }, [candidate, setNotFoundHandler, setEmailTakenHandler, setSuccessHandler]);
 
-  // Not authenticated — show auth gate
+  // Not yet authenticated — show the appropriate gate
   if (!candidate) {
     return (
-      <div className="flex min-h-svh flex-col items-center justify-center p-4">
-        <div className="w-full max-w-[440px] space-y-4">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-semibold">{screening.title}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isWorkerInvite
-                ? "Sign in with your ReadyKare account to continue."
-                : "Create an account to start your screening."}
-            </p>
-          </div>
-
-          {authView === "signup" ? (
-            <>
-              <SignUpForm
-                role="candidate"
-                onSuccess={() => {/* auth effect handles router.refresh() */}}
-                showGoogle={false}
-                showFooterLink={false}
-              />
-              <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  className="underline hover:text-foreground"
-                  onClick={() => setAuthView("signin")}
-                >
-                  Sign in
-                </button>
-              </p>
-            </>
-          ) : (
-            <>
-              <SignInForm
-                onSuccess={() => {/* auth effect handles router.refresh() */}}
-                showGoogle={false}
-                showFooterLink={false}
-              />
-              {/* Workers are always existing users — no sign-up path */}
-              {!isWorkerInvite && (
-                <p className="text-center text-sm text-muted-foreground">
-                  Don&apos;t have an account?{" "}
-                  <button
-                    type="button"
-                    className="underline hover:text-foreground"
-                    onClick={() => setAuthView("signup")}
-                  >
-                    Sign up
-                  </button>
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+      <CandidateAccessGate
+        token={token}
+        screening={screening}
+        inviteEmail={inviteEmail}
+      />
     );
   }
 
@@ -134,7 +181,6 @@ export function ScreeningCandidateClient({
     );
   }
 
-  // "interview" stage: identity verification gate (if required) or redirect.
   if (stage === "interview") {
     if (showIdentityStep) {
       return (
@@ -146,17 +192,12 @@ export function ScreeningCandidateClient({
         />
       );
     }
-    // Server-side redirect handles the interview navigation; show a spinner
-    // while it resolves (or if the user lands here mid-redirect).
     return (
       <div className="flex min-h-svh items-center justify-center">
-        <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">Redirecting to your interview…</p>
-        </div>
+        <p className="text-sm text-muted-foreground">Redirecting to your interview…</p>
       </div>
     );
   }
 
-  // completed
   return <CompletedStep screening={screening} candidate={candidate} />;
 }

@@ -109,9 +109,12 @@ export async function getStaffRequestRow(requestId: string) {
     const session = await getSession();
     if (!session) return { ok: false, message: "Unauthenticated" };
     if (session.role !== "client") return { ok: false, message: "Unauthorized" };
-    const clientUserId = session.userId;
+    if (!session.facilityId) return { ok: false, message: "Unauthorized" };
     const result = await getRowOrFail(requestId);
     if (!result.ok) return result;
+    if (result.row.facility_id !== session.facilityId) {
+        return { ok: false, message: "Unauthorized" };
+    }
     return { ok: true, data: result.row };
 }
 
@@ -124,13 +127,22 @@ export async function getPendingPricingStaffRequestForClient(
     const session = await getSession();
     if (!session) return { ok: false, message: "Unauthenticated" };
     if (session.role !== "client") return { ok: false, message: "Unauthorized" };
+    if (!session.facilityId) return { ok: false, message: "Unauthorized" };
 
-    const clientUserId = session.userId;
     const supabase = await createAdminClient();
+    const { data: op, error: opErr } = await supabase
+        .from("operators")
+        .select("id")
+        .eq("user_id", session.userId)
+        .eq("facility_id", session.facilityId)
+        .maybeSingle();
+    if (opErr || !op) return { ok: false, message: opErr?.message ?? "Operator not found" };
+
     const { data, error } = await supabase
         .from("staff_requests")
         .select("*")
-        .eq("client_user_id", clientUserId)
+        .eq("facility_id", session.facilityId)
+        .eq("operator_id", op.id)
         .in("status", [
             STAFF_REQUEST_STATUS_PENDING_PRICING,
             STAFF_REQUEST_STATUS_PENDING_COVERAGE,
@@ -143,19 +155,22 @@ export async function getPendingPricingStaffRequestForClient(
     return { ok: true, data: data as StaffRequestRow };
 }
 
-export async function createStaffRequestDraft(
-    clientUserId: string,
-    payload: CreateDraftPayload,
-): Promise<
+export async function createStaffRequestDraft(args: {
+    facilityId: string;
+    operatorId: string;
+    payload: CreateDraftPayload;
+}): Promise<
     | { ok: true; requestId: string; row: StaffRequestRow }
     | { ok: false; message: string }
 > {
     const supabase = await createAdminClient();
+    const { facilityId, operatorId, payload } = args;
 
     const { data, error } = await supabase
         .from("staff_requests")
         .insert({
-            client_user_id: clientUserId,
+            facility_id: facilityId,
+            operator_id: operatorId,
             cell_id: payload.cellId,
             profession: normalizeProfessionId(payload.profession),
             positions: payload.positions,
@@ -184,11 +199,15 @@ export async function createStaffRequestDraft(
 
 export async function updateStaffRequestDraft(
     requestId: string,
+    facilityId: string,
     payload: CreateDraftPayload,
 ): Promise<{ ok: true; requestId: string } | { ok: false; message: string }> {
     const supabase = await createAdminClient();
     const rowCheck = await getRowOrFail(requestId);
     if (!rowCheck.ok) return { ok: false, message: rowCheck.message };
+    if (rowCheck.row.facility_id !== facilityId) {
+        return { ok: false, message: "Not authorized" };
+    }
     if (rowCheck.row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
         return {
             ok: false,
@@ -212,20 +231,21 @@ export async function updateStaffRequestDraft(
             daily_time_windows: payload.dailyWindows,
             location: locationPayloadToJson(payload.location) as Json,
         })
-        .eq("id", requestId);
+        .eq("id", requestId)
+        .eq("facility_id", facilityId);
 
     if (error) return { ok: false, message: error.message };
     return { ok: true, requestId };
 }
 
 export async function updateStaffRequestJobProfile(
-    clientUserId: string,
+    facilityId: string,
     requestId: string,
     input: { profession: string; tasks: string[]; requirements: string[] },
 ): Promise<{ ok: true } | { ok: false; message: string }> {
     const rowCheck = await getRowOrFail(requestId);
     if (!rowCheck.ok) return { ok: false, message: rowCheck.message };
-    if (rowCheck.row.client_user_id !== clientUserId) {
+    if (rowCheck.row.facility_id !== facilityId) {
         return { ok: false, message: "Not authorized" };
     }
     if (rowCheck.row.status !== STAFF_REQUEST_STATUS_PENDING_PRICING) {
@@ -248,7 +268,7 @@ export async function updateStaffRequestJobProfile(
             requirements,
         })
         .eq("id", requestId)
-        .eq("client_user_id", clientUserId)
+        .eq("facility_id", facilityId)
         .eq("status", STAFF_REQUEST_STATUS_PENDING_PRICING);
 
     if (error) return { ok: false, message: error.message };
@@ -257,7 +277,7 @@ export async function updateStaffRequestJobProfile(
 
 export async function persistPricingTier(args: {
     requestId: string;
-    clientUserId: string;
+    facilityId: string;
     tierId: string;
     hourlyRate: number;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
@@ -270,14 +290,14 @@ export async function persistPricingTier(args: {
             status: STAFF_REQUEST_STATUS_PENDING_COVERAGE,
         })
         .eq("id", args.requestId)
-        .eq("client_user_id", args.clientUserId);
+        .eq("facility_id", args.facilityId);
     if (error) return { ok: false, message: error.message };
     return { ok: true };
 }
 
 export async function persistCoverageCache(args: {
     requestId: string;
-    clientUserId: string;
+    facilityId: string;
     cache: CoverageDataCache;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
     const supabase = await createAdminClient();
@@ -288,7 +308,7 @@ export async function persistCoverageCache(args: {
             coverage_data_at: new Date().toISOString(),
         })
         .eq("id", args.requestId)
-        .eq("client_user_id", args.clientUserId);
+        .eq("facility_id", args.facilityId);
     if (error) return { ok: false, message: error.message };
     return { ok: true };
 }
@@ -317,14 +337,16 @@ export async function getStaffRequestById(requestId: string) {
 
 export async function abandonStaffRequestDraft(args: {
     requestId: string;
-    clientUserId: string;
+    facilityId: string;
+    operatorId: string;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
     const supabase = await createAdminClient();
     const { error } = await supabase
         .from("staff_requests")
         .delete()
         .eq("id", args.requestId)
-        .eq("client_user_id", args.clientUserId)
+        .eq("facility_id", args.facilityId)
+        .eq("operator_id", args.operatorId)
         .neq("status", STAFF_REQUEST_STATUS_CONFIRMED);
     if (error) return { ok: false, message: error.message };
     return { ok: true };
@@ -397,7 +419,7 @@ export async function runMatchForStaffRequest(args: {
 
     await persistCoverageCache({
         requestId: args.requestId,
-        clientUserId: row.client_user_id,
+        facilityId: row.facility_id,
         cache,
     });
 

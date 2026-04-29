@@ -1,5 +1,6 @@
 import { logger, task } from "@trigger.dev/sdk/v3";
 import { upsertSubscription } from "@/features/billing/dal/subscriptions";
+import { subscriptionPeriodUnixBounds } from "@/services/stripe/subscription-period";
 import { getStripeServer } from "@/services/stripe/server";
 import type { SubscriptionPlan } from "@/services/stripe/server";
 
@@ -36,16 +37,22 @@ export const stripeSubscriptionCreatedTask = task({
             payload.subscriptionId,
         );
 
-        const item = subscription.items.data[0];
+        const bounds = subscriptionPeriodUnixBounds(subscription);
+        if (!bounds) {
+            logger.error("Stripe subscription has no items; cannot upsert period", {
+                subscriptionId: subscription.id,
+            });
+            throw new Error("Stripe subscription has no subscription items");
+        }
 
         await upsertSubscription({
             facilityId: payload.facilityId,
             plan: payload.plan as SubscriptionPlan,
             stripeSubscriptionId: subscription.id,
-            stripeCustomerId: payload.customerId,
             status: subscription.status,
-            currentPeriodStart: item?.period?.start ?? subscription.current_period_start,
-            currentPeriodEnd: item?.period?.end ?? subscription.current_period_end,
+            currentPeriodStart: bounds.start,
+            currentPeriodEnd: bounds.end,
+            stripePriceId: subscription.items.data[0]?.price?.id ?? null,
         });
 
         logger.log("Subscription row upserted", {

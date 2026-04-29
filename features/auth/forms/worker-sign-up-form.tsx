@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { z } from "zod";
 import { GiftIcon } from "lucide-react";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,25 +29,16 @@ import {
   AuthLegalNote,
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, signUpWithEmail } from "@/services/firebase/auth";
-import type { UserRole } from "@/features/auth/types";
 import posthog from "posthog-js";
 
 type SignUpFormProps = {
-  role: UserRole;
   /** Called after successful sign-up instead of navigating. Use in embedded
    *  contexts (e.g. screening portals) where the host manages navigation. */
   onSuccess?: () => void;
-  /** Show the Google sign-up button. Defaults to true. */
-  showGoogle?: boolean;
-  /** Show the "Already have an account?" footer link. Defaults to true. */
-  showFooterLink?: boolean;
 };
 
-export function SignUpForm({
-  role,
+export function WorkerSignUpForm({
   onSuccess,
-  showGoogle = true,
-  showFooterLink = true,
 }: SignUpFormProps) {
   const { loading: authLoading, setPendingRole, setPendingReferralCode } = useAuth();
   const searchParams = useSearchParams();
@@ -90,10 +81,10 @@ export function SignUpForm({
   const password = watch("password");
   const isLoading = isSubmitting || authLoading;
 
-  // Set the pending role immediately from the prop — no selection needed
+  // Worker sign-up always creates a worker account.
   useEffect(() => {
-    setPendingRole(role);
-  }, [role, setPendingRole]);
+    setPendingRole("worker");
+  }, [setPendingRole]);
 
   useEffect(() => {
     if (referralCode) {
@@ -111,10 +102,10 @@ export function SignUpForm({
   async function handleSubmit(data: SignUpValues) {
     try {
       await signUpWithEmail(data.email.trim(), data.password);
-      posthog.identify(data.email.trim(), { email: data.email.trim(), role });
+      posthog.identify(data.email.trim(), { email: data.email.trim(), role: "worker" });
       posthog.capture("user_signed_up", {
         method: "email",
-        role,
+        role: "worker",
         has_referral: !!referralCode,
       });
       // Navigation is handled by auth-provider after setSession completes.
@@ -132,20 +123,6 @@ export function SignUpForm({
         <p className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-primary">
           {t("overline")}
         </p>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {role === "worker"
-            ? t("titleWorker")
-            : role === "candidate"
-              ? t("titleCandidate")
-              : t("titleClient")}
-        </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          {role === "worker"
-            ? t("subtitleWorker")
-            : role === "candidate"
-              ? t("subtitleCandidate")
-              : t("subtitleClient")}
-        </p>
       </div>
 
       {referralCode && (
@@ -155,11 +132,17 @@ export function SignUpForm({
         </div>
       )}
 
-      <Card className="w-full max-w-[440px] overflow-hidden rounded-2xl shadow-lg">
+      <Card className="w-full max-w-[440px] overflow-hidden">
+        <CardHeader className="border-b border-border px-9 pb-6 pt-8">  
+            <h1 className="mb-1.5 font-[var(--font-display)] text-[1.45rem] font-extrabold leading-[1.15] tracking-tight text-foreground">
+              {t("titleWorker")}
+            </h1>
+            <p className="text-[0.845rem] font-light leading-[1.65] text-muted-foreground">
+              {t("subtitleWorker")}
+            </p>
+        </CardHeader>
         <CardContent className="px-9 pb-8 pt-7">
           <FieldGroup>
-            {showGoogle && <GoogleButton />}
-            {showGoogle && <OrDivider />}
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
               className="contents"
@@ -207,19 +190,18 @@ export function SignUpForm({
                 </LoadingSwap>
               </Button>
             </form>
+            <OrDivider />
+            <GoogleButton text="Google" />
             <AuthLegalNote />
-
-            {showFooterLink && (
-              <p className="text-center text-[0.82rem] font-light text-muted-foreground">
-                {t("haveAccount")}{" "}
-                <Link
-                  href={withAuthParams("/sign-in")}
-                  className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
-                >
-                  {t("signIn")}
-                </Link>
-              </p>
-            )}
+            <p className="text-center text-[0.82rem] font-light text-muted-foreground">
+              {t("haveAccount")}{" "}
+              <Link
+                href={withAuthParams("/sign-in")}
+                className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
+              >
+                {t("signIn")}
+              </Link>
+            </p>
           </FieldGroup>
         </CardContent>
       </Card>

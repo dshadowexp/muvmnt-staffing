@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { PipelineDiagram } from "./pipeline-diagram";
-import { ctaPrimary, ctaOutline } from "../_lib/cta-classes";
+import { ctaPrimary, ctaOutline, ctaOutlineDark } from "../_lib/cta-classes";
 
 /* Shared overline pill used in light-mode content sections */
 const SectionOverline = ({
@@ -77,8 +77,8 @@ export async function HeroSection() {
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_85%_10%,oklch(0.527_0.154_150.069/0.07),transparent_60%),radial-gradient(ellipse_40%_50%_at_5%_90%,oklch(0.527_0.154_150.069/0.04),transparent_60%)]" />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div>
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+          <div className="flex w-full flex-col items-center">
             <div className="mb-7 inline-flex animate-fade-up items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3.5 py-1.5 text-[0.8rem] font-medium tracking-wide text-primary">
               <span className="inline-block h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary" />
               {t("badge")}
@@ -95,17 +95,17 @@ export async function HeroSection() {
               </span>
             </h1>
 
-            <p className="mb-10 max-w-lg animate-fade-up-2 text-lg font-light leading-7 text-muted-foreground">
+            <p className="mb-10 max-w-2xl animate-fade-up-2 text-lg font-light leading-7 text-muted-foreground">
               {t("subtitle1")}
             </p>
 
-            <div className="flex animate-fade-up-3 flex-wrap items-center gap-4">
+            <div className="flex animate-fade-up-3 flex-wrap items-center justify-center gap-4">
               <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaRequest")}</Link>
               <Link href="/find-work" className={ctaOutline}>{t("ctaProfessional")}</Link>
             </div>
           </div>
 
-          <div className="grid animate-fade-up-4 grid-cols-3 overflow-hidden rounded-2xl border border-primary/15 bg-primary/5">
+          <div className="mt-12 grid w-full max-w-2xl animate-fade-up-4 grid-cols-3 overflow-hidden rounded-2xl border border-primary/15 bg-primary/5">
             {stats.map(({ value, label }, i) => {
               const suffix = value.match(/[<>%+h]+$/)?.[0] ?? "";
               return (
@@ -230,9 +230,9 @@ export async function HowItWorksSection() {
         </div>
 
         {/* CTAs */}
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+        {/* <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
           <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaRequest")}</Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );
@@ -324,10 +324,10 @@ export async function WhyUsSection() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+        {/* <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
           <Link href="/find-staff" className={ctaPrimary}>{tHow("ctaRequest")}</Link>
           <Link href="/find-work" className={ctaOutline}>{tHow("ctaJoin")}</Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );
@@ -389,8 +389,67 @@ export async function TestimonialsSection() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+        {/* <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
           <Link href="/dashboard/requests/new" className={ctaPrimary}>{t("ctaGetStarted")}</Link>
+        </div> */}
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────
+   AudienceSplitSection
+   Two-track CTA after testimonials — professionals vs facilities.
+────────────────────────────────────────── */
+export async function AudienceSplitSection() {
+  const t = await getTranslations("landing.audienceSplit");
+
+  return (
+    <section className="relative overflow-hidden bg-[var(--charcoal)] px-6 py-20 lg:px-12 lg:py-28">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_70%_at_50%_0%,rgba(13,148,136,0.12)_0%,transparent_55%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.05)_1px,transparent_1px)] bg-[size:48px_48px]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+      />
+
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 divide-y divide-white/10 md:grid-cols-2 md:divide-x md:divide-y-0">
+          <div className="flex flex-col justify-center px-0 py-12 md:py-14 md:pr-10 lg:pr-16">
+            <h2 className="font-[var(--font-display)] text-2xl font-bold tracking-tight text-white md:text-[1.65rem]">
+              {t("worker.title")}
+            </h2>
+            <p className="mt-4 max-w-md text-[0.95rem] font-light leading-relaxed text-white/70">
+              {t("worker.body")}
+            </p>
+            <div className="mt-8">
+              <Link href="/find-work" className={ctaOutlineDark}>
+                {t("worker.cta")}
+                <ArrowRight className="size-4 opacity-80" aria-hidden />
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center px-0 py-12 md:py-14 md:pl-10 lg:pl-16">
+            <h2 className="font-[var(--font-display)] text-2xl font-bold tracking-tight text-white md:text-[1.65rem]">
+              {t("facility.title")}
+            </h2>
+            <p className="mt-4 max-w-md text-[0.95rem] font-light leading-relaxed text-white/70">
+              {t("facility.body")}
+            </p>
+            <div className="mt-8">
+              <Link href="/find-staff" className={ctaOutlineDark}>
+                {t("facility.cta")}
+                <ArrowRight className="size-4 opacity-80" aria-hidden />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

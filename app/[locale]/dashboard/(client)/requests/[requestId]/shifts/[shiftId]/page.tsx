@@ -8,7 +8,7 @@ import { ShiftTimeline } from "@/features/shifts/components/shift-timeline";
 import { ClientShiftCompleteButton } from "@/features/shifts/components/client-shift-complete-button";
 import { ClientShiftReviewActions } from "@/features/shifts/components/client-shift-review-actions";
 import {
-  getShiftForClientUser,
+  getShiftForFacilityClient,
   getShiftReviewStatusForClient,
 } from "@/features/shifts/dal/queries";
 import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
@@ -20,8 +20,10 @@ import {
   formatExpectedShiftEnd,
   formatExpectedShiftStart,
 } from "@/features/shifts/lib/present-shift";
-import { getSession } from "@/lib/session";
-import { notFound, redirect } from "next/navigation";
+import { getSession } from "@/lib/get-session";
+import { notFound } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
 function workerDisplayName(
   first: string | null | undefined,
@@ -45,12 +47,14 @@ async function ShiftContent({
   shiftId,
   requestId,
   userId,
+  facilityId,
 }: {
   shiftId: string;
   requestId: string;
   userId: string;
+  facilityId: string;
 }) {
-  const shift = await getShiftForClientUser(shiftId, userId);
+  const shift = await getShiftForFacilityClient(shiftId, facilityId);
   if (shift == null || shift.request_id !== requestId) notFound();
 
   const sr = shift.staff_requests;
@@ -190,17 +194,24 @@ export default async function ClientShiftDetailPage({
 }: {
   params: Promise<{ requestId: string; shiftId: string }>;
 }) {
+  const locale = await getLocale();
   const { requestId, shiftId } = await params;
   const session = await getSession();
-  if (!session) redirect("/sign-in");
-  if (session.role !== "client") redirect(`/dashboard`);
+  if (!session) return redirect({ href: "/sign-in", locale });
+  if (session.role !== "client") return redirect({ href: "/dashboard", locale });
+  if (!session.facilityId) return redirect({ href: "/dashboard", locale });
 
   return (
     <div className="flex w-full max-w-5xl mx-auto flex-col gap-8">
       <BackLink backHref={`/dashboard/requests/${requestId}`} title="Request" />
 
       <Suspense fallback={<DetailSkeleton />}>
-        <ShiftContent shiftId={shiftId} requestId={requestId} userId={session.userId} />
+        <ShiftContent
+          shiftId={shiftId}
+          requestId={requestId}
+          userId={session.userId}
+          facilityId={session.facilityId}
+        />
       </Suspense>
     </div>
   );

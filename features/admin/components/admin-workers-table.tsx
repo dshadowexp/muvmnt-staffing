@@ -20,18 +20,14 @@ import { tryNormalizeProfessionId } from "@/lib/professions";
 import { format } from "date-fns";
 import { CircleCheckIcon, LoaderIcon } from "lucide-react";
 
-function WorkerStatusBadge({ status }: { status: string | null }) {
-  const label = status?.trim() || "Pending";
+function WorkerStageBadge({ stage }: { stage: string | null }) {
+  const label = stage?.trim() || "—";
   const normalized = label.toLowerCase();
-  const isComplete =
-    normalized === "done" ||
-    normalized === "active" ||
-    normalized === "approved" ||
-    normalized === "verified";
+  const isLive = normalized === "live";
 
   return (
-    <Badge variant="outline" className="text-muted-foreground gap-1.5 px-1.5">
-      {isComplete ? (
+    <Badge variant="outline" className="text-muted-foreground gap-1.5 px-1.5 capitalize">
+      {isLive ? (
         <CircleCheckIcon className="size-3.5 shrink-0 fill-green-500 dark:fill-green-400" />
       ) : (
         <LoaderIcon className="size-3.5 shrink-0" />
@@ -66,7 +62,7 @@ export function AdminWorkersTable({
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Profession</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Stage</TableHead>
             <TableHead className="text-right">Joined</TableHead>
           </TableRow>
         </TableHeader>
@@ -107,7 +103,7 @@ export function AdminWorkersTable({
                   {professionLabel}
                 </TableCell>
                 <TableCell>
-                  <WorkerStatusBadge status={w.live ? "active" : "inactive"} />
+                  <WorkerStageBadge stage={w.stage} />
                 </TableCell>
                 <TableCell className="text-muted-foreground text-right">
                   {format(new Date(w.created_at), "MMM d, yyyy")}

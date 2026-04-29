@@ -1,5 +1,5 @@
 import { redirect } from "@/i18n/navigation";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getLocale } from "next-intl/server";
 
 export default async function AssessmentsLayout({

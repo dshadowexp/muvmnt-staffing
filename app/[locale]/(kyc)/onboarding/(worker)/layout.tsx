@@ -1,11 +1,13 @@
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+import { getSession } from "@/lib/get-session";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
 export default async function WorkerLayout({ children }: { children: React.ReactNode }) {
+    const locale = await getLocale();
     const session = await getSession();
-    if (!session) redirect("/sign-in");
+    if (!session) return redirect({ href: "/sign-in", locale });
 
-    if (session.role !== "worker") redirect("/onboarding");
+    if (session.role !== "worker") return redirect({ href: "/onboarding", locale });
 
     return <>{children}</>;
 }

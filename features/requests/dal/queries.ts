@@ -8,12 +8,14 @@ import { parseSiteRowFromStaffRequestLocation } from "../lib/staff-request-locat
 export async function getStaffRequest(id: string) {
     const session = await getSession();
     if (!session) return { error: true, message: "User not authenticated" };
-    
+    if (!session.facilityId) return { error: true, message: "User not authenticated" };
+
     const supabase = await createAdminClient();
     const { data, error } = await supabase
         .from("staff_requests")
         .select("*")
         .eq("id", id)
+        .eq("facility_id", session.facilityId)
         .single();
 
     if (error) {
@@ -47,21 +49,26 @@ export type StaffRequestSiteAndPayments = {
 export async function getStaffRequestSiteAndPayments(requestId: string) {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
-  const { userId } = session;
+  if (!session.facilityId) return { error: true, message: "User not authenticated" };
 
   const supabase = await createAdminClient();
   const { data: sr, error: srError } = await supabase
     .from("staff_requests")
-    .select("client_user_id, cell_id, location")
+    .select("facility_id, operator_id, cell_id, location")
     .eq("id", requestId)
+    .eq("facility_id", session.facilityId)
     .single();
 
   if (srError || sr == null) {
     return { error: true as const, message: srError?.message ?? "Not found" };
   }
-  if (sr.client_user_id !== userId) {
-    return { error: true as const, message: "Not found" };
-  }
+
+  const { data: opRow } = await supabase
+    .from("operators")
+    .select("user_id")
+    .eq("id", sr.operator_id)
+    .maybeSingle();
+  const creatorUserId = opRow?.user_id ?? null;
 
   const fromRequest = parseSiteRowFromStaffRequestLocation(sr.location);
   if (fromRequest) {
@@ -90,13 +97,15 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
   }
 
   const [locRes, payRes] = await Promise.all([
-    supabase
-      .from("locations")
-      .select(
-        "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
-      )
-      .eq("user_id", sr.client_user_id)
-      .maybeSingle(),
+    creatorUserId
+      ? supabase
+          .from("locations")
+          .select(
+            "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
+          )
+          .eq("user_id", creatorUserId)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
     supabase
       .from("payments")
       .select("id, amount_cents, currency, status, created_at")
@@ -138,13 +147,13 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
 export async function getStaffRequests() {
     const session = await getSession();
     if (!session) return { error: true, message: "User not authenticated" };
-    const { userId } = session;
-    
+    if (!session.facilityId) return { error: true, message: "User not authenticated" };
+
     const supabase = await createAdminClient();
     const { data, error } = await supabase
         .from("staff_requests")
         .select("*")
-        .eq("client_user_id", userId)
+        .eq("facility_id", session.facilityId)
         .order("created_at", { ascending: false });
 
     if (error) {

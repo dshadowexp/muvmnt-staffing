@@ -41,11 +41,21 @@ const workerSteps: MultistepFormStep[] = [
 
 const clientSteps: MultistepFormStep[] = [
     {
+        id:          'verification',
+        title:       'Verification',
+        description: 'Confirm your contact information to secure your account.',
+        route:        '/onboarding/verification',
+        dependsOn:   [],
+        locked:      false,
+        freezesWhen: [],
+        icon:        MailCheck,
+    },
+    {
         id:          'details',
         title:       'Details',
         description: 'Provide your basic information',
         route:        '/onboarding/details',
-        dependsOn:   [],
+        dependsOn:   ['verification'],
         locked:      false, 
         freezesWhen: [],
         icon:        Building2,

@@ -2,60 +2,24 @@
 
 import { env } from "@/data/env/server";
 import { getCurrentUser } from "@/features/users/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
 import { getStripeServer, STRIPE_PRICE_IDS } from "@/services/stripe/server";
 import { getLocale } from "next-intl/server";
+import {
+    ensureStripeCustomerForFacility,
+    resolveFacilityIdForBillingSession,
+} from "@/features/billing/dal/payment-methods";
 
-/**
- * Ensures `billing_accounts` exists with a Stripe customer id (creates customer + row if needed).
- */
-export async function ensureStripeCustomerForBillingUser(): Promise<{
+async function ensureStripeCustomerForCurrentFacility(): Promise<{
     error: string | null;
     customerId: string | null;
 }> {
-    const user = await getCurrentUser();
-    if (!user) return { error: "Unauthorized", customerId: null };
-
-    const supabase = await createAdminClient();
-    const { data, error } = await supabase
-        .from("billing_accounts")
-        .select("stripe_customer_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-    if (error) return { error: error.message, customerId: null };
-
-    if (!data) {
-        const customer = await getStripeServer().customers.create({
-            email: user.email ?? "",
-            metadata: { userId: user.id },
-        });
-        const { error: insErr } = await supabase.from("billing_accounts").insert({
-            user_id: user.id,
-            stripe_customer_id: customer.id,
-        });
-        if (insErr) return { error: insErr.message, customerId: null };
-        return { error: null, customerId: customer.id };
-    }
-
-    if (!data.stripe_customer_id) {
-        const customer = await getStripeServer().customers.create({
-            email: user.email ?? "",
-            metadata: { userId: user.id },
-        });
-        const { error: upErr } = await supabase
-            .from("billing_accounts")
-            .update({ stripe_customer_id: customer.id })
-            .eq("user_id", user.id);
-        if (upErr) return { error: upErr.message, customerId: null };
-        return { error: null, customerId: customer.id };
-    }
-
-    return { error: null, customerId: data.stripe_customer_id };
+    const facilityId = await resolveFacilityIdForBillingSession();
+    if (!facilityId) return { error: "No facility in session", customerId: null };
+    return ensureStripeCustomerForFacility(facilityId);
 }
 
 export async function createSetupIntent() {
-    const ensured = await ensureStripeCustomerForBillingUser();
+    const ensured = await ensureStripeCustomerForCurrentFacility();
     if (ensured.error || !ensured.customerId) {
         return { error: ensured.error ?? "Unauthorized" };
     }
@@ -84,43 +48,29 @@ export async function createSetupIntent() {
 
 export async function createCheckoutSession(priceId: string) {
     const user = await getCurrentUser();
-    if (!user) throw new Error('Unauthenticated');
+    if (!user) throw new Error("Unauthenticated");
 
     if (!priceId || !(priceId in STRIPE_PRICE_IDS)) {
         return { error: "Invalid price ID" };
     }
 
-    const supabase = await createAdminClient();
+    const facilityId = await resolveFacilityIdForBillingSession();
+    if (!facilityId) throw new Error("No facility in session");
 
-    const { data: userBillingAccount } = await supabase.from("billing_accounts").select("*").eq("user_id", user.id).single();
-
-    if (!userBillingAccount) {
-        throw new Error('User not found');
+    const ensured = await ensureStripeCustomerForFacility(facilityId);
+    if (ensured.error || !ensured.customerId) {
+        throw new Error(ensured.error ?? "Billing setup failed");
     }
 
-    let customerId = userBillingAccount.stripe_customer_id;
-
-    if (!customerId) {
-        const customer = await getStripeServer().customers.create({
-            email: user.email ?? "",
-            metadata: {
-                userId: user.id,
-            },
-        })
-        customerId = customer.id
-
-        await supabase.from("billing_accounts").update({
-            stripe_customer_id: customerId,
-        }).eq("user_id", user.id);
-    }
+    const customerId = ensured.customerId;
 
     const checkoutSession = await getStripeServer().checkout.sessions.create({
         customer: customerId,
         payment_method_types: ["card"],
         line_items: [
             {
-            price: STRIPE_PRICE_IDS[priceId as keyof typeof STRIPE_PRICE_IDS],
-            quantity: 1,
+                price: STRIPE_PRICE_IDS[priceId as keyof typeof STRIPE_PRICE_IDS],
+                quantity: 1,
             },
         ],
         mode: "subscription",
@@ -128,9 +78,10 @@ export async function createCheckoutSession(priceId: string) {
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
         metadata: {
             userId: user.id,
+            facilityId,
             priceId,
         },
-    })
+    });
 
     return { data: { url: checkoutSession.url } };
 }
@@ -143,7 +94,7 @@ export async function createPortalSession(): Promise<
     const user = await getCurrentUser();
     if (!user) return { error: "Unauthenticated", data: null };
 
-    const ensured = await ensureStripeCustomerForBillingUser();
+    const ensured = await ensureStripeCustomerForCurrentFacility();
     if (ensured.error || !ensured.customerId) {
         return {
             error: ensured.error ?? "Billing account not setup",

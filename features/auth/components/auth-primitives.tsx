@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 /* ── Error banner ── */
@@ -34,13 +34,13 @@ export function SuccessBanner({ message }: { message: string }) {
 
 /* ── OR divider ── */
 
-export function OrDivider() {
+export function OrDivider({ text }: { text?: string }) {
   const t = useTranslations("common");
   return (
     <div className="flex items-center gap-3">
       <div className="h-px flex-1 bg-border" />
-      <span className="text-[0.72rem] font-light tracking-wide text-muted-foreground">
-        {t("or")}
+      <span className="text-[0.72rem] font-light tracking-wide text-muted-foreground uppercase">
+        {text ?? t("or")}
       </span>
       <div className="h-px flex-1 bg-border" />
     </div>

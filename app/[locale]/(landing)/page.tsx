@@ -5,6 +5,7 @@ import {
   BridgeSection,
   WhyUsSection,
   TestimonialsSection,
+  AudienceSplitSection,
 } from "@/app/[locale]/(landing)/_components/landing-sections";
 
 export default function HomePage() {
@@ -16,6 +17,7 @@ export default function HomePage() {
       <BridgeSection />
       <WhyUsSection />
       <TestimonialsSection />
+      <AudienceSplitSection />
     </>
   );
 }

@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation";
+import { redirect, Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import Link from "next/link";
-import { Hospital, Stethoscope, ArrowRight, UserRoundCheckIcon } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Stethoscope, ArrowRight, SearchIcon } from "lucide-react";
 import { SITE_NAME } from "@/lib/constants";
 import { withAuthParams } from "@/features/auth/lib/auth-params";
 import { cn } from "@/lib/utils";
@@ -17,6 +16,7 @@ type Props = {
 
 export default async function SignUpPage({ searchParams }: Props) {
   const params = await searchParams;
+  const locale = await getLocale();
 
   // Preserve ?ref= when redirecting so referral codes carry through
   const ref = typeof params.ref === "string" ? params.ref : null;
@@ -24,9 +24,9 @@ export default async function SignUpPage({ searchParams }: Props) {
 
   // Server-side redirect — no flash, no client JS needed
   const as = typeof params.as === "string" ? params.as : null;
-  if (as === "worker")    redirect(`/sign-up/worker${refSuffix}`);
-  if (as === "client")    redirect(`/sign-up/client${refSuffix}`);
-  if (as === "candidate") redirect(`/sign-up/candidate${refSuffix}`);
+  if (as === "worker")    redirect({ href: `/sign-up/worker${refSuffix}`, locale });
+  if (as === "client")    redirect({ href: `/sign-up/client${refSuffix}`, locale });
+  if (as === "candidate") redirect({ href: `/sign-up/candidate${refSuffix}`, locale });
 
   const t = await getTranslations("auth.signUp");
 
@@ -34,7 +34,7 @@ export default async function SignUpPage({ searchParams }: Props) {
     {
       value: "client",
       href: `/sign-up/client${refSuffix}`,
-      icon: Hospital,
+      icon: SearchIcon,
       title: t("roleClient"),
       description: t("roleClientDescription"),
       featured: false,
@@ -45,14 +45,6 @@ export default async function SignUpPage({ searchParams }: Props) {
       icon: Stethoscope,
       title: t("roleWorker"),
       description: t("roleWorkerDescription"),
-      featured: false,
-    },
-    {
-      value: "candidate",
-      href: withAuthParams("/sign-up/candidate", params),
-      icon: UserRoundCheckIcon,
-      title: t("roleCandidate"),
-      description: t("roleCandidateDescription"),
       featured: false,
     },
   ];
@@ -129,7 +121,7 @@ export default async function SignUpPage({ searchParams }: Props) {
       <p className="mt-6 text-center text-[0.82rem] font-light text-muted-foreground">
         {t("haveAccount")}{" "}
         <Link
-          href="/sign-in"
+          href={withAuthParams("/sign-in", params)}
           className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
         >
           {t("signIn")}

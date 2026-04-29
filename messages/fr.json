@@ -7,6 +7,12 @@
     "countries": "Canada, États-Unis, Royaume-Uni",
     "copyright": "© {year} readykare Inc. Tous droits réservés."
   },
+  "account": {
+    "teamInviteEmail": {
+      "subject": "Invitation à rejoindre {facilityName} sur ReadyKare",
+      "preview": "Invitation à rejoindre {facilityName}"
+    }
+  },
   "meta": {
     "description": "readykare met en lien les établissements de santé et les familles avec des professionnels qualifiés et accrédités — rapidement. Dotation temporaire, soins à domicile et relève d'urgence partout au Canada.",
     "openGraphDescription": "Comblez vos besoins en personnel en moins de 5 minutes grâce à un matching en temps réel par IA avec des professionnels de santé qualifiés, présélectionnés et vérifiés près de vous.",
@@ -144,6 +150,9 @@
     ],
     "findWork": "Trouver un quart",
     "requestStaff": "Demander du personnel",
+    "logIn": "Connexion",
+    "requestDemo": "Demander une démo",
+    "createFreeAccount": "Créer un compte gratuit",
     "dashboard": "Tableau de bord",
     "menu": "Menu"
   },
@@ -330,6 +339,18 @@
       "ctaRequest": "Demander du personnel →",
       "ctaFindWork": "Trouver un quart"
     },
+    "audienceSplit": {
+      "worker": {
+        "title": "Pour les professionnels de la santé",
+        "body": "Rejoignez un réseau d’infirmières, de PAB et de personnel connexe. Choisissez des quarts près de chez vous, obtenez des jumelages rapides et une rémunération fiable — à votre rythme.",
+        "cta": "Trouver un quart"
+      },
+      "facility": {
+        "title": "Pour les établissements et les équipes",
+        "body": "Publiez des quarts ouverts, voyez la couverture en direct et réservez du personnel accrédité en quelques minutes. De la relève le jour même à la dotation à long terme — avec la conformité intégrée.",
+        "cta": "Demander du personnel"
+      }
+    },
     "screening": {
       "badge": "Présélection IA",
       "titleLead": "Éliminez la présélection",
@@ -470,6 +491,100 @@
       "description": "Créez un compte gratuit pour gérer vos demandes et votre personnel, ou connectez-vous si vous utilisez déjà ReadyKare.",
       "ctaCreate": "Créer un compte",
       "ctaSignIn": "Déjà membre? Connectez-vous"
+    }
+  },
+  "requestDemo": {
+    "meta": {
+      "title": "Demander une démo",
+      "description": "Découvrez comment ReadyKare aide les établissements à combler les quarts grâce à l’appariement par l’IA et des parcours conformes."
+    },
+    "breadcrumb": "Demander une démo",
+    "hero": {
+      "overline": "Pour les établissements de santé",
+      "titleLead": "Découvrez ReadyKare",
+      "titleAccent": "en action",
+      "subtitle": "Participation à une démo personnalisée avec notre équipe — flux de dotation, présélection et comment vos équipes obtiennent rapidement de la relève."
+    },
+    "bullets": [
+      {
+        "icon": "Sparkles",
+        "title": "Jumelage intelligent",
+        "description": "Comment les demandes partent de votre site vers des professionnels qualifiés près de vous."
+      },
+      {
+        "icon": "Users",
+        "title": "Opérateurs et équipes",
+        "description": "Rôles, invitations et outils du quotidien que votre personnel utilise vraiment."
+      },
+      {
+        "icon": "CalendarCheck",
+        "title": "Quarts jusqu’à la paie",
+        "description": "Du quart ouvert à la couverture confirmée — avec la conformité à l’esprit."
+      },
+      {
+        "icon": "CheckCircle2",
+        "title": "Vos questions",
+        "description": "Apportez votre flux de travail ; nous le cartographierons avec ReadyKare pendant l’appel."
+      }
+    ],
+    "card": {
+      "title": "Réservez votre session",
+      "subtitle": "Parlez-nous un peu de vous — puis choisissez un créneau qui vous convient."
+    },
+    "form": {
+      "emailLabel": "Courriel d’affaires",
+      "emailPlaceholder": "vous@etablissement.ca",
+      "firstNameLabel": "Prénom",
+      "firstNamePlaceholder": "Marie",
+      "lastNameLabel": "Nom",
+      "lastNamePlaceholder": "Tremblay",
+      "companyLabel": "Établissement ou organisation",
+      "companyPlaceholder": "Votre organisation",
+      "jobTitleLabel": "Poste",
+      "jobTitlePlaceholder": "ex. Directrice des soins",
+      "staffSizeLabel": "Effectif régulier",
+      "countryLabel": "Pays",
+      "selectPlaceholder": "Choisir…",
+      "productInterestLabel": "Quels produits ReadyKare vous intéressent?",
+      "productInterestPlaceholder": "Choisir un produit",
+      "staffSizes": [
+        { "value": "1-10", "label": "1–10 employés réguliers" },
+        { "value": "11-50", "label": "11–50 employés réguliers" },
+        { "value": "51-200", "label": "51–200 employés réguliers" },
+        { "value": "201-500", "label": "201–500 employés réguliers" },
+        { "value": "501+", "label": "501+ employés réguliers" }
+      ],
+      "productInterests": [
+        { "value": "temporary_staffing_relief", "label": "Renfort temporaire en dotation" },
+        { "value": "candidate_screening_solutions", "label": "Solutions de présélection des candidats" }
+      ],
+      "countries": [
+        { "value": "CA", "label": "Canada" },
+        { "value": "US", "label": "États-Unis" },
+        { "value": "GB", "label": "Royaume-Uni" },
+        { "value": "IE", "label": "Irlande" },
+        { "value": "AU", "label": "Australie" },
+        { "value": "NZ", "label": "Nouvelle-Zélande" },
+        { "value": "FR", "label": "France" },
+        { "value": "DE", "label": "Allemagne" },
+        { "value": "OTHER", "label": "Autre" }
+      ],
+      "privacyNotice": "En cliquant sur <cta>Planifier une démo</cta> ci-dessous, vous confirmez avoir lu et accepté la <policy>Politique de confidentialité</policy> de ReadyKare.",
+      "submit": "Planifier une démo",
+      "saveError": "Nous n’avons pas pu enregistrer vos informations. Réessayez.",
+      "calInitError": "Le planificateur n’a pas pu se charger. Actualisez la page ou réessayez.",
+      "calOpenError": "Nous n’avons pas pu ouvrir le calendrier. Actualisez et réessayez.",
+      "linkBookingError": "Votre rendez-vous est réservé, mais nous n’avons pas pu le lier à votre dossier. Contactez-nous si besoin.",
+      "validation": {
+        "emailInvalid": "Veuillez entrer une adresse courriel valide.",
+        "firstNameRequired": "Le prénom est requis.",
+        "lastNameRequired": "Le nom est requis.",
+        "companyRequired": "Le nom de l’organisation est requis.",
+        "jobTitleRequired": "Le poste est requis.",
+        "staffSizeRequired": "Choisissez un effectif régulier.",
+        "productInterestRequired": "Choisissez un produit.",
+        "countryRequired": "Choisissez un pays."
+      }
     }
   },
   "findWork": {
@@ -873,6 +988,7 @@
       "overline": "Bon retour",
       "title": "Connectez-vous à votre compte",
       "subtitle": "Accédez à vos demandes de personnel et aux détails de votre compte.",
+      "google": "Continuer avec Google",
       "emailLabel": "Adresse courriel",
       "emailPlaceholder": "vous@organisation.ca",
       "passwordLabel": "Mot de passe",
@@ -880,7 +996,147 @@
       "forgotPassword": "Mot de passe oublié?",
       "submit": "Continuer avec le courriel →",
       "noAccount": "Vous n'avez pas de compte?",
-      "createOne": "En créer un"
+      "createOne": "En créer un",
+      "contactSales": "Contacter les ventes",
+      "getStartedFree": "Commencer gratuitement",
+      "or": "ou",
+      "choiceTitle": "Bienvenue de retour",
+      "choiceSubtitle": "Connectez-vous à votre compte ReadyKare.",
+      "roleClient": "Pour les entreprises",
+      "roleClientDescription": "Des milliers d'entreprises de santé ont adopté la nouvelle façon de pourvoir leur équipe.",
+      "roleWorker": "Pour les professionnels",
+      "roleWorkerDescription": "Rejoignez plus de 100,000 professionnels de santé qui ont trouvé du travail flexible sur ReadyKare."
+    },
+    "facilitySignIn": {
+      "header": {
+        "overline": "Connexion établissement"
+      },
+      "flow": {
+        "emailTitle": "Bon retour",
+        "emailSubtitle": "Entrez votre courriel professionnel pour accéder au tableau de bord de votre établissement.",
+        "passwordTitle": "Entrez votre mot de passe",
+        "passwordSubtitle": "Connexion avec {email}",
+        "companyEmailLabel": "Courriel professionnel",
+        "companyEmailPlaceholder": "vous@organisation.ca",
+        "companyEmailNote": "Utilisez l’adresse que votre établissement utilise sur ReadyKare.",
+        "continue": "Continuer",
+        "google": "Continuer avec Google",
+        "microsoft": "Continuer avec Microsoft",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "Votre mot de passe",
+        "forgotPassword": "Mot de passe oublié?",
+        "submit": "Se connecter",
+        "back": "Retour",
+        "errors": {
+          "invitePending": "Vous avez une invitation en attente. Consultez votre boîte courriel ou contactez votre administrateur.",
+          "domainRegistered": "Le domaine de cette organisation est déjà sur ReadyKare. Contactez votre administrateur ou notre équipe pour obtenir l’accès.",
+          "noOperatorAccess": "Aucun accès au tableau de bord n’est lié à ce compte pour l’instant. Demandez à votre administrateur de vous ajouter comme opérateur.",
+          "notFound": "Nous n’avons pas trouvé de compte établissement pour cette adresse. Créez-en un ou demandez une invitation à votre administrateur.",
+          "wrongRoleWorker": "Ce courriel est enregistré comme professionnel de la santé — utilisez la connexion travailleur.",
+          "wrongRoleCandidate": "Ce courriel est lié à une candidature — utilisez le lien reçu avec votre invitation."
+        }
+      },
+      "fields": {
+        "workEmail": "Courriel professionnel",
+        "workEmailPlaceholder": "vous@votreentreprise.com"
+      },
+      "rememberMe": "Se souvenir de moi",
+      "ctaContinue": "Continuer",
+      "googleCta": "Continuer avec Google",
+      "noAccount": "Vous n'avez pas de compte?",
+      "noAccountSub": "Contactez votre administrateur ou",
+      "signUpFree": "Inscrivez-vous gratuitement",
+      "workerFooter": {
+        "prompt": "Êtes-vous un professionnel de santé?",
+        "cta": "Connectez-vous ici"
+      },
+      "common": {
+        "tryDifferentEmail": "Essayer une autre adresse"
+      },
+      "steps": {
+        "email": {
+          "title": "Bon retour",
+          "subtitle": "Entrez votre courriel professionnel pour accéder à votre tableau de bord."
+        },
+        "existing_client": {
+          "title": "Connexion",
+          "subtitle": "Choisissez comment vous souhaitez accéder à votre compte."
+        },
+        "link_sent": {
+          "title": "Vérifiez votre boîte courriel",
+          "subtitle": "Un lien de connexion est en route."
+        },
+        "invite_pending": {
+          "title": "Invitation trouvée",
+          "subtitle": "Votre invitation vous attend dans votre boîte courriel."
+        },
+        "personal_email": {
+          "title": "Courriel professionnel requis",
+          "subtitle": "Les comptes établissement nécessitent un courriel d'entreprise."
+        },
+        "not_found": {
+          "title": "Introuvable",
+          "subtitle": "Nous n'avons pas trouvé de compte établissement avec cette adresse."
+        },
+        "wrong_role": {
+          "title": "Mauvais portail",
+          "subtitle": "Ce courriel est associé à un autre type de compte."
+        }
+      },
+      "panels": {
+        "personalEmail": {
+          "title": "Utilisez votre courriel professionnel",
+          "subtitle": "Les comptes établissement exigent un courriel d'entreprise. Les adresses personnelles (ex. Gmail) ne sont pas acceptées.",
+          "cta": "Essayer une autre adresse"
+        },
+        "notFound": {
+          "title": "Aucun compte trouvé",
+          "subtitle": "Nous n'avons pas trouvé de compte établissement pour {email}. Vous pourriez avoir besoin d'une invitation de votre administrateur.",
+          "primaryCta": "Créer un compte établissement"
+        },
+        "wrongRole": {
+          "workerTitle": "Ce courriel est enregistré comme professionnel",
+          "workerSubtitle": "Utilisez la page de connexion des professionnels pour accéder à votre compte.",
+          "workerCta": "Aller à la connexion pro",
+          "candidateTitle": "Ce courriel appartient à un compte candidat",
+          "candidateSubtitle": "Les candidats accèdent à la plateforme via leur lien d'invitation."
+        },
+        "linkSent": {
+          "title": "Lien de connexion envoyé",
+          "subtitle": "Si un compte existe pour {email}, nous enverrons un lien de connexion. Ouvrez-le pour continuer.",
+          "noEmail": "Vous ne l'avez pas reçu?",
+          "resend": "Renvoyer"
+        }
+      }
+    },
+    "candidateSignIn": {
+      "meta": {
+        "title": "Connexion candidat",
+        "description": "Entrez votre jeton de présélection pour continuer."
+      },
+      "overline": "Accès présélection",
+      "title": "Continuer votre présélection",
+      "subtitle": "Entrez le jeton de votre lien d'invitation pour continuer.",
+      "tokenLabel": "Jeton de présélection",
+      "tokenPlaceholder": "Collez votre jeton",
+      "cta": "Continuer"
+    },
+    "joinTeam": {
+      "meta": {
+        "title": "Rejoindre votre équipe | ReadyKare",
+        "description": "Acceptez votre invitation à rejoindre une organisation sur ReadyKare."
+      },
+      "invalidTitle": "Invitation introuvable",
+      "invalidBody": "Ce lien est peut-être expiré ou déjà utilisé.",
+      "expiredTitle": "Invitation expirée",
+      "usedTitle": "Déjà acceptée",
+      "usedBody": "Cette invitation a déjà été utilisée. Connectez-vous avec votre courriel professionnel.",
+      "title": "Vous êtes invité",
+      "subtitle": "{facilityName} vous invite à collaborer sur ReadyKare.",
+      "inviteEmailNote": "Inscrivez-vous ou connectez-vous avec {email}.",
+      "ctaSignUp": "Créer un compte",
+      "ctaSignIn": "Connexion",
+      "signInHint": "Vous avez déjà un compte? Utilisez la connexion avec l’adresse ci-dessus."
     },
     "signUp": {
       "meta": {
@@ -919,8 +1175,12 @@
       "inviteEmailLabel": "Adresse courriel",
       "inviteEmailPlaceholder": "vous@courriel.com",
       "inviteEmailNote": "Utilisez l'adresse courriel à laquelle votre invitation de présélection a été envoyée.",
+      "createPasswordTitle": "Créez votre mot de passe",
+      "createPasswordSubtitle": "Définissez un mot de passe sécurisé pour terminer la création de votre compte.",
       "passwordLabel": "Mot de passe",
       "passwordPlaceholder": "Créez un mot de passe",
+      "continue": "Continuer →",
+      "back": "Retour",
       "submit": "Créer un compte →",
       "haveAccount": "Vous avez déjà un compte?",
       "signIn": "Se connecter",
@@ -929,6 +1189,19 @@
       "submitMagicLink": "S'inscrire",
       "magicLinkSentTitle": "Vérifiez votre courriel",
       "magicLinkSentSubtitle": "Nous avons envoyé un lien de connexion à {email}. Cliquez dessus pour finaliser la création de votre compte — les liens expirent après 15 minutes.",
+      "facilityInvitePending": "Vous avez déjà une invitation en attente. Vérifiez votre boîte courriel pour rejoindre votre établissement.",
+      "facilityInvitePendingTitle": "Invitation en attente",
+      "facilityInvitePendingHelp": "Il semble que vous ayez déjà été invité. Utilisez votre courriel d’invitation ou connectez-vous pour continuer.",
+      "facilityInvitePendingCta": "Aller à la connexion établissement",
+      "inviteEmailMismatch": "Utilisez exactement l’adresse courriel à laquelle l’invitation a été envoyée.",
+      "inviteFromFacility": "Vous rejoignez {facility}",
+      "inviteUseEmail": "Continuez avec {email} — elle doit correspondre à votre invitation.",
+      "facilityAlreadyExistsFallback": "votre établissement",
+      "facilityAlreadyExists": "{facility} est déjà sur ReadyKare.",
+      "facilityAlreadyExistsTitle": "Établissement déjà inscrit",
+      "facilityAlreadyExistsHelp": "Le domaine de votre organisation ({domain}) est déjà associé à un établissement existant. Demandez à votre administrateur de vous inviter, ou connectez-vous si vous avez déjà accès.",
+      "facilityAlreadyExistsCtaSignIn": "Aller à la connexion établissement",
+      "facilityAlreadyExistsCtaContact": "Contacter les ventes",
       "magicLinkResendLabel": "Vous ne l'avez pas reçu?",
       "magicLinkResend": "Renvoyer le lien",
       "magicLinkChangeEmail": "Utiliser une autre adresse",
@@ -1079,7 +1352,17 @@
       "defaultName": "Compte"
     },
     "worker": {
+      "stages": {
+        "ariaLabel": "Votre parcours d'intégration",
+        "interview": "Entrevue",
+        "compliance": "Conformité",
+        "payroll": "Paie",
+        "availability": "Disponibilité",
+        "live": "Actif"
+      },
       "home": {
+        "notLiveTitle": "Dossier en examen",
+        "notLiveDescription": "Vous n'êtes pas encore éligible aux quarts. Complétez les tâches ci-dessous lorsqu'elles apparaissent — notre équipe peut aussi examiner votre dossier avant l'activation.",
         "welcome": "Bienvenue, {name}",
         "subtitle": "Voici un aperçu de votre activité.",
         "shiftsCompleted": "Quarts terminés",
@@ -1123,6 +1406,14 @@
           "title": "Configuration de la paie",
           "description": "Connectez votre compte de versement pour recevoir le paiement de vos quarts complétés.",
           "startError": "Impossible de démarrer la configuration de la paie. Réessayez ou ouvrez Paie depuis le menu du compte."
+        },
+        "setupLocation": {
+          "title": "Ajouter votre emplacement",
+          "description": "Indiquez votre adresse pour être apparié aux quarts à proximité."
+        },
+        "setupAvailability": {
+          "title": "Définir la disponibilité",
+          "description": "Choisissez vos heures hebdomadaires de disponibilité."
         },
         "processing": {
           "title": "Examen de la demande",
@@ -1289,6 +1580,25 @@
       "profile": {
         "title": "Profil",
         "subtitle": "Gérez votre profil de travailleur et votre autorisation de travail. Les certifications et évaluations se trouvent dans Évaluations."
+      },
+      "calendarFeed": {
+        "title": "Abonnement calendrier",
+        "description": "Abonnez-vous dans Calendrier Apple, Google Agenda ou Outlook avec ce lien privé. L’application actualise le flux régulièrement — les mises à jour ne sont pas instantanées.",
+        "urlLabel": "URL d’abonnement",
+        "copy": "Copier le lien",
+        "copied": "Lien copié",
+        "copyFailed": "Impossible de copier",
+        "rotate": "Générer un nouveau lien",
+        "rotating": "Génération…",
+        "rotateConfirmTitle": "Générer un nouveau lien d’abonnement ?",
+        "rotateConfirmDescription": "L’ancien lien cessera de fonctionner. Mettez à jour chaque application qui l’utilisait.",
+        "rotateCancel": "Annuler",
+        "rotateConfirm": "Générer",
+        "rotateSuccess": "Nouveau lien d’abonnement créé.",
+        "rotateError": "Impossible de générer un nouveau lien.",
+        "hintGoogle": "Google Agenda : Paramètres → Ajouter un agenda → À partir de l’URL → collez le lien.",
+        "hintApple": "Calendrier Apple : Fichier → Nouvel abonnement au calendrier → collez le lien.",
+        "privacy": "Toute personne disposant de ce lien peut voir vos quarts à venir. Ne le partagez pas publiquement."
       }
     },
     "client": {
@@ -1306,6 +1616,18 @@
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
         "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui."
+      },
+      "subscriptionCheckout": {
+        "loading": "Vérification de votre abonnement…",
+        "activatingTitle": "Activation de votre abonnement",
+        "activatingHint": "Patientez — nous synchronisons votre formule.",
+        "pollHint": "Confirmation du paiement et activation du plan…",
+        "activatedTitle": "Abonnement actif",
+        "activatedToast": "Votre abonnement est actif.",
+        "activationFailedTitle": "Problème d'activation",
+        "activationFailedHint": "Le paiement a peut-être réussi mais la mise en service a échoué. Consultez Facturation ou contactez le support.",
+        "activationFailedToast": "Impossible de confirmer l'activation. Consultez Facturation ou réessayez.",
+        "activationTimeoutToast": "Confirmation en cours — actualisez la page ou ouvrez Facturation dans un instant."
       },
       "requests": {
         "title": "Vos demandes",
@@ -1335,11 +1657,41 @@
         "paymentMethodSaved": "Mode de paiement enregistré.",
         "savingPaymentMethod": "Enregistrement…",
         "paymentHistory": "Historique des paiements",
-        "paymentHistorySubtitle": "Paiements complétés sur l'ensemble de vos demandes de personnel."
+        "paymentHistorySubtitle": "Paiements complétés sur l'ensemble de vos demandes de personnel.",
+        "subscriptionPageTitle": "Facturation",
+        "subscriptionPageSubtitle": "Gérez votre abonnement, votre mode de paiement et vos factures.",
+        "noSubscriptionBody": "Vous n'avez pas encore d'abonnement actif.",
+        "drawerTitle": "Choisir un forfait pour {facilityName}",
+        "drawerFacilityFallback": "votre organisation",
+        "pricingPageLink": "Tarifs",
+        "freePlanTitle": "Forfait gratuit",
+        "freePlanBadge": "Forfait actuel",
+        "freePlanDescription": "Vous êtes sur le forfait gratuit. Passez à un forfait payant lorsque vous avez besoin de limites plus élevées.",
+        "viewPlans": "Voir les forfaits",
+        "currentPeriod": "Période en cours",
+        "planLimits": "Limites du forfait",
+        "teamSeats": "Sièges d'équipe",
+        "screeningsCap": "Présélections",
+        "screeningInvitesCap": "Invitations de préselection / période",
+        "paymentMethodTitle": "Mode de paiement",
+        "paymentMethodNone": "Aucun mode de paiement enregistré. Ajoutez une carte dans le portail de facturation.",
+        "paymentMethodCard": "{brand} ····{last4} · Exp. {month}/{year}",
+        "invoicesTitle": "Factures",
+        "invoicesSubtitle": "Depuis Stripe — abonnement et autres frais.",
+        "invoicesEmpty": "Aucune facture pour le moment.",
+        "invoiceColDate": "Date",
+        "invoiceColNumber": "Facture",
+        "invoiceColAmount": "Montant",
+        "invoiceColStatus": "Statut",
+        "invoiceView": "Voir",
+        "invoicePdf": "PDF"
       },
       "account": {
         "title": "Détails du compte",
         "subtitle": "Profil de l'organisation et adresse.",
+        "organization": {
+          "domainsConflict": "Le domaine « {domain} » est déjà enregistré pour une autre organisation."
+        },
         "address": {
           "cardTitle": "Adresse",
           "cardDescription": "C'est là que vos quarts seront publiés et que le personnel sera jumelé.",
@@ -1583,6 +1935,8 @@
         "yearsInt": "Doit être un nombre entier",
         "organizationNameRequired": "Le nom de l'organisation est requis",
         "organizationTypeRequired": "Le type d'organisation est requis",
+        "domainsRequired": "Ajoutez au moins un domaine courriel pour votre organisation (p. ex. hopital.ca).",
+        "domainsInvalid": "Domaine invalide : « {domain} ». Utilisez le domaine courriel de votre organisation (p. ex. hopital.ca).",
         "workAuthorizationRequired": "Veuillez sélectionner un statut d'autorisation de travail",
         "workAuthorizationInvalid": "Veuillez sélectionner une autorisation de travail valide",
         "socialNumberRequired": "Le numéro d'assurance sociale est requis",
@@ -1641,7 +1995,10 @@
           "typeLabel": "Type d'organisation",
           "typeDescription": "Sélectionnez le type qui décrit le mieux cette organisation",
           "typePlaceholder": "Sélectionner un type...",
-          "typeSearch": "Rechercher un type..."
+          "typeSearch": "Rechercher un type...",
+          "domainsLabel": "Domaines courriel",
+          "domainsDescription": "Domaines utilisés pour les adresses courriel du personnel et des opérateurs. Un domaine par ligne, ou séparez-les par des virgules. Le domaine de votre connexion est ajouté automatiquement s'il est omis.",
+          "domainsPlaceholder": "hopital.ca\nfiliale.org"
         },
         "authorization": {
           "typeLabel": "Type d'autorisation de travail",
@@ -1728,6 +2085,8 @@
           "changeAddress": "Modifier l'adresse",
           "updatingAddress": "Mise à jour de l'adresse",
           "close": "Fermer",
+          "addressLabel": "Adresse",
+          "addressDescription": "L'adresse de votre établissement",
           "currentPrefix": "Actuelle : ",
           "placeholder": "Commencez à taper une nouvelle adresse…",
           "required": "Obligatoire",

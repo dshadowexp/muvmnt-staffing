@@ -1,6 +1,4 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import { SITE_NAME } from "@/lib/constants";
 import { Logo } from "@/components/logo";
 import { AuthRedirectGate } from "@/features/auth/components/auth-redirect-gate";
@@ -18,12 +16,6 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const tF = await getTranslations("footer.legal");
-  const FOOTER_LINKS = [
-    { label: tF("privacy"), href: "/privacy" },
-    { label: tF("terms"), href: "/terms" },
-  ];
-
   return (
     <div className="flex min-h-screen bg-background">
 
@@ -42,19 +34,6 @@ export default async function AuthLayout({
             <Logo />
           </div>
           <OrbitalVisual />
-        </div>
-
-        {/* Footer links */}
-        <div className="relative z-10 flex gap-5 border-t border-border/50 px-10 py-5">
-          {FOOTER_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-[0.72rem] font-light text-muted-foreground/50 no-underline transition-colors hover:text-muted-foreground"
-            >
-              {l.label}
-            </Link>
-          ))}
         </div>
       </div>
 

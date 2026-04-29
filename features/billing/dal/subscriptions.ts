@@ -1,24 +1,32 @@
 import "server-only";
 
 import { createAdminClient } from "@/services/supabase/server";
+import type { Database, TablesInsert } from "@/services/supabase/types/database";
 import type { SubscriptionPlan } from "@/services/stripe/server";
 
-export type SubscriptionRow = {
-    id: string;
-    facility_id: string;
-    plan: SubscriptionPlan;
-    stripe_subscription_id: string | null;
-    stripe_customer_id: string | null;
-    status: string;
-    current_period_start: string | null;
-    current_period_end: string | null;
-    canceled_at: string | null;
-    seats_limit: number;
-    screenings_limit: number;
-    interviews_limit: number;
-    created_at: string;
-    updated_at: string;
-};
+/** Persisted `subscriptions.status` — matches Postgres enum `subscription_status`. */
+export type SubscriptionStatus = Database["public"]["Enums"]["subscription_status"];
+
+/** Maps Stripe `subscription.status` strings into our DB enum. */
+export function subscriptionStatusFromStripe(status: string): SubscriptionStatus {
+    switch (status) {
+        case "trialing":
+        case "active":
+        case "past_due":
+        case "canceled":
+        case "incomplete":
+        case "unpaid":
+            return status;
+        case "incomplete_expired":
+            return "canceled";
+        case "paused":
+            return "active";
+        default:
+            throw new Error(`Unknown Stripe subscription status: ${status}`);
+    }
+}
+
+export type SubscriptionRow = Database["public"]["Tables"]["subscriptions"]["Row"];
 
 /** Fetch the active subscription for a facility. Returns null if none. */
 export async function getSubscription(facilityId: string): Promise<SubscriptionRow | null> {
@@ -52,32 +60,29 @@ export type UpsertSubscriptionInput = {
     facilityId: string;
     plan: SubscriptionPlan;
     stripeSubscriptionId: string;
-    stripeCustomerId: string;
     status: string;
     currentPeriodStart: number; // Unix timestamp
-    currentPeriodEnd: number;   // Unix timestamp
+    currentPeriodEnd: number; // Unix timestamp
+    stripePriceId?: string | null;
 };
 
 /** Create or update the subscription row for a facility. */
 export async function upsertSubscription(input: UpsertSubscriptionInput): Promise<void> {
     const supabase = await createAdminClient();
 
-    const { error } = await supabase
-        .from("subscriptions")
-        .upsert(
-            {
-                facility_id: input.facilityId,
-                plan: input.plan,
-                stripe_subscription_id: input.stripeSubscriptionId,
-                stripe_customer_id: input.stripeCustomerId,
-                status: input.status,
-                current_period_start: new Date(input.currentPeriodStart * 1000).toISOString(),
-                current_period_end: new Date(input.currentPeriodEnd * 1000).toISOString(),
-                canceled_at: null,
-                updated_at: new Date().toISOString(),
-            },
-            { onConflict: "facility_id" },
-        );
+    const row: TablesInsert<"subscriptions"> = {
+        facility_id: input.facilityId,
+        plan: input.plan,
+        stripe_subscription_id: input.stripeSubscriptionId,
+        stripe_price_id: input.stripePriceId ?? null,
+        status: subscriptionStatusFromStripe(input.status),
+        current_period_start: new Date(input.currentPeriodStart * 1000).toISOString(),
+        current_period_end: new Date(input.currentPeriodEnd * 1000).toISOString(),
+        canceled_at: null,
+        updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase.from("subscriptions").upsert(row, { onConflict: "facility_id" });
 
     if (error) throw new Error(error.message);
 }
@@ -104,7 +109,7 @@ export async function cancelSubscription(
 /** Update subscription status only (e.g., past_due, unpaid). */
 export async function updateSubscriptionStatus(
     stripeSubscriptionId: string,
-    status: string,
+    status: SubscriptionStatus,
 ): Promise<void> {
     const supabase = await createAdminClient();
 

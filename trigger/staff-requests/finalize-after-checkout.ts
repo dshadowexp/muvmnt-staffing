@@ -8,12 +8,14 @@ import {
     markRequestConfirmed,
     type CoverageDataCache,
 } from "@/features/requests/server/staff-request";
+import { runStaffRequestBookingSideEffects } from "@/features/shifts/server/post-shift-insert-booking";
 import {
     insertShiftsFromCoverage,
     type ShiftLocationPayload,
 } from "@/features/requests/server/shifts";
 import { createAdminClient } from "@/services/supabase/server";
 import { getStripeServer } from "@/services/stripe/server";
+import { getUserIdForOperator } from "@/features/account/server/operator-context";
 
 export const finalizeAfterCheckoutPayloadSchema = z.object({
     requestId: z.string().min(1),
@@ -40,6 +42,16 @@ async function expandSession(sessionId: string): Promise<Stripe.Checkout.Session
     return getStripeServer().checkout.sessions.retrieve(sessionId, {
         expand: ["payment_intent", "payment_intent.payment_method"],
     });
+}
+
+async function loadFacilityDisplayName(facilityId: string): Promise<string> {
+    const supabase = await createAdminClient();
+    const { data } = await supabase
+        .from("facilities")
+        .select("name")
+        .eq("id", facilityId)
+        .maybeSingle();
+    return data?.name ?? "there";
 }
 
 /**
@@ -102,28 +114,52 @@ export const finalizeAfterCheckoutTask = task({
             currency: intent.currency ?? "cad",
         });
 
-        const location = await loadLocation(row.client_user_id);
+        const creatorUserId = await getUserIdForOperator(row.operator_id);
+        const location =
+            creatorUserId != null ? await loadLocation(creatorUserId) : null;
         const inserted = await insertShiftsFromCoverage({
             staffRequestId: payload.requestId,
-            clientUserId: row.client_user_id,
+            facilityId: row.facility_id,
             hourlyRate: row.pricing_rate,
             schedule: cache.schedule,
             location,
         });
 
         if (!inserted.ok) {
-            logger.warn("Shift insertion failed after checkout", {
+            logger.error("Shift insertion failed after checkout", {
                 requestId: payload.requestId,
                 message: inserted.message,
             });
+            throw new Error(inserted.message);
         }
 
+        if (inserted.inserted < 1) {
+            throw new Error("No shifts inserted from coverage after checkout");
+        }
+
+        if (!creatorUserId) {
+            throw new Error("Staff request creator operator could not be resolved");
+        }
+
+        const clientName = await loadFacilityDisplayName(row.facility_id);
+
         await markRequestConfirmed(payload.requestId);
+
+        await runStaffRequestBookingSideEffects({
+            inserted,
+            requestId: payload.requestId,
+            creatorUserId,
+            clientName,
+            schedule: cache.schedule,
+            hourlyRate: row.pricing_rate,
+            requirements: row.requirements ?? [],
+            tasks: row.tasks ?? [],
+        });
 
         return {
             requestId: payload.requestId,
             paymentIntentId: intent.id,
-            shiftsInserted: inserted.ok ? inserted.inserted : 0,
+            shiftsInserted: inserted.inserted,
         };
     },
 });

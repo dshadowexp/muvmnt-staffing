@@ -2,7 +2,7 @@ import { AppSidebar } from "@/app/[locale]/dashboard/_components/app-sidebar";
 import { PushTokenRegistrar } from "@/features/notifications/components/push-token-registrar";
 import { SiteHeader } from "@/app/[locale]/dashboard/_components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
 import { redirect } from "@/i18n/navigation";

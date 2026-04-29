@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -10,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import {
   getCompliances,
   getIdentityVerification,
@@ -20,9 +21,10 @@ import {
 import { CompliancesClient, type CompliancesRow } from "./_client";
 
 export default async function WorkerCompliancePage() {
+  const locale = await getLocale();
   const session = await getSession();
-  if (!session) redirect("/sign-in");
-  if (session.role !== "worker") redirect(`/dashboard`);
+  if (!session) return redirect({ href: "/sign-in", locale });
+  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
 
   const worker = await getWorkerProfile();
   const stage = worker?.stage ?? null;

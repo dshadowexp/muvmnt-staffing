@@ -7,7 +7,7 @@ import { getStripeServer } from "@/services/stripe/server";
 
 import { SHIFT_STATUS_COMPLETED } from "../constants";
 import {
-    getClientBillingForTip,
+    getFacilityBillingForTip,
     getExistingTipIdForClient,
     getWorkerTipAccount,
     loadCompletedShiftForClient,
@@ -22,11 +22,13 @@ export type ShiftReviewResult<T = unknown> =
     | { ok: false; code?: string; message: string };
 
 export async function rateClientShift(
+    facilityId: string,
     clientUserId: string,
     shiftId: string,
     input: { rating: number; comment?: string },
 ): Promise<ShiftReviewResult> {
     const ctx = await loadCompletedShiftForClient(
+        facilityId,
         clientUserId,
         shiftId,
         SHIFT_STATUS_COMPLETED,
@@ -74,11 +76,13 @@ export type TipChargeResult = ShiftReviewResult<{
  * constraint on `shift_tips`.
  */
 export async function tipClientShift(
+    facilityId: string,
     clientUserId: string,
     shiftId: string,
     input: { amountCents: number },
 ): Promise<TipChargeResult> {
     const ctx = await loadCompletedShiftForClient(
+        facilityId,
         clientUserId,
         shiftId,
         SHIFT_STATUS_COMPLETED,
@@ -97,7 +101,7 @@ export async function tipClientShift(
         };
     }
 
-    const billing = await getClientBillingForTip(clientUserId);
+    const billing = await getFacilityBillingForTip(ctx.ctx.facilityId);
     if (!billing) {
         return { ok: false, message: "No billing account on file" };
     }

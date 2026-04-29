@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { fetchAccessToken } from "hume";
 import { getLocale, getTranslations } from "next-intl/server";
 import { env } from "@/data/env/server";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";

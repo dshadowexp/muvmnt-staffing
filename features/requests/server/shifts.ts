@@ -1,9 +1,7 @@
 import "server-only";
 
-import { addDays, parseISO } from "date-fns";
-import { formatInTimeZone, toDate } from "date-fns-tz";
 import { createAdminClient } from "@/services/supabase/server";
-import { SHIFT_SCHEDULE_TIMEZONE } from "@/features/shifts/lib/shift-schedule-timezone";
+import { wallClockShiftToUtcRange } from "@/features/shifts/lib/wall-clock-shift-range";
 import type { DaySchedule } from "./matching";
 
 const SHIFT_HOURLY_RATE_SHARE_OF_REQUEST = 0.75;
@@ -32,39 +30,9 @@ export type InsertShiftsResult =
     | { ok: true;  inserted: number; workerShifts: Map<string, InsertedWorkerShift[]> }
     | { ok: false; message: string };
 
-function hhmmToMinutes(hhmm: string): number {
-    const [h = "0", m = "0"] = hhmm.split(":");
-    return Number(h) * 60 + Number(m);
-}
-
-function addOneCalendarDayYmd(dateYmd: string): string {
-    const anchor = parseISO(`${dateYmd}T12:00:00.000Z`);
-    return formatInTimeZone(addDays(anchor, 1), "UTC", "yyyy-MM-dd");
-}
-
-function easternWallClockShiftToUtcRange(
-    dateYmd:   string,
-    startHhmm: string,
-    endHhmm:   string,
-): { startIso: string; endIso: string } {
-    const startM = hhmmToMinutes(startHhmm);
-    const endM   = hhmmToMinutes(endHhmm);
-    const endYmd = endM < startM ? addOneCalendarDayYmd(dateYmd) : dateYmd;
-
-    const pad   = (n: number) => String(n).padStart(2, "0");
-    const toIso = (ymd: string, hhmm: string): string => {
-        const [h, mi] = [Number(hhmm.split(":")[0] ?? 0), Number(hhmm.split(":")[1] ?? 0)];
-        return toDate(`${ymd}T${pad(h)}:${pad(mi)}:00`, {
-            timeZone: SHIFT_SCHEDULE_TIMEZONE,
-        }).toISOString();
-    };
-
-    return { startIso: toIso(dateYmd, startHhmm), endIso: toIso(endYmd, endHhmm) };
-}
-
 export async function insertShiftsFromCoverage(params: {
     staffRequestId: string;
-    clientUserId:   string;
+    facilityId:     string;
     hourlyRate:     number;
     schedule:       DaySchedule[];
     location:       ShiftLocationPayload | null;
@@ -77,20 +45,14 @@ export async function insertShiftsFromCoverage(params: {
     ];
     if (userIds.length === 0) return { ok: true, inserted: 0, workerShifts: new Map() };
 
-    const [operatorRes, workerRes] = await Promise.all([
-        supabase.from("operators").select("facility_id").eq("user_id", params.clientUserId).single(),
-        supabase.from("workers").select("id, user_id").in("user_id", userIds),
-    ]);
+    const workerRes = await supabase.from("workers").select("id, user_id").in("user_id", userIds);
 
-    if (operatorRes.error || !operatorRes.data) {
-        return { ok: false, message: operatorRes.error?.message ?? "Could not resolve facility id" };
-    }
     if (workerRes.error || !workerRes.data?.length) {
         return { ok: false, message: workerRes.error?.message ?? "Could not resolve workers" };
     }
 
     const userToWorker = new Map(workerRes.data.map((w) => [w.user_id, w.id]));
-    const facilityId   = operatorRes.data.facility_id;
+    const facilityId   = params.facilityId;
     const shiftRate    =
         Number.isFinite(params.hourlyRate) && params.hourlyRate > 0
             ? Math.round(params.hourlyRate * SHIFT_HOURLY_RATE_SHARE_OF_REQUEST * 100) / 100
@@ -117,7 +79,7 @@ export async function insertShiftsFromCoverage(params: {
             const wid = userToWorker.get(a.userId);
             if (!wid) continue;
 
-            const { startIso, endIso } = easternWallClockShiftToUtcRange(
+            const { startIso, endIso } = wallClockShiftToUtcRange(
                 day.date, a.startTime, a.endTime,
             );
 

@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { updateFacilityProfileAction } from "@/features/account/actions";
-import { ClientProfileForm } from "@/features/account/components/client-profile-form";
+import { FacilityProfileForm } from "@/features/account/components/facility-profile-form";
 import {
   buildClientSchema,
   mapClientProfileToFormValues,
   type ClientProfileFormInput,
+  type ClientProfileFormValues,
   type ClientProfileValues,
 } from "@/features/account/schemas/client";
 import { AddressLocationReadonlySummary } from "@/features/geo/components/address-location-readonly-summary";
@@ -34,13 +35,13 @@ export function OrganizationCard({
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
-  const defaults: ClientProfileValues = client
+  const defaults: ClientProfileFormValues = client
     ? mapClientProfileToFormValues(client)
-    : { name: "", type: "", address: null };
+    : { name: "", type: "", address: null, domainsText: "" };
   const tVal = useTranslations("kyc.onboarding.validation");
   const schema = useMemo(() => buildClientSchema(tVal), [tVal]);
 
-  const form = useForm<ClientProfileValues>({
+  const form = useForm<ClientProfileFormValues, unknown, ClientProfileValues>({
     resolver: zodResolver(schema),
     defaultValues: defaults,
   });
@@ -56,7 +57,12 @@ export function OrganizationCard({
       return;
     }
     toast.success(res.message);
-    form.reset(values);
+    form.reset({
+      name: values.name,
+      type: values.type,
+      address: values.address,
+      domainsText: values.domains.join("\n"),
+    });
     setIsEditing(false);
     router.refresh();
   }
@@ -67,6 +73,7 @@ export function OrganizationCard({
   }
 
   const address = client?.address ?? null;
+  const tOrg = useTranslations("kyc.onboarding.forms.clientProfile");
 
   return (
     <Card size="sm">
@@ -102,7 +109,7 @@ export function OrganizationCard({
               aria-busy={isSubmitting}
               className="contents"
             >
-              <ClientProfileForm form={form} disabled={isSubmitting} />
+              <FacilityProfileForm form={form} disabled={isSubmitting} />
 
               <div className="flex gap-2 mt-5 justify-end">
                 <Button type="button" variant="ghost" onClick={cancelEdit}>
@@ -122,6 +129,10 @@ export function OrganizationCard({
             <dd>{client?.name || "—"}</dd>
             <dt className="text-muted-foreground font-medium">Type</dt>
             <dd>{client?.type || "—"}</dd>
+            <dt className="text-muted-foreground font-medium">{tOrg("domainsLabel")}</dt>
+            <dd className="min-w-0 break-all">
+              {client?.domains?.length ? client.domains.join(", ") : "—"}
+            </dd>
             {address && (
               <>
                 <dt className="text-muted-foreground font-medium">Address</dt>

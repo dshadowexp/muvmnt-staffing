@@ -2,6 +2,7 @@ import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import { toDbTime } from "../lib/week-state";
 import type { AvailabilityOnboardingPayload } from "../schema";
+import { tryPromoteWorkerAfterAvailabilityChecks } from "@/features/workers/server/stage-promotion";
 
 export async function saveWorkerAvailabilityBundle(
   payload: AvailabilityOnboardingPayload,
@@ -54,6 +55,8 @@ export async function saveWorkerAvailabilityBundle(
     .eq("user_id", userId);
 
   if (wErr) return { error: true, message: wErr.message };
+
+  await tryPromoteWorkerAfterAvailabilityChecks(userId);
 
   return { error: false };
 }

@@ -4,7 +4,10 @@ import { useId } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { ORGANIZATION_REQUESTER_TYPES } from "@/lib/constants";
-import { type ClientProfileValues } from "@/features/account/schemas/client";
+import {
+  type ClientProfileFormValues,
+  type ClientProfileValues,
+} from "@/features/account/schemas/client";
 import type { AddressLocation } from "@/features/geo/types";
 import {
   Field,
@@ -14,6 +17,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   MultiSelect,
   MultiSelectContent,
@@ -24,12 +28,12 @@ import {
 } from "@/components/ui/multi-select";
 import { AddressCard } from "@/features/geo/components/address-card";
 
-interface ClientProfileFormProps {
-  form: UseFormReturn<ClientProfileValues>;
+interface FacilityProfileFormProps {
+  form: UseFormReturn<ClientProfileFormValues, unknown, ClientProfileValues>;
   disabled?: boolean;
 }
 
-export function ClientProfileForm({ form, disabled = false }: ClientProfileFormProps) {
+export function FacilityProfileForm({ form, disabled = false }: FacilityProfileFormProps) {
   const { register, setValue, watch, formState } = form;
   const { errors } = formState;
   const t = useTranslations("kyc.onboarding.forms.clientProfile");
@@ -92,9 +96,23 @@ export function ClientProfileForm({ form, disabled = false }: ClientProfileFormP
         <FieldError>{errors.name?.message}</FieldError>
       </Field>
 
+      <Field data-invalid={!!errors.domainsText}>
+        <FieldLabel htmlFor={`${baseId}-domains`}>{t("domainsLabel")}</FieldLabel>
+        <FieldDescription>{t("domainsDescription")}</FieldDescription>
+        <Textarea
+          id={`${baseId}-domains`}
+          rows={4}
+          placeholder={t("domainsPlaceholder")}
+          disabled={disabled}
+          autoComplete="off"
+          {...register("domainsText")}
+        />
+        <FieldError>{errors.domainsText?.message}</FieldError>
+      </Field>
+
       <Field>
-        <FieldLabel>Address</FieldLabel>
-        <FieldDescription>The address of your organization</FieldDescription>
+        <FieldLabel>{tAddress("addressLabel")}</FieldLabel>
+        <FieldDescription>{tAddress("addressDescription")}</FieldDescription>
         <AddressCard
           value={address ?? undefined}
           onChange={handleAddressChange}
@@ -104,7 +122,7 @@ export function ClientProfileForm({ form, disabled = false }: ClientProfileFormP
       {address && (
         <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
           <Field className="min-w-0">
-            <FieldLabel htmlFor={`${baseId}-suite`}>{t("suiteLabel")}</FieldLabel>
+            <FieldLabel htmlFor={`${baseId}-suite`}>{tAddress("suiteLabel")}</FieldLabel>
             <Input
               id={`${baseId}-suite`}
               key={address.address}
@@ -116,7 +134,7 @@ export function ClientProfileForm({ form, disabled = false }: ClientProfileFormP
             />
           </Field>
           <Field className="min-w-0">
-            <FieldLabel htmlFor={`${baseId}-postal`}>{t("postalCodeLabel")}</FieldLabel>
+            <FieldLabel htmlFor={`${baseId}-postal`}>{tAddress("postalCodeLabel")}</FieldLabel>
             <Input
               id={`${baseId}-postal`}
               key={address.address}

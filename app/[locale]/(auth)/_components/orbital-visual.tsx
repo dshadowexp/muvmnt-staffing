@@ -37,7 +37,7 @@ export function OrbitalVisual() {
       <div className="absolute h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
 
       {/* Center node — bg-foreground so it inverts correctly in both themes */}
-      <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-foreground shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+      <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
         <LogoIcon className="size-8 text-background" />
       </div>
 
@@ -50,7 +50,7 @@ export function OrbitalVisual() {
           delay={-(i / OUTER_ITEMS.length) * OUTER_DURATION}
           bubbleSize={44}
         >
-          <item.icon className="size-[18px] text-muted-foreground" />
+          <item.icon className="size-[18px]" />
         </OrbitItem>
       ))}
 
@@ -64,7 +64,7 @@ export function OrbitalVisual() {
           reverse
           bubbleSize={36}
         >
-          <item.icon className="size-[14px] text-muted-foreground" />
+          <item.icon className="size-[14px]" />
         </OrbitItem>
       ))}
     </div>

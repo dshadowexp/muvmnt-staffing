@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { CircleDashedIcon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 
 export function MenuToggle() {
@@ -19,19 +16,19 @@ export function MenuToggle() {
   const isLoggedIn = !!authUser;
   const role = authUser?.role;
 
-  if (loading) return <CircleDashedIcon className="animate-spin" />;
-
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden"
-        onClick={() => setOpen(!open)}
-        aria-label={tCommon("toggleMenu")}
-      >
-        {open ? <X className="size-5" /> : <Menu className="size-5" />}
-      </Button>
+      {loading ? <CircleDashedIcon className="animate-spin lg:hidden" /> : (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label={tCommon("toggleMenu")}
+        >
+          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+        </Button>
+      )}
 
       {open && (
         <div className="fixed inset-x-0 top-[72px] z-50 border-b border-border bg-background p-6 shadow-lg lg:hidden">
@@ -55,25 +52,23 @@ export function MenuToggle() {
               </Button>
             ) : (
               <>
-                <Button asChild className="w-full justify-center">
-                  <Link href="/find-staff" onClick={() => setOpen(false)}>
-                    {t("requestStaff")} →
+                <Button variant="ghost" asChild className="w-full justify-center">
+                  <Link href="/sign-in" onClick={() => setOpen(false)}>
+                    {t("logIn")}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full justify-center">
-                  <Link href="/find-work" onClick={() => setOpen(false)}>
-                    {t("findWork")}
+                  <Link href="/request-demo" onClick={() => setOpen(false)}>
+                    {t("requestDemo")}
+                  </Link>
+                </Button>
+                <Button asChild className="w-full justify-center">
+                  <Link href="/sign-up" onClick={() => setOpen(false)}>
+                    {t("createFreeAccount")}
                   </Link>
                 </Button>
               </>
             )}
-
-            <Separator />
-
-            <div className="flex items-center justify-center gap-1.5 pt-1">
-              <LanguageSwitcher />
-              <ThemeToggle />
-            </div>
           </nav>
         </div>
       )}

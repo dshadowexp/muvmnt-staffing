@@ -4,7 +4,8 @@ import { SignJWT, jwtVerify } from "jose";
 import { createAdminClient } from "@/services/supabase/server";
 
 const SECRET = new TextEncoder().encode(process.env.SHIFT_RESPONSE_TOKEN_SECRET!);
-const EXPIRES_IN_SECONDS = 24 * 60 * 60; // 24 hours
+/** Keep JWT valid at least through the longest policy response window + slack. */
+const EXPIRES_IN_SECONDS = 48 * 60 * 60;
 
 export type ShiftResponseAction =
     | "accept"

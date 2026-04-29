@@ -30,6 +30,7 @@ import {
   UserRoundSearchIcon,
   FingerprintIcon,
   CircleUserRoundIcon,
+  Columns3CogIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import {
@@ -77,7 +78,7 @@ function useMainNavItems(role: string | null | undefined): NavItem[] {
       { title: t("requests"), url: "/dashboard/requests", icon: <UserRoundSearchIcon className="size-4" /> },
       { title: t("screenings"), url: "/dashboard/screenings", icon: <FingerprintIcon className="size-4" /> },
       { title: t("billing"), url: "/dashboard/billing", icon: <WalletIcon className="size-4" /> },
-      { title: t("account"), url: "/dashboard/account", icon: <CircleUserRoundIcon className="size-4" /> },
+      { title: t("account"), url: "/dashboard/account", icon: <Columns3CogIcon className="size-4" /> },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }

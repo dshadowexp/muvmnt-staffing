@@ -35,6 +35,16 @@ function stripLocale(pathname: string): string {
     return pathname;
 }
 
+function getLocalePrefix(pathname: string): string {
+    for (const locale of routing.locales) {
+        const prefix = `/${locale}`;
+        if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+            return prefix;
+        }
+    }
+    return "";
+}
+
 function hasPrefix(pathname: string, prefix: string): boolean {
     return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
@@ -63,7 +73,7 @@ function isPublicPath(path: string): boolean {
 }
 
 function isAuthPath(path: string): boolean {
-    return AUTH_PATHS.has(path) || hasPrefix(path, "/sign-up");
+    return AUTH_PATHS.has(path) || hasPrefix(path, "/sign-up") || hasPrefix(path, "/sign-in") || hasPrefix(path, "/forgot-password");
 }
 
 function isInactivePath(path: string): boolean {
@@ -74,8 +84,26 @@ function isAllowedForRole(pathname: string, role: UserRole): boolean {
     return DASHBOARD_PREFIXES[role].some((p) => hasPrefix(pathname, p));
 }
 
+function isRoleScopedPath(pathname: string): boolean {
+    const prefixes = Object.values(DASHBOARD_PREFIXES).flat();
+    return prefixes.some((p) => hasPrefix(pathname, p));
+}
+
+function defaultRouteForRole(role: UserRole): string {
+    if (role === "admin") return "/dashboard/admin";
+    if (role === "candidate") return "/s";
+    return "/dashboard";
+}
+
 // ─── Proxy ───────────────────────────────────────────────────────────────
 export async function proxy(req: NextRequest) {
+    const { pathname } = req.nextUrl;
+
+    // Token-authenticated ICS calendar feeds — calendar servers must not hit Arcjet bot rules.
+    if (pathname.startsWith("/api/calendar")) {
+        return NextResponse.next();
+    }
+
     const userAgent = req.headers.get("user-agent");
     const aj = userAgent ? ajWithBot : ajBase;
 
@@ -87,7 +115,7 @@ export async function proxy(req: NextRequest) {
         );
     }
 
-    const { pathname, search } = req.nextUrl;
+    const { search } = req.nextUrl;
 
     // API routes — skip all auth logic
     if (pathname.startsWith("/api") || pathname.startsWith("/trpc")) {
@@ -95,6 +123,7 @@ export async function proxy(req: NextRequest) {
     }
 
     const path    = stripLocale(pathname);
+    const localePrefix = getLocalePrefix(pathname);
     const session = getSession(req);
 
     // Public paths — no session required
@@ -105,32 +134,40 @@ export async function proxy(req: NextRequest) {
     // Auth pages — redirect to dashboard if already signed in
     if (isAuthPath(path)) {
         if (session) {
-            const redirectTo = safeRedirect(req.nextUrl.searchParams.get("redirect")) ?? "/dashboard";
-            return NextResponse.redirect(new URL(redirectTo, req.url));
+            const redirectTo =
+                safeRedirect(req.nextUrl.searchParams.get("redirect")) ??
+                defaultRouteForRole(session.role);
+            const dest = localePrefix ? `${localePrefix}${redirectTo}` : redirectTo;
+            return NextResponse.redirect(new URL(dest, req.url));
         }
         return intlMiddleware(req);
     }
 
     // No session → send to sign in
     if (!session) {
-        const signInUrl = new URL("/sign-in", req.url);
-        signInUrl.searchParams.set("redirect", pathname + search);
+        const signInPath = `${localePrefix}/sign-in`;
+        const signInUrl = new URL(signInPath, req.url);
+        signInUrl.searchParams.set("redirect", `${stripLocale(pathname)}${search}`);
         return NextResponse.redirect(signInUrl);
     }
 
     // Inactive account → confined to onboarding/review
     if (!session.isActive && session.role !== "candidate") {
         if (!isInactivePath(path)) {
-            return NextResponse.redirect(new URL("/review", req.url));
+            const reviewPath = `${localePrefix}/review`;
+            return NextResponse.redirect(new URL(reviewPath, req.url));
         }
         
         return intlMiddleware(req);
     }
 
-    // // Role guard → bounce to own dashboard root if accessing wrong role's area
-    // if (!isAllowedForRole(path, session.role)) {
-    //     return NextResponse.redirect(new URL("/dashboard", req.url));
-    // }
+    // Role guard → bounce to role default if accessing wrong area.
+    // Only applies to role-scoped prefixes so onboarding/legal/etc aren't affected.
+    if (isRoleScopedPath(path) && !isAllowedForRole(path, session.role)) {
+        const redirectTo = defaultRouteForRole(session.role);
+        const dest = localePrefix ? `${localePrefix}${redirectTo}` : redirectTo;
+        return NextResponse.redirect(new URL(dest, req.url));
+    }
 
     return intlMiddleware(req);
 }

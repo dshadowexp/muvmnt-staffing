@@ -9,7 +9,10 @@ import {
     type SubscriptionPlan,
     type BillingPeriod,
 } from "@/services/stripe/server";
-import { createPortalSession, ensureStripeCustomerForBillingUser } from "@/features/billing/dal/payment-methods";
+import {
+    createPortalSession,
+    ensureStripeCustomerForFacility,
+} from "@/features/billing/dal/payment-methods";
 
 // ─── Portal ───────────────────────────────────────────────────────────────────
 
@@ -38,13 +41,6 @@ export async function createSubscriptionCheckoutAction(
     const priceId = getPriceId(plan, period);
     if (!priceId) return { error: "Invalid plan" };
 
-    // Resolve / create the Stripe customer
-    const ensured = await ensureStripeCustomerForBillingUser();
-    if (ensured.error || !ensured.customerId) {
-        return { error: ensured.error ?? "Billing account not setup" };
-    }
-
-    // Resolve the facility this user operates
     const supabase = await createAdminClient();
     const { data: op } = await supabase
         .from("operators")
@@ -53,14 +49,19 @@ export async function createSubscriptionCheckoutAction(
         .eq("permission", "owner")
         .maybeSingle();
 
-    if (!op) return { error: "No facility found for this account" };
+    if (!op?.facility_id) return { error: "No facility found for this account" };
+
+    const ensured = await ensureStripeCustomerForFacility(op.facility_id);
+    if (ensured.error || !ensured.customerId) {
+        return { error: ensured.error ?? "Billing account not setup" };
+    }
 
     const checkoutSession = await getStripeServer().checkout.sessions.create({
         customer: ensured.customerId,
-        automatic_payment_methods: { enabled: true },
+        payment_method_types: ["card", "link"],
         line_items: [{ price: priceId, quantity: 1 }],
         mode: "subscription",
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscription=success`,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?subscription=success&checkout_session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
         metadata: {
             kind: "subscription",

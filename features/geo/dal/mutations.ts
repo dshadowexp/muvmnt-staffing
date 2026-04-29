@@ -6,6 +6,7 @@ import type { AddressLocation } from "@/features/geo/types";
 import { latLngToCell } from "h3-js";
 import { H3_RESOLUTION } from "@/lib/constants";
 import { toAddressJson } from "../lib/build-address-location";
+import { tryPromoteWorkerAfterAvailabilityChecks } from "@/features/workers/server/stage-promotion";
 
 
 /**
@@ -29,6 +30,7 @@ export async function upsertLocationAction(location: AddressLocation) {
     if (error) return { error: true, message: error.message };
 
     await syncWorkerCellId(session.userId, location.lat, location.lng);
+    await tryPromoteWorkerAfterAvailabilityChecks(session.userId);
     return { error: false, message: "Address updated successfully" };
   }
 

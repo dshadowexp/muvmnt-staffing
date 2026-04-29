@@ -17,16 +17,16 @@ create table if not exists subscriptions (
     current_period_end      timestamptz,
     canceled_at             timestamptz,
     seats_limit         int not null default 3,
-    screenings_limit    int not null default 10,
-    interviews_limit    int not null default 10,
+    screenings_limit            int not null default 10,
+    screening_invites_limit     int not null default 10,
     created_at          timestamptz not null default now(),
     updated_at          timestamptz not null default now(),
     unique (facility_id)   -- one subscription row per facility
 );
 
 -- Plan-based default limits helper (used in upsert trigger)
--- starter:    3 seats,  10 screenings, 10 interviews
--- pro:        10 seats, 50 screenings, 50 interviews
+-- starter:    3 seats,  10 screenings, 10 screening invites / billing period
+-- pro:        10 seats, 50 screenings, 50 screening invites / billing period
 -- enterprise: unlimited (9999)
 
 create or replace function subscriptions_set_limits()
@@ -34,17 +34,17 @@ returns trigger language plpgsql as $$
 begin
     case new.plan
         when 'starter' then
-            new.seats_limit        := 3;
-            new.screenings_limit   := 10;
-            new.interviews_limit   := 10;
+            new.seats_limit                 := 3;
+            new.screenings_limit            := 10;
+            new.screening_invites_limit     := 10;
         when 'pro' then
-            new.seats_limit        := 10;
-            new.screenings_limit   := 50;
-            new.interviews_limit   := 50;
+            new.seats_limit                 := 10;
+            new.screenings_limit            := 50;
+            new.screening_invites_limit     := 50;
         when 'enterprise' then
-            new.seats_limit        := 9999;
-            new.screenings_limit   := 9999;
-            new.interviews_limit   := 9999;
+            new.seats_limit                 := 9999;
+            new.screenings_limit            := 9999;
+            new.screening_invites_limit     := 9999;
     end case;
     new.updated_at := now();
     return new;

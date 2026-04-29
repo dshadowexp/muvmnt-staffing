@@ -24,6 +24,7 @@ export type ClientShiftActionResult =
  * retry — this prevents an "invisible" completed shift that never paid out.
  */
 export async function completeClientShift(
+    facilityId: string,
     clientUserId: string,
     shiftId: string,
 ): Promise<ClientShiftActionResult> {
@@ -31,7 +32,7 @@ export async function completeClientShift(
     if (!row) return { ok: false, message: "Shift not found" };
 
     const sr = row.staff_requests;
-    if (!sr || sr.client_user_id !== clientUserId) {
+    if (!sr || sr.facility_id !== facilityId) {
         return { ok: false, message: "Shift not found" };
     }
     if (normalizeShiftStatus(row.status) !== SHIFT_STATUS_CHECKED_OUT) {

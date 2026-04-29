@@ -15,8 +15,10 @@ import {
 } from "@/features/shifts/lib/present-shift";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { formatJobHourlyRateLine } from "@/lib/formatters";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { WorkerShiftActions } from "./_client";
+import { getLocale } from "next-intl/server";
 
 async function ShiftContent({
   shiftId,
@@ -140,9 +142,10 @@ export default async function WorkerShiftDetailPage({
 }: {
   params: Promise<{ shiftId: string }>;
 }) {
+  const locale = await getLocale();
   const { shiftId } = await params;
   const worker = await getWorkerProfile();
-  if (!worker) redirect("/onboarding/profile");
+  if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
   return (
     <div className="flex w-full max-w-2xl mx-auto flex-col gap-8">

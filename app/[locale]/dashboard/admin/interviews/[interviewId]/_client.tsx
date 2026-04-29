@@ -242,7 +242,6 @@ function AIFeedbackCard({ feedback: raw, messagesPromise, user, subjectLabel }: 
 // ─── Recording card ───────────────────────────────────────────────────────────
 
 function RecordingCard({ url }: { url: string }) {
-  console.log(url);
   return (
     <Card>
       <CardHeader className="pb-3">

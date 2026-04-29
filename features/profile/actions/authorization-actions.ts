@@ -9,6 +9,7 @@ import {
   normalizeSocialNumber,
   requiresSinExpiry,
 } from "@/features/profile/schemas/authorization";
+import { tryPromoteWorkerAfterComplianceChecks } from "@/features/workers/server/stage-promotion";
 
 type UpsertWorkAuthorizationInput = {
   type: string;
@@ -114,6 +115,8 @@ export async function upsertWorkAuthorizationAction(
       return { error: true, message: error.message };
     }
   }
+
+  await tryPromoteWorkerAfterComplianceChecks(userId);
 
   return { error: false, message: "Authorization saved successfully" };
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Link, useRouter } from "@/i18n/navigation"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -26,6 +26,7 @@ import {
   CalendarClockIcon,
   LanguagesIcon,
   ClipboardListIcon,
+  BanIcon,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -58,22 +59,33 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Field, FieldError } from "@/components/ui/field"
 import type {
   ScreeningRow,
-  ScreeningInviteRow,
+  ScreeningInviteWithAudit,
   CandidateWithResult,
 } from "@/features/screenings/dal/queries"
 import {
   updateScreeningStatusAction,
-  sendScreeningInviteAction,
+  sendScreeningInvitesBatchAction,
+  revokeScreeningInviteAction,
 } from "@/features/screenings/actions"
 import { cn } from "@/lib/utils"
 import { BackLink } from "@/components/back-link"
 
 type Props = {
   screening: ScreeningRow
-  invites: ScreeningInviteRow[]
+  invites: ScreeningInviteWithAudit[]
   candidates: CandidateWithResult[]
 }
 
@@ -84,7 +96,7 @@ function StatsRow({
   invites,
 }: {
   candidates: CandidateWithResult[]
-  invites: ScreeningInviteRow[]
+  invites: ScreeningInviteWithAudit[]
 }) {
   const now = Date.now()
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
@@ -113,7 +125,7 @@ function StatsRow({
     },
     {
       icon: SendIcon,
-      label: "Interviews Sent",
+      label: "Invites sent",
       value: invites.length,
       subtext:
         pendingInvites === 1
@@ -190,6 +202,26 @@ export function ScreeningDetailClient({
   )
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
+  const [revokeInvite, setRevokeInvite] = useState<{
+    id: string
+    email: string
+  } | null>(null)
+  const [isRevokePending, startRevokeTransition] = useTransition()
+
+  function confirmRevokeInvite() {
+    if (!revokeInvite) return
+    const { id, email } = revokeInvite
+    startRevokeTransition(async () => {
+      const result = await revokeScreeningInviteAction(screening.id, id)
+      setRevokeInvite(null)
+      if (result.error) {
+        toast.error(result.message)
+      } else {
+        toast.success(`Invite revoked for ${email}`)
+        router.refresh()
+      }
+    })
+  }
 
   const isActive = status === "active"
   const isClosed = status === "closed"
@@ -224,23 +256,22 @@ export function ScreeningDetailClient({
 
   async function onInviteSubmit(data: InviteParsedValues) {
     const emails = data.emails
-    const results = await Promise.all(
-      emails.map((email) => sendScreeningInviteAction(screening.id, email))
-    )
+    const batch = await sendScreeningInvitesBatchAction(screening.id, emails)
+
+    if (batch.error) {
+      toast.error(batch.message)
+      return
+    }
 
     type FailedEntry = { email: string; reason: string }
-    const failed: FailedEntry[] = results.flatMap((r, i) =>
-      r.error
-        ? [{ email: emails[i]!, reason: (r as { error: true; message: string }).message }]
-        : []
+    const failed: FailedEntry[] = batch.results.flatMap((r) =>
+      r.ok ? [] : [{ email: r.email, reason: r.message }]
     )
-    const succeeded = emails.length - failed.length
+    const succeeded = batch.results.filter((r) => r.ok).length
 
     if (failed.length > 0) {
-      // Repopulate the textarea with only the addresses that failed
       const failedEmails = failed.map((f) => f.email)
 
-      // Build a readable description of why each one failed
       const alreadyInvited = failed
         .filter((f) => f.reason === "already invited")
         .map((f) => f.email)
@@ -248,9 +279,7 @@ export function ScreeningDetailClient({
 
       const lines: string[] = []
       if (alreadyInvited.length > 0) {
-        lines.push(
-          `Already invited: ${alreadyInvited.join(", ")}`
-        )
+        lines.push(`Already invited: ${alreadyInvited.join(", ")}`)
       }
       otherErrors.forEach((f) => lines.push(`${f.email}: ${f.reason}`))
 
@@ -267,7 +296,6 @@ export function ScreeningDetailClient({
         )
       }
 
-      // Restore only the failed emails into the textarea
       reset({ emails: failedEmails.join("\n") })
     } else {
       toast.success(
@@ -557,121 +585,265 @@ export function ScreeningDetailClient({
       </Dialog>
 
       {/* ── Candidates table ──────────────────────────────────────────────── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-medium">
-            <UserIcon className="size-4" aria-hidden />
+      <Card className="overflow-hidden rounded-xl border-border/80 shadow-sm">
+        <CardHeader className="border-b border-border/60 bg-muted/30 pb-4">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
+            <UserIcon className="size-4 text-muted-foreground" aria-hidden />
             Candidates
-            <span className="ml-auto font-normal text-muted-foreground">
-              {candidates.length} total
+            <span className="ml-auto text-xs font-normal tabular-nums text-muted-foreground">
+              {candidates.length}
             </span>
           </CardTitle>
+          <CardDescription className="text-xs">
+            People who opened your invite link and started or completed the flow.
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {candidates.length === 0 ? (
-            <div className="py-12 text-center">
+            <div className="py-14 text-center">
+              <UsersIcon className="mx-auto mb-2 size-8 text-muted-foreground/50" aria-hidden />
               <p className="text-sm text-muted-foreground">
                 No candidates yet. Send invites above.
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Stage</TableHead>
-                  <TableHead>Result</TableHead>
-                  <TableHead>Applied</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {candidates.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">
-                      {[c.first_name, c.last_name].filter(Boolean).join(" ") ||
-                        "—"}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {c.email}
-                    </TableCell>
-                    <TableCell>
-                      <StageBadge stage={c.stage} />
-                    </TableCell>
-                    <TableCell>
-                      {c.interview?.result ? (
-                        <ResultBadge result={c.interview.result} />
-                      ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {format(new Date(c.created_at), "MMM d, yyyy")}
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border/60 hover:bg-transparent">
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Name
+                    </TableHead>
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Email
+                    </TableHead>
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Stage
+                    </TableHead>
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Result
+                    </TableHead>
+                    <TableHead className="h-11 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Applied
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {candidates.map((c) => (
+                    <TableRow
+                      key={c.id}
+                      className="border-border/40 odd:bg-muted/20 hover:bg-muted/40"
+                    >
+                      <TableCell className="max-w-[10rem] truncate py-3 font-medium">
+                        {[c.first_name, c.last_name].filter(Boolean).join(" ") ||
+                          "—"}
+                      </TableCell>
+                      <TableCell className="max-w-[14rem] truncate py-3 text-sm text-muted-foreground">
+                        {c.email}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <StageBadge stage={c.stage} />
+                      </TableCell>
+                      <TableCell className="py-3">
+                        {c.interview?.result ? (
+                          <ResultBadge result={c.interview.result} />
+                        ) : (
+                          <span className="text-sm text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3 text-right text-sm tabular-nums text-muted-foreground">
+                        {format(new Date(c.created_at), "MMM d, yyyy")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* ── Invites table ─────────────────────────────────────────────────── */}
-      {invites.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium">
-              <MailIcon className="size-4" aria-hidden />
-              Sent invites
-              <span className="ml-auto font-normal text-muted-foreground">
-                {invites.length} total
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Sent</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invites.map((invite) => (
-                  <TableRow key={invite.id}>
-                    <TableCell className="text-sm">{invite.email}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          invite.status === "sent"
-                            ? "border-blue-200 bg-blue-50 text-blue-600"
-                            : invite.status === "completed"
-                              ? "border-green-200 bg-green-50 text-green-600"
-                              : "text-muted-foreground"
-                        }
-                      >
-                        {invite.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {invite.sent_at
-                        ? format(new Date(invite.sent_at), "MMM d, yyyy")
-                        : "—"}
-                    </TableCell>
+      <Card className="overflow-hidden rounded-xl border-border/80 shadow-sm">
+        <CardHeader className="border-b border-border/60 bg-muted/30 pb-4">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
+            <MailIcon className="size-4 text-muted-foreground" aria-hidden />
+            Invites
+            <span className="ml-auto text-xs font-normal tabular-nums text-muted-foreground">
+              {invites.length}
+            </span>
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Every email invite and its lifecycle. Revoking records who withdrew it and when; the
+            candidate link may still work until you send a replacement invite.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {invites.length === 0 ? (
+            <div className="py-14 text-center">
+              <MailIcon className="mx-auto mb-2 size-8 text-muted-foreground/50" aria-hidden />
+              <p className="text-sm text-muted-foreground">
+                No invites sent yet. Use &quot;Send invites&quot; above.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border/60 hover:bg-transparent">
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Email
+                    </TableHead>
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Status
+                    </TableHead>
+                    <TableHead className="h-11 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Sent
+                    </TableHead>
+                    <TableHead className="h-11 min-w-[12rem] text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Revocation (audit)
+                    </TableHead>
+                    <TableHead className="h-11 w-[100px] text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Actions
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+                </TableHeader>
+                <TableBody>
+                  {invites.map((invite) => (
+                    <TableRow
+                      key={invite.id}
+                      className="border-border/40 odd:bg-muted/20 hover:bg-muted/40"
+                    >
+                      <TableCell className="max-w-[14rem] truncate py-3 text-sm font-medium">
+                        {invite.email}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <InviteLifecycleBadge status={invite.status} />
+                      </TableCell>
+                      <TableCell className="py-3 text-sm tabular-nums text-muted-foreground">
+                        {invite.sent_at
+                          ? format(new Date(invite.sent_at), "MMM d, yyyy · h:mm a")
+                          : format(new Date(invite.created_at), "MMM d, yyyy")}
+                      </TableCell>
+                      <TableCell className="py-3 text-sm text-muted-foreground">
+                        {invite.status === "revoked" && invite.revoked_at ? (
+                          <span className="flex flex-col gap-0.5">
+                            <span className="tabular-nums text-foreground/90">
+                              {format(new Date(invite.revoked_at), "MMM d, yyyy · h:mm a")}
+                            </span>
+                            {invite.revoked_by_email ? (
+                              <span className="text-xs">
+                                by {invite.revoked_by_email}
+                              </span>
+                            ) : (
+                              <span className="text-xs">Operator recorded</span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground/70">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        {invite.status !== "revoked" ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() =>
+                              setRevokeInvite({ id: invite.id, email: invite.email })
+                            }
+                          >
+                            <BanIcon className="size-3.5" aria-hidden />
+                            <span className="sr-only">Revoke invite</span>
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <AlertDialog
+        open={revokeInvite !== null}
+        onOpenChange={(open) => {
+          if (!open) setRevokeInvite(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Revoke this invite?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span>
+                This marks the invite as revoked for your team&apos;s audit trail (who revoked it
+                and when). The candidate link is not automatically disabled.
+              </span>
+              {revokeInvite ? (
+                <span className="block font-medium text-foreground">{revokeInvite.email}</span>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRevokePending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isRevokePending}
+              onClick={(e) => {
+                e.preventDefault()
+                confirmRevokeInvite()
+              }}
+            >
+              {isRevokePending ? (
+                <CircleDashedIcon className="size-4 animate-spin" />
+              ) : (
+                "Revoke invite"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+
+function InviteLifecycleBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    pending:
+      "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200",
+    sent: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-200",
+    accepted:
+      "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200",
+    declined:
+      "border-border bg-muted/60 text-muted-foreground",
+    expired:
+      "border-border bg-muted/60 text-muted-foreground",
+    revoked:
+      "border-destructive/30 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/20",
+  }
+  const label =
+    status === "revoked"
+      ? "Revoked"
+      : status.charAt(0).toUpperCase() + status.slice(1)
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "text-xs font-medium capitalize",
+        styles[status] ?? "border-border text-muted-foreground",
+      )}
+    >
+      {label}
+    </Badge>
+  )
+}
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "active") {

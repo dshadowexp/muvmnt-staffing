@@ -10,6 +10,7 @@ import { useAuth } from "@/features/auth/providers/auth-provider";
 import {
   buildClientSchema,
   type ClientProfileFormInput,
+  type ClientProfileFormValues,
   type ClientProfileValues,
   mapClientProfileToFormValues,
 } from "@/features/account/schemas/client";
@@ -17,9 +18,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { detailsAction } from "./_action";
 import { useRouter } from "@/i18n/navigation";
-import { ClientProfileForm } from "@/features/account/components/client-profile-form";
+import { FacilityProfileForm } from "@/features/account/components/facility-profile-form";
 import posthog from "posthog-js";
 import { useState } from "react";
+
+const OPERATOR_LS_FIRST_NAME = "readykare_operator_first_name";
+const OPERATOR_LS_LAST_NAME = "readykare_operator_last_name";
 
 export function OrganizationClient({
   clientProfile,
@@ -35,10 +39,10 @@ export function OrganizationClient({
   const schema = useMemo(() => buildClientSchema(tVal), [tVal]);
   const disabled = isPending || authLoading;
 
-  const form = useForm<ClientProfileValues>({
+  const form = useForm<ClientProfileFormValues, unknown, ClientProfileValues>({
     defaultValues: clientProfile
       ? mapClientProfileToFormValues(clientProfile)
-      : { name: "", type: "", address: null },
+      : { name: "", type: "", address: null, domainsText: "" },
     resolver: zodResolver(schema),
   });
 
@@ -49,7 +53,20 @@ export function OrganizationClient({
         void (async () => {
           setIsPending(true);
           try {
-            const result = await detailsAction(data);
+            const operatorFirstName =
+              typeof window !== "undefined"
+                ? window.localStorage.getItem(OPERATOR_LS_FIRST_NAME)
+                : null;
+            const operatorLastName =
+              typeof window !== "undefined"
+                ? window.localStorage.getItem(OPERATOR_LS_LAST_NAME)
+                : null;
+
+            const result = await detailsAction({
+              ...data,
+              operatorFirstName,
+              operatorLastName,
+            });
             if (!result.ok) {
               toast.error(resolveError(result));
               return;
@@ -72,7 +89,7 @@ export function OrganizationClient({
       })}
     >
       <fieldset disabled={disabled} className="space-y-6 disabled:opacity-60">
-        <ClientProfileForm form={form} disabled={disabled} />
+        <FacilityProfileForm form={form} disabled={disabled} />
         <ContinueButton pending={isPending} />
       </fieldset>
     </form>

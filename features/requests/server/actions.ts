@@ -28,19 +28,12 @@ import { confirmAndChargeTask } from "@/trigger/staff-requests";
 import { getBillingAccount } from "@/features/billing/dal/payment-methods";
 import { getStripeServer } from "@/services/stripe/server";
 import { env } from "@/data/env/client";
-import { getSession } from "@/lib/session";
+import { requireOperatorContext } from "@/features/account/server/operator-context";
 
 const VALID_TIERS = new Set<string>([
     ...PRICING_TIER_IDS,
     ...LEGACY_PRICING_TIER_IDS,
 ]);
-
-async function requireClient() {
-    const session = await getSession();
-    if (!session) return { error: "Not signed in" as const };
-    if (session.role !== "client") return { error: "Only clients can manage requests" as const };
-    return { userId: session.userId };
-}
 
 // ─── Step 1: create or update the draft (schedule) ─────────────────────────
 
@@ -53,8 +46,8 @@ const upsertScheduleSchema = createDraftPayloadSchema.extend({
  * `requestId` is the client's current `pending_pricing` draft.
  */
 export async function upsertStaffRequestScheduleAction(unsafe: unknown) {
-    const auth = await requireClient();
-    if ("error" in auth) return { error: true as const, message: auth.error };
+    const auth = await requireOperatorContext();
+    if (!auth.ok) return { error: true as const, message: auth.message };
 
     const parsed = upsertScheduleSchema.safeParse(unsafe);
     if (!parsed.success) {
@@ -67,12 +60,20 @@ export async function upsertStaffRequestScheduleAction(unsafe: unknown) {
     const { requestId, ...payload } = parsed.data;
 
     if (requestId) {
-        const updated = await updateStaffRequestDraft(requestId, payload);
+        const updated = await updateStaffRequestDraft(
+            requestId,
+            auth.facilityId,
+            payload,
+        );
         if (!updated.ok) return { error: true as const, message: updated.message };
         return { error: false as const, requestId: updated.requestId };
     }
 
-    const created = await createStaffRequestDraft(auth.userId, payload);
+    const created = await createStaffRequestDraft({
+        facilityId: auth.facilityId,
+        operatorId: auth.operatorId,
+        payload,
+    });
     if (!created.ok) return { error: true as const, message: created.message };
     return { error: false as const, requestId: created.requestId };
 }
@@ -90,8 +91,8 @@ const pricingTierSchema = z.object({
 });
 
 export async function applyStaffRequestPricingAction(unsafe: unknown) {
-    const auth = await requireClient();
-    if ("error" in auth) return { error: true as const, message: auth.error };
+    const auth = await requireOperatorContext();
+    if (!auth.ok) return { error: true as const, message: auth.message };
 
     const parsed = pricingTierSchema.safeParse(unsafe);
     if (!parsed.success) {
@@ -103,7 +104,7 @@ export async function applyStaffRequestPricingAction(unsafe: unknown) {
 
     const update = await persistPricingTier({
         requestId: parsed.data.requestId,
-        clientUserId: auth.userId,
+        facilityId: auth.facilityId,
         tierId: parsed.data.tierId,
         hourlyRate: parsed.data.hourlyRate,
     });
@@ -134,8 +135,8 @@ const staffRequestJobProfileSchema = z.object({
 });
 
 export async function updateStaffRequestJobProfileAction(unsafe: unknown) {
-    const auth = await requireClient();
-    if ("error" in auth) return { error: true as const, message: auth.error };
+    const auth = await requireOperatorContext();
+    if (!auth.ok) return { error: true as const, message: auth.message };
 
     const parsed = staffRequestJobProfileSchema.safeParse(unsafe);
     if (!parsed.success) {
@@ -145,7 +146,7 @@ export async function updateStaffRequestJobProfileAction(unsafe: unknown) {
         };
     }
 
-    const result = await updateStaffRequestJobProfile(auth.userId, parsed.data.requestId, {
+    const result = await updateStaffRequestJobProfile(auth.facilityId, parsed.data.requestId, {
         profession: parsed.data.profession,
         tasks: parsed.data.tasks,
         requirements: parsed.data.requirements,
@@ -164,8 +165,8 @@ export async function updateStaffRequestJobProfileAction(unsafe: unknown) {
  * re-running the matcher.
  */
 export async function startCoverageMatchAction(requestId: string) {
-    const session = await requireClient();
-    if ("error" in session) return { error: true as const, message: session.error };
+    const session = await requireOperatorContext();
+    if (!session.ok) return { error: true as const, message: session.message };
 
     const row = await getStaffRequestRow(requestId);
     if (!row.ok) return { error: true as const, message: row.message };
@@ -194,8 +195,8 @@ export async function startCoverageMatchAction(requestId: string) {
 // ─── Step 3 (confirm): charge + create shifts OR open a Checkout Session ──
 
 export async function confirmStaffRequestAction(requestId: string) {
-    const session = await requireClient();
-    if ("error" in session) return { error: true as const, message: session.error };
+    const session = await requireOperatorContext();
+    if (!session.ok) return { error: true as const, message: session.message };
 
     const row = await getStaffRequestRow(requestId);
     if (!row.ok) return { error: true as const, message: row.message };
@@ -273,11 +274,12 @@ export async function resolveMatchWorkerPhotoUrlAction(
 // ─── Abandon a draft (back from pricing/coverage) ──────────────────────────
 
 export async function abandonStaffRequestDraftAction(requestId: string) {
-    const session = await requireClient();
-    if ("error" in session) return { error: true as const, message: session.error };
+    const session = await requireOperatorContext();
+    if (!session.ok) return { error: true as const, message: session.message };
     const result = await abandonStaffRequestDraft({
         requestId,
-        clientUserId: session.userId,
+        facilityId: session.facilityId,
+        operatorId: session.operatorId,
     });
     if (!result.ok) return { error: true as const, message: result.message };
     return { error: false as const };

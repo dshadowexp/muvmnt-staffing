@@ -6,6 +6,12 @@
     "countries": "Canada",
     "copyright": "© {year} readykare Inc. All rights reserved."
   },
+  "account": {
+    "teamInviteEmail": {
+      "subject": "Invitation to join {facilityName} on ReadyKare",
+      "preview": "Invitation to join {facilityName}"
+    }
+  },
   "meta": {
     "description": "readykare connects healthcare facilities and families with pre-screened, credentialed professionals — fast. Temporary staffing, home care, and emergency relief.",
     "openGraphDescription": "Fill staffing gaps in under 5 minutes with AI-powered, real-time matching to vetted, prescreened healthcare professionals nearby.",
@@ -147,6 +153,9 @@
     ],
     "findWork": "Find work",
     "requestStaff": "Find staff",
+    "logIn": "Log in",
+    "requestDemo": "Request demo",
+    "createFreeAccount": "Create a free account",
     "dashboard": "Dashboard",
     "menu": "Menu"
   },
@@ -205,11 +214,11 @@
       "badge": "Healthcare staffing, simplified",
       "titleLead": "Cover your",
       "titleAccent": "staffing gaps",
-      "titleTail": "in minutes.",
-      "subtitle1": "Fill open shifts in under 5 minutes - with pre-screened, credential-verified healthcare professionals.",
+      "titleTail": "fast!!!",
+      "subtitle1": "We help healthcare teams close staffing gaps quickly with AI-powered, data-driven solutions, ensuring teams are consistently staffed with the right professionals for every shift.",
       "subtitle2": "",
       "ctaRequest": "Request staff →",
-      "ctaProfessional": "I'm a professional",
+      "ctaProfessional": "For professionals",
       "stats": [
         {
           "value": "50+",
@@ -338,6 +347,18 @@
       "ctaGetStarted": "Get started →",
       "ctaRequest": "Request staff →",
       "ctaFindWork": "Find work"
+    },
+    "audienceSplit": {
+      "worker": {
+        "title": "For healthcare professionals",
+        "body": "Join a network of nurses, PSWs, and allied staff. Choose shifts near you, get matched fast, and get paid reliably — on your terms.",
+        "cta": "Find work"
+      },
+      "facility": {
+        "title": "For facilities & operators",
+        "body": "Post open shifts, see live coverage, and book credentialed staff in minutes. Same-day relief to long-term coverage — with compliance built in.",
+        "cta": "Find staff"
+      }
     },
     "screening": {
       "badge": "AI-powered Screening",
@@ -482,6 +503,100 @@
       "ctaSignIn": "Already a member? Sign in"
     }
   },
+  "requestDemo": {
+    "meta": {
+      "title": "Request a demo",
+      "description": "See how ReadyKare helps facilities fill shifts with AI-powered matching and compliant workflows."
+    },
+    "breadcrumb": "Request a demo",
+    "hero": {
+      "overline": "For healthcare facilities",
+      "titleLead": "See ReadyKare",
+      "titleAccent": "in action",
+      "subtitle": "Walk through a live, tailored demo with our team — staffing workflows, screening, and how your operators get relief fast."
+    },
+    "bullets": [
+      {
+        "icon": "Sparkles",
+        "title": "Smart matching",
+        "description": "How requests flow from your site to qualified professionals near you."
+      },
+      {
+        "icon": "Users",
+        "title": "Operators & teams",
+        "description": "Roles, invites, and day-to-day tools your facility staff actually use."
+      },
+      {
+        "icon": "CalendarCheck",
+        "title": "Shifts to payroll",
+        "description": "From open shift to confirmed coverage — with compliance in mind."
+      },
+      {
+        "icon": "CheckCircle2",
+        "title": "Your questions answered",
+        "description": "Bring your workflow; we’ll map it to ReadyKare on the call."
+      }
+    ],
+    "card": {
+      "title": "Book your session",
+      "subtitle": "Tell us a bit about you — then pick a time that works."
+    },
+    "form": {
+      "emailLabel": "Business email",
+      "emailPlaceholder": "you@facility.com",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "Jane",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Smith",
+      "companyLabel": "Facility / company name",
+      "companyPlaceholder": "Your organization",
+      "jobTitleLabel": "Job title",
+      "jobTitlePlaceholder": "e.g. Director of Care",
+      "staffSizeLabel": "Regular staff size",
+      "countryLabel": "Country",
+      "selectPlaceholder": "Select…",
+      "productInterestLabel": "Which ReadyKare products are you interested in?",
+      "productInterestPlaceholder": "Select a product",
+      "staffSizes": [
+        { "value": "1-10", "label": "1–10 regular staff" },
+        { "value": "11-50", "label": "11–50 regular staff" },
+        { "value": "51-200", "label": "51–200 regular staff" },
+        { "value": "201-500", "label": "201–500 regular staff" },
+        { "value": "501+", "label": "501+ regular staff" }
+      ],
+      "productInterests": [
+        { "value": "temporary_staffing_relief", "label": "Temporary Staffing Relief" },
+        { "value": "candidate_screening_solutions", "label": "Candidate Screening Solutions" }
+      ],
+      "countries": [
+        { "value": "CA", "label": "Canada" },
+        { "value": "US", "label": "United States" },
+        { "value": "GB", "label": "United Kingdom" },
+        { "value": "IE", "label": "Ireland" },
+        { "value": "AU", "label": "Australia" },
+        { "value": "NZ", "label": "New Zealand" },
+        { "value": "FR", "label": "France" },
+        { "value": "DE", "label": "Germany" },
+        { "value": "OTHER", "label": "Other" }
+      ],
+      "privacyNotice": "By clicking <cta>Schedule a demo</cta> below, you confirm that you have read and agree to ReadyKare's <policy>Privacy Policy</policy>.",
+      "submit": "Schedule a demo",
+      "saveError": "We couldn’t save your details. Please try again.",
+      "calInitError": "The scheduler couldn’t load. Refresh the page or try again.",
+      "calOpenError": "We couldn’t open the calendar. Refresh and try again.",
+      "linkBookingError": "Your meeting is booked, but we couldn’t link it to your profile. Contact us if you need help.",
+      "validation": {
+        "emailInvalid": "Please enter a valid email address.",
+        "firstNameRequired": "First name is required.",
+        "lastNameRequired": "Last name is required.",
+        "companyRequired": "Company name is required.",
+        "jobTitleRequired": "Job title is required.",
+        "staffSizeRequired": "Select a regular staff size.",
+        "productInterestRequired": "Select a product interest.",
+        "countryRequired": "Select a country."
+      }
+    }
+  },
   "findWork": {
     "meta": {
       "title": "Find healthcare work",
@@ -580,7 +695,7 @@
         "description": "Tell us when you're available for shifts and connect your payout account so you're ready to get paid from day one."
       },
       {
-        "phase": "Active",
+        "phase": "Live",
         "title": "Receive Shifts & Get Paid",
         "description": "Start receiving shift requests, complete them with care, and watch your earnings land in your account."
       }
@@ -884,6 +999,7 @@
       "overline": "Welcome back",
       "title": "Sign in to your account",
       "subtitle": "Access your staffing requests and account details.",
+      "google": "Continue with Google",
       "emailLabel": "Email address",
       "emailPlaceholder": "you@organization.ca",
       "passwordLabel": "Password",
@@ -891,7 +1007,147 @@
       "forgotPassword": "Forgot password?",
       "submit": "Continue with email→",
       "noAccount": "Don't have an account?",
-      "createOne": "Create one"
+      "createOne": "Create one",
+      "contactSales": "Contact sales",
+      "getStartedFree": "Get started for free",
+      "or": "or",
+      "choiceTitle": "Welcome back",
+      "choiceSubtitle": "Sign in to your ReadyKare account.",
+      "roleClient": "For businesses",
+      "roleClientDescription": "Hundreds of healthcare facilities have embraced the new way to staff their teams.",
+      "roleWorker": "For professionals",
+      "roleWorkerDescription": "Join over 10,000 healthcare professionals who have found flexible work on ReadyKare."
+    },
+    "facilitySignIn": {
+      "header": {
+        "overline": "Facility sign-in"
+      },
+      "flow": {
+        "emailTitle": "Welcome back",
+        "emailSubtitle": "Enter your work email to continue to your facility dashboard.",
+        "passwordTitle": "Enter your password",
+        "passwordSubtitle": "Signing in as {email}",
+        "companyEmailLabel": "Work email",
+        "companyEmailPlaceholder": "you@organization.ca",
+        "companyEmailNote": "Use the address your facility uses on ReadyKare.",
+        "continue": "Continue",
+        "google": "Continue with Google",
+        "microsoft": "Continue with Microsoft",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Your password",
+        "forgotPassword": "Forgot password?",
+        "submit": "Sign in",
+        "back": "Back",
+        "errors": {
+          "invitePending": "You have a pending invitation. Check your inbox or contact your administrator.",
+          "domainRegistered": "This organization’s domain is already on ReadyKare. Contact your administrator or our team if you need access.",
+          "noOperatorAccess": "No facility dashboard access is linked to this account yet. Ask your administrator to add you as an operator.",
+          "notFound": "We couldn’t find a facility account for this email. Create one or ask your administrator for an invitation.",
+          "wrongRoleWorker": "This email is registered as a healthcare professional — use worker sign-in.",
+          "wrongRoleCandidate": "This email is tied to a candidate screening — open the link from your invitation."
+        }
+      },
+      "fields": {
+        "workEmail": "Work email",
+        "workEmailPlaceholder": "you@yourcompany.com"
+      },
+      "rememberMe": "Remember me",
+      "ctaContinue": "Continue",
+      "googleCta": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "noAccountSub": "Contact your administrator or",
+      "signUpFree": "Sign up for free",
+      "workerFooter": {
+        "prompt": "Are you a healthcare worker?",
+        "cta": "Sign in here"
+      },
+      "common": {
+        "tryDifferentEmail": "Try a different email"
+      },
+      "steps": {
+        "email": {
+          "title": "Welcome back",
+          "subtitle": "Enter your work email to continue."
+        },
+        "existing_client": {
+          "title": "Sign in",
+          "subtitle": "Choose how you'd like to access your account."
+        },
+        "link_sent": {
+          "title": "Check your inbox",
+          "subtitle": "A sign-in link is on its way."
+        },
+        "invite_pending": {
+          "title": "Invite found",
+          "subtitle": "Your invite is waiting in your inbox."
+        },
+        "personal_email": {
+          "title": "Work email required",
+          "subtitle": "Facility accounts need a company email address."
+        },
+        "not_found": {
+          "title": "Not found",
+          "subtitle": "We couldn't find a facility account with that address."
+        },
+        "wrong_role": {
+          "title": "Wrong portal",
+          "subtitle": "This email is registered under a different account type."
+        }
+      },
+      "panels": {
+        "personalEmail": {
+          "title": "Use your work email",
+          "subtitle": "Facility accounts require a company email address. Personal inboxes like Gmail are not supported.",
+          "cta": "Try a different email"
+        },
+        "notFound": {
+          "title": "No account found",
+          "subtitle": "We couldn't find a facility account for {email}. You may need an invite from your administrator.",
+          "primaryCta": "Create a new facility account"
+        },
+        "wrongRole": {
+          "workerTitle": "This email is registered as a worker",
+          "workerSubtitle": "Use the worker sign-in page to access your account.",
+          "workerCta": "Go to worker sign-in",
+          "candidateTitle": "This email belongs to a candidate account",
+          "candidateSubtitle": "Candidates access the platform through their screening invite link."
+        },
+        "linkSent": {
+          "title": "Sign-in link sent",
+          "subtitle": "If an account exists for {email}, we’ll send a sign-in link. Open it to continue.",
+          "noEmail": "Didn't get it?",
+          "resend": "Resend"
+        }
+      }
+    },
+    "candidateSignIn": {
+      "meta": {
+        "title": "Candidate Sign In",
+        "description": "Enter your screening token to continue."
+      },
+      "overline": "Screening access",
+      "title": "Continue your screening",
+      "subtitle": "Enter the token from your invite link to continue.",
+      "tokenLabel": "Screening token",
+      "tokenPlaceholder": "Paste your token",
+      "cta": "Continue"
+    },
+    "joinTeam": {
+      "meta": {
+        "title": "Join your team | ReadyKare",
+        "description": "Accept your invitation to join an organization on ReadyKare."
+      },
+      "invalidTitle": "Invitation not found",
+      "invalidBody": "This link may have expired or already been used.",
+      "expiredTitle": "Invitation expired",
+      "usedTitle": "Already accepted",
+      "usedBody": "This invitation was already used. Sign in with your work email.",
+      "title": "You're invited",
+      "subtitle": "{facilityName} invited you to collaborate on ReadyKare.",
+      "inviteEmailNote": "Sign up or sign in with {email}.",
+      "ctaSignUp": "Create account",
+      "ctaSignIn": "Sign in",
+      "signInHint": "Already have an account? Use sign in with the address above."
     },
     "signUp": {
       "meta": {
@@ -908,36 +1164,40 @@
       "choiceTitle": "How can we help you today?",
       "choiceSubtitle": "We'll personalize your experience accordingly.",
       "roleWorkerDescription": "Looking for active work in healthcare",
-      "roleClientDescription": "Access to AI-powered staffing solutions",
+      "roleClientDescription": "Searching for AI-powered staffing solutions",
       "roleCandidateDescription": "Received an invitation to complete your screening",
       "titleWorker": "Create your worker account",
       "titleClient": "Create your account",
       "titleCandidate": "Create your account",
       "subtitleWorker": "Flexible healthcare work at your fingertips",
-      "subtitleClient": "AI powered staffing solutions at your fingertips",
+      "subtitleClient": "No credit card required. Sign up with your business email.",
       "subtitleCandidate": "Set up your account to begin your screening.",
       "overline": "Create your readykare account",
       "referralBanner": "You've been referred! Sign up to get started.",
       "referralInvalidToast": "That referral link is invalid or has expired.",
       "roleLabel": "I am looking for",
-      "roleClient": "Healthcare Facility",
+      "roleClient": "I am a healthcare facility",
       "roleWorker": "I'm a healthcare professional",
       "roleCandidate": "I'm a job candidate",
       "emailLabel": "Email address",
-      "emailPlaceholder": "you@organization.ca",
+      "emailPlaceholder": "your@email.com",
       "firstNameLabel": "First name",
       "firstNamePlaceholder": "Jane",
       "lastNameLabel": "Last name",
       "lastNamePlaceholder": "Smith",
       "companyEmailLabel": "Work email address",
-      "companyEmailPlaceholder": "you@company.ca",
+      "companyEmailPlaceholder": "you@organization.ca",
       "companyEmailNote": "We only accept company or organization email addresses.",
       "inviteEmailLabel": "Email address",
       "inviteEmailPlaceholder": "you@email.com",
       "inviteEmailNote": "Use the email address your screening invite was sent to.",
+      "createPasswordTitle": "Create your password",
+      "createPasswordSubtitle": "Set a secure password to finish creating your account.",
       "passwordLabel": "Password",
       "passwordPlaceholder": "Create a password",
-      "submit": "Create account →",
+      "continue": "Continue →",
+      "back": "Back",
+      "submit": "Sign up",
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
       "lookingForWork": "Looking for work?",
@@ -945,6 +1205,19 @@
       "submitMagicLink": "Sign up",
       "magicLinkSentTitle": "Check your email",
       "magicLinkSentSubtitle": "We've sent a magic link to your email. Click the link to sign in.",
+      "facilityInvitePending": "You already have an invite pending. Please check your inbox to join your facility team.",
+      "facilityInvitePendingTitle": "Invite pending",
+      "facilityInvitePendingHelp": "It looks like you’ve already been invited. Use your invite email or sign in to continue.",
+      "facilityInvitePendingCta": "Go to facility sign-in",
+      "inviteEmailMismatch": "Use the exact email address your invitation was sent to.",
+      "inviteFromFacility": "You're joining {facility}",
+      "inviteUseEmail": "Continue with {email} — it must match your invitation.",
+      "facilityAlreadyExistsFallback": "your facility",
+      "facilityAlreadyExists": "{facility} is already on ReadyKare.",
+      "facilityAlreadyExistsTitle": "Facility already registered",
+      "facilityAlreadyExistsHelp": "Your organization domain ({domain}) is already associated with an existing facility. Ask your administrator to invite you, or sign in if you already have access.",
+      "facilityAlreadyExistsCtaSignIn": "Go to facility sign-in",
+      "facilityAlreadyExistsCtaContact": "Contact sales",
       "magicLinkResendLabel": "Didn't receive the email?",
       "magicLinkResend": "Resend email",
       "magicLinkChangeEmail": "Change email",
@@ -1099,7 +1372,17 @@
       "defaultName": "Account"
     },
     "worker": {
+      "stages": {
+        "ariaLabel": "Your onboarding stages",
+        "interview": "Interview",
+        "compliance": "Compliance",
+        "payroll": "Payroll",
+        "availability": "Availability",
+        "live": "Live"
+      },
       "home": {
+        "notLiveTitle": "Profile under review",
+        "notLiveDescription": "You're not on shift matching yet. Complete the tasks below when shown — our team may also review your file before you go live.",
         "welcome": "Welcome, {name}",
         "subtitle": "Here's a snapshot of your activity.",
         "shiftsCompleted": "Shifts completed",
@@ -1145,6 +1428,14 @@
           "title": "Payroll setup",
           "description": "Connect your payout account so you can get paid for completed shifts.",
           "startError": "Could not start payroll setup. Try again or visit Payroll from your account menu."
+        },
+        "setupLocation": {
+          "title": "Add your location",
+          "description": "Set your address so we can match you to nearby shifts."
+        },
+        "setupAvailability": {
+          "title": "Set availability",
+          "description": "Choose weekly hours you're available to work."
         },
         "processing": {
           "title": "Reviewing application",
@@ -1311,6 +1602,25 @@
       "profile": {
         "title": "Profile",
         "subtitle": "Manage your worker profile and work authorization. Certifications and assessments live under Assessments."
+      },
+      "calendarFeed": {
+        "title": "Calendar subscription",
+        "description": "Subscribe in Apple Calendar, Google Calendar, or Outlook with this private link. Your app refreshes the feed periodically — updates are not instant.",
+        "urlLabel": "Subscription URL",
+        "copy": "Copy link",
+        "copied": "Link copied",
+        "copyFailed": "Could not copy",
+        "rotate": "Generate new link",
+        "rotating": "Generating…",
+        "rotateConfirmTitle": "Generate a new subscription link?",
+        "rotateConfirmDescription": "The old link will stop working. Update any calendar app that used it.",
+        "rotateCancel": "Cancel",
+        "rotateConfirm": "Generate",
+        "rotateSuccess": "New subscription link created.",
+        "rotateError": "Could not generate a new link.",
+        "hintGoogle": "Google Calendar: Settings → Add calendar → From URL → paste the link.",
+        "hintApple": "Apple Calendar: File → New Calendar Subscription → paste the link.",
+        "privacy": "Anyone with this link can see your upcoming shifts. Do not share it publicly."
       }
     },
     "client": {
@@ -1329,6 +1639,18 @@
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
         "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today."
+      },
+      "subscriptionCheckout": {
+        "loading": "Checking your subscription…",
+        "activatingTitle": "Activating your subscription",
+        "activatingHint": "Hang tight — we're syncing your plan.",
+        "pollHint": "Confirming payment and activating your plan…",
+        "activatedTitle": "Subscription active",
+        "activatedToast": "Your subscription is active.",
+        "activationFailedTitle": "Activation issue",
+        "activationFailedHint": "Payment may have succeeded but provisioning failed. Try Billing or contact support.",
+        "activationFailedToast": "We couldn't confirm subscription activation. Check Billing or try again.",
+        "activationTimeoutToast": "Still confirming your subscription — refresh the page or open Billing in a moment."
       },
       "requests": {
         "title": "Staff requests",
@@ -1358,11 +1680,41 @@
         "paymentMethodSaved": "Payment method saved.",
         "savingPaymentMethod": "Saving…",
         "paymentHistory": "Payment history",
-        "paymentHistorySubtitle": "Completed payments across your staff requests."
+        "paymentHistorySubtitle": "Completed payments across your staff requests.",
+        "subscriptionPageTitle": "Billing",
+        "subscriptionPageSubtitle": "Manage your subscription, payment method, and invoices.",
+        "noSubscriptionBody": "You don't have an active subscription yet.",
+        "drawerTitle": "Choose a plan for {facilityName}",
+        "drawerFacilityFallback": "your organization",
+        "pricingPageLink": "Pricing",
+        "freePlanTitle": "Free plan",
+        "freePlanBadge": "Current plan",
+        "freePlanDescription": "You're on the free tier. Upgrade when you need higher limits.",
+        "viewPlans": "View plans",
+        "currentPeriod": "Current period",
+        "planLimits": "Plan limits",
+        "teamSeats": "Team seats",
+        "screeningsCap": "Screenings",
+        "screeningInvitesCap": "Screening invites / period",
+        "paymentMethodTitle": "Payment method",
+        "paymentMethodNone": "No payment method on file. Add a card in the billing portal.",
+        "paymentMethodCard": "{brand} ····{last4} · Expires {month}/{year}",
+        "invoicesTitle": "Past Invoices",
+        "invoicesSubtitle": "From Stripe — subscription and other charges.",
+        "invoicesEmpty": "No invoices yet.",
+        "invoiceColDate": "Date",
+        "invoiceColNumber": "Invoice",
+        "invoiceColAmount": "Amount",
+        "invoiceColStatus": "Status",
+        "invoiceView": "View",
+        "invoicePdf": "PDF"
       },
       "account": {
         "title": "Account details",
         "subtitle": "Organization profile and address.",
+        "organization": {
+          "domainsConflict": "The domain \"{domain}\" is already registered to another organization."
+        },
         "address": {
           "cardTitle": "Address",
           "cardDescription": "This is where your shifts will be posted and workers will be matched.",
@@ -1606,6 +1958,8 @@
         "yearsInt": "Must be a whole number",
         "organizationNameRequired": "Organization name is required",
         "organizationTypeRequired": "Organization type is required",
+        "domainsRequired": "Add at least one email domain for your organization (e.g. hospital.ca).",
+        "domainsInvalid": "Invalid domain: \"{domain}\". Use your organization’s email domain (e.g. hospital.ca).",
         "workAuthorizationRequired": "Please select work authorization status",
         "workAuthorizationInvalid": "Please select a valid work authorization",
         "socialNumberRequired": "Social Insurance Number is required",
@@ -1664,7 +2018,10 @@
           "typeLabel": "Organization type",
           "typeDescription": "Select the type that best describes this organization",
           "typePlaceholder": "Select type...",
-          "typeSearch": "Search type..."
+          "typeSearch": "Search type...",
+          "domainsLabel": "Email domains",
+          "domainsDescription": "Domains used for staff and operator email addresses. One domain per line, or separate with commas. Your sign-in domain is added automatically if omitted.",
+          "domainsPlaceholder": "hospital.ca\nsubsidiary.org"
         },
         "authorization": {
           "typeLabel": "Work authorization type",
@@ -1751,6 +2108,8 @@
           "changeAddress": "Change address",
           "updatingAddress": "Updating address",
           "close": "Close",
+          "addressLabel": "Address",
+          "addressDescription": "The address of your organization",
           "currentPrefix": "Current: ",
           "placeholder": "Start typing a new address…",
           "required": "Required",
@@ -2398,7 +2757,7 @@
       "subtitle": "Structured AI interviews on every applicant. A ranked shortlist delivered — no scheduling, no guesswork.",
       "monthlyLabel": "Monthly",
       "annualLabel": "Annual",
-      "annualBadge": "1 month free",
+      "annualBadge": "2 month free",
       "billedAnnually": "C${total}/year billed annually",
       "perMonth": "/mo",
       "free": "Free"
@@ -2618,7 +2977,7 @@
         "priceAnnual": "$499",
         "totalAnnual": "5988"
       },
-      "annualBadge": "1 month free",
+      "annualBadge": "2 month free",
       "billedAnnually": "C${total}/year billed annually",
       "monthlyLabel": "Monthly",
       "annualLabel": "Annual"

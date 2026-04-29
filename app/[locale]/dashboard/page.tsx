@@ -1,5 +1,5 @@
 import { Link, redirect } from "@/i18n/navigation";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getLocale } from "next-intl/server";
 import ClientHomePage from "./(client)/_page";
 import WorkerHomePage from "./(worker)/_page";

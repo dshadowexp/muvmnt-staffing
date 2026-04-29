@@ -79,7 +79,6 @@ export async function createIdentityVerificationSession(): Promise<
 
             // requires_input is the only status where the session URL is still
             // active and the user can proceed — all other statuses need a new session.
-            console.log("existing_session", existing_session);
             if (existing_session.status === "requires_input" && existing_session.url) {
                 return { data: { url: existing_session.url } };
             }

@@ -293,9 +293,9 @@ export function OperatorsTable({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Search + Invite row */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="relative flex-1">
+          {/* Search + Invite row — capped search width so the row isn’t one giant field */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8 lg:gap-10 justify-between">
+            <div className="relative min-w-0 w-full max-w-[min(100%,16rem)] sm:max-w-[min(100%,18rem)] md:max-w-[min(100%,22rem)]">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Search by email…"
@@ -315,7 +315,7 @@ export function OperatorsTable({
             </div>
             <Button
               size="sm"
-              className="shrink-0"
+              className="w-full shrink-0 sm:w-auto"
               onClick={() => setInviteOpen(true)}
             >
               <UserPlusIcon className="size-3.5 mr-1.5" />

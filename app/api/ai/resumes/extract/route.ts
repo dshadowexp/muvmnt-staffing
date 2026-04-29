@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getPostHogClient } from "@/lib/posthog-server";
 import { streamResumeKeyPoints } from "@/services/ai/resumes/resume-extract";
 import arcjet, { fixedWindow } from "@/services/arcjet/client";

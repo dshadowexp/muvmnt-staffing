@@ -9,7 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getAdminWorkerReview } from "@/features/admin/dal/queries";
 import { AdminWorkerAccountActiveEditor } from "@/features/admin/components/admin-worker-account-active-editor";
-import { AdminWorkerStatusEditor } from "@/features/admin/components/admin-worker-status-editor";
+import { AdminWorkerStageEditor } from "@/features/admin/components/admin-worker-stage-editor";
 import {
   AdminWorkerAuthorizationsFileOpen,
   AdminWorkerCompliancesFileOpen,
@@ -88,16 +88,15 @@ export default async function AdminWorkerReviewPage({ params }: PageProps) {
           <dl className="space-y-3">
             <DetailRow label="Profession" value={professionLabel} />
             <DetailRow
-              label="Status"
+              label="Stage"
               value={
-                <AdminWorkerStatusEditor
+                <AdminWorkerStageEditor
                   workerId={worker.id}
                   workerName={`${worker.first_name} ${worker.last_name}`}
-                  initialStatus={worker.live ? "active" : "inactive"}
+                  initialStage={worker.stage}
                 />
               }
             />
-            <DetailRow label="Live" value={boolLabel(worker.live)} />
             <DetailRow
               label="Date of birth"
               value={format(new Date(worker.date_of_birth), "MMM d, yyyy")}

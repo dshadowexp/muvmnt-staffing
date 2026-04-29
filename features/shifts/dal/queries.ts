@@ -17,7 +17,7 @@ export type ShiftActionContext = {
     start_time: string | null;
     end_time: string | null;
     staff_requests: {
-        client_user_id: string;
+        facility_id: string;
         pricing_tier: string | null;
         /** H3 cell id — used to build the candidate search ring. */
         cell_id: string | null;
@@ -33,7 +33,8 @@ export type StaffRequestShiftEmbed = Pick<
   | "start_date"
   | "end_date"
   | "pricing_rate"
-  | "client_user_id"
+  | "facility_id"
+  | "operator_id"
   | "profession"
 >;
 
@@ -69,7 +70,8 @@ const staffRequestSelect = `
   start_date,
   end_date,
   pricing_rate,
-  client_user_id,
+  facility_id,
+  operator_id,
   profession
 `;
 
@@ -185,11 +187,11 @@ export async function getShiftForWorker(
 }
 
 /**
- * One shift visible to the client who owns the staff request.
+ * One shift visible to a facility client (`staff_requests.facility_id`).
  */
-export async function getShiftForClientUser(
+export async function getShiftForFacilityClient(
   shiftId: string,
-  clientUserId: string,
+  facilityId: string,
 ): Promise<ShiftDetail | null> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
@@ -198,7 +200,7 @@ export async function getShiftForClientUser(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} ), facilities ( ${clientSelect} )`,
     )
     .eq("id", shiftId)
-    .eq("staff_requests.client_user_id", clientUserId)
+    .eq("staff_requests.facility_id", facilityId)
     .maybeSingle();
 
   if (error && error.code !== "PGRST116") {
@@ -330,11 +332,11 @@ export async function listShiftsForWorkerOnRequest(
 }
 
 /**
- * Shifts for a staff request, scoped to the request owner (`staff_requests.client_user_id` = app user id).
+ * Shifts for a staff request, scoped to the facility (`staff_requests.facility_id`).
  */
 export async function listShiftsForClientRequest(
   requestId: string,
-  clientUserId: string,
+  facilityId: string,
 ): Promise<ShiftWithStaffRequestAndWorker[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
@@ -343,7 +345,7 @@ export async function listShiftsForClientRequest(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
     .eq("request_id", requestId)
-    .eq("staff_requests.client_user_id", clientUserId)
+    .eq("staff_requests.facility_id", facilityId)
     .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -357,20 +359,19 @@ export async function listShiftsForClientRequest(
 }
 
 /**
- * Stats for completed shifts belonging to a client user:
- * total count and total covered hours (from checkin/checkout or start/end).
+ * Stats for completed shifts belonging to the signed-in facility.
  */
 export async function completedShiftStatsForClient(): Promise<{ count: number; totalMinutes: number }> {
   const session = await getSession();
-  if (!session) return { count: 0, totalMinutes: 0 };
-  const { userId } = session;
+  if (!session?.facilityId) return { count: 0, totalMinutes: 0 };
+  const facilityId = session.facilityId;
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("shifts")
     .select(
-      "checkin_time, checkout_time, start_time, end_time, staff_requests!inner ( client_user_id )",
+      "checkin_time, checkout_time, start_time, end_time, staff_requests!inner ( facility_id )",
     )
-    .eq("staff_requests.client_user_id", userId)
+    .eq("staff_requests.facility_id", facilityId)
     .eq("status", "completed");
   if (error) throw new Error(error.message);
 
@@ -395,15 +396,15 @@ export async function listTodayShiftsForClientUser(
   dayEndUtc: string,
 ): Promise<ShiftWithStaffRequestAndWorker[]> {
   const session = await getSession();
-  if (!session) return [];
-  const { userId } = session;
+  if (!session?.facilityId) return [];
+  const facilityId = session.facilityId;
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("shifts")
     .select(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
-    .eq("staff_requests.client_user_id", userId)
+    .eq("staff_requests.facility_id", facilityId)
     .gte("start_time", dayStartUtc)
     .lt("start_time", dayEndUtc)
     .not("status", "in", '("cancelled","canceled","declined")')
@@ -478,7 +479,7 @@ export async function getShiftWithStaffRequest(
             start_time,
             end_time,
             staff_requests!inner (
-                client_user_id,
+                facility_id,
                 pricing_tier,
                 cell_id,
                 profession,
@@ -529,6 +530,7 @@ export type ShiftReviewContext = {
     workerId: string;
     workerUserId: string;
     clientUserId: string;
+    facilityId: string;
 };
 
 export type ShiftReviewLoadResult =
@@ -540,6 +542,7 @@ export type ShiftReviewLoadResult =
  * rating and tip flows. The caller must already be the client of record.
  */
 export async function loadCompletedShiftForClient(
+    facilityId: string,
     clientUserId: string,
     shiftId: string,
     completedStatus: string,
@@ -552,7 +555,8 @@ export async function loadCompletedShiftForClient(
             id,
             status,
             worker_id,
-            staff_requests!inner ( client_user_id ),
+            facility_id,
+            staff_requests!inner ( facility_id ),
             workers!inner ( user_id )
             `,
         )
@@ -568,11 +572,12 @@ export async function loadCompletedShiftForClient(
         id: string;
         status: string | null;
         worker_id: string;
-        staff_requests: { client_user_id: string } | null;
+        facility_id: string;
+        staff_requests: { facility_id: string } | null;
         workers: { user_id: string } | null;
     };
 
-    if (!row.staff_requests || row.staff_requests.client_user_id !== clientUserId) {
+    if (!row.staff_requests || row.staff_requests.facility_id !== facilityId) {
         return { ok: false, message: "Shift not found" };
     }
     if ((row.status ?? "").trim().toLowerCase() !== completedStatus) {
@@ -593,6 +598,7 @@ export async function loadCompletedShiftForClient(
             workerId: row.worker_id,
             workerUserId: row.workers.user_id,
             clientUserId,
+            facilityId: row.facility_id,
         },
     };
 }
@@ -734,9 +740,9 @@ export async function getWorkerTipAccount(
     };
 }
 
-/** Client billing snapshot for tipping flow — saved card on file. */
-export async function getClientBillingForTip(
-    clientUserId: string,
+/** Facility billing snapshot for tipping flow — saved card on file. */
+export async function getFacilityBillingForTip(
+    facilityId: string,
 ): Promise<
     | {
           stripeCustomerId: string;
@@ -747,7 +753,7 @@ export async function getClientBillingForTip(
     const { data, error } = await supabase
         .from("billing_accounts")
         .select("stripe_customer_id")
-        .eq("user_id", clientUserId)
+        .eq("facility_id", facilityId)
         .maybeSingle();
     if (error && error.code !== "PGRST116") throw new Error(error.message);
     if (!data?.stripe_customer_id) return null;
@@ -757,10 +763,10 @@ export async function getClientBillingForTip(
 }
 
 /**
- * All shifts across staff requests owned by the client user (`users.id`).
+ * All shifts for staff requests belonging to a facility.
  */
 export async function listShiftsForClientUser(
-  clientUserId: string,
+  facilityId: string,
 ): Promise<ShiftWithStaffRequestAndWorker[]> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
@@ -768,7 +774,7 @@ export async function listShiftsForClientUser(
     .select(
       `*, staff_requests!inner ( ${staffRequestSelect} ), workers ( ${workerSelect} )`,
     )
-    .eq("staff_requests.client_user_id", clientUserId)
+    .eq("staff_requests.facility_id", facilityId)
     .order("start_time", { ascending: true });
 
   if (error) throw new Error(error.message);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -81,7 +81,7 @@ export function ResetPasswordForm() {
                 </p>
             </div>
 
-            <Card className="w-full max-w-[440px] overflow-hidden rounded-2xl shadow-lg">
+            <Card className="w-full max-w-[440px] overflow-hidden">
                 {!sent ? (
                 <>
                     <CardHeader className="border-b border-border px-9 pb-6 pt-8">

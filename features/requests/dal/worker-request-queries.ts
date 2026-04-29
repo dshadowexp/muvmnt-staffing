@@ -73,7 +73,7 @@ export async function getStaffRequestSiteForWorker(
   const supabase = await createAdminClient();
   const { data: sr, error: srErr } = await supabase
     .from("staff_requests")
-    .select("client_user_id, location")
+    .select("operator_id, location")
     .eq("id", requestId)
     .single();
 
@@ -82,12 +82,20 @@ export async function getStaffRequestSiteForWorker(
   const fromRequest = parseSiteRowFromStaffRequestLocation(sr.location);
   if (fromRequest) return { location: fromRequest };
 
+  const { data: opRow } = await supabase
+    .from("operators")
+    .select("user_id")
+    .eq("id", sr.operator_id)
+    .maybeSingle();
+  const creatorUserId = opRow?.user_id ?? null;
+  if (!creatorUserId) return { location: null };
+
   const { data: loc, error: locErr } = await supabase
     .from("locations")
     .select(
       "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
     )
-    .eq("user_id", sr.client_user_id)
+    .eq("user_id", creatorUserId)
     .maybeSingle();
 
   if (locErr) throw new Error(locErr.message);

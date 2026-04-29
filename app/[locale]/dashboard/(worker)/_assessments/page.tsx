@@ -1,8 +1,9 @@
 import { getSkills, getWorkerProfile } from "@/features/profile/dal/queries";
 import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
 import { getLatestCompletedQuizBySkillIds } from "@/features/quizes/dal/queries";
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+import { getSession } from "@/lib/get-session";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import {
   WorkerAssessmentsHub,
   type AssessmentSkillRow,
@@ -10,12 +11,13 @@ import {
 } from "./_client";
 
 export default async function WorkerAssessmentsPage() {
+  const locale = await getLocale();
   const session = await getSession();
-  if (!session) redirect("/sign-in");
-  if (session.role !== "worker") redirect(`/dashboard`);
+  if (!session) return redirect({ href: "/sign-in", locale });
+  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
 
   const worker = await getWorkerProfile();
-  if (!worker) redirect("/onboarding/profile");
+  if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
   const userId = session.userId;
 

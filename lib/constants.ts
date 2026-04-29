@@ -21,6 +21,7 @@ export const PUBLIC_PATHS = new Set([
   "/find-work",
   "/screening",
   "/pricing",
+  "/request-demo",
   "/faq",
   "/privacy",
   "/terms",
@@ -28,7 +29,8 @@ export const PUBLIC_PATHS = new Set([
 
 export const PUBLIC_PREFIXES: string[] = [
   "/refer",
-  "/shifts/respond",   // ← email action outcome pages
+  "/shifts/respond", // ← email action outcome pages
+  "/join", // ← facility team invite magic links (/join/team/[token])
 ];
 
 // ─── Auth pages (redirect away if already signed in) ─────────────────────────

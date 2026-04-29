@@ -7,7 +7,7 @@
  */
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  "inline-flex items-center justify-center gap-2 rounded-sm text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 /** Full-height (h-11) primary solid — works on any background. */
 export const ctaPrimary = `${base} h-11 bg-primary px-8 text-primary-foreground shadow-sm hover:bg-primary/90`;

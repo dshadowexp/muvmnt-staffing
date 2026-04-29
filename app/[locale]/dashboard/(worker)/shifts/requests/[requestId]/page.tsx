@@ -1,7 +1,7 @@
 import { StaffRequestWorkerDetail } from "@/features/requests/components/staff-request-worker-detail";
 import { getWorkerIdByUserId } from "@/features/shifts/dal/queries";
 import { redirect } from "@/i18n/navigation";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 

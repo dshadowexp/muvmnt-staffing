@@ -12,7 +12,7 @@ export type AdminWorkerRow = {
   first_name: string;
   last_name: string;
   profession: string;
-  live: boolean
+  stage: string;
   created_at: string;
 };
 
@@ -29,7 +29,9 @@ export type AdminClientRow = AdminFacilityRow;
 export type AdminJobRow = {
   id: string;
   positions: number;
-  client_user_id: string;
+  facility_id: string;
+  operator_id: string;
+  /** Facility display name (legacy field name for admin tables). */
   client_name: string | null;
   start_date: string;
   end_date: string | null;
@@ -118,7 +120,7 @@ export async function getAdminWorkersList(
   const { data, error } = await supabase
     .from("workers")
     .select(
-      "id, user_id, first_name, last_name, profession, live, created_at",
+      "id, user_id, first_name, last_name, profession, stage, created_at",
     )
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -295,12 +297,10 @@ export const getAdminClientReview = cache(
             .eq("user_id", uid)
             .maybeSingle()
         : Promise.resolve({ data: null }),
-      uid
-        ? supabase
-            .from("staff_requests")
-            .select("id", { count: "exact", head: true })
-            .eq("client_user_id", uid)
-        : Promise.resolve({ count: 0 }),
+      supabase
+        .from("staff_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("facility_id", clientId),
       supabase
         .from("shifts")
         .select("id", { count: "exact", head: true })
@@ -309,21 +309,19 @@ export const getAdminClientReview = cache(
 
     // Sum payments succeeded for this facility's requests.
     let paidCents = 0;
-    if (uid) {
-      const { data: clientRequests } = await supabase
-        .from("staff_requests")
-        .select("id")
-        .eq("client_user_id", uid);
-      const ids = (clientRequests ?? []).map((r) => r.id);
-      if (ids.length > 0) {
-        const { data: pays } = await supabase
-          .from("payments")
-          .select("amount_cents, status")
-          .in("request_id", ids);
-        paidCents = (pays ?? [])
-          .filter((p) => p.status === "succeeded" || p.status === "paid")
-          .reduce((sum, p) => sum + (p.amount_cents ?? 0), 0);
-      }
+    const { data: clientRequests } = await supabase
+      .from("staff_requests")
+      .select("id")
+      .eq("facility_id", clientId);
+    const ids = (clientRequests ?? []).map((r) => r.id);
+    if (ids.length > 0) {
+      const { data: pays } = await supabase
+        .from("payments")
+        .select("amount_cents, status")
+        .in("request_id", ids);
+      paidCents = (pays ?? [])
+        .filter((p) => p.status === "succeeded" || p.status === "paid")
+        .reduce((sum, p) => sum + (p.amount_cents ?? 0), 0);
     }
 
     return {
@@ -341,47 +339,48 @@ export const getAdminClientReview = cache(
 
 // ---------- Requests (staff_requests) ----------
 
-async function joinClientNamesByUserId(
-  userIds: string[],
-): Promise<Map<string, string>> {
-  if (userIds.length === 0) return new Map();
-  const supabase = await createAdminClient();
-  // Resolve user_id → facility name via operators → facilities join
-  const { data } = await supabase
-    .from("operators")
-    .select("user_id, facilities(name)")
-    .in("user_id", Array.from(new Set(userIds)));
-  const map = new Map<string, string>();
-  for (const op of data ?? []) {
-    const name = (op.facilities as { name: string } | null)?.name;
-    if (op.user_id && name) map.set(op.user_id, name);
-  }
-  return map;
-}
-
 export async function getAdminJobsList(limit = 200): Promise<AdminJobRow[]> {
   await requireAdminSession();
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("staff_requests")
-    .select("id, positions, client_user_id, start_date, end_date, created_at, status")
+    .select(
+      "id, positions, facility_id, operator_id, start_date, end_date, created_at, status",
+    )
     .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(error.message);
 
   const rows = data ?? [];
-  const names = await joinClientNamesByUserId(rows.map((r) => r.client_user_id));
+  const facilityIds = [...new Set(rows.map((r) => r.facility_id))];
+  const { data: facs } = await supabase
+    .from("facilities")
+    .select("id, name")
+    .in("id", facilityIds);
+  const facName = new Map((facs ?? []).map((f) => [f.id, f.name]));
+
   return rows.map((r) => ({
     id: r.id,
     positions: r.positions,
-    client_user_id: r.client_user_id,
-    client_name: names.get(r.client_user_id) ?? null,
+    facility_id: r.facility_id,
+    operator_id: r.operator_id,
+    client_name: facName.get(r.facility_id) ?? null,
     start_date: r.start_date,
     end_date: r.end_date ?? null,
     created_at: r.created_at,
     status: r.status,
   }));
+}
+
+async function joinFacilityNamesByFacilityId(
+  facilityIds: string[],
+): Promise<Map<string, string>> {
+  const ids = [...new Set(facilityIds.filter(Boolean))];
+  if (ids.length === 0) return new Map();
+  const supabase = await createAdminClient();
+  const { data } = await supabase.from("facilities").select("id, name").in("id", ids);
+  return new Map((data ?? []).map((f) => [f.id, f.name]));
 }
 
 export type AdminRequestReview = {
@@ -419,17 +418,26 @@ export const getAdminRequestReview = cache(
 
     if (rErr || !request) return null;
 
-    const [clientRes, locRes, shiftsRes, paysRes] = await Promise.all([
+    const { data: creatorOp } = await supabase
+      .from("operators")
+      .select("user_id")
+      .eq("id", request.operator_id)
+      .maybeSingle();
+    const creatorUserId = creatorOp?.user_id ?? null;
+
+    const [facilityRes, locRes, shiftsRes, paysRes] = await Promise.all([
       supabase
-        .from("operators")
-        .select("facility_id, facilities(id, name)")
-        .eq("user_id", request.client_user_id)
+        .from("facilities")
+        .select("id, name")
+        .eq("id", request.facility_id)
         .maybeSingle(),
-      supabase
-        .from("locations")
-        .select("address, city, admin_area, postal_code, country_code")
-        .eq("user_id", request.client_user_id)
-        .maybeSingle(),
+      creatorUserId
+        ? supabase
+            .from("locations")
+            .select("address, city, admin_area, postal_code, country_code")
+            .eq("user_id", creatorUserId)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
       supabase
         .from("shifts")
         .select(
@@ -444,10 +452,13 @@ export const getAdminRequestReview = cache(
         .order("created_at", { ascending: false }),
     ]);
 
-    // Reshape operator+facility into the { id, name, user_id } shape the type expects
-    const facilityData = clientRes.data?.facilities as { id: string; name: string } | null;
+    const facilityData = facilityRes.data;
     const clientFormatted = facilityData
-      ? { id: facilityData.id, name: facilityData.name, user_id: request.client_user_id }
+      ? {
+          id: facilityData.id,
+          name: facilityData.name,
+          user_id: creatorUserId ?? "",
+        }
       : null;
 
     return {
@@ -742,7 +753,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     supabase
       .from("workers")
       .select(
-        "id, user_id, first_name, last_name, profession, live, created_at",
+        "id, user_id, first_name, last_name, profession, stage, created_at",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
@@ -755,7 +766,7 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     supabase
       .from("staff_requests")
       .select(
-        "id, positions, client_user_id, start_date, end_date, created_at, status",
+        "id, positions, facility_id, operator_id, start_date, end_date, created_at, status",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
@@ -812,9 +823,9 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
   const authsRaw = authsRes.data ?? [];
   const compsRaw = compsRes.data ?? [];
 
-  const [jobClientNames, shiftClientNames, shiftWorkerNames, authWorkerNames, compWorkerNames] =
+  const [jobFacilityNames, shiftClientNames, shiftWorkerNames, authWorkerNames, compWorkerNames] =
     await Promise.all([
-      joinClientNamesByUserId(jobsRaw.map((r) => r.client_user_id)),
+      joinFacilityNamesByFacilityId(jobsRaw.map((r) => r.facility_id)),
       joinClientNamesByClientId(shiftsRaw.map((r) => r.facility_id)),
       joinWorkerNamesByWorkerId(shiftsRaw.map((r) => r.worker_id ?? "")),
       joinWorkerNamesByUserId(authsRaw.map((r) => r.user_id)),
@@ -836,8 +847,9 @@ export async function getAdminDashboardSnapshot(): Promise<AdminDashboardSnapsho
     jobs: jobsRaw.map((r) => ({
       id: r.id,
       positions: r.positions,
-      client_user_id: r.client_user_id,
-      client_name: jobClientNames.get(r.client_user_id) ?? null,
+      facility_id: r.facility_id,
+      operator_id: r.operator_id,
+      client_name: jobFacilityNames.get(r.facility_id) ?? null,
       start_date: r.start_date,
       end_date: r.end_date ?? null,
       created_at: r.created_at,

@@ -5,7 +5,9 @@ import {
     createUserWithEmailAndPassword,
     updateProfile,
     signInAnonymously,
+    signInWithCustomToken as firebaseSignInWithCustomToken,
     getAuth,
+    OAuthProvider,
     sendSignInLinkToEmail,
     isSignInWithEmailLink as firebaseIsSignInWithEmailLink,
     signInWithEmailLink as firebaseSignInWithEmailLink,
@@ -119,6 +121,14 @@ export async function loginWithGoogle() {
     await signInWithPopup(auth, provider);
 }
 
+export async function loginWithMicrosoft() {
+    const provider = new OAuthProvider("microsoft.com");
+    provider.setCustomParameters({
+        prompt: "select_account",
+    });
+    await signInWithPopup(auth, provider);
+}
+
 export async function signInAsAnonymously() {
     await signInAnonymously(auth);
 }
@@ -161,6 +171,15 @@ export async function signInWithMagicLink(
     if (displayName) {
         await updateProfile(cred.user, { displayName });
     }
+}
+
+/**
+ * Signs the client in using a Firebase custom token generated server-side.
+ * Used for candidate magic-link auth: the server creates a short-lived token
+ * tied to the candidate's email so they don't need a password.
+ */
+export async function signInWithCustomToken(token: string): Promise<void> {
+    await firebaseSignInWithCustomToken(auth, token);
 }
 
 export async function logout() {

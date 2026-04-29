@@ -20,6 +20,28 @@ import { exchangeFirebaseUser } from "../actions";
 import posthog from "posthog-js";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { INACTIVE_PREFIXES } from "@/lib/constants";
+
+// ─── Helpers (mirror middleware path-prefix logic; pathname is locale-stripped) ─
+
+function pathHasPrefix(pathname: string, prefix: string): boolean {
+    return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
+/** Routes where post–sign-in redirect to the app root is expected (not deep links). */
+function isAuthEntryPath(pathname: string): boolean {
+    if (pathname === "/") return true;
+    return (
+        pathHasPrefix(pathname, "/sign-in") ||
+        pathHasPrefix(pathname, "/sign-up") ||
+        pathHasPrefix(pathname, "/forgot-password")
+    );
+}
+
+function isInactiveAllowedPath(pathname: string): boolean {
+    return INACTIVE_PREFIXES.some((p) => pathHasPrefix(pathname, p));
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,6 +51,8 @@ type AuthContextType = {
   loading: boolean;
   setPendingRole: (role: UserRole | null) => void;
   setPendingReferralCode: (code: string | null) => void;
+  /** Facility team invite token from `/join/team/...` → sign-up/sign-in (cleared after exchange). */
+  setPendingInviteToken: (token: string | null) => void;
   reloadToken: () => Promise<void>;
   /** Register a handler that fires instead of navigating when a Firebase user
    *  has no Supabase row (not_found). Call with null to unregister. */
@@ -46,7 +70,8 @@ type ExchangeOutcome =
   | "not_found"
   | "email_taken"
   | "personal_email"
-  | "invite_not_found";
+  | "invite_not_found"
+  | "facility_invite_conflict";
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
@@ -57,11 +82,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const pathnameRef = useRef(pathname);
+    pathnameRef.current = pathname;
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
     const [authUser, setAuthUser] = useState<UserAuth | null>(null);
     const [loading, setLoading] = useState(true);
     const pendingRoleRef = useRef<UserRole | null>(null);
     const pendingReferralCodeRef = useRef<string | null>(null);
+    const pendingInviteTokenRef = useRef<string | null>(null);
     const onNotFoundRef = useRef<(() => void) | null>(null);
     const onEmailTakenRef = useRef<(() => void) | null>(null);
     const onSuccessRef = useRef<((user: UserAuth) => void) | null>(null);
@@ -72,6 +101,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const setPendingReferralCode = useCallback((code: string | null) => {
         pendingReferralCodeRef.current = code;
+    }, []);
+
+    const setPendingInviteToken = useCallback((token: string | null) => {
+        pendingInviteTokenRef.current = token?.trim() || null;
     }, []);
 
     const setNotFoundHandler = useCallback((fn: (() => void) | null) => {
@@ -103,17 +136,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      * throw as "unrecoverable, clean up and stop".
      */
     async function runTokenExchange(user: User): Promise<ExchangeOutcome> {
+        const inviteToken =
+            pendingInviteTokenRef.current ?? searchParams.get("invite_token");
+
         const result = await exchangeFirebaseUser({
             authId: user.uid,
             email: user.email ?? "",
             emailVerified: user.emailVerified ?? false,
             role: pendingRoleRef.current ?? undefined,
+            inviteToken: inviteToken ?? undefined,
         });
 
         if (result.status === "not_found") return "not_found";
         if (result.status === "email_taken") return "email_taken";
         if (result.status === "personal_email") return "personal_email";
         if (result.status === "invite_not_found") return "invite_not_found";
+        if (result.status === "facility_invite_conflict") {
+            toast.error(result.message);
+            pendingInviteTokenRef.current = null;
+            return "facility_invite_conflict";
+        }
 
         if (result.status === "error") {
             toast.error(`Sign in failed: ${result.message}`);
@@ -129,6 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const pendingRole = pendingRoleRef.current;
         pendingRoleRef.current = null;
         pendingReferralCodeRef.current = null;
+        pendingInviteTokenRef.current = null;
 
         // Fire-and-forget — non-fatal
         if (pendingReferral && pendingRole) {
@@ -225,6 +268,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     return;
                 }
 
+                if (outcome === "facility_invite_conflict") {
+                    await logout();
+                    await deleteSession();
+                    setFirebaseUser(null);
+                    setAuthUser(null);
+                    return;
+                }
+
                 // outcome.status === "ok" — session cookie is already set
                 posthog.identify(user.email ?? user.uid, {
                     email: user.email ?? undefined,
@@ -236,25 +287,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (onSuccessRef.current) {
                     onSuccessRef.current(outcome.user);
                 } else {
-                    const redirectParam =
-                        searchParams.get("redirect") ?? searchParams.get("callbackUrl");
-                    const safeParam =
-                        redirectParam &&
-                        redirectParam.startsWith("/") &&
-                        !redirectParam.startsWith("//")
-                            ? redirectParam
-                            : null;
+                    const path = pathnameRef.current;
 
-                    if (!outcome.user.isActive && outcome.user.role !== "candidate") {
-                        // Inactive worker / client → review queue
-                        router.replace("/review" as Parameters<typeof router.replace>[0]);
-                    } else {
+                    if (
+                        !outcome.user.isActive &&
+                        outcome.user.role !== "candidate"
+                    ) {
+                        if (!isInactiveAllowedPath(path)) {
+                            router.replace("/review" as Parameters<typeof router.replace>[0]);
+                        }
+                    } else if (isAuthEntryPath(path)) {
+                        const redirectParam =
+                            searchParams.get("redirect") ??
+                            searchParams.get("callbackUrl");
+                        const safeParam =
+                            redirectParam &&
+                            redirectParam.startsWith("/") &&
+                            !redirectParam.startsWith("//")
+                                ? redirectParam
+                                : null;
                         const defaultDest =
-                            outcome.user.role === "admin" ? "/dashboard/admin" : "/dashboard";
+                            outcome.user.role === "admin"
+                                ? "/dashboard/admin"
+                                : "/dashboard";
                         router.push(
-                            (safeParam ?? defaultDest) as Parameters<typeof router.push>[0],
+                            (safeParam ??
+                                defaultDest) as Parameters<typeof router.push>[0],
                         );
                     }
+                    // Else: session restored on an in-app or marketing URL — keep current route (reload / deep link).
                 }
             } catch {
                 // runTokenExchange already surfaced a toast for the specific error.
@@ -279,6 +340,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 loading,
                 setPendingRole,
                 setPendingReferralCode,
+                setPendingInviteToken,
                 reloadToken,
                 setNotFoundHandler,
                 setEmailTakenHandler,

@@ -96,6 +96,8 @@ export default async function FindWorkPage() {
         </div>
       </section>
 
+      <HowItWorks />
+
       <section className="bg-background px-6 py-16 lg:px-12 lg:py-20">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 max-w-2xl">
@@ -130,8 +132,6 @@ export default async function FindWorkPage() {
           </div>
         </div>
       </section>
-
-      <HowItWorks />
 
       <section className="bg-background px-6 py-16 lg:px-12 lg:py-20">
         <div className="mx-auto max-w-5xl">

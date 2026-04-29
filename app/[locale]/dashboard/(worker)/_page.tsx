@@ -32,10 +32,14 @@ import {
   FingerprintIcon,
   CircleDashedIcon,
   ChevronRightIcon,
+  MapPinIcon,
+  CalendarClockIcon,
 } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { Link } from "@/i18n/navigation";
+import { WorkerStageStrip } from "@/features/workers/components/worker-stage-strip";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 function formatCents(amountCents: number, currency: string) {
   return new Intl.NumberFormat("en-CA", {
@@ -161,6 +165,16 @@ async function PendingActions() {
       description: t("payrollOnboarding.description"),
       icon:        <WalletIcon className="size-5 text-primary" />,
     },
+    "setup-location": {
+      title:       t("setupLocation.title"),
+      description: t("setupLocation.description"),
+      icon:        <MapPinIcon className="size-5 text-primary" />,
+    },
+    "setup-availability": {
+      title:       t("setupAvailability.title"),
+      description: t("setupAvailability.description"),
+      icon:        <CalendarClockIcon className="size-5 text-primary" />,
+    },
     "processing": {
       title:       t("processing.title"),
       description: t("processing.description"),
@@ -170,7 +184,11 @@ async function PendingActions() {
 
   const actions: PendingAction[] = pending.map((a) => ({
     ...a,
-    ...iconMap[a.id],
+    ...(iconMap[a.id] ?? {
+      title:       t("processing.title"),
+      description: t("processing.description"),
+      icon:        <CircleDashedIcon className="size-5 animate-spin text-primary" />,
+    }),
   }));
 
   if (actions.length === 0) return null;
@@ -298,6 +316,8 @@ export default async function WorkerHomePage() {
 
   const t = await getTranslations("dashboard.worker.home");
 
+  const notLive = worker.stage !== "live";
+
   return (
     <div className="flex w-full max-w-6xl flex-col gap-6">
       <div>
@@ -305,6 +325,17 @@ export default async function WorkerHomePage() {
           {t("welcome", { name: worker.first_name })}
         </h1>
       </div>
+
+      <WorkerStageStrip stage={worker.stage} />
+
+      {notLive && (
+        <Alert className="border-primary/25 bg-primary/[0.04]">
+          <AlertTitle>{t("notLiveTitle")}</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            {t("notLiveDescription")}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Suspense fallback={<PendingActionsSkeleton />}>
         <PendingActions />

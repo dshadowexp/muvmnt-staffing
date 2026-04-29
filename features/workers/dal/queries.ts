@@ -1,72 +1,111 @@
 import "server-only";
 
+import { createAdminClient } from "@/services/supabase/server";
 import { getOrCreateCombinedInterview } from "@/features/interviews/lib/get-or-create-combined-interview";
 import { isAssessmentInterviewLocked } from "@/features/interviews/lib/interview-feedback-json";
-import { getIdentityVerification, getWorkAuthorization, getWorkerProfile } from "@/features/profile/dal/queries";
+import {
+  getIdentityVerification,
+  getWorkAuthorization,
+  getWorkerProfile,
+} from "@/features/profile/dal/queries";
+import { isWorkAuthorizationSubmitted } from "@/features/workers/lib/work-authorization-submitted";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type WorkerPendingActionId =
-    | "assessment-interview"
-    | "payroll-onboarding"
-    | "work-authorization"
-    | "identity-verification"
-    | "processing";
+  | "assessment-interview"
+  | "identity-verification"
+  | "work-authorization"
+  | "payroll-onboarding"
+  | "setup-location"
+  | "setup-availability"
+  | "processing";
 
-/**
- * A serializable pending action — no JSX, no ReactNode.
- * The UI layer maps `id` to its icon and i18n strings.
- */
 export type WorkerPendingAction = {
-    id:   WorkerPendingActionId;
-    href: string;
+  id: WorkerPendingActionId;
+  href: string;
 };
 
 // ─── Query ────────────────────────────────────────────────────────────────────
 
 /**
- * Resolves which onboarding / compliance tasks a worker still needs to complete.
- * Runs all checks in parallel. Returns a stable-ordered list so the UI always
- * renders actions in the same sequence regardless of which subset is active.
- *
- * @param userId   - Firebase user ID (workers.user_id)
- * @param photoUrl - Current value of workers.photo_url; caller already has it
- *                   from the profile fetch so we avoid a redundant round-trip.
+ * Next onboarding / compliance tasks for the current worker (stable ordering).
  */
 export async function getWorkerPendingActions(): Promise<WorkerPendingAction[]> {
-    const worker = await getWorkerProfile();
-    if (!worker) return [];
+  const worker = await getWorkerProfile();
+  if (!worker) return [];
 
-    const { user_id, stage } = worker;
-    const actions: WorkerPendingAction[] = [];
-    
-    if (stage === "interview") {
-        const interview = await getOrCreateCombinedInterview(user_id);
-        if (!isAssessmentInterviewLocked(interview)) {
-            actions.push({ id: "assessment-interview", href: `/interviews/${interview.id}` });
-        } else {
-            actions.push({ id: "processing", href: "/dashboard" });
-        }
-    } else if (stage === "compliance") {
-        const [workAuth, identityVerification] = await Promise.all([
-            getWorkAuthorization(),
-            getIdentityVerification(),
-        ]);
+  const { user_id, stage, cell_id } = worker;
+  const actions: WorkerPendingAction[] = [];
 
-        if (!identityVerification?.verified) {
-            actions.push({ id: "identity-verification", href: "/dashboard/compliance" });
-        } else if (!workAuth) {
-            actions.push({ id: "work-authorization", href: "/dashboard/compliance" });
-        } else {
-            actions.push({ id: "processing", href: "/dashboard" });
-        }
-    } else if (stage === "payroll") {
-        actions.push({ id: "payroll-onboarding", href: "/payroll" });
-    } else if (stage === "live") {
-        // actions.push({ id: "processing", href: "/dashboard" });
+  if (stage === "interview") {
+    const interview = await getOrCreateCombinedInterview(user_id);
+    if (!isAssessmentInterviewLocked(interview)) {
+      actions.push({
+        id: "assessment-interview",
+        href: `/interviews/${interview.id}`,
+      });
     } else {
-        actions.push({ id: "processing", href: "/dashboard" })
+      actions.push({ id: "processing", href: "/dashboard" });
+    }
+    return actions;
+  }
+
+  if (stage === "compliance") {
+    const [workAuth, identityVerification] = await Promise.all([
+      getWorkAuthorization(),
+      getIdentityVerification(),
+    ]);
+
+    if (!identityVerification?.verified) {
+      actions.push({
+        id: "identity-verification",
+        href: "/dashboard/compliance",
+      });
+    } else if (!isWorkAuthorizationSubmitted(workAuth)) {
+      actions.push({
+        id: "work-authorization",
+        href: "/dashboard/compliance",
+      });
+    } else {
+      actions.push({ id: "processing", href: "/dashboard" });
+    }
+    return actions;
+  }
+
+  if (stage === "payroll") {
+    actions.push({ id: "payroll-onboarding", href: "/payroll" });
+    return actions;
+  }
+
+  if (stage === "availability") {
+    if (!cell_id?.trim()) {
+      actions.push({ id: "setup-location", href: "/dashboard/profile" });
+      return actions;
     }
 
+    const supabase = await createAdminClient();
+    const { count, error } = await supabase
+      .from("availability")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user_id);
+
+    if (error || !count || count < 1) {
+      actions.push({
+        id: "setup-availability",
+        href: "/dashboard/availability",
+      });
+      return actions;
+    }
+
+    actions.push({ id: "processing", href: "/dashboard" });
     return actions;
+  }
+
+  if (stage === "live") {
+    return [];
+  }
+
+  actions.push({ id: "processing", href: "/dashboard" });
+  return actions;
 }

@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
 import { getOnboardingStepsJson } from "@/features/onboarding/dal/queries";
 import { OnboardingProvider } from "@/features/onboarding/onboarding-provider";
@@ -23,9 +23,9 @@ export default async function OnboardingStepsLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
   const session = await getSession();
-  if (!session) redirect("/sign-in");
-
+  if (!session) return redirect({ href: "/sign-in", locale });
   const { role, userId } = session;
   const stepCompletion = await getOnboardingStepsJson(userId);
 

@@ -71,7 +71,6 @@ CREATE TABLE workers (
   photo_url             text,
   stage                 text        NOT NULL DEFAULT 'interview'
                           CHECK (stage IN ('interview', 'compliance', 'payroll', 'availability', 'live')),
-  live                  boolean     NOT NULL DEFAULT false,
   auto_confirm          boolean     NOT NULL DEFAULT false,
   cell_id               text,
   availability_timezone text,
@@ -84,7 +83,6 @@ CREATE UNIQUE INDEX workers_user_id_idx    ON workers (user_id);
 CREATE INDEX        workers_stage_idx      ON workers (stage);
 CREATE INDEX        workers_profession_idx ON workers (profession);
 CREATE INDEX        workers_cell_id_idx    ON workers (cell_id) WHERE cell_id IS NOT NULL;
-CREATE INDEX        workers_live_idx       ON workers (live);
 
 
 -- =============================================================================
@@ -269,6 +267,32 @@ CREATE INDEX feedbacks_category_idx ON feedbacks (category);
 
 
 -- =============================================================================
+-- TABLE: demo_leads
+-- Landing “request a demo” funnel; paired with Cal.com booking UID when embed confirms.
+-- =============================================================================
+CREATE TABLE demo_leads (
+  id                   uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  email                text        NOT NULL,
+  first_name           text        NOT NULL,
+  last_name            text        NOT NULL,
+  company_name         text        NOT NULL,
+  job_title            text        NOT NULL,
+  company_size         text        NOT NULL,
+  country              text        NOT NULL,
+  product_interest     text        NOT NULL,
+  roles_hiring_band    text,
+  marketing_consent    boolean     NOT NULL DEFAULT false,
+  cal_booking_uid      text,
+  created_at           timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX demo_leads_email_lower_idx ON demo_leads (lower(email));
+CREATE INDEX demo_leads_created_at_idx  ON demo_leads (created_at DESC);
+
+ALTER TABLE demo_leads ENABLE ROW LEVEL SECURITY;
+
+
+-- =============================================================================
 -- TABLE: referral_codes
 -- Unique invite codes issued per user.
 -- =============================================================================
@@ -340,8 +364,10 @@ CREATE TABLE screening_invites (
   email        text        NOT NULL,
   token        text        NOT NULL DEFAULT gen_random_uuid()::text,
   status       text        NOT NULL DEFAULT 'pending'
-                 CHECK (status IN ('pending', 'sent', 'accepted', 'declined', 'expired')),
+                 CHECK (status IN ('pending', 'sent', 'accepted', 'declined', 'expired', 'revoked')),
   sent_at      timestamptz,
+  revoked_at   timestamptz,
+  revoked_by   uuid        REFERENCES users (id) ON DELETE SET NULL,
   created_at   timestamptz NOT NULL DEFAULT now()
 );
 

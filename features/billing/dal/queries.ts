@@ -83,8 +83,7 @@ export const getClientBillingConfig = getFacilityBillingConfig;
 
 /**
  * Resolve the Stripe customer ID for a facility.
- * Checks facilities.stripe_customer_id first, then falls back to
- * billing_accounts via the facility owner's user_id.
+ * Checks facilities.stripe_customer_id first, then billing_accounts.facility_id.
  */
 export async function resolveStripeCustomerId(
   facilityId: string,
@@ -94,20 +93,10 @@ export async function resolveStripeCustomerId(
 
   const supabase = await createAdminClient();
 
-  // Fall back: find the owner's billing_account
-  const { data: owner } = await supabase
-    .from("operators")
-    .select("user_id")
-    .eq("facility_id", facilityId)
-    .eq("permission", "owner")
-    .maybeSingle();
-
-  if (!owner) return null;
-
   const { data, error } = await supabase
     .from("billing_accounts")
     .select("stripe_customer_id")
-    .eq("user_id", owner.user_id)
+    .eq("facility_id", facilityId)
     .maybeSingle();
 
   if (error && error.code !== "PGRST116") throw new Error(error.message);

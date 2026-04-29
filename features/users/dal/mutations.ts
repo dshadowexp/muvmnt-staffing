@@ -61,8 +61,6 @@ export async function findOrCreateUser(params: {
     }
     if (existing) return existing;
 
-    console.log(params)
-   
     // 2. No row for this auth_id — only relevant during sign-up
     if (!params.role) return "NOT_FOUND";
    

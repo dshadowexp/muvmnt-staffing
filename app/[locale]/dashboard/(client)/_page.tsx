@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SubscriptionCheckoutTracker } from "@/features/billing/components/subscription-checkout-tracker";
 
 function formatDuration(totalMinutes: number): string {
   const hrs = Math.floor(totalMinutes / 60);
@@ -147,6 +148,10 @@ export default async function ClientHomePage() {
 
   return (
     <div className="flex w-full max-w-4xl flex-col gap-6">
+      <Suspense fallback={null}>
+        <SubscriptionCheckoutTracker />
+      </Suspense>
+
       <div>
         <h1 className="text-xl font-semibold tracking-tight">
           {facility?.name

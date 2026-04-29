@@ -1,21 +1,28 @@
 import { logger, task, tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
-import { formatInTimeZone } from "date-fns-tz";
 
 import { createAdminClient } from "@/services/supabase/server";
 import { env } from "@/data/env/server";
 import { findFirstAvailableWorker } from "@/features/requests/server/matching";
+import type { InsertedWorkerShift } from "@/features/requests/server/shifts";
 import { shiftWindowFromTimestamps } from "@/features/shifts/lib/shift-time";
+import {
+    computeWorkerResponseWindow,
+    offerWorkerDelayToTriggerDelay,
+} from "@/features/shifts/lib/worker-response-window";
 import { patchShiftById } from "@/features/shifts/dal/mutations";
 import { getWorkerIdByUserId } from "@/features/shifts/dal/queries";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { createShiftResponseToken } from "@/features/shifts/lib/shift-response-token";
-import { SHIFT_SCHEDULE_TIMEZONE, SHIFT_STATUS_SCHEDULED } from "@/features/shifts/constants";
+import {
+    formatShiftAssignedEmailPayload,
+    shiftAssignedEmailSubject,
+} from "@/features/shifts/server/shift-assigned-email-data";
+import { SHIFT_STATUS_SCHEDULED } from "@/features/shifts/constants";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ADMIN_USER_ID     = "2c1a6fa4-fed5-42ab-9191-25d1a1ab0499";
-const NEXT_OFFER_DELAY  = "25h";
+const ADMIN_USER_ID = "2c1a6fa4-fed5-42ab-9191-25d1a1ab0499";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -200,40 +207,57 @@ export const offerWorkerTask = task({
         const acceptUrl  = `${env.APP_URL}/api/shifts/respond?token=${acceptToken}`;
         const declineUrl = `${env.APP_URL}/api/shifts/respond?token=${declineToken}`;
 
-        const dateLine = formatInTimeZone(
-            new Date(shiftRow.start_time as string),
-            SHIFT_SCHEDULE_TIMEZONE,
-            "EEEE, MMM d",
+        const startIso = shiftRow.start_time as string;
+        const endIso = shiftRow.end_time as string;
+        const requirements =
+            Array.isArray(sr.requirements) ? (sr.requirements as string[]) : [];
+        const requestTasks =
+            Array.isArray(sr.tasks) ? (sr.tasks as string[]) : [];
+
+        const insertedLike: InsertedWorkerShift = {
+            userId:      nextUserId,
+            displayName: workerData?.first_name ?? "there",
+            shiftId,
+            date:        win.dateYmd,
+            startTime:   win.startHHmm,
+            endTime:     win.endHHmm,
+            startIso,
+            endIso,
+            hourlyRate:  rate,
+            location,
+        };
+
+        const window = computeWorkerResponseWindow(
+            Date.now(),
+            new Date(startIso).getTime(),
         );
+
+        const emailData = formatShiftAssignedEmailPayload({
+            shifts: [insertedLike],
+            clientName: " ",
+            requirements,
+            tasks: requestTasks,
+            acceptUrl,
+            declineUrl,
+            window,
+        });
 
         await enqueueNotification({
             userId:   nextUserId,
             channels: [
                 {
                     channel:  "email",
-                    subject:  "New shift assigned — respond within 24 hours",
+                    subject:  shiftAssignedEmailSubject(1, window),
                     template: "shift-assigned",
-                    data: {
-                        previewText:    "New shift assigned — respond within 24 hours",
-                        workerFirstName: workerData?.first_name ?? "there",
-                        clientName:     " ",
-                        shiftCount:     1,
-                        multipleShifts: false,
-                        address:        location?.address ?? "TBD",
-                        rateLine:       `$${rate.toFixed(2)}/hr`,
-                        requirements:   sr.requirements?.length ? sr.requirements.join(", ") : null,
-                        tasks:          sr.tasks?.length ? sr.tasks.join(", ") : null,
-                        shifts:         [{ dateLine, timeLine: `${win.startHHmm} – ${win.endHHmm}` }],
-                        acceptUrl,
-                        declineUrl,
-                    },
+                    data:       emailData,
                 },
                 {
                     channel:  "push",
                     template: "shift-assigned",
                     data: {
-                        count: 1,
-                        link:  `${env.APP_URL}/dashboard/shifts/requests/${shiftRow.request_id}`,
+                        count:    1,
+                        link:     `${env.APP_URL}/dashboard/shifts/requests/${shiftRow.request_id}`,
+                        deadline: window.deadlineFormatted,
                     },
                 },
             ],
@@ -244,11 +268,10 @@ export const offerWorkerTask = task({
             }),
         );
 
-        // ── 10. Schedule next check in 25 h ───────────────────────────────────
         await tasks.trigger(
             "shifts.offer-worker",
             { shiftId },
-            { delay: NEXT_OFFER_DELAY },
+            { delay: offerWorkerDelayToTriggerDelay(window.offerWorkerDelayMs) },
         );
 
         logger.log("shifts.offer-worker: offered to next worker", {

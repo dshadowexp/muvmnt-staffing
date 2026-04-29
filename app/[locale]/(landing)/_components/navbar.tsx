@@ -1,9 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { ctaPrimarySm, ctaGhostSm } from "../_lib/cta-classes";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { ctaPrimarySm, ctaGhostSm, ctaOutlineSm } from "../_lib/cta-classes";
 import { MenuToggle } from "./menu-toggle";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/features/auth/providers/auth-provider";
@@ -21,9 +19,16 @@ function NavbarAuthButtons() {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Link href="/find-work" className={ctaGhostSm}>{t("findWork")}</Link>
-      <Link href="/dashboard/requests/new" className={ctaPrimarySm}>{t("requestStaff")}</Link>
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <Link href="/sign-in" className={ctaGhostSm}>
+        {t("logIn")}
+      </Link>
+      <Link href="/request-demo" className={ctaOutlineSm}>
+        {t("requestDemo")}
+      </Link>
+      <Link href="/sign-up" className={ctaPrimarySm}>
+        {t("createFreeAccount")}
+      </Link>
     </div>
   );
 }
@@ -52,10 +57,6 @@ export default function Navbar() {
       {/* Right: auth + utility controls grouped together */}
       <div className="hidden items-center gap-4 lg:flex">
         <NavbarAuthButtons />
-        <div className="flex items-center gap-1.5 border-l border-border/70 pl-4">
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </div>
       </div>
 
       <MenuToggle />

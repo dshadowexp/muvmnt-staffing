@@ -2,7 +2,8 @@
   {{#*inline "body"}}
     <p class="label">Shift assignment</p>
     <h1>New shift{{#if multipleShifts}}s{{/if}}<br>assigned.</h1>
-    <p>Hi {{workerFirstName}}, you have been assigned <strong>{{shiftCount}} shift{{#if multipleShifts}}s{{/if}}</strong> from <strong>{{clientName}}</strong>. Please respond within <strong>30 minutes</strong> or the shift{{#if multipleShifts}}s{{/if}} will be reassigned.</p>
+    <p>Hi {{workerFirstName}}, you have been assigned <strong>{{shiftCount}} shift{{#if multipleShifts}}s{{/if}}</strong> from <strong>{{clientName}}</strong>.</p>
+    <p>{{responseSummaryLine}}</p>
 
     <div class="details">
       <div class="detail-row">
@@ -35,10 +36,10 @@
     </div>
     {{/each}}
 
-    <p style="margin-top:28px;margin-bottom:8px;font-size:14px;color:#666">Respond within 30 minutes:</p>
+    <p style="margin-top:28px;margin-bottom:8px;font-size:14px;color:#666">Respond before <strong>{{responseDeadlineFormatted}}</strong> ({{relativeResponsePhrase}} from now):</p>
     <a href="{{acceptUrl}}" class="btn">Accept</a>
     <a href="{{declineUrl}}" class="btn btn-outline" style="margin-left:12px">Decline</a>
 
-    <p style="margin-top:32px;font-size:13px;color:#888">Links expire in 30 minutes. If the buttons do not work, copy the URL into your browser.</p>
+    <p style="margin-top:32px;font-size:13px;color:#888">These links are single-use and expire when this response window closes. If the buttons do not work, copy the URL into your browser.</p>
   {{/inline}}
 {{/email-base}}

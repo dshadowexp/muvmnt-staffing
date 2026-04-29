@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -28,19 +28,12 @@ import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import posthog from "posthog-js";
 
 type SignInFormProps = {
-  /** Called after successful sign-in instead of navigating. Use in embedded
-   *  contexts (e.g. screening portals) where the host manages navigation. */
-  onSuccess?: () => void;
-  /** Show the Google sign-in button. Defaults to true. */
-  showGoogle?: boolean;
-  /** Show the "Don't have an account?" footer link. Defaults to true. */
-  showFooterLink?: boolean;
+  /** Render a simplified version for embedded contexts (e.g. screening). */
+  variant?: "default" | "embedded";
 };
 
-export function SignInForm({
-  onSuccess,
-  showGoogle = true,
-  showFooterLink = true,
+export function WorkerSignInForm({
+  variant = "default",
 }: SignInFormProps = {}) {
   const { loading } = useAuth();
   const { withAuthParams } = useAuthRedirect();
@@ -77,10 +70,6 @@ export function SignInForm({
       await loginWithEmail(data.email.trim(), data.password);
       posthog.identify(data.email.trim(), { email: data.email.trim() });
       posthog.capture("user_signed_in", { method: "email" });
-      // Navigation is handled by auth-provider after setSession completes,
-      // so the middleware sees the correct isActive value. onSuccess is kept
-      // for portal contexts that register setSuccessHandler separately.
-      onSuccess?.();
     } catch (err) {
       const key = getAuthErrorKey(err);
       setError(key ? tErrors(key) : "");
@@ -96,7 +85,7 @@ export function SignInForm({
         </p>
       </div>
 
-      <Card className="w-full max-w-[440px] overflow-hidden rounded-2xl shadow-lg">
+      <Card className="w-full max-w-[440px] overflow-hidden">
         <CardHeader className="border-b border-border px-9 pb-6 pt-8">
           <h1 className="mb-1.5 font-[var(--font-display)] text-[1.45rem] font-extrabold leading-[1.15] tracking-tight text-foreground">
             {t("title")}
@@ -108,9 +97,12 @@ export function SignInForm({
 
         <CardContent className="px-9 pb-8 pt-7">
           <FieldGroup>
-            {showGoogle && <GoogleButton />}
-
-            {showGoogle && <OrDivider />}
+            {variant === "default" && (
+              <>
+                <GoogleButton text="Sign in with Google" />
+                <OrDivider />
+              </>
+            )}
 
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
@@ -169,7 +161,7 @@ export function SignInForm({
               </Button>
             </form>
 
-            {showFooterLink && (
+            {variant === "default" && (
               <p className="text-center text-[0.82rem] font-light text-muted-foreground">
                 {t("noAccount")}{" "}
                 <Link
