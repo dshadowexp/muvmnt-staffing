@@ -40,8 +40,21 @@ interface PhotoUploadProps {
   disabled?: boolean;
 }
 
-const IMAGE_ACCEPT = [".jpg", ".jpeg", ".png", ".webp"];
+// iOS commonly produces HEIC/HEIF photos; include them so users can select a
+// recent camera roll photo before interviews.
+const IMAGE_ACCEPT = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"];
 const MAX_MB = 5;
+
+function inferContentType(file: File): string {
+  if (file.type) return file.type;
+
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  if (ext === "heic") return "image/heic";
+  if (ext === "heif") return "image/heif";
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  return "image/jpeg";
+}
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
@@ -152,9 +165,10 @@ export function PhotoUpload({
 
   async function uploadFile(f: File) {
     try {
+      const contentType = inferContentType(f);
       const { url, key } = await getPresignedUrl({
         filename: f.name,
-        contentType: f.type || "image/jpeg",
+        contentType,
         context,
       });
 
@@ -194,7 +208,7 @@ export function PhotoUpload({
 
         xhr.onerror = () => reject(new Error("Upload failed"));
         xhr.open("PUT", url);
-        xhr.setRequestHeader("Content-Type", f.type);
+        xhr.setRequestHeader("Content-Type", contentType);
         xhr.send(f);
       });
     } catch {

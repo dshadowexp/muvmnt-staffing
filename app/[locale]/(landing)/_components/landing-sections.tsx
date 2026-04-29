@@ -550,7 +550,7 @@ export async function BridgeSection() {
             <Link href="/screening" className={ctaOutline}>{t("ctaExplore")}</Link>
           </div>
           <Link
-            href="/dashboard/requests/new"
+            href="/find-staff"
             className="text-[0.82rem] font-medium text-muted-foreground/60 underline-offset-4 transition-colors hover:text-muted-foreground hover:underline"
           >
             {t("ctaSub")}
