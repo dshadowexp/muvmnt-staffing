@@ -41,7 +41,7 @@ export function LandingAuthCtas({
         return (
             <div
                 className={cn(
-                    "flex shrink-0 flex-wrap items-center gap-3",
+                    "flex animate-fade-up-3 flex-wrap items-center justify-center gap-4",
                     className,
                 )}
             >

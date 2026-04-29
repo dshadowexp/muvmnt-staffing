@@ -8,7 +8,6 @@ import {
   Headset,
   Zap,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { LandingAuthCtas } from "../_components/landing-auth-ctas";
 import { ctaOutlineSm } from "../_lib/cta-classes";
@@ -52,46 +51,62 @@ export default async function FindWorkPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-background px-6 pb-20 pt-10 lg:px-12 lg:pb-24">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_85%_30%,oklch(0.527_0.154_150.069/0.06),transparent_60%)]" />
+      <section className="relative flex min-h-screen items-center overflow-hidden bg-background px-6 py-20 pt-[120px] lg:px-12 lg:pb-20">
+        {/* Teal grid */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.06)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        {/* Atmospheric teal bloom */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_85%_10%,oklch(0.527_0.154_150.069/0.07),transparent_60%),radial-gradient(ellipse_40%_50%_at_5%_90%,oklch(0.527_0.154_150.069/0.04),transparent_60%)]" />
 
-        <div className="relative z-10 mx-auto max-w-5xl">
-          <div className="mb-8 flex items-center gap-2 text-xs font-light text-muted-foreground/70">
-            <Link
-              href="/"
-              className="text-muted-foreground no-underline transition-colors hover:text-foreground"
-            >
-              {tCommon("home")}
-            </Link>
-            <span>/</span>
-            <span className="text-primary">{t("breadcrumb")}</span>
-          </div>
+        <div className="relative z-10 mx-auto w-full max-w-7xl">
+          <div className="flex flex-col items-center text-center">
 
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-            <div>
-              <Badge className="mb-6 gap-1.5 border border-primary/20 bg-primary/8 text-primary">
-                {t("badge")}
-              </Badge>
-
-              <h1 className="mb-5 font-[var(--font-display)] text-[clamp(2.2rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-foreground">
-                {t("titleLead")}{" "}
-                <span className="text-primary">{t("titleAccent")}</span>{" "}
-                {t("titleTail")}
-              </h1>
-
-              <p className="mb-8 text-base font-light leading-[1.7] text-muted-foreground">
-                {t("subtitle")}
-              </p>
-
-              <LandingAuthCtas
-                signUpHref="/sign-up/worker"
-                ctaCreateLabel={t("ctaCreate")}
-                ctaSignInLabel={t("ctaSignIn")}
-                variant="onLight"
-              />
+            {/* Breadcrumb */}
+            <div className="mb-8 flex items-center gap-2 text-xs font-light text-muted-foreground/70">
+              <Link
+                href="/"
+                className="text-muted-foreground no-underline transition-colors hover:text-foreground"
+              >
+                {tCommon("home")}
+              </Link>
+              <span>/</span>
+              <span className="text-primary">{t("breadcrumb")}</span>
             </div>
 
-            <FindWorkHeroDiagram />
+            {/* Badge */}
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3.5 py-1.5 text-[0.8rem] font-medium tracking-wide text-primary">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary" />
+              {t("badge")}
+            </div>
+
+            {/* Heading */}
+            <h1 className="mb-6 max-w-3xl font-[var(--font-display)] text-[clamp(2.8rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tighter text-foreground">
+              {t("titleLead")}{" "}
+              <span className="text-primary">{t("titleAccent")}</span>{" "}
+              <span className="relative inline-block">
+                {t("titleTail")}
+                <span className="absolute inset-x-0 bottom-1 h-[3px] rounded-sm bg-primary" />
+              </span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mb-10 max-w-2xl text-lg font-light leading-7 text-muted-foreground">
+              {t("subtitle")}
+            </p>
+
+            {/* CTAs */}
+            <LandingAuthCtas
+              signUpHref="/sign-up/worker"
+              ctaCreateLabel={t("ctaCreate")}
+              ctaSignInLabel={t("ctaSignIn")}
+              variant="onLight"
+              className="justify-center"
+            />
+
+            {/* Diagram */}
+            <div className="mt-16 w-full">
+              <FindWorkHeroDiagram />
+            </div>
+
           </div>
         </div>
       </section>

@@ -2,11 +2,11 @@
 
 export function FindWorkHeroDiagram() {
   return (
-    <div className="relative hidden lg:flex lg:items-center lg:justify-end">
+    <div className="relative flex w-full max-w-sm items-center justify-center mx-auto lg:max-w-md">
       {/* Floating glow behind the card stack */}
-      <div aria-hidden className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 rounded-full bg-primary/10 blur-3xl" />
 
-      <div className="relative w-full max-w-sm space-y-3">
+      <div className="relative w-full space-y-3">
 
         {/* ── Profile card ── */}
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
