@@ -32,6 +32,7 @@ import {
   CircleUserRoundIcon,
   Columns3CogIcon,
 } from "lucide-react";
+import { isPayrollSectionUnlocked } from "@/features/workers/lib/worker-stage-order";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import {
   dashboardAccountHrefForRole,
@@ -55,19 +56,28 @@ function homeHrefForRole(role: string | null | undefined): string {
   }
 }
 
-type NavItem = { title: string; url: string; icon: React.ReactNode };
+type NavItem = { title: string; url: string; icon: React.ReactNode; locked?: boolean };
 
-function useMainNavItems(role: string | null | undefined): NavItem[] {
+function useMainNavItems(
+  role: string | null | undefined,
+  workerStage: string | null | undefined,
+): NavItem[] {
   const t = useTranslations("dashboard.nav");
   const r = role?.toLowerCase() ?? "";
 
   if (r === "worker") {
+    const payrollLocked = !isPayrollSectionUnlocked(workerStage);
     return [
       { title: t("home"), url: "/dashboard", icon: <LayoutDashboardIcon className="size-4" /> },
       { title: t("shifts"), url: "/dashboard/shifts", icon: <CalendarDays className="size-4" /> },
       { title: t("availability"), url: "/dashboard/availability", icon: <CalendarClock className="size-4" /> },
       { title: t("compliance"), url: "/dashboard/compliance", icon: <ShieldCheckIcon className="size-4" /> },
-      { title: t("payroll"), url: "/dashboard/payroll", icon: <WalletIcon className="size-4" /> },
+      {
+        title: t("payroll"),
+        url: "/dashboard/payroll",
+        icon: <WalletIcon className="size-4" />,
+        locked: payrollLocked,
+      },
       { title: t("referrals"), url: "/dashboard/referrals", icon: <GiftIcon className="size-4" /> },
     ];
   }
@@ -104,17 +114,20 @@ export function AppSidebar({
   admin,
   avatarSrc,
   displayName,
+  workerStage,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   admin?: { user: AppSidebarAdminUser };
   avatarSrc?: string | null;
   displayName?: string | null;
+  /** Worker lifecycle stage — used to show payroll lock in nav before payroll step. */
+  workerStage?: string | null;
 }) {
   const { authUser, firebaseUser, loading } = useAuth();
   const tAccount = useTranslations("dashboard.accountMenu");
 
   const role = admin ? "admin" : authUser?.role ?? null;
-  const navMain = useMainNavItems(role);
+  const navMain = useMainNavItems(role, workerStage);
   const homeHref = homeHrefForRole(role);
   const accountHref = dashboardAccountHrefForRole(role);
   const accountLabel = tAccount(dashboardAccountLabelKeyForRole(role));

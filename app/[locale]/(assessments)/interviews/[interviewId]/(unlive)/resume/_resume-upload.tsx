@@ -50,7 +50,7 @@ import {
   clearInterviewSubjectRefFile,
   updateInterviewSubjectRefBody,
 } from "@/features/interviews/actions";
-import { InterviewHeader } from "../_components/interview-header";
+import { InterviewHeader } from "../../../_components/interview-header";
 
 type SummaryShape = DeepPartial<ResumeSummary>;
 
@@ -72,6 +72,8 @@ type Props = {
   onResumeReady: (payload: ResumeReadyPayload) => void;
   onBack?: () => void;
   backHref?: string;
+  /** When embedded, omit the header + outer page container. */
+  layout?: "page" | "embedded";
 };
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -129,24 +131,26 @@ function hydrateExisting(existingInterview: InterviewRow | null): {
   };
 }
 
-export function ResumeUpload({ existingInterview, candidateName, professionLabel, professionContext, onResumeReady, onBack, backHref = "/dashboard" }: Props) {
+export function ResumeUpload({
+  existingInterview,
+  candidateName,
+  professionLabel,
+  professionContext,
+  onResumeReady,
+  onBack,
+  backHref = "/dashboard",
+  layout = "page",
+}: Props) {
   const t = useTranslations("assessments.interview.resume");
-  const initial = useRef(hydrateExisting(existingInterview)).current;
+  // Capture the initial snapshot once (avoid ref access during render lint).
+  const [initial] = useState(() => hydrateExisting(existingInterview));
 
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [existingFile, setExistingFile] = useState<ExistingFile | null>(
-    initial.file,
-  );
-  const [resumeKey, setResumeKey] = useState<string | null>(
-    initial.file?.key ?? null,
-  );
-  const [interviewId, setInterviewId] = useState<string | null>(
-    initial.interviewId,
-  );
-  const [pinnedSummary, setPinnedSummary] = useState<SummaryShape | null>(
-    initial.summary,
-  );
+  const [existingFile, setExistingFile] = useState<ExistingFile | null>(initial.file);
+  const [resumeKey, setResumeKey] = useState<string | null>(initial.file?.key ?? null);
+  const [interviewId, setInterviewId] = useState<string | null>(initial.interviewId);
+  const [pinnedSummary, setPinnedSummary] = useState<SummaryShape | null>(initial.summary);
   const [uploadLimit, setUploadLimit] = useState<number>(initial.limit);
   const [isUploading, setIsUploading] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -309,16 +313,9 @@ export function ResumeUpload({ existingInterview, candidateName, professionLabel
     }
   }
 
-  return (
-    <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
-
-      <InterviewHeader
-        backHref={backHref}
-        backTitle={t("backTitle")}
-      />
-
-      <div className="flex flex-1 flex-col items-center justify-center gap-4">
-        {displayFile == null ? (
+  const content = (
+    <div className="flex flex-1 flex-col items-center justify-center gap-4">
+      {displayFile == null ? (
           <Card className="w-full max-w-lg">
             <CardHeader>
               <div className="flex items-start gap-4">
@@ -375,13 +372,13 @@ export function ResumeUpload({ existingInterview, candidateName, professionLabel
                   })}
                 </span>
               </div>
-              <CandidateHeader summary={summary} isStreaming={isSummarizing} />
+              {/* <CandidateHeader summary={summary} isStreaming={isSummarizing} /> */}
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <SummaryAccordion
+              {/* <SummaryAccordion
                 summary={summary}
                 isStreaming={isSummarizing}
-              />
+              /> */}
               {validationFailed && (
                 <div className="flex flex-col gap-1.5 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3">
                   <div className="flex items-center gap-2 text-destructive">
@@ -444,7 +441,17 @@ export function ResumeUpload({ existingInterview, candidateName, professionLabel
             </CardContent>
           </Card>
         )}
-      </div>
+    </div>
+  );
+
+  if (layout === "embedded") {
+    return content;
+  }
+
+  return (
+    <div className="flex min-h-svh flex-col overflow-x-hidden p-4">
+      <InterviewHeader backHref={backHref} backTitle={t("backTitle")} />
+      {content}
     </div>
   );
 }

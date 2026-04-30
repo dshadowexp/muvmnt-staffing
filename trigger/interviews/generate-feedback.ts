@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/services/supabase/server";
 import { generateInterviewFeedbackObject } from "@/services/ai/interviews/generate-feedback";
 import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
+import { aiInterviewTitle } from "@/features/interviews/lib/interview-ai-title";
 import { professionLabelEn } from "@/lib/labels-en";
 import { tryAutoReview } from "@/features/interviews/services/auto-review";
 import type { Json } from "@/services/supabase/types/database";
@@ -30,7 +31,7 @@ export const generateInterviewFeedbackTask = schemaTask({
     // 1. Load interview row
     const { data: interview, error: interviewError } = await supabase
       .from("interviews")
-      .select("id, hume_chat_id, chat_group_id, subject, subject_ref, user_id, screening_id")
+      .select("id, hume_chat_id, chat_group_id, subject_ref, user_id, screening_id")
       .eq("id", interviewId)
       .maybeSingle();
 
@@ -68,7 +69,10 @@ export const generateInterviewFeedbackTask = schemaTask({
           : "General interview practice session.";
 
     const interviewInfo = {
-      title: interview.subject.replace(/_/g, " "),
+      title: aiInterviewTitle({
+        screeningId: interview.screening_id,
+        subjectRef: interview.subject_ref,
+      }),
       profession:
         worker?.profession?.trim()
           ? professionLabelEn(worker.profession)

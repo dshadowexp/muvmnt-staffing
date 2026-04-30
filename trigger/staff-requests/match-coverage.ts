@@ -23,7 +23,8 @@ export type MatchCoverageProgress = {
         | "availability"
         | "filter"
         | "scheduling"
-        | "done";
+        | "done"
+        | "failed";
     label: string;
     detail?: string;
     workerCount?: number;
@@ -131,7 +132,7 @@ export const matchCoverageTask = task({
 
         if (!result.ok) {
             await metadata.set("progress", {
-                step: "done",
+                step: "failed",
                 label: "Coverage failed",
                 detail: result.message,
             } satisfies MatchCoverageProgress);

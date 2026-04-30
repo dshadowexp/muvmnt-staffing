@@ -11,6 +11,7 @@ import {
   FileTextIcon,
   Loader2,
   MessagesSquareIcon,
+  RefreshCwIcon,
   ShieldAlert,
   ShieldCheckIcon,
   UserCheck,
@@ -94,8 +95,23 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 // ─── AI Feedback card ─────────────────────────────────────────────────────────
 
-function AIFeedbackCard({ feedback: raw, messagesPromise, user, subjectLabel }: { feedback: unknown, messagesPromise: Promise<{ isUser: boolean; content: string[] }[]>, user: { name: string; imageUrl: string }, subjectLabel: string }) {
+function AIFeedbackCard({
+  feedback: raw,
+  feedbackStatus,
+  interviewId,
+  messagesPromise,
+  user,
+  subjectLabel,
+}: {
+  feedback: unknown;
+  feedbackStatus: string | null;
+  interviewId: string;
+  messagesPromise: Promise<{ isUser: boolean; content: string[] }[]>;
+  user: { name: string; imageUrl: string };
+  subjectLabel: string;
+}) {
   const feedback = parseJson<InterviewFeedback>(raw);
+  const [regenerating, setRegenerating] = useState(false);
 
   if (!feedback) {
     return (
@@ -104,9 +120,45 @@ function AIFeedbackCard({ feedback: raw, messagesPromise, user, subjectLabel }: 
           <CardTitle className="text-base">AI Feedback</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No AI feedback available yet.
-          </p>
+          {feedbackStatus === "failed" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                AI feedback failed to generate.
+              </p>
+              <Button
+                variant="outline"
+                disabled={regenerating}
+                onClick={async () => {
+                  if (regenerating) return;
+                  setRegenerating(true);
+                  try {
+                    const res = await fetch("/api/ai/interviews/feedback", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ interviewId }),
+                    });
+                    await res.text();
+                    window.location.reload();
+                  } catch {
+                    toast.error("Failed to regenerate feedback.");
+                  } finally {
+                    setRegenerating(false);
+                  }
+                }}
+              >
+                {regenerating ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <RefreshCwIcon className="mr-2 size-4" />
+                )}
+                Regenerate feedback
+              </Button>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No AI feedback available yet.
+            </p>
+          )}
         </CardContent>
       </Card>
     );
@@ -749,6 +801,8 @@ export function AdminInterviewReviewClient({
       {resumeSummary && <ResumeAnalysisCard summary={resumeSummary} />}
       <AIFeedbackCard
         feedback={interview.feedback}
+        feedbackStatus={(interview as unknown as { feedback_status?: string | null }).feedback_status ?? null}
+        interviewId={interview.id}
         messagesPromise={messagesPromise}
         user={user}
         subjectLabel={subjectLabel}

@@ -1,6 +1,6 @@
 "use server";
 
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getCurrentUser } from "@/features/users/dal/queries";
 import {
   getOrCreateScreeningCandidate,

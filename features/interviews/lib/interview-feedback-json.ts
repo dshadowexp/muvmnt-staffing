@@ -168,12 +168,21 @@ export function canRetakeFailedInterview(
 export function isAssessmentInterviewLocked(
   row: Pick<
     Database["public"]["Tables"]["interviews"]["Row"],
-    "feedback" | "completed_at"
+    "feedback" | "completed_at" | "feedback_status"
   >,
 ): boolean {
   if (row.completed_at == null) return false;
+
+  // New, explicit state machine. If feedback generation failed, do not hard-lock
+  // the interview forever — allow regeneration / recreation.
+  if (row.feedback_status === "failed") return false;
+  if (row.feedback_status === "pending" || row.feedback_status === "generating") {
+    return true;
+  }
+
   const parsed = parseInterviewFeedback(row.feedback);
-  if (parsed == null) return true;
+  // If feedback is missing/unparseable, treat as unlocked so we don't dead-end users.
+  if (parsed == null) return false;
   if (parsed.decision === "PASS") return true;
   if (parsed.decision === "FAIL") {
     return !canRetakeFailedInterview(parsed, row.completed_at);

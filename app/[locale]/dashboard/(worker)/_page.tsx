@@ -40,6 +40,7 @@ import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { Link } from "@/i18n/navigation";
 import { WorkerStageStrip } from "@/features/workers/components/worker-stage-strip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LockedShiftSection } from "./_locked-shift-section";
 
 function formatCents(amountCents: number, currency: string) {
   return new Intl.NumberFormat("en-CA", {
@@ -317,6 +318,7 @@ export default async function WorkerHomePage() {
   const t = await getTranslations("dashboard.worker.home");
 
   const notLive = worker.stage !== "live";
+  const isLive = worker.stage === "live";
 
   return (
     <div className="flex w-full max-w-6xl flex-col gap-6">
@@ -341,13 +343,22 @@ export default async function WorkerHomePage() {
         <PendingActions />
       </Suspense>
 
-      {worker.stage === "live" && (
+      {isLive ? (
         <Suspense fallback={<ShiftRequestCardsSkeleton />}>
           <WorkerPendingShiftRequestCards workerId={worker.id} />
         </Suspense>
+      ) : (
+        <div>
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <h2 className="text-sm font-semibold tracking-tight text-muted-foreground">
+              {t("shiftRequests.sectionTitle")}
+            </h2>
+          </div>
+          <LockedShiftSection description={t("shiftsLockedDescription")} />
+        </div>
       )}
 
-      {worker.stage === "live" && ( 
+      {isLive ? (
         <Suspense fallback={<StatsCardsSkeleton />}>
           <div className="flex flex-col gap-4">
             <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
@@ -356,18 +367,25 @@ export default async function WorkerHomePage() {
             <StatsCards workerId={worker.id} />
           </div>
         </Suspense>
+      ) : (
+        <div className="flex flex-col gap-4">
+          <p className="text-muted-foreground mt-1 max-w-2xl text-sm">{t("subtitle")}</p>
+          <LockedShiftSection description={t("shiftsLockedDescription")} />
+        </div>
       )}
 
-      {worker.stage === "live" && (
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">
-            {t("todaysShifts")}
-          </h2>
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">{t("todaysShifts")}</h2>
+        {isLive ? (
           <Suspense fallback={<ShiftsTableSkeleton />}>
             <TodayShifts workerId={worker.id} />
           </Suspense>
-        </div>
-      )}
+        ) : (
+          <div className="mt-4">
+            <LockedShiftSection description={t("shiftsLockedDescription")} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

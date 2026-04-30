@@ -19,6 +19,7 @@ export type CandidateWithResult = ScreeningCandidateRow & {
     result: string | null;
     feedback: unknown;
     completed_at: string | null;
+    feedback_status: string | null;
   } | null;
 };
 
@@ -156,7 +157,7 @@ export async function getCandidatesForScreening(
   const userIds = data.map((c) => c.user_id);
   const { data: interviews } = await supabase
     .from("interviews")
-    .select("id, user_id, result, feedback, completed_at")
+    .select("id, user_id, result, feedback, feedback_status, completed_at")
     .eq("screening_id", screeningId)
     .in("user_id", userIds);
 

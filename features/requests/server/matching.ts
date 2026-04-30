@@ -411,6 +411,20 @@ export async function runScheduleMatch(
             existingMatchResult: result,
         });
 
+        // First ring only: emit "scheduling" so the UI shows "building plan" before
+        // outer-ring "expanding" events (same step key, different labels).
+        if (i === 0) {
+            const distinctDays = new Set(
+                params.dailyWindows
+                    .filter((w) => w.slots?.length)
+                    .map((w) => w.date.slice(0, 10)),
+            ).size;
+            await params.progress?.({
+                kind: "scheduling",
+                days: Math.max(1, distinctDays),
+            });
+        }
+
         if (result.fullyCovered) break;
     }
 

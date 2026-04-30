@@ -25,7 +25,7 @@ import {
     type PricingTier,
 } from "./pricing";
 import { totalCoveredHoursFromMatchSchedule } from "../pricing/staff-request-pricing";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { normalizeProfessionId } from "@/lib/professions";
 import type { Database, Json } from "@/services/supabase/types/database";
 import {

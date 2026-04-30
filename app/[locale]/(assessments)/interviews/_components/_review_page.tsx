@@ -54,7 +54,7 @@ export default async function InterviewReviewPage({
     <InterviewReviewClient
       interview={{
         id: interview.id,
-        subject: interview.subject,
+        screeningId: interview.screening_id,
         duration: interview.duration,
         completedAt: interview.completed_at,
         completedOnLabel,

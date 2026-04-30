@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/services/supabase/server";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";
 
 export async function getQuizById(quizId: string, userId: string) {

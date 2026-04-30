@@ -1,15 +1,13 @@
 import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { retrievePayrollAccountAction } from "@/features/payroll/actions";
-import {
-  getTipsForWorker,
-  getTransfersForWorker,
-} from "@/features/payroll/dal/queries";
-import { CompletePayrollSetupButton } from "@/features/payroll/components/complete-payroll-setup-button";
-import { WorkerPayrollBalances } from "@/features/payroll/components/worker-payroll-balances";
-import { TipsTable } from "./_tips-table";
+import { getWorkerProfile } from "@/features/profile/dal/queries";
+import { isPayrollSectionUnlocked } from "@/features/workers/lib/worker-stage-order";
+import { redirect } from "@/i18n/navigation";
+// import { TipsTable } from "./_tips-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LockedShiftSection } from "../_locked-shift-section";
 
 async function PayrollContent() {
   const [{ data, error }, t] = await Promise.all([
@@ -70,13 +68,18 @@ function TransfersSkeleton() {
   );
 }
 
-async function TipHistory() {
-  const tips = await getTipsForWorker();
-  return <TipsTable tips={tips} />;
-}
+// async function TipHistory() {
+//   const tips = await getTipsForWorker();
+//   return <TipsTable tips={tips} />;
+// }
 
 export default async function WorkerPayrollPage() {
+  const locale = await getLocale();
+  const worker = await getWorkerProfile();
+  if (!worker) return redirect({ href: "/onboarding/profile", locale });
+
   const t = await getTranslations("dashboard.worker.payroll");
+  const payrollUnlocked = isPayrollSectionUnlocked(worker.stage);
 
   return (
     <div className="flex w-full max-w-5xl mx-auto flex-col gap-6">
@@ -85,9 +88,13 @@ export default async function WorkerPayrollPage() {
         <p className="text-muted-foreground mt-1 text-sm">{t("subtitle")}</p>
       </div>
 
-      <Suspense fallback={<PayrollSkeleton />}>
-        <PayrollContent />
-      </Suspense>
+      {payrollUnlocked ? (
+        <Suspense fallback={<PayrollSkeleton />}>
+          <PayrollContent />
+        </Suspense>
+      ) : (
+        <LockedShiftSection title={t("title")} description={t("lockedDescription")} />
+      )}
 
       {/* <div>
         <h2 className="text-lg font-semibold tracking-tight">{t("tips")}</h2>

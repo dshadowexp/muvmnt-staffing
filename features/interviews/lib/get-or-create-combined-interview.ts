@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getInterviewBySubjectForUser, type InterviewRow } from "../dal/queries";
+import { getWorkerInterviewForUser, type InterviewRow } from "../dal/queries";
 import { insertInterview } from "../dal/mutations";
 import { isAssessmentInterviewLocked } from "./interview-feedback-json";
 import { EMPTY_INTERVIEW_SUBJECT_REF } from "./interview-subject-ref";
@@ -18,12 +18,11 @@ import { EMPTY_INTERVIEW_SUBJECT_REF } from "./interview-subject-ref";
 export async function getOrCreateCombinedInterview(
   userId: string,
 ): Promise<InterviewRow> {
-  const existing = await getInterviewBySubjectForUser("combined", userId);
+  const existing = await getWorkerInterviewForUser(userId);
 
   if (existing == null) {
     return insertInterview({
       user_id: userId,
-      subject: "combined",
       subject_ref: EMPTY_INTERVIEW_SUBJECT_REF,
     });
   }
@@ -37,7 +36,6 @@ export async function getOrCreateCombinedInterview(
   // Completed + failed + retake window elapsed — start a fresh attempt
   return insertInterview({
     user_id: userId,
-    subject: "combined",
     subject_ref: EMPTY_INTERVIEW_SUBJECT_REF,
   });
 }

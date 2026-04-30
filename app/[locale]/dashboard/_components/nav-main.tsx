@@ -13,6 +13,8 @@ import {
   resolveActiveNavHref,
   sidebarNavItemClassName,
 } from "./sidebar-nav-active";
+import { LockIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function NavMain({
   items,
@@ -22,6 +24,7 @@ export function NavMain({
     title: string
     url: string
     icon?: React.ReactNode
+    locked?: boolean
   }[]
   showQuickActions?: boolean
 }) {
@@ -44,9 +47,20 @@ export function NavMain({
                   isActive={isActive}
                   className={sidebarNavItemClassName(isActive)}
                 >
-                  <Link href={item.url} aria-current={isActive ? "page" : undefined} prefetch={true}>
+                  <Link
+                    href={item.url}
+                    aria-current={isActive ? "page" : undefined}
+                    prefetch={true}
+                    className={cn(
+                      "flex min-w-0 w-full items-center gap-2",
+                      item.locked && "opacity-80",
+                    )}
+                  >
                     {item.icon}
-                    <span>{item.title}</span>
+                    <span className="flex-1 truncate">{item.title}</span>
+                    {item.locked ? (
+                      <LockIcon className="size-3.5 shrink-0 opacity-60" aria-hidden />
+                    ) : null}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

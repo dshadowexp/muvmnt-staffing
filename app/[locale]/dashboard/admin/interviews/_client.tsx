@@ -180,11 +180,7 @@ export function AdminInterviewsClient({ interviews }: Props) {
               >
                 <TableCell className="font-medium">{row.worker_name ?? "Unknown"}</TableCell>
                 <TableCell>
-                  {row.subject === "combined"
-                    ? "Combined"
-                    : row.subject === "profession"
-                      ? "Profession"
-                      : "Resume"}
+                  {row.screening_id ? "Screening" : "Practice"}
                 </TableCell>
                 <TableCell>{row.duration ?? "—"}</TableCell>
                 <TableCell>

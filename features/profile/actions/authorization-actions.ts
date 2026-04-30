@@ -1,6 +1,6 @@
 "use server";
 
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import { getOnboardingCompletionStatus } from "@/features/onboarding/dal/queries";
 import {

@@ -35,8 +35,18 @@ const STEP_ORDER: MatchCoverageProgress["step"][] = [
 ];
 
 function stepIndex(step: MatchCoverageProgress["step"] | undefined): number {
-    if (!step) return -1;
+    if (!step || step === "failed") return -1;
     return STEP_ORDER.indexOf(step);
+}
+
+function rowLabelForStep(
+    step: MatchCoverageProgress["step"],
+    progress: MatchCoverageProgress | undefined,
+    isCurrent: boolean,
+    fallback: string,
+): string {
+    if (!isCurrent || !progress || progress.step !== step) return fallback;
+    return progress.label?.trim() ? progress.label : fallback;
 }
 
 export type CoverageMatchTrackerProps = {
@@ -70,7 +80,8 @@ function Inner({ runId }: { runId: string }) {
     const failed =
         run?.status === "FAILED" ||
         run?.status === "CRASHED" ||
-        run?.status === "CANCELED";
+        run?.status === "CANCELED" ||
+        progress?.step === "failed";
     const completed = run?.status === "COMPLETED";
 
     useEffect(() => {
@@ -130,44 +141,63 @@ function Inner({ runId }: { runId: string }) {
 
             <ol className="flex flex-col gap-2" aria-live="polite">
                 {items.map((item, idx) => {
-                    const isDone = currentIdx > idx + 1 || completed;
+                    const isDone =
+                        !failed &&
+                        (currentIdx > idx + 1 || completed);
                     const isCurrent =
-                        !completed && currentIdx === idx + 1;
+                        !failed &&
+                        !completed &&
+                        currentIdx === idx + 1;
+                    const rowText = rowLabelForStep(
+                        item.step,
+                        progress,
+                        isCurrent,
+                        item.label,
+                    );
                     return (
                         <li
                             key={item.step}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm transition-colors",
+                                "flex flex-col gap-0.5 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm transition-colors",
                                 isCurrent && "border-primary/50 bg-primary/5",
                                 isDone && "border-emerald-500/30 bg-emerald-500/5",
                             )}
                         >
-                            {isDone ? (
-                                <CheckCircle2
-                                    className="size-4 text-emerald-500"
-                                    aria-hidden
-                                />
-                            ) : isCurrent ? (
-                                <CircleDashedIcon
-                                    className="size-4 animate-spin text-primary"
-                                    aria-hidden
-                                />
-                            ) : (
-                                <CircleDashed
-                                    className="text-muted-foreground size-4"
-                                    aria-hidden
-                                />
-                            )}
-                            <span
-                                className={cn(
-                                    "min-w-0 flex-1",
-                                    !isDone &&
-                                        !isCurrent &&
-                                        "text-muted-foreground",
+                            <div className="flex items-center gap-3">
+                                {isDone ? (
+                                    <CheckCircle2
+                                        className="size-4 shrink-0 text-emerald-500"
+                                        aria-hidden
+                                    />
+                                ) : isCurrent ? (
+                                    <CircleDashedIcon
+                                        className="size-4 shrink-0 animate-spin text-primary"
+                                        aria-hidden
+                                    />
+                                ) : (
+                                    <CircleDashed
+                                        className="text-muted-foreground size-4 shrink-0"
+                                        aria-hidden
+                                    />
                                 )}
-                            >
-                                {item.label}
-                            </span>
+                                <span
+                                    className={cn(
+                                        "min-w-0 flex-1",
+                                        !isDone &&
+                                            !isCurrent &&
+                                            "text-muted-foreground",
+                                    )}
+                                >
+                                    {rowText}
+                                </span>
+                            </div>
+                            {isCurrent &&
+                            progress?.detail &&
+                            progress.step === item.step ? (
+                                <p className="text-muted-foreground pl-7 text-xs leading-snug">
+                                    {progress.detail}
+                                </p>
+                            ) : null}
                         </li>
                     );
                 })}

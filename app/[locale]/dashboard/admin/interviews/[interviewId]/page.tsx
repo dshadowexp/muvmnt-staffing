@@ -50,12 +50,9 @@ export default async function AdminInterviewReviewPage({
     }
   }
 
-  const subjectLabel =
-    interview.subject === "combined"
-      ? "Combined Interview"
-      : interview.subject === "profession"
-        ? "Profession Interview"
-        : "Resume Interview";
+  const subjectLabel = interview.screening_id
+    ? "Screening interview"
+    : "Practice interview";
 
   const completedLabel = interview.completed_at
     ? format(new Date(interview.completed_at), "MMM d, yyyy 'at' h:mm a")

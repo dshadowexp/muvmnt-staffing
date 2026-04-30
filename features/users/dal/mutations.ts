@@ -63,13 +63,20 @@ export async function findOrCreateUser(params: {
 
     // 2. No row for this auth_id — only relevant during sign-up
     if (!params.role) return "NOT_FOUND";
-   
+
+    const normalizedEmail = params.email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new Error(
+        "No email is available for this account. Grant email access (e.g. LinkedIn) or try another sign-in method.",
+      );
+    }
+
     // 3. Before inserting, check whether this email is already registered
     //    under a different auth_id (e.g. previously signed up with Google)
     const { data: emailMatch, error: emailLookupError } = await supabase
       .from("users")
       .select("id")
-      .eq("email", params.email)
+      .eq("email", normalizedEmail)
       .maybeSingle();
    
     if (emailLookupError) {
@@ -84,7 +91,7 @@ export async function findOrCreateUser(params: {
       .from("users")
       .insert({
         auth_id: params.authId,
-        email: params.email,
+        email: normalizedEmail,
         role: params.role,
         is_email_verified: params.emailVerified,
         is_active: params.role === "candidate" ? true : false,

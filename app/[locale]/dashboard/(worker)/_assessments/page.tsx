@@ -1,5 +1,5 @@
 import { getSkills, getWorkerProfile } from "@/features/profile/dal/queries";
-import { getInterviewBySubjectForUser } from "@/features/interviews/dal/queries";
+import { getWorkerInterviewForUser } from "@/features/interviews/dal/queries";
 import { getLatestCompletedQuizBySkillIds } from "@/features/quizes/dal/queries";
 import { getSession } from "@/lib/get-session";
 import { redirect } from "@/i18n/navigation";
@@ -22,11 +22,10 @@ export default async function WorkerAssessmentsPage() {
   const userId = session.userId;
 
   const combinedInterviewPromise: Promise<StartedInterview | null> =
-    getInterviewBySubjectForUser("combined", userId).then((i) =>
+    getWorkerInterviewForUser(userId).then((i) =>
       i
         ? {
             id: i.id,
-            subject: "combined" as const,
             feedback: i.feedback,
             result: i.result,
             duration: i.duration,

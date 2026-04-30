@@ -1,6 +1,6 @@
 "use server";
 
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import { cardDisplayFromPaymentMethodJson } from "../lib/payment-method-card-display";
 import { parseSiteRowFromStaffRequestLocation } from "../lib/staff-request-location-json";

@@ -5,13 +5,13 @@ import { createAdminClient } from "@/services/supabase/server";
 /**
  * Submit an admin pass/fail decision for an interview.
  * Sets `result`, `reviewed = true`, and `updated_at`.
- * Returns `{ userId, subject }` for the caller to enqueue notifications and
+ * Returns `{ userId }` for the caller to enqueue notifications and
  * trigger stage promotion, or null if the interview was not found.
  */
 export async function submitInterviewReview(
   interviewId: string,
   result: "pass" | "fail",
-): Promise<{ userId: string; subject: string } | null> {
+): Promise<{ userId: string } | null> {
   const supabase = await createAdminClient();
 
   const { data, error } = await supabase
@@ -22,13 +22,13 @@ export async function submitInterviewReview(
       updated_at: new Date().toISOString(),
     })
     .eq("id", interviewId)
-    .select("user_id, subject")
+    .select("user_id")
     .maybeSingle();
 
   if (error) throw new Error(error.message);
   if (!data) return null;
 
-  return { userId: data.user_id, subject: data.subject };
+  return { userId: data.user_id };
 }
 
 /**

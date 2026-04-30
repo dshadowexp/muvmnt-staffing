@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { getCurrentUser } from "@/features/users/dal/queries";
 import { createAdminClient } from "@/services/supabase/server";

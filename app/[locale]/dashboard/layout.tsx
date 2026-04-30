@@ -19,11 +19,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     if (!session) return redirect({ href: "/sign-in", locale });
     let avatarSrc: string | null = null;
     let displayName: string | null = null;
+    let workerStage: string | null = null;
 
     if (session?.role === "worker") {
         const profile = await getWorkerProfile();
         avatarSrc = await resolveWorkerPhotoSrc(profile?.photo_url);
         displayName = profile?.first_name + ' ' + profile?.last_name;;
+        workerStage = profile?.stage ?? null;
     }
 
     return (
@@ -32,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             className="h-svh min-h-0 overflow-hidden"
         >
             <PushTokenRegistrar />
-            <AppSidebar variant="inset" avatarSrc={avatarSrc} displayName={displayName} />
+            <AppSidebar variant="inset" avatarSrc={avatarSrc} displayName={displayName} workerStage={workerStage} />
             <SidebarInset className="min-h-0 flex-1 overflow-hidden">
                 <SiteHeader avatarSrc={avatarSrc} displayName={displayName} />
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain has-[[data-full-bleed]]:overflow-hidden">

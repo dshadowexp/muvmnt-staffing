@@ -425,6 +425,7 @@ export type Database = {
           created_at: string
           duration: string | null
           feedback: Json | null
+          feedback_status: string
           hume_chat_id: string | null
           id: string
           language: string | null
@@ -432,7 +433,6 @@ export type Database = {
           result: string | null
           reviewed: boolean
           screening_id: string | null
-          subject: string
           subject_ref: Json | null
           survey: Json | null
           updated_at: string
@@ -446,6 +446,7 @@ export type Database = {
           created_at?: string
           duration?: string | null
           feedback?: Json | null
+          feedback_status?: string
           hume_chat_id?: string | null
           id?: string
           language?: string | null
@@ -453,7 +454,6 @@ export type Database = {
           result?: string | null
           reviewed?: boolean
           screening_id?: string | null
-          subject: string
           subject_ref?: Json | null
           survey?: Json | null
           updated_at?: string
@@ -467,6 +467,7 @@ export type Database = {
           created_at?: string
           duration?: string | null
           feedback?: Json | null
+          feedback_status?: string
           hume_chat_id?: string | null
           id?: string
           language?: string | null
@@ -474,7 +475,6 @@ export type Database = {
           result?: string | null
           reviewed?: boolean
           screening_id?: string | null
-          subject?: string
           subject_ref?: Json | null
           survey?: Json | null
           updated_at?: string

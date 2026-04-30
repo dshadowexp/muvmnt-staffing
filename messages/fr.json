@@ -1419,6 +1419,7 @@
           "title": "Examen de la demande",
           "description": "Nous examinons votre demande. Veuillez vérifier de retour."
         },
+        "shiftsLockedDescription": "Disponible lorsque vous êtes actif et autorisé pour l’appariement aux quarts.",
         "shiftRequests": {
           "sectionTitle": "Demandes de quarts",
           "shiftCount": "{count, plural, one {# quart à confirmer} other {# quarts à confirmer}}",
@@ -1471,6 +1472,7 @@
       "payroll": {
         "title": "Paie",
         "subtitle": "Accédez à votre solde de paie et gérez vos versements ici.",
+        "lockedDescription": "La paie s’ouvre une fois l’étape Paie de l’intégration atteinte (après l’entrevue et la conformité).",
         "loadError": "Impossible de charger vos détails de paie. Veuillez contacter le support.",
         "needSetup": "Configurez votre compte de paie pour voir votre solde et gérer vos versements.",
         "completeTasksFirst": "Vous pouvez configurer la paie une fois que vous avez complété toutes les tâches importantes. Visitez la page d'accueil pour voir vos tâches importantes.",
@@ -2235,7 +2237,7 @@
           "title": "Aucune aide de l'IA",
           "body": "Répondez à cet entretien en utilisant uniquement vos propres connaissances et expériences. L'utilisation d'outils d'IA, de chatbots ou de toute autre assistance externe durant la session est strictement interdite."
         },
-        "notice": "Une fois commencé, le chronomètre ne peut pas être suspendu. Veuillez traiter ceci comme un entretien d'évaluation mené par un personne."
+        "notice": "Cet entretien dure environ {minutes} minutes. Une fois commencé, le chronomètre ne peut pas être mis en pause. Veuillez le traiter comme un entretien d'évaluation mené par une personne."
       },
       "setup": {
         "durationNotice": "Veuillez activer les deux appareils pour toute la durée de l'entretien.",
@@ -2272,6 +2274,68 @@
         "title": "Entretien professionnel — {profession}",
         "description": "Un entretien vocal de {minutes, plural, one {# minute} other {# minutes}} mené par l'IA, adapté à votre rôle de {profession}. Vous serez interrogé(e) sur vos connaissances cliniques, votre expérience et vos compétences professionnelles.",
         "fallbackProfession": "Professionnel de la santé"
+      },
+      "hub": {
+        "defaultTitle": "Votre entretien — étape par étape",
+        "defaultSubtitle": "Complétez les étapes rapides ci-dessous. Ensuite, nous vous guiderons vers l’entretien en direct.",
+        "backTitle": "Tableau de bord",
+        "badge": "Préparation de l’entretien",
+        "screeningBadge": "Présélection",
+        "screeningDuration": "Entretien de {minutes} min",
+        "screeningLanguages": "{count} langues",
+        "stepsBadge": "Étapes",
+        "stepNum": "Étape {num}",
+        "done": "Terminé",
+        "completed": "Complété",
+        "incomplete": "Non commencé",
+        "locked": "Verrouillé",
+        "start": "Commencer",
+        "view": "Voir",
+        "primaryCta": {
+          "title": "Quand vous êtes prêt, {name}",
+          "subtitle": "La plupart des personnes terminent la préparation en moins de {minutes} minutes.",
+          "button": "Continuer"
+        },
+        "steps": {
+          "photo": {
+            "title": "Téléverser une photo de profil",
+            "detail": "Une photo claire aide à vérifier votre identité et garde les entretiens cohérents."
+          },
+          "resume": {
+            "title": "Téléverser votre CV",
+            "detail": "Nous le résumerons et personnaliserons vos questions d’entretien."
+          },
+          "live": {
+            "title": "Entretien en direct",
+            "detail": "Testez la caméra et le micro, choisissez la langue, puis rejoignez la session chronométrée avec l’IA lorsque vous êtes prêt."
+          },
+          "survey": {
+            "title": "Court sondage",
+            "detail": "Partagez votre expérience — cela nous aide à nous améliorer."
+          }
+        }
+      },
+      "unlive": {
+        "backToSteps": "Étapes principales"
+      },
+      "photoStep": {
+        "title": "Ajoutez votre photo",
+        "subtitle": "Téléversez une photo claire et récente de votre visage pour continuer.",
+        "badge": "Étape 1",
+        "cardTitle": "Téléversement de photo",
+        "cardSubtitle": "Cela prend environ 10 secondes.",
+        "continue": "Continuer"
+      },
+      "resumeStep": {
+        "title": "Téléversez votre CV",
+        "subtitle": "Nous générerons un court résumé et adapterons l’entretien à votre expérience.",
+        "badge": "Étape 2",
+        "fallbackName": "Candidat"
+      },
+      "setupStep": {
+        "badge": "Étape 3",
+        "title": "Entretien en direct",
+        "subtitle": "Testez la caméra et le micro, choisissez la langue, puis démarrez lorsque vous êtes prêt."
       },
       "resume": {
         "uploadTitle": "Entretien basé sur le CV",
@@ -2352,6 +2416,7 @@
         "retakeAfter": "Vous n'avez pas réussi. Vous pourrez refaire l'entretien après <strong>{date}</strong>.",
         "subject": {
           "combined": "Entrevue IA",
+          "screening": "Entretien de présélection",
           "profession": "Entretien professionnel",
           "resume": "Entretien basé sur le CV"
         }

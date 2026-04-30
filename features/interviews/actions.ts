@@ -6,7 +6,7 @@ import { createAdminClient } from "@/services/supabase/server";
 import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import {
   getInterviewByIdForUser,
-  getInterviewBySubjectForUser,
+  getWorkerInterviewForUser,
   type InterviewRow,
 } from "./dal/queries";
 import {
@@ -24,20 +24,17 @@ import {
   RESUME_UPLOAD_LIMIT,
   type InterviewSubjectRef,
 } from "@/features/interviews/lib/interview-subject-ref";
+import { aiInterviewTitle } from "@/features/interviews/lib/interview-ai-title";
 import { tasks } from "@trigger.dev/sdk/v3";
 
 export type GetInterviewResult =
   | { error: true; message: string; data: null }
   | { error: false; data: InterviewRow };
 
-const RETRY_SUBJECTS = new Set(["profession", "resume"]);
-
 export async function createAssessmentInterview({
-  subject,
   subjectRef,
   language,
 }: {
-  subject: string;
   subjectRef: InterviewSubjectRef;
   language?: string;
 }): Promise<{ error: true; message: string } | { error: false; id: string }> {
@@ -46,20 +43,14 @@ export async function createAssessmentInterview({
     return { error: true, message: "Not authenticated" };
   }
 
-  if (RETRY_SUBJECTS.has(subject)) {
-    const existing = await getInterviewBySubjectForUser(
-      subject,
-      session.userId,
-    );
-    if (existing && isAssessmentInterviewLocked(existing)) {
-      return { error: false, id: existing.id };
-    }
+  const existingWorker = await getWorkerInterviewForUser(session.userId);
+  if (existingWorker && isAssessmentInterviewLocked(existingWorker)) {
+    return { error: false, id: existingWorker.id };
   }
 
   try {
     const row = await insertInterview({
       user_id: session.userId,
-      subject,
       language: language ?? null,
       subject_ref: {
         resumeUrl:         subjectRef.resumeUrl,
@@ -340,7 +331,10 @@ export async function generateInterviewFeedback(
       humeChatId: interview.hume_chat_id,
       humeGroupChatId: interview.chat_group_id,
       interviewInfo: {
-        title: interview.subject.replace(/_/g, " "),
+        title: aiInterviewTitle({
+          screeningId: interview.screening_id,
+          subjectRef: interview.subject_ref,
+        }),
         profession,
         description,
       },

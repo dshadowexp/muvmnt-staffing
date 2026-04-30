@@ -30,6 +30,8 @@ export const env = createEnv({
         GOOGLE_OAUTH_CLIENT_ID: z.string().min(1),
         GOOGLE_OAUTH_CLIENT_SECRET: z.string().min(1),
         GOOGLE_OAUTH_REDIRECT_URL: z.string().min(1),
+        LINKEDIN_CLIENT_ID: z.string().min(1),
+        LINKEDIN_CLIENT_SECRET: z.string().min(1),
     },
     createFinalSchema: env => {
         return z.object(env).transform(val => {

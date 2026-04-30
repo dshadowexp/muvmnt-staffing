@@ -25,6 +25,7 @@ export const PUBLIC_PATHS = new Set([
   "/faq",
   "/privacy",
   "/terms",
+  "/linkedin-redirect"
 ]);
 
 export const PUBLIC_PREFIXES: string[] = [
@@ -32,6 +33,12 @@ export const PUBLIC_PREFIXES: string[] = [
   "/shifts/respond", // ← email action outcome pages
   "/join", // ← facility team invite magic links (/join/team/[token])
 ];
+
+/** HttpOnly cookie: `/api/linkedin` sets it; `linkedin-redirect` consumes it via server action. */
+export const LINKEDIN_FIREBASE_HANDOFF_COOKIE = "linkedin_firebase_handoff";
+
+/** Optional CSRF cookie for LinkedIn OAuth `state` (set before redirect to LinkedIn). */
+export const LINKEDIN_OAUTH_STATE_COOKIE = "linkedin_oauth_state";
 
 // ─── Auth pages (redirect away if already signed in) ─────────────────────────
 

@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Database } from "@/services/supabase/types/database";
 import { SHIFT_STATUS_SCHEDULED, normalizeShiftStatus } from "../constants";

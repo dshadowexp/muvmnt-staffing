@@ -1,6 +1,6 @@
 "use server";
 
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import type { Tables } from "@/services/supabase/types/database";
 import { redirect } from "next/navigation";

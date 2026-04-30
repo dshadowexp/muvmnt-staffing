@@ -71,7 +71,7 @@ export async function tryAutoReview(
     // 1. Load current state of the interview
     const { data: interview, error: fetchError } = await supabase
       .from("interviews")
-      .select("id, subject, reviewed, result, feedback, video_feedback, video_feedback_status")
+      .select("id, reviewed, result, feedback, video_feedback, video_feedback_status")
       .eq("id", interviewId)
       .maybeSingle();
 

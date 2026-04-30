@@ -54,7 +54,7 @@ type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedbac
 export type InterviewReviewClientProps = {
   interview: {
     id: string;
-    subject: string;
+    screeningId: string | null;
     duration: string | null;
     completedAt: string | null;
     completedOnLabel: string;
@@ -118,14 +118,9 @@ export function InterviewReviewClient({
     displayed.summary != null ||
     (displayed.scores?.length ?? 0) > 0;
 
-  const subjectLabel =
-    interview.subject === "combined"
-      ? t("subject.combined")
-      : interview.subject === "profession"
-        ? t("subject.profession")
-        : interview.subject === "resume"
-          ? t("subject.resume")
-          : interview.subject.replace(/_/g, " ");
+  const subjectLabel = interview.screeningId
+    ? t("subject.screening")
+    : t("subject.combined");
 
   const retakeHref = "/assessments";
 

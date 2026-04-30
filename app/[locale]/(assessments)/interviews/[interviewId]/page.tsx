@@ -1,8 +1,6 @@
 import { CircleDashedIcon } from "lucide-react";
 import { Suspense } from "react";
-import { fetchAccessToken } from "hume";
 import { getLocale, getTranslations } from "next-intl/server";
-import { env } from "@/data/env/server";
 import { getSession } from "@/lib/get-session";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
@@ -12,7 +10,7 @@ import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actio
 import { saveCandidatePhotoAction } from "@/features/screenings/candidate-actions";
 import { getScreeningCandidate } from "@/features/screenings/dal/queries";
 import { createAdminClient } from "@/services/supabase/server";
-import { ResumeInterviewClient } from "./_client";
+import { InterviewStepsClient } from "./_steps-client";
 
 export default async function InterviewPage({
   params,
@@ -60,17 +58,12 @@ async function SuspendedContent({
       return redirect({ href: `/s/${screening_id}`, locale });
     }
 
-    // Fetch screening for title / description
+    // Fetch screening for title / description / settings
     const { data: screening } = await supabase
       .from("screenings")
       .select("title, description")
       .eq("id", screening_id)
       .maybeSingle();
-
-    const accessToken = await fetchAccessToken({
-      apiKey: env.HUME_API_KEY,
-      secretKey: env.HUME_SECRET_KEY,
-    });
 
     const t = await getTranslations("assessments.interview");
     const candidateName =
@@ -87,20 +80,26 @@ async function SuspendedContent({
       .maybeSingle();
 
     return (
-      <ResumeInterviewClient
-        accessToken={accessToken}
+      <InterviewStepsClient
+        interviewId={interview.id}
+        role="candidate"
         userName={candidateName}
-        photoUrl={candidate.photo_url ?? null}
-        profession="healthcare"
-        years_exp="0"
-        existingInterview={interview}
-        returnPath={`/s/${screening_id}`}
+        backHref={`/s/${screening_id}`}
+        title={screening?.title ?? t("hub.defaultTitle")}
+        subtitle={screening?.description ?? t("hub.defaultSubtitle")}
+        screeningDetails={{
+          title: screening?.title ?? t("hub.defaultTitle"),
+          description: screening?.description ?? null,
+          durationMins: screeningSettings?.interview_duration ?? 15,
+          allowedLocales: screeningSettings?.allowed_languages ?? ["en"],
+        }}
+        hasPhoto={Boolean(candidate.photo_url)}
+        hasResume={Boolean((interview.subject_ref as unknown as { resumeUrl?: string })?.resumeUrl)}
+        interviewCompleted={Boolean(interview.completed_at)}
         onSavePhoto={onSavePhoto}
-        interviewTitle={screening?.title}
-        interviewDescription={screening?.description ?? undefined}
-        defaultProfessionContext={screening?.description ?? undefined}
-        durationSecs={(screeningSettings?.interview_duration ?? 15) * 60}
+        durationMins={screeningSettings?.interview_duration ?? 15}
         allowedLocales={screeningSettings?.allowed_languages ?? ["en"]}
+        savedLocale={interview.language ?? undefined}
       />
     );
   }
@@ -121,11 +120,6 @@ async function SuspendedContent({
     return redirect({ href: "/dashboard", locale });
   }
 
-  const accessToken = await fetchAccessToken({
-    apiKey: env.HUME_API_KEY,
-    secretKey: env.HUME_SECRET_KEY,
-  });
-
   const t = await getTranslations("assessments.interview");
 
   const userName =
@@ -133,15 +127,20 @@ async function SuspendedContent({
     t("candidateFallback");
 
   return (
-    <ResumeInterviewClient
-      accessToken={accessToken}
+    <InterviewStepsClient
+      interviewId={interview.id}
+      role="worker"
       userName={userName}
-      photoUrl={worker.photo_url ?? null}
-      profession={worker.profession ?? t("profession.fallbackProfession")}
-      years_exp={worker.years_exp?.toString() ?? "0"}
-      existingInterview={interview}
-      returnPath="/dashboard"
+      backHref="/dashboard"
+      title={t("hub.defaultTitle")}
+      subtitle={t("hub.defaultSubtitle")}
+      hasPhoto={Boolean(worker.photo_url)}
+      hasResume={Boolean((interview.subject_ref as unknown as { resumeUrl?: string })?.resumeUrl)}
+      interviewCompleted={Boolean(interview.completed_at)}
       onSavePhoto={updateWorkerPhotoAction}
+      durationMins={15}
+      allowedLocales={["en", "fr"]}
+      savedLocale={interview.language ?? undefined}
     />
   );
 }

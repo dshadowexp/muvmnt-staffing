@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/services/supabase/server";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 
 export type OperatorContext = {
   userId: string;

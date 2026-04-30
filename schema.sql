@@ -464,8 +464,6 @@ CREATE TABLE interviews (
   id                    uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id               uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   screening_id          uuid        REFERENCES screenings (id) ON DELETE SET NULL,
-  subject               text        NOT NULL
-                          CHECK (subject IN ('combined', 'profession', 'resume')),
   subject_ref           jsonb,
   hume_chat_id          text,
   chat_group_id         text,
@@ -473,6 +471,8 @@ CREATE TABLE interviews (
   duration              text,
   recording_url         text,
   feedback              jsonb,
+  feedback_status       text        NOT NULL DEFAULT 'pending'
+                          CHECK (feedback_status IN ('pending', 'generating', 'ready', 'failed')),
   survey                jsonb,
   result                text        CHECK (result IN ('pass', 'fail')),
   reviewed              boolean     NOT NULL DEFAULT false,
@@ -488,6 +488,7 @@ CREATE INDEX interviews_screening_id_idx ON interviews (screening_id) WHERE scre
 CREATE INDEX interviews_completed_at_idx ON interviews (completed_at) WHERE completed_at IS NOT NULL;
 CREATE INDEX interviews_reviewed_idx     ON interviews (reviewed);
 CREATE INDEX interviews_result_idx       ON interviews (result) WHERE result IS NOT NULL;
+CREATE INDEX interviews_feedback_status_idx ON interviews (feedback_status);
 
 
 -- =============================================================================

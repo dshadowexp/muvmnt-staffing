@@ -71,7 +71,6 @@ function formatCountdown(seconds: number): string {
 
 type InterviewShellProps = {
   accessToken: string;
-  subject: string;
   subjectRef: InterviewSubjectRef;
   interviewId?: string;
   chatGroupId?: string;
@@ -90,6 +89,16 @@ type InterviewShellProps = {
   durationSecs?: number;
   /** Restrict the language selector to these locales. Defaults to all supported locales. */
   allowedLocales?: string[];
+  /**
+   * When true, the shell skips the setup UI and starts immediately (used by the
+   * dedicated `/live` route after completing `/setup`).
+   */
+  autoStart?: boolean;
+  /**
+   * Optional language selected in `/setup` (e.g. from `?lang=en`).
+   * Only applied when not resuming an existing chat.
+   */
+  initialSelectedLocale?: string;
 };
 
 // ── Mic check (pre-interview) ────────────────────────────────────────────────
@@ -196,16 +205,12 @@ function InterviewInstructionsCard({
  * cumulatively. Releases the mic stream as soon as the check passes.
  */
 function useMicCheck(enabled: boolean) {
-  const [level, setLevel] = useState(0);
-  const [passed, setPassed] = useState(false);
+  const [rawLevel, setRawLevel] = useState(0);
+  const [rawPassed, setRawPassed] = useState(false);
 
   useEffect(() => {
-    if (!enabled) {
-      setLevel(0);
-      setPassed(false);
-      return;
-    }
-    if (passed) return;
+    if (!enabled) return;
+    if (rawPassed) return;
 
     let cancelled = false;
     let stream: MediaStream | null = null;
@@ -232,13 +237,13 @@ function useMicCheck(enabled: boolean) {
           if (cancelled) return;
           analyser.getByteFrequencyData(buf);
           const avg = buf.reduce((a, b) => a + b, 0) / buf.length / 255;
-          setLevel(avg);
+          setRawLevel(avg);
 
           const now = performance.now();
           if (avg >= MIC_THRESHOLD) {
             if (aboveSinceMs == null) aboveSinceMs = now;
             else if (now - aboveSinceMs >= MIC_SUSTAIN_MS) {
-              setPassed(true);
+              setRawPassed(true);
               return;
             }
           } else {
@@ -258,9 +263,12 @@ function useMicCheck(enabled: boolean) {
       stream?.getTracks().forEach((track) => track.stop());
       ctx?.close().catch(() => {});
     };
-  }, [enabled, passed]);
+  }, [enabled, rawPassed]);
 
-  return { level, passed };
+  return {
+    level: enabled ? rawLevel : 0,
+    passed: enabled ? rawPassed : false,
+  };
 }
 
 // ── Device setup card ────────────────────────────────────────────────────────
@@ -624,7 +632,6 @@ function DeviceSetupCard({
 
 export function InterviewShell({
   accessToken,
-  subject,
   subjectRef,
   interviewId: initialInterviewId,
   chatGroupId,
@@ -638,6 +645,8 @@ export function InterviewShell({
   savedLocale,
   durationSecs,
   allowedLocales,
+  autoStart = false,
+  initialSelectedLocale,
 }: InterviewShellProps) {
   const router = useRouter();
   const currentLocale = useLocale();
@@ -658,8 +667,16 @@ export function InterviewShell({
     ? (savedLocale ?? currentLocale)
     : effectiveLocales[0];
 
-  const [selectedLocale, setSelectedLocale] = useState<string>(initialLocale);
+  const forcedLocale =
+    initialSelectedLocale && effectiveLocales.includes(initialSelectedLocale)
+      ? initialSelectedLocale
+      : null;
+
+  const [selectedLocale, setSelectedLocale] = useState<string>(
+    forcedLocale ?? initialLocale,
+  );
   const [finalizing, setFinalizing] = useState(false);
+  const [finalizeError, setFinalizeError] = useState<string | null>(null);
   const durationRef = useRef<string | null>(null);
   const chatIdRef = useRef<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -673,13 +690,19 @@ export function InterviewShell({
   const disconnectedRef = useRef<boolean>(false);
   const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Only keep the latest non-null values so disconnect resets don't wipe them
-  if (callDurationTimestamp) {
-    durationRef.current = callDurationTimestamp;
-  }
-  if (chatMetadata?.chatId) {
-    chatIdRef.current = chatMetadata.chatId;
-  }
+  // Keep the latest non-null values so disconnect resets don't wipe them.
+  // (Write refs in effects to satisfy hooks lint rules.)
+  useEffect(() => {
+    if (callDurationTimestamp) {
+      durationRef.current = callDurationTimestamp;
+    }
+  }, [callDurationTimestamp]);
+
+  useEffect(() => {
+    if (chatMetadata?.chatId) {
+      chatIdRef.current = chatMetadata.chatId;
+    }
+  }, [chatMetadata?.chatId]);
 
   // Add the pre-reload elapsed time so the countdown is correctly capped after a reload.
   const elapsed = savedDurationSecs + parseDurationToSeconds(callDurationTimestamp);
@@ -693,6 +716,12 @@ export function InterviewShell({
     if (el && streamRef.current && el.srcObject !== streamRef.current) {
       el.srcObject = streamRef.current;
     }
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
   }, []);
 
   const startCamera = useCallback(async () => {
@@ -710,13 +739,7 @@ export function InterviewShell({
     } catch {
       toast.error(t("controls.cameraDenied"));
     }
-  }, [t]);
-
-  const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
-  }, []);
+  }, [stopCamera, t]);
 
   useEffect(() => {
     disconnectRef.current = disconnect;
@@ -809,6 +832,56 @@ export function InterviewShell({
   // On disconnect: save final state, then redirect to the per-interview review
   // page where feedback is streamed in. The feedback generation itself lives
   // on that page so users see progress immediately.
+  const runFinalize = useCallback(async () => {
+    if (interviewId == null) return;
+
+    setFinalizing(true);
+    setFinalizeError(null);
+
+    const finalDuration = durationRef.current;
+    const finalChatId = chatIdRef.current;
+
+    const chatSeconds = parseDurationToSeconds(finalDuration);
+    const patch: {
+      duration?: string;
+      humeChatId?: string;
+      completedAt?: string;
+    } = {};
+    if (finalDuration) patch.duration = finalDuration;
+    if (finalChatId) patch.humeChatId = finalChatId;
+    if (chatSeconds > MIN_DURATION_FOR_COMPLETED_AT_SECS) {
+      patch.completedAt = new Date().toISOString();
+    }
+
+    const [recordingRes, patchRes] = await Promise.allSettled([
+      stopRecording(),
+      updateInterview(interviewId, patch),
+    ]);
+
+    const patchOk =
+      patchRes.status === "fulfilled" && !("error" in patchRes.value && patchRes.value.error);
+
+    if (!patchOk) {
+      console.error("Finalize failed: interview DB patch did not persist", {
+        patchRes,
+        recordingRes,
+      });
+      setFinalizeError("We couldn't save your interview yet. Please retry.");
+      stopCamera();
+      return;
+    }
+
+    // Even if recording upload fails, we can still proceed — the interview state is saved.
+    if (recordingRes.status === "rejected") {
+      console.error("Finalize warning: recording upload failed", recordingRes.reason);
+    }
+
+    stopCamera();
+    isNavigatingRef.current = true;
+    if (durationIntervalRef.current) clearInterval(durationIntervalRef.current);
+    router.push(`/interviews/${interviewId}/survey`);
+  }, [interviewId, router, stopCamera, stopRecording]);
+
   useEffect(() => {
     if (readyState !== VoiceReadyState.CLOSED) return;
     if (closeTriggeredRef.current) return;
@@ -820,42 +893,11 @@ export function InterviewShell({
 
     closeTriggeredRef.current = true;
 
-    const finalDuration = durationRef.current;
-    const finalChatId = chatIdRef.current;
-
-    (async () => {
-      setFinalizing(true);
-      // Stop + upload recording in parallel with DB patch
-      try {
-        // Run recording upload + DB patch in parallel
-        const chatSeconds = parseDurationToSeconds(finalDuration);
-
-        const patch: {
-          duration?:    string;
-          humeChatId?:  string;
-          completedAt?: string;
-        } = {};
-        if (finalDuration) patch.duration = finalDuration;
-        if (finalChatId)   patch.humeChatId = finalChatId;
-        if (chatSeconds > MIN_DURATION_FOR_COMPLETED_AT_SECS) {
-          patch.completedAt = new Date().toISOString();
-        }
-
-        // Fully await both before navigating
-        await Promise.all([
-          stopRecording(),
-          updateInterview(interviewId, patch),
-        ]);
-      } catch (err) {
-          console.error("Finalizing error", err);
-      } finally {
-        stopCamera();
-        isNavigatingRef.current = true;
-        if (durationIntervalRef.current) clearInterval(durationIntervalRef.current); // kill interval NOW
-        router.push(`/interviews/${interviewId}/survey`);
-      }
-    })();
-  }, [readyState]);
+    // Defer the finalize state updates to avoid setState-in-effect lint rule.
+    queueMicrotask(() => {
+      void runFinalize();
+    });
+  }, [interviewId, readyState, returnPath, router, runFinalize, t]);
 
   const handleStart = async () => {
     if (startingRef.current) return;
@@ -867,7 +909,7 @@ export function InterviewShell({
 
       let activeInterviewId = interviewId;
       if (activeInterviewId == null) {
-        const res = await createAssessmentInterview({ subject, subjectRef, language: selectedLocale });
+        const res = await createAssessmentInterview({ subjectRef, language: selectedLocale });
         if (res.error) {
           return errorToast(res.message);
         }
@@ -903,7 +945,23 @@ export function InterviewShell({
     
   };
 
+  // Auto-start mode (used by `/live`): immediately begin once the shell mounts.
+  useEffect(() => {
+    if (!autoStart) return;
+    if (readyState !== VoiceReadyState.IDLE) return;
+    if (startingRef.current) return;
+    void handleStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart, readyState]);
+
   if (readyState === VoiceReadyState.IDLE) {
+    if (autoStart) {
+      return (
+        <div className="flex min-h-svh items-center justify-center">
+          <CircleDashedIcon className="size-10 animate-spin" />
+        </div>
+      );
+    }
     return (
       <div className="flex min-h-svh flex-col">  {/* remove p-4, it pushes content under sticky header */}
         <InterviewHeader backHref={returnPath} backTitle={t("setup.backTitle")} />
@@ -933,11 +991,26 @@ export function InterviewShell({
   if (finalizing) {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-        <CircleDashedIcon className="size-10 animate-spin" />
-        <p className="text-lg font-medium">{t("completed.title")}</p>
-        <p className="text-sm text-muted-foreground">
-          {uploadingRecording ? "Finalizing interview..." : t("completed.wrappingUp")}
-        </p>
+        {finalizeError ? (
+          <>
+            <p className="text-lg font-medium">{t("completed.title")}</p>
+            <p className="text-sm text-muted-foreground">{finalizeError}</p>
+            <Button
+              variant="outline"
+              onClick={() => void runFinalize()}
+            >
+              Retry finalizing
+            </Button>
+          </>
+        ) : (
+          <>
+            <CircleDashedIcon className="size-10 animate-spin" />
+            <p className="text-lg font-medium">{t("completed.title")}</p>
+            <p className="text-sm text-muted-foreground">
+              {uploadingRecording ? "Finalizing interview..." : t("completed.wrappingUp")}
+            </p>
+          </>
+        )}
       </div>
     );
   }
@@ -1035,9 +1108,14 @@ function Controls({
         </span>
       </Button>
 
-      <Button variant="ghost" size="icon" >
-        <VideoIcon />
-      </Button>
+      <div className="relative flex items-center justify-center">
+        <VideoIcon className="size-5 text-muted-foreground" aria-hidden />
+        <span
+          aria-hidden
+          className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-red-500 shadow-[0_0_0_2px_rgba(255,255,255,0.9)]"
+        />
+        <span className="sr-only">Recording</span>
+      </div>
 
       <div className="self-stretch">
         <FftVisualizer fft={micFft} />

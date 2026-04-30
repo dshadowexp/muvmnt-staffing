@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/field";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { GoogleButton } from "@/features/auth/components/google-button";
+import { LinkedInButton } from "@/features/auth/components/linkedin-button";
 import { Password } from "@/features/auth/components/password-input";
 import {
   ErrorBanner,
@@ -26,6 +27,7 @@ import {
 import { getAuthErrorKey, loginWithEmail } from "@/services/firebase/auth";
 import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
 import posthog from "posthog-js";
+import { MicrosoftButton } from "../components/microsoft-button";
 
 type SignInFormProps = {
   /** Render a simplified version for embedded contexts (e.g. screening). */
@@ -97,13 +99,6 @@ export function WorkerSignInForm({
 
         <CardContent className="px-9 pb-8 pt-7">
           <FieldGroup>
-            {variant === "default" && (
-              <>
-                <GoogleButton text="Sign in with Google" />
-                <OrDivider />
-              </>
-            )}
-
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
               className="contents"
@@ -162,10 +157,22 @@ export function WorkerSignInForm({
             </form>
 
             {variant === "default" && (
+              <>
+                <OrDivider text="or continue with" />
+                <GoogleButton text="Google" />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+                  <LinkedInButton className="min-w-0 flex-1 basis-0 sm:w-auto" disabled={isLoading} />
+                  <MicrosoftButton className="min-w-0 flex-1 basis-0 sm:w-auto" disabled={isLoading} />
+                </div>
+              </>
+            )}
+
+
+            {variant === "default" && (
               <p className="text-center text-[0.82rem] font-light text-muted-foreground">
                 {t("noAccount")}{" "}
                 <Link
-                  href={withAuthParams("/sign-up")}
+                  href={withAuthParams("/sign-up/worker")}
                   className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
                 >
                   {t("createOne")}

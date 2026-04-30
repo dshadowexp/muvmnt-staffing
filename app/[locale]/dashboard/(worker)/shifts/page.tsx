@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { redirect } from "@/i18n/navigation";
 import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
 import { getLocale } from "next-intl/server";
+import { LockedShiftSection } from "../_locked-shift-section";
 
 async function WorkerShiftsTableContent({ workerId }: { workerId: string }) {
   const shifts = await listShiftsForWorker(workerId);
@@ -44,6 +45,8 @@ export default async function WorkerShiftsPage() {
   if (!worker) return redirect({ href: "/onboarding/profile", locale });
 
   const t = await getTranslations("dashboard.worker.shifts");
+  const tHome = await getTranslations("dashboard.worker.home");
+  const isLive = worker.stage === "live";
 
   return (
     <div className="flex w-full max-w-5xl mx-auto flex-col gap-6">
@@ -54,14 +57,22 @@ export default async function WorkerShiftsPage() {
         </p>
       </div>
 
-      
-      <Suspense fallback={<ShiftRequestCardsSkeleton />}>
-        <WorkerPendingShiftRequestCards workerId={worker.id} />
-      </Suspense>
+      {isLive ? (
+        <>
+          <Suspense fallback={<ShiftRequestCardsSkeleton />}>
+            <WorkerPendingShiftRequestCards workerId={worker.id} />
+          </Suspense>
 
-      <Suspense fallback={<TableSkeleton />}>
-        <WorkerShiftsTableContent workerId={worker.id} />
-      </Suspense>
+          <Suspense fallback={<TableSkeleton />}>
+            <WorkerShiftsTableContent workerId={worker.id} />
+          </Suspense>
+        </>
+      ) : (
+        <LockedShiftSection
+          title={t("title")}
+          description={tHome("shiftsLockedDescription")}
+        />
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
     signInAnonymously,
     signInWithCustomToken as firebaseSignInWithCustomToken,
     getAuth,
+    FacebookAuthProvider,
     OAuthProvider,
     sendSignInLinkToEmail,
     isSignInWithEmailLink as firebaseIsSignInWithEmailLink,
@@ -14,6 +15,7 @@ import {
     type ActionCodeSettings,
 } from "firebase/auth";
 import { firebaseApp } from "./client";
+import { env } from "@/data/env/client";
 
 export const auth = getAuth(firebaseApp);
 auth.useDeviceLanguage();
@@ -127,6 +129,67 @@ export async function loginWithMicrosoft() {
         prompt: "select_account",
     });
     await signInWithPopup(auth, provider);
+}
+
+export async function loginWithFacebook() {
+    const provider = new FacebookAuthProvider();
+    provider.setCustomParameters({
+        display: "popup",
+    });
+    await signInWithPopup(auth, provider);
+}
+
+/**
+ * LinkedIn sign-in requires configuring LinkedIn as an OIDC provider in Firebase.
+ * Ensure the providerId here matches your Firebase console configuration.
+ */
+export async function loginWithLinkedIn() {
+    // const provider = new OAuthProvider("oidc.linkedin");
+    // provider.setCustomParameters({
+    //     prompt: "login",
+    // });
+    // provider.addScope('mail.read');
+    // await signInWithPopup(auth, provider);
+
+    function generateRandomStringForState(bytes = 32): string {
+        // Prefer Web Crypto (secure + available in browsers)
+        const cryptoObj: Crypto | undefined =
+          typeof window !== "undefined" ? window.crypto : undefined;
+      
+        if (cryptoObj?.getRandomValues) {
+          const arr = new Uint8Array(bytes);
+          cryptoObj.getRandomValues(arr);
+      
+          // hex encode
+          return Array.from(arr)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        }
+      
+        // Fallback (should be rare): not cryptographically secure
+        return `${Math.random().toString(16).slice(2)}${Date.now().toString(16)}`;
+    }
+
+    const state = generateRandomStringForState();
+
+    // Persist intended role across the full-page OAuth redirect.
+    // Without this, any in-memory auth context (pending role) is lost.
+    try {
+        window.localStorage.setItem("rk_oauth_intended_role", "worker");
+    } catch {
+        // Non-fatal (private mode / blocked storage).
+    }
+
+    const origin = window.location.origin;
+    const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID,
+        redirect_uri: `${origin}/api/linkedin`,
+        scope: 'email openid profile',
+        state: state
+    });
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
+    window.location.href = authUrl;
 }
 
 export async function signInAsAnonymously() {

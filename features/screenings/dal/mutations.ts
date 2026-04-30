@@ -193,7 +193,6 @@ export async function insertScreeningInterview(
     .insert({
       user_id: userId,
       screening_id: screeningId,
-      subject: "combined",
       subject_ref: EMPTY_INTERVIEW_SUBJECT_REF,
     })
     .select()

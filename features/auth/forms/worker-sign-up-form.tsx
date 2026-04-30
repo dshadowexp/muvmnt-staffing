@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/field";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { GoogleButton } from "@/features/auth/components/google-button";
+import { LinkedInButton } from "@/features/auth/components/linkedin-button";
 import { Password } from "@/features/auth/components/password-input";
 import {
   ErrorBanner,
@@ -30,6 +31,7 @@ import {
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, signUpWithEmail } from "@/services/firebase/auth";
 import posthog from "posthog-js";
+import { MicrosoftButton } from "../components/microsoft-button";
 
 type SignUpFormProps = {
   /** Called after successful sign-up instead of navigating. Use in embedded
@@ -191,12 +193,16 @@ export function WorkerSignUpForm({
               </Button>
             </form>
             <OrDivider />
-            <GoogleButton text="Google" />
+            <GoogleButton text="Sign up with Google" />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+              <LinkedInButton className="min-w-0 flex-1 basis-0 sm:w-auto" text="LinkedIn" disabled={isLoading} />
+              <MicrosoftButton className="min-w-0 flex-1 basis-0 sm:w-auto" text="Facebook" disabled={isLoading} />
+            </div>
             <AuthLegalNote />
             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
               {t("haveAccount")}{" "}
               <Link
-                href={withAuthParams("/sign-in")}
+                href={withAuthParams("/sign-in/worker")}
                 className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
               >
                 {t("signIn")}

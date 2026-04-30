@@ -1,6 +1,6 @@
 "use server";
 
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { s3Api } from "@/services/s3/api";
 
 export async function deleteFile(key: string) {

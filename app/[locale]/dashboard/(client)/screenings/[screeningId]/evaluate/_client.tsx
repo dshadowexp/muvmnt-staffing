@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { format, formatDistanceToNow } from "date-fns";
+import { useRouter } from "@/i18n/navigation";
 import {
   AlertTriangleIcon,
   CheckCircleIcon,
   ChevronLeftIcon,
   ClipboardListIcon,
+  RefreshCwIcon,
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -308,6 +310,8 @@ function BulletSection({
 }
 
 function CandidateDetail({ candidate }: { candidate: RankedCandidate }) {
+  const router = useRouter();
+  const [regenerating, setRegenerating] = useState(false);
   const displayName =
     [candidate.first_name, candidate.last_name].filter(Boolean).join(" ") ||
     candidate.email;
@@ -366,9 +370,44 @@ function CandidateDetail({ candidate }: { candidate: RankedCandidate }) {
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-6 px-5 py-5">
           {!feedback ? (
-            <p className="text-sm text-muted-foreground">
-              Interview feedback is being processed.
-            </p>
+            candidate.interview.feedback_status === "failed" ? (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Interview feedback failed to generate.
+                </p>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                    "hover:bg-muted",
+                    regenerating && "pointer-events-none opacity-60",
+                  )}
+                  onClick={async () => {
+                    if (regenerating) return;
+                    setRegenerating(true);
+                    try {
+                      const res = await fetch("/api/ai/interviews/feedback", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ interviewId: candidate.interview?.id }),
+                      });
+                      // Consume the stream so the server can finish + persist.
+                      await res.text();
+                      router.refresh();
+                    } finally {
+                      setRegenerating(false);
+                    }
+                  }}
+                >
+                  <RefreshCwIcon className={cn("size-4", regenerating && "animate-spin")} />
+                  Regenerate feedback
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Interview feedback is being processed.
+              </p>
+            )
           ) : (
             <>
               {feedback.summary && (

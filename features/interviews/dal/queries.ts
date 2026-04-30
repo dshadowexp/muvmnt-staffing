@@ -48,16 +48,18 @@ export async function listInterviewsForUser(
   return data ?? [];
 }
 
-export async function getInterviewBySubjectForUser(
-  subject: string,
+/**
+ * Worker interview: at most one row per user with screening_id IS NULL.
+ */
+export async function getWorkerInterviewForUser(
   userId: string,
 ): Promise<InterviewRow | null> {
   const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("interviews")
     .select("*")
-    .eq("subject", subject)
     .eq("user_id", userId)
+    .is("screening_id", null)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();

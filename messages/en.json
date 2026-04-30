@@ -215,9 +215,9 @@
       "titleLead": "Cover your",
       "titleAccent": "staffing gaps",
       "titleTail": "in minutes",
-      "subtitle1": "We help healthcare teams close staffing gaps quickly with AI-powered, data-driven solutions, ensuring teams are consistently staffed with the right professionals for every shift.",
+      "subtitle1": "We help healthcare teams fill staffing gaps quickly with AI-powered, data-driven solutions, ensuring teams are consistently staffed with the right professionals for every shift.",
       "subtitle2": "",
-      "ctaRequest": "Request staff →",
+      "ctaRequest": "Get started →",
       "ctaProfessional": "For professionals",
       "stats": [
         {
@@ -230,7 +230,7 @@
         },
         {
           "value": "<5m",
-          "label": "Avg. fill time"
+          "label": "Average fill time"
         }
       ]
     },
@@ -240,7 +240,7 @@
     "how": {
       "overline": "How it works",
       "title": "Request, match, confirm.",
-      "subtitle": "From request to placement in hours, not days.",
+      "subtitle": "From request to placement in minutes, not days.",
       "steps": [
         {
           "num": "01",
@@ -1058,7 +1058,7 @@
       "noAccountSub": "Contact your administrator or",
       "signUpFree": "Sign up for free",
       "workerFooter": {
-        "prompt": "Are you a healthcare worker?",
+        "prompt": "Are you a healthcare professional?",
         "cta": "Sign in here"
       },
       "common": {
@@ -1152,7 +1152,7 @@
     "signUp": {
       "meta": {
         "title": "Sign Up",
-        "description": "Create your free ReadyKare account. Join as a healthcare worker or staffing facility.",
+        "description": "Create your free ReadyKare account. Join as a healthcare professional or a healthcare facility.",
         "titleWorker": "Sign Up as a Worker",
         "titleClient": "Sign Up as a Client",
         "titleCandidate": "Sign Up as a Candidate",
@@ -1161,15 +1161,15 @@
         "descriptionCandidate": "Create your ReadyKare candidate account to begin your screening."
       },
       "google": "Sign up with Google",
-      "choiceTitle": "How can we help you today?",
+      "choiceTitle": "How do you want to use ReadyKare?",
       "choiceSubtitle": "We'll personalize your experience accordingly.",
       "roleWorkerDescription": "Looking for active work in healthcare",
       "roleClientDescription": "Searching for AI-powered staffing solutions",
       "roleCandidateDescription": "Received an invitation to complete your screening",
-      "titleWorker": "Create your worker account",
+      "titleWorker": "Join us",
       "titleClient": "Create your account",
       "titleCandidate": "Create your account",
-      "subtitleWorker": "Flexible healthcare work at your fingertips",
+      "subtitleWorker": "Be part of a growing community of healthcare professionals",
       "subtitleClient": "No credit card required. Sign up with your business email.",
       "subtitleCandidate": "Set up your account to begin your screening.",
       "overline": "Create your readykare account",
@@ -1441,6 +1441,7 @@
           "title": "Reviewing application",
           "description": "We're reviewing your application. Please check back soon."
         },
+        "shiftsLockedDescription": "Unlocks once you're live and cleared for shift matching.",
         "shiftRequests": {
           "sectionTitle": "Shift requests",
           "shiftCount": "{count, plural, one {# shift to confirm} other {# shifts to confirm}}",
@@ -1493,6 +1494,7 @@
       "payroll": {
         "title": "Payroll",
         "subtitle": "Access your payroll balance here.",
+        "lockedDescription": "Payroll opens once you reach the payroll step of onboarding (after interview and compliance).",
         "loadError": "We couldn't load your payroll details. Please report to support.",
         "needSetup": "Set up your payroll account to view your balance and manage payouts.",
         "completeTasksFirst": "You can onboard payroll when you complete all important tasks. Visit Home page to view your important tasks.",
@@ -2258,7 +2260,7 @@
           "title": "No AI assistance",
           "body": "Complete this interview using your own knowledge and experience only. The use of AI tools, chatbots, or any external assistance during the session is strictly prohibited."
         },
-        "notice": "Once started, the timer cannot be paused. Please treat this like you would a person-led assessment interview."
+        "notice": "This interview runs about {minutes} minutes. Once started, the timer cannot be paused. Please treat this like you would a person-led assessment interview."
       },
       "setup": {
         "durationNotice": "Please enable both devices for the entire duration of the interview.",
@@ -2295,6 +2297,68 @@
         "title": "{profession} Professional Interview",
         "description": "A {minutes}-minute AI-led voice interview tailored to your role as a {profession}. You will be asked questions about your clinical knowledge, experience, and professional competencies.",
         "fallbackProfession": "Healthcare Professional"
+      },
+      "hub": {
+        "defaultTitle": "Your interview — step by step",
+        "defaultSubtitle": "Complete the quick setup steps below. Once you’re ready, we’ll guide you into the live interview.",
+        "backTitle": "Dashboard",
+        "badge": "Interview setup",
+        "screeningBadge": "Screening",
+        "screeningDuration": "{minutes} min interview",
+        "screeningLanguages": "{count} languages",
+        "stepsBadge": "Steps",
+        "stepNum": "Step {num}",
+        "done": "Done",
+        "completed": "Completed",
+        "incomplete": "Not started",
+        "locked": "Locked",
+        "start": "Start",
+        "view": "View",
+        "primaryCta": {
+          "title": "Ready when you are, {name}",
+          "subtitle": "Most people finish setup in under {minutes} minutes.",
+          "button": "Continue"
+        },
+        "steps": {
+          "photo": {
+            "title": "Upload your photo",
+            "detail": "A clear photo helps verify your identity and keeps interviews consistent."
+          },
+          "resume": {
+            "title": "Upload your resume",
+            "detail": "We’ll summarize it and personalize your interview questions."
+          },
+          "live": {
+            "title": "Live interview",
+            "detail": "Test your camera and microphone, choose your language, then join the timed AI-led session when you’re ready."
+          },
+          "survey": {
+            "title": "Quick survey",
+            "detail": "Share your experience—this helps us improve."
+          }
+        }
+      },
+      "unlive": {
+        "backToSteps": "Main steps"
+      },
+      "photoStep": {
+        "title": "Add your photo",
+        "subtitle": "Upload a clear, recent photo of your face to proceed.",
+        "badge": "Step 1",
+        "cardTitle": "Photo upload",
+        "cardSubtitle": "This takes about 10 seconds.",
+        "continue": "Continue"
+      },
+      "resumeStep": {
+        "title": "Upload your resume",
+        "subtitle": "We’ll generate a short summary and tailor your interview to your experience.",
+        "badge": "Step 2",
+        "fallbackName": "Candidate"
+      },
+      "setupStep": {
+        "badge": "Step 3",
+        "title": "Live interview",
+        "subtitle": "Test your camera and microphone, choose your language, then start when you’re ready."
       },
       "resume": {
         "uploadTitle": "Resume Interview",
@@ -2375,6 +2439,7 @@
         "retakeAfter": "You did not pass. You can retake after <strong>{date}</strong>.",
         "subject": {
           "combined": "AI Interview",
+          "screening": "Screening interview",
           "profession": "Profession interview",
           "resume": "Resume interview"
         }

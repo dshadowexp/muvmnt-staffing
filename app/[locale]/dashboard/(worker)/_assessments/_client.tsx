@@ -52,7 +52,6 @@ export type AssessmentSkillRow = {
 
 export type StartedInterview = {
   id: string;
-  subject: "combined" | "profession" | "resume";
   feedback: Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
   result: string | null;
   duration: string | null;

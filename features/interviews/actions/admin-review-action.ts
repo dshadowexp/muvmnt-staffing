@@ -1,7 +1,7 @@
 "use server";
 
 import { addDays, format } from "date-fns";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 import {
   submitInterviewReview,
@@ -22,7 +22,7 @@ export async function submitInterviewReviewAction(
   if (session.role !== "admin") return { error: true, message: "Forbidden." };
 
   // 2. Submit review result
-  let row: { userId: string; subject: string } | null;
+  let row: { userId: string } | null;
   try {
     row = await submitInterviewReview(interviewId, result);
   } catch (err) {

@@ -1,5 +1,5 @@
 import "server-only";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/services/supabase/server";
 
 export async function getCurrentUser() {
