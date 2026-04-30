@@ -36,20 +36,16 @@ import {
 import posthog from "posthog-js";
 import { checkFacilityDomainAction } from "@/features/auth/actions";
 import { previewFacilityTeamInviteAction } from "@/features/account/actions/invite";
+import { OPERATOR_ROLE } from "../types";
 
 // ─── Component ────────────────────────────────────────────────────────────────
-
-type ClientSignUpFormProps = {
-  // (Previously supported hiding the footer link; no longer needed.)
-};
 
 type Step = "details" | "password";
 
 const OPERATOR_LS_FIRST_NAME = "readykare_operator_first_name";
 const OPERATOR_LS_LAST_NAME = "readykare_operator_last_name";
 
-export function FacilitySignUpForm({
-}: ClientSignUpFormProps = {}) {
+export function OperatorSignUpForm() {
   const { setPendingRole, setPendingInviteToken } = useAuth();
   const searchParams = useSearchParams();
   const { withAuthParams } = useAuthRedirect();
@@ -125,7 +121,7 @@ export function FacilitySignUpForm({
   const password = watch("password");
 
   useEffect(() => {
-    setPendingRole("client");
+    setPendingRole(OPERATOR_ROLE);
   }, [setPendingRole]);
 
   useEffect(() => {
@@ -206,8 +202,8 @@ export function FacilitySignUpForm({
 
       await signUpWithEmail(pending.email, data.password, pending.displayName);
 
-      posthog.identify(pending.email, { email: pending.email, role: "client" });
-      posthog.capture("user_signed_up", { method: "email", role: "client" });
+      posthog.identify(pending.email, { email: pending.email, role: OPERATOR_ROLE });
+      posthog.capture("user_signed_up", { method: "email", role: OPERATOR_ROLE });
     } catch (err) {
       const key = getAuthErrorKey(err);
       passwordForm.setError("root", { message: key ? tErrors(key) : "" });

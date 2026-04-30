@@ -32,6 +32,7 @@ import {
 import { getAuthErrorKey, signUpWithEmail } from "@/services/firebase/auth";
 import posthog from "posthog-js";
 import { MicrosoftButton } from "../components/microsoft-button";
+import { STAFF_ROLE } from "../types";
 
 type SignUpFormProps = {
   /** Called after successful sign-up instead of navigating. Use in embedded
@@ -39,7 +40,7 @@ type SignUpFormProps = {
   onSuccess?: () => void;
 };
 
-export function WorkerSignUpForm({
+export function StaffSignUpForm({
   onSuccess,
 }: SignUpFormProps) {
   const { loading: authLoading, setPendingRole, setPendingReferralCode } = useAuth();
@@ -85,7 +86,7 @@ export function WorkerSignUpForm({
 
   // Worker sign-up always creates a worker account.
   useEffect(() => {
-    setPendingRole("worker");
+    setPendingRole(STAFF_ROLE);
   }, [setPendingRole]);
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export function WorkerSignUpForm({
       posthog.identify(data.email.trim(), { email: data.email.trim(), role: "worker" });
       posthog.capture("user_signed_up", {
         method: "email",
-        role: "worker",
+        role: STAFF_ROLE,
         has_referral: !!referralCode,
       });
       // Navigation is handled by auth-provider after setSession completes.

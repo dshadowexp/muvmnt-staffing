@@ -6,7 +6,7 @@ import { createAdminClient } from "@/services/supabase/server";
 import { sendDirectEmail } from "@/features/notifications/service/send-direct";
 import { env } from "@/data/env/server";
 import { randomUUID } from "crypto";
-import type { FacilityRole } from "@/features/auth/types";
+import type { FacilityPermission } from "@/features/auth/types";
 import { assertCanAddFacilityTeamInvites } from "@/features/billing/server/entitlements";
 
 type ActionResult = { error: false; message: string } | { error: true; message: string };
@@ -53,7 +53,7 @@ export async function previewFacilityTeamInviteAction(token: string): Promise<
 /** Send one or more email invitations for a facility (DB row + email with magic link). */
 export async function sendFacilityInviteAction(
   emails: string[],
-  permission: FacilityRole,
+  permission: FacilityPermission,
 ): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };

@@ -3,8 +3,8 @@
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/logo";
-import { NavMain } from "@/app/[locale]/dashboard/_components/nav-main";
-import { NavUser } from "@/app/[locale]/dashboard/_components/nav-user";
+import { NavMain } from "@/app/[locale]/app/_components/nav-main";
+import { NavUser } from "@/app/[locale]/app/_components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -37,7 +37,7 @@ import { useAuth } from "@/features/auth/providers/auth-provider";
 import {
   dashboardAccountHrefForRole,
   dashboardAccountLabelKeyForRole,
-} from "@/app/[locale]/dashboard/_components/dashboard-account";
+} from "@/app/[locale]/app/_components/dashboard-account";
 
 export type AppSidebarAdminUser = {
   name: string;

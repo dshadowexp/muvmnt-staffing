@@ -31,10 +31,11 @@ import { getAuthErrorKey, loginWithEmail } from "@/services/firebase/auth";
 import posthog from "posthog-js";
 import { checkFacilityOperatorSignInAction } from "@/features/auth/actions";
 import { previewFacilityTeamInviteAction } from "@/features/account/actions/invite";
+import { CANDIDATE_ROLE, OPERATOR_ROLE, STAFF_ROLE } from "../types";
 
 type Step = "email" | "password";
 
-export function FacilitySignInForm() {
+export function OperatorSignInForm() {
   const { loading, setPendingRole, setPendingInviteToken } = useAuth();
   const inviteParams = useSearchParams();
   const { withAuthParams } = useAuthRedirect();
@@ -59,11 +60,11 @@ export function FacilitySignInForm() {
   >(null);
 
   const [wrongRoleHint, setWrongRoleHint] = useState<
-    "worker" | "candidate" | null
+    typeof STAFF_ROLE | typeof CANDIDATE_ROLE | null
   >(null);
 
   useEffect(() => {
-    setPendingRole("client");
+    setPendingRole(OPERATOR_ROLE);
     const tok = inviteParams.get("invite_token")?.trim() ?? null;
     setPendingInviteToken(tok);
     if (!tok) {
@@ -159,7 +160,7 @@ export function FacilitySignInForm() {
           setWrongRoleHint(outcome.hint);
           emailForm.setError("root", {
             message:
-              outcome.hint === "worker"
+              outcome.hint === STAFF_ROLE
                 ? tFlow("errors.wrongRoleWorker")
                 : tFlow("errors.wrongRoleCandidate"),
           });
@@ -305,7 +306,7 @@ export function FacilitySignInForm() {
                   />
                 </div>
 
-                {wrongRoleHint === "worker" ? (
+                {wrongRoleHint === STAFF_ROLE ? (
                   <div className="rounded-xl border border-border bg-muted/30 px-4 py-3 text-[0.82rem] text-muted-foreground">
                     <p className="font-medium text-foreground">
                       {tWrongPanel("workerTitle")}
@@ -313,7 +314,7 @@ export function FacilitySignInForm() {
                     <p className="mt-1">{tWrongPanel("workerSubtitle")}</p>
                     <div className="mt-2">
                       <Link
-                        href={withAuthParams("/sign-in/worker")}
+                        href={withAuthParams("/sign-in/staff")}
                         className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
                       >
                         {tWrongPanel("workerCta")}
@@ -322,7 +323,7 @@ export function FacilitySignInForm() {
                   </div>
                 ) : null}
 
-                {wrongRoleHint === "candidate" ? (
+                {wrongRoleHint === CANDIDATE_ROLE ? (
                   <div className="rounded-xl border border-border bg-muted/30 px-4 py-3 text-[0.82rem] text-muted-foreground">
                     <p className="font-medium text-foreground">
                       {tWrongPanel("candidateTitle")}
@@ -373,7 +374,7 @@ export function FacilitySignInForm() {
                 <p className="text-center text-[0.82rem] font-light text-muted-foreground">
                   {tNav("workerFooter.prompt")}{" "}
                   <Link
-                    href={withAuthParams("/sign-in/worker")}
+                    href={withAuthParams("/sign-in/staff")}
                     className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
                   >
                     {tNav("workerFooter.cta")}

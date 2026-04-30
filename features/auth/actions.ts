@@ -4,7 +4,7 @@ import { getAdminAuth } from "@/services/firebase/admin";
 import { findOrCreateUser } from "@/features/users/dal/mutations";
 import { acceptFacilityInviteForUser } from "@/features/account/server/accept-facility-invite";
 import { createAdminClient } from "@/services/supabase/server";
-import type { UserAuth, UserRole } from "@/features/auth/types";
+import { ADMIN_ROLE, CANDIDATE_ROLE, OPERATOR_ROLE, OperatorPermission, STAFF_ROLE, type UserAuth, type UserRole } from "@/features/auth/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -100,7 +100,7 @@ export async function exchangeFirebaseUser({
 
     const userRole = (result.role ?? "client") as UserRole;
 
-    if (userRole === "client") {
+    if (userRole === OPERATOR_ROLE) {
       const accepted = await acceptFacilityInviteForUser({
         userId: result.id,
         email,
@@ -116,9 +116,9 @@ export async function exchangeFirebaseUser({
 
     // For client users, resolve their facility + permission from the operators table
     let facilityId: string | null = null;
-    let facilityRole: import("@/features/auth/types").FacilityRole | null = null;
+    let facilityRole: OperatorPermission | null = null;
 
-    if (userRole === "client") {
+    if (userRole === OPERATOR_ROLE) {
       const supabase = await createAdminClient();
       const { data: op } = await supabase
         .from("operators")
@@ -128,7 +128,7 @@ export async function exchangeFirebaseUser({
 
       if (op) {
         facilityId = op.facility_id;
-        facilityRole = op.permission as import("@/features/auth/types").FacilityRole;
+        facilityRole = op.permission as OperatorPermission;
       }
     }
 
@@ -278,7 +278,7 @@ export type FacilityOperatorSignInCheck =
       domain: string;
     }
   | { status: "invite_pending" }
-  | { status: "wrong_role"; hint: "worker" | "candidate" }
+  | { status: "wrong_role"; hint: typeof STAFF_ROLE | typeof CANDIDATE_ROLE }
   | { status: "no_operator_access" }
   | { status: "not_found" };
 
@@ -298,13 +298,13 @@ export async function checkFacilityOperatorSignInAction(
       .maybeSingle();
 
     if (user) {
-      if (user.role === "worker") {
-        return { status: "wrong_role", hint: "worker" };
+      if (user.role === STAFF_ROLE) {
+        return { status: "wrong_role", hint: STAFF_ROLE };
       }
-      if (user.role === "candidate") {
-        return { status: "wrong_role", hint: "candidate" };
+      if (user.role === CANDIDATE_ROLE) {
+        return { status: "wrong_role", hint: CANDIDATE_ROLE };
       }
-      if (user.role !== "client" && user.role !== "admin") {
+      if (user.role !== OPERATOR_ROLE && user.role !== ADMIN_ROLE) {
         return { status: "no_operator_access" };
       }
 

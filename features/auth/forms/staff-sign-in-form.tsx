@@ -34,7 +34,7 @@ type SignInFormProps = {
   variant?: "default" | "embedded";
 };
 
-export function WorkerSignInForm({
+export function StaffSignInForm({
   variant = "default",
 }: SignInFormProps = {}) {
   const { loading } = useAuth();

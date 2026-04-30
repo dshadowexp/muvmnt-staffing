@@ -16,6 +16,6 @@ export async function generateMetadata({
   };
 }
 
-export default function SignUpClientVerifyPage() {
+export default function SignUpOperatorVerifyPage() {
   return <ClientEmailLinkVerifyForm />;
 }

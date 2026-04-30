@@ -4,11 +4,11 @@ import { useTranslations } from "next-intl";
 import {
   dashboardAccountHrefForRole,
   dashboardAccountLabelKeyForRole,
-} from "@/app/[locale]/dashboard/_components/dashboard-account";
+} from "@/app/[locale]/app/_components/dashboard-account";
 import {
   UserAccountDropdownMenuItems,
   type UserAccountMenuUser,
-} from "@/app/[locale]/dashboard/_components/user-account-dropdown-menu";
+} from "@/app/[locale]/app/_components/user-account-dropdown-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {

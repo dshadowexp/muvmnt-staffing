@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { auth } from "@/services/firebase/auth";
 import { deleteSession, setSession } from "@/lib/session";
-import { UserAuth, UserRole } from "@/features/auth/types";
+import { ADMIN_ROLE, CANDIDATE_ROLE, UserAuth, UserRole } from "@/features/auth/types";
 import { useRouter } from "@/i18n/navigation";
 import { logout } from "@/services/firebase/auth";
 import { recordReferralAction } from "@/features/referrals/actions";
@@ -291,7 +291,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     if (
                         !outcome.user.isActive &&
-                        outcome.user.role !== "candidate"
+                        outcome.user.role !== CANDIDATE_ROLE
                     ) {
                         if (!isInactiveAllowedPath(path)) {
                             router.replace("/review" as Parameters<typeof router.replace>[0]);
@@ -307,8 +307,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                                 ? redirectParam
                                 : null;
                         const defaultDest =
-                            outcome.user.role === "admin"
-                                ? "/dashboard/admin"
+                            outcome.user.role === ADMIN_ROLE
+                                ? "/admin"
                                 : "/dashboard";
                         router.push(
                             (safeParam ??

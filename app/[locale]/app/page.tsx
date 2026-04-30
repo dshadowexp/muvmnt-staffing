@@ -1,8 +1,8 @@
 import { Link, redirect } from "@/i18n/navigation";
 import { getSession } from "@/lib/get-session";
 import { getLocale } from "next-intl/server";
-import ClientHomePage from "./(client)/_page";
-import WorkerHomePage from "./(worker)/_page";
+import ClientHomePage from "./_page";
+import WorkerHomePage from "../staff/_page";
 
 export default async function DashboardPage() {
     const locale = await getLocale();

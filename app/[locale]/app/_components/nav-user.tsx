@@ -11,8 +11,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { UserAccountDropdownMenuItems } from "@/app/[locale]/dashboard/_components/user-account-dropdown-menu"
-import type { UserAccountMenuUser } from "@/app/[locale]/dashboard/_components/user-account-dropdown-menu"
+import { UserAccountDropdownMenuItems } from "@/app/[locale]/app/_components/user-account-dropdown-menu"
+import type { UserAccountMenuUser } from "@/app/[locale]/app/_components/user-account-dropdown-menu"
 import { UserAvatar } from "@/components/ui/user-avatar"
 import { EllipsisVerticalIcon } from "lucide-react"
 
