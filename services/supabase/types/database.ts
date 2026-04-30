@@ -433,6 +433,7 @@ export type Database = {
           result: string | null
           reviewed: boolean
           screening_id: string | null
+          subject: string | null
           subject_ref: Json | null
           survey: Json | null
           updated_at: string
@@ -454,6 +455,7 @@ export type Database = {
           result?: string | null
           reviewed?: boolean
           screening_id?: string | null
+          subject?: string | null
           subject_ref?: Json | null
           survey?: Json | null
           updated_at?: string
@@ -475,6 +477,7 @@ export type Database = {
           result?: string | null
           reviewed?: boolean
           screening_id?: string | null
+          subject?: string | null
           subject_ref?: Json | null
           survey?: Json | null
           updated_at?: string
