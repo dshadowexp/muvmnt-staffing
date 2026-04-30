@@ -9,6 +9,9 @@ export async function searchAddresses(
   input: string,
   sessionToken?: string,
 ): Promise<{ placeId: string; description: string; mainText: string; secondaryText: string }[]> {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+  
   const results = await getGoogleMapsClient.autocomplete(input, sessionToken);
   return results;
 }
