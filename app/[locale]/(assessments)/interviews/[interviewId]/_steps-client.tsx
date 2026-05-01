@@ -18,12 +18,13 @@ import {
   CheckCircle2Icon,
   CircleDashedIcon,
 } from "lucide-react";
+import { STAFF_ROLE, CANDIDATE_ROLE } from "@/features/auth/types";
 
 type StepKey = "photo" | "resume" | "live" | "survey";
 
 type Props = {
   interviewId: string;
-  role: "worker" | "candidate";
+  role: typeof STAFF_ROLE | typeof CANDIDATE_ROLE;
   userName: string;
   backHref: string;
   title: string;

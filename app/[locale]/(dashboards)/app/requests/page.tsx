@@ -34,7 +34,7 @@ export default async function RequestsPage() {
           {t("title")}
         </h1>
         <Link
-          href="/dashboard/requests/new"
+          href="/app/requests/new"
           prefetch={true}
           className="text-muted-foreground hover:text-foreground inline-flex w-fit shrink-0 items-center gap-2 rounded-lg border border-dashed border-border bg-muted/15 px-3 py-2 text-sm font-medium transition-colors hover:border-primary/40 hover:bg-muted/30"
         >
@@ -101,7 +101,7 @@ async function StaffRequests() {
     return (
       <Link
         className="transition-opacity block"
-        href="/dashboard/requests/new"
+        href="/app/requests/new"
         prefetch={true}
       >
         <Card className="flex h-full min-h-[8.5rem] items-center justify-center border-dashed border-3 bg-transparent shadow-none transition-colors hover:border-primary/50">

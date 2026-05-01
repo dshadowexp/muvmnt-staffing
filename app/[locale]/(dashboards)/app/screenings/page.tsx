@@ -15,7 +15,7 @@ export default async function ScreeningsPage() {
           Screenings
         </h1>
         <Link
-          href="/dashboard/screenings/new"
+          href="/app/screenings/new"
           className="text-muted-foreground hover:text-foreground inline-flex w-fit shrink-0 items-center gap-2 rounded-lg border border-dashed border-border bg-muted/15 px-3 py-2 text-sm font-medium transition-colors hover:border-primary/40 hover:bg-muted/30"
         >
           <PlusIcon className="size-4 shrink-0" aria-hidden />
@@ -54,7 +54,7 @@ async function ScreeningsList() {
 
   if (screenings.length === 0) {
     return (
-      <Link href="/dashboard/screenings/new">
+      <Link href="/app/screenings/new">
         <Card className="flex min-h-[8.5rem] items-center justify-center border-dashed border-3 bg-transparent shadow-none transition-colors hover:border-primary/50">
           <div className="text-lg flex items-center gap-2 text-muted-foreground">
             <PlusIcon className="size-6 shrink-0" aria-hidden />
@@ -70,7 +70,7 @@ async function ScreeningsList() {
       {screenings.map((s) => (
         <Link
           key={s.id}
-          href={`/dashboard/screenings/${s.id}`}
+          href={`/app/screenings/${s.id}`}
           className="hover:scale-[1.02] transition-[transform_opacity]"
         >
           <Card className="h-full">

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { SignJWT, jwtVerify } from "jose";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 const SECRET = new TextEncoder().encode(process.env.SHIFT_RESPONSE_TOKEN_SECRET!);
 /** Keep JWT valid at least through the longest policy response window + slack. */

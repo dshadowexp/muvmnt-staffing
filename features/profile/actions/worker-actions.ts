@@ -4,7 +4,7 @@ import {
   workerProfessionExperienceSchema,
   type WorkerProfileValues,
 } from "@/features/profile/schemas/worker";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { z } from "zod";
 import { getSession } from "@/lib/get-session";
 import { normalizeProfessionId } from "@/lib/professions";

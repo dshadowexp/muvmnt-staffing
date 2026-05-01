@@ -17,24 +17,23 @@ export default async function SignInPage({ searchParams }: Props) {
   const params = await searchParams;
   const locale = await getLocale();
 
-  // Direct shortcuts — e.g. /sign-in?as=worker or ?as=facility
   const as = typeof params.as === "string" ? params.as : null;
-  if (as === "worker")   redirect({ href: "/sign-in/worker", locale });
-  if (as === "facility") redirect({ href: "/sign-in/facility", locale });
+  if (as === "staff")   redirect({ href: "/sign-in/staff", locale });
+  if (as === "operator") redirect({ href: "/sign-in/operator", locale });
 
   const t = await getTranslations("auth.signIn");
 
   const roles = [
     {
-      value: "facility",
-      href: "/sign-in/facility",
+      value: "operator",
+      href: "/sign-in/operator",
       icon: Hospital,
       title: t("roleClient"),
       description: t("roleClientDescription"),
     },
     {
-      value: "worker",
-      href: "/sign-in/worker",
+      value: "staff",
+      href: "/sign-in/staff",
       icon: Stethoscope,
       title: t("roleWorker"),
       description: t("roleWorkerDescription"),

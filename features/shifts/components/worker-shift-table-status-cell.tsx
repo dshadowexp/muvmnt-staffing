@@ -88,7 +88,7 @@ export function WorkerShiftTableStatusCell({
                   return;
                 }
                 toast.success("Shift updated");
-                router.push("/dashboard/shifts");
+                router.push("/staff/shifts");
                 router.refresh();
               });
             }}

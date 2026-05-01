@@ -2,9 +2,10 @@
 
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import type { ClientProfileValues } from "@/features/account/schemas/client";
 import { mergeOptionalEmailDomain } from "@/features/account/lib/normalize-domains";
+import { isFacilityOperatorRole } from "@/features/auth/lib/facility-operator-role";
 import { toAddressJson } from "@/features/geo/lib/build-address-location";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -41,7 +42,7 @@ async function upsertFacility(
 ): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
-  if (session.role !== "client") return { error: true, message: "Not authorized" };
+  if (!isFacilityOperatorRole(session.role)) return { error: true, message: "Not authorized" };
 
   const { userId, facilityId } = session;
   const supabase = await createAdminClient();
@@ -94,9 +95,34 @@ async function upsertFacility(
     return { error: true, message: facilityError?.message ?? "Failed to create facility" };
   }
 
-  const { error: operatorError } = await supabase
+  const { data: existingOp } = await supabase
     .from("operators")
-    .insert({
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existingOp) {
+    const patch: {
+      facility_id: string;
+      first_name?: string | null;
+      last_name?: string | null;
+    } = { facility_id: facility.id };
+    const fn = operatorName?.first_name?.trim();
+    const ln = operatorName?.last_name?.trim();
+    if (fn) patch.first_name = fn;
+    if (ln) patch.last_name = ln;
+
+    const { error: operatorError } = await supabase
+      .from("operators")
+      .update(patch)
+      .eq("user_id", userId);
+
+    if (operatorError) {
+      await supabase.from("facilities").delete().eq("id", facility.id);
+      return { error: true, message: operatorError.message };
+    }
+  } else {
+    const { error: operatorError } = await supabase.from("operators").insert({
       facility_id: facility.id,
       user_id: userId,
       permission: "owner",
@@ -104,9 +130,10 @@ async function upsertFacility(
       last_name: operatorName?.last_name ?? null,
     });
 
-  if (operatorError) {
-    await supabase.from("facilities").delete().eq("id", facility.id);
-    return { error: true, message: operatorError.message };
+    if (operatorError) {
+      await supabase.from("facilities").delete().eq("id", facility.id);
+      return { error: true, message: operatorError.message };
+    }
   }
 
   return { error: false, message: "Profile saved successfully" };
@@ -128,3 +155,22 @@ export const updateFacilityProfileAction = createFacilityAction;
 export const createClientAction = createFacilityAction;
 /** @deprecated Use updateFacilityProfileAction */
 export const updateClientProfileAction = updateFacilityProfileAction;
+
+/** Sidebar: current operator's facility display name (session-scoped). */
+export async function getOperatorFacilityNameAction(): Promise<{
+  name: string | null;
+}> {
+  const session = await getSession();
+  if (!session?.facilityId) return { name: null };
+
+  const supabase = await createAdminClient();
+  const { data, error } = await supabase
+    .from("facilities")
+    .select("name")
+    .eq("id", session.facilityId)
+    .maybeSingle();
+
+  if (error) return { name: null };
+  const name = data?.name?.trim();
+  return { name: name || null };
+}

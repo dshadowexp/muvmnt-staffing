@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { gridRing } from "h3-js";
 
 const H3_K = 5;

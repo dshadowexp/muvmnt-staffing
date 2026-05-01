@@ -2,8 +2,8 @@
 
 // Admin-only interview queries (no user_id ownership check)
 
-import { createAdminClient } from "@/services/supabase/server";
-import { Json } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import { Json } from "@/supabase/types/database";
 
 export type AdminInterviewRow = {
   id: string;

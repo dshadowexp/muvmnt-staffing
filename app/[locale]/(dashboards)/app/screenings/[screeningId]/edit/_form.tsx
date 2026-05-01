@@ -19,7 +19,7 @@ export function EditScreeningForm({ screening }: Props) {
       return;
     }
     toast.success("Screening updated");
-    router.push(`/dashboard/screenings/${screening.id}`);
+    router.push(`/app/screenings/${screening.id}`);
   }
 
   return (

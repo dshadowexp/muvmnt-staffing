@@ -30,14 +30,6 @@ import { latLngToCell } from "h3-js";
 import { H3_RESOLUTION, PROFESSIONAL_ROLES } from "@/lib/constants";
 import { normalizeProfessionId } from "@/lib/professions";
 
-/**
- * sessionStorage key read by `/dashboard/requests/new` to prefill the schedule a
- * logged-out user filled out on the landing page (so nothing is lost across
- * the sign-in / sign-up bounce).
- *
- * Same shape as `StaffRequestScheduleValues` but with `Date`s serialized to
- * ISO strings so JSON round-trips cleanly.
- */
 export const PENDING_STAFF_REQUEST_KEY = "readykare:pending-staff-request";
 
 export type PendingScheduleRequest = {
@@ -58,17 +50,6 @@ type FindStaffFormProps = {
     onProfessionChange: (profession: string) => void;
 };
 
-/**
- * Public landing form. We don't preemptively bounce visitors to sign-up — the
- * submit path is identical to the in-app wizard:
- *
- *  - Authenticated client → create the draft right here, jump to step 2.
- *  - Anonymous (or wrong role) → stash the schedule in sessionStorage and
- *    navigate to `/dashboard/requests/new`. Middleware then handles the auth
- *    redirect (preserving `?redirect=/dashboard/requests/new`), so the user lands
- *    on the wizard step they expected after authenticating — sign-in or
- *    sign-up, whichever they chose.
- */
 function FindStaffForm({ jobProfile, onProfessionChange }: FindStaffFormProps) {
     const router = useRouter();
     const { authUser } = useAuth();
@@ -77,7 +58,7 @@ function FindStaffForm({ jobProfile, onProfessionChange }: FindStaffFormProps) {
     const tProf = useTranslations("professions");
     const cellIdRef = useRef<string | null>(null);
 
-    const isClient = authUser?.role === "client";
+    const isOperator = authUser?.role === "operator";
 
     return (
         <div className="flex flex-col gap-6">
@@ -134,9 +115,9 @@ function FindStaffForm({ jobProfile, onProfessionChange }: FindStaffFormProps) {
                         ),
                     };
 
-                    if (isClient) {
+                    if (isOperator) {
                         router.push(
-                            `/dashboard/requests/new` as Parameters<
+                            `/app/requests/new` as Parameters<
                                 typeof router.push
                             >[0],
                         );
@@ -156,7 +137,7 @@ function FindStaffForm({ jobProfile, onProfessionChange }: FindStaffFormProps) {
                     
                     
                     router.push(
-                        "/sign-up/client?redirect=/dashboard/requests/new" as Parameters<typeof router.push>[0],
+                        "/sign-up/operator?redirect=/app/requests/new" as Parameters<typeof router.push>[0],
                     );
                 }}
             />

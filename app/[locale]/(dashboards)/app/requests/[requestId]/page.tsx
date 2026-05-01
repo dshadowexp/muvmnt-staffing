@@ -18,7 +18,7 @@ export default async function StaffRequestPage({
   const locale = await getLocale();
   const { requestId: id } = await params;
   const session = await getSession();
-  if (!session) return redirect({ href: "/dashboard", locale });
+  if (!session) return redirect({ href: "/app", locale });
 
 
   const resume = await getStaffRequest(id);

@@ -105,7 +105,7 @@ export function StaffSignUpForm({
   async function handleSubmit(data: SignUpValues) {
     try {
       await signUpWithEmail(data.email.trim(), data.password);
-      posthog.identify(data.email.trim(), { email: data.email.trim(), role: "worker" });
+      posthog.identify(data.email.trim(), { email: data.email.trim(), role: STAFF_ROLE });
       posthog.capture("user_signed_up", {
         method: "email",
         role: STAFF_ROLE,
@@ -203,7 +203,7 @@ export function StaffSignUpForm({
             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
               {t("haveAccount")}{" "}
               <Link
-                href={withAuthParams("/sign-in/worker")}
+                href={withAuthParams("/sign-in/staff")}
                 className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
               >
                 {t("signIn")}

@@ -1329,6 +1329,8 @@
       "authorization": "Autorisation",
       "interviews": "Entretiens",
       "clients": "Clients",
+      "facilities": "Établissements",
+      "operators": "Opérateurs",
       "workers": "Travailleurs",
       "settings": "Paramètres",
       "getHelp": "Obtenir de l'aide",
@@ -1337,7 +1339,8 @@
       "referAndEarn": "Parrainer et gagner",
       "referrals": "Parrainages",
       "feedback": "Commentaires",
-      "loading": "Chargement…"
+      "loading": "Chargement…",
+      "facilityFallback": "Organisation"
     },
     "accountMenu": {
       "accountLabel": "Compte",
@@ -1716,8 +1719,10 @@
         "quickActionsTitle": "Actions rapides",
         "quickActionsSubtitle": "Créer une demande ou inviter des personnes sur la plateforme.",
         "metrics": {
-          "clients": "Clients",
-          "clientsDescription": "Total des organisations",
+          "facilities": "Établissements",
+          "facilitiesDescription": "Total des organisations",
+          "operators": "Opérateurs",
+          "operatorsDescription": "Comptes opérateurs d'établissement",
           "workers": "Travailleurs",
           "workersDescription": "Professionnels inscrits",
           "balance": "Solde",
@@ -1736,41 +1741,41 @@
         "recentAuthorizationDescription": "Nouveaux documents d'autorisation",
         "recentCompliance": "Conformité récente",
         "recentComplianceDescription": "Documents de conformité récemment téléversés",
-        "recentClients": "Clients récents",
-        "recentClientsDescription": "Organisations sur la plateforme",
+        "recentFacilities": "Établissements récents",
+        "recentFacilitiesDescription": "Organisations sur la plateforme",
         "recentWorkers": "Travailleurs récents",
         "recentWorkersDescription": "Derniers profils inscrits",
         "recentJobs": "Offres récentes",
-        "recentJobsDescription": "Demandes de personnel des clients"
+        "recentJobsDescription": "Demandes de personnel des établissements"
       },
       "actions": {
         "createRequest": {
           "title": "Créer une demande",
-          "description": "Créez une nouvelle demande de personnel au nom d'un client."
+          "description": "Créez une nouvelle demande de personnel au nom d'un établissement."
         },
         "inviteWorker": {
           "title": "Inviter un travailleur",
           "description": "Envoyez un courriel à un professionnel de la santé ou collez une liste pour en inviter plusieurs à la fois."
         },
-        "inviteClient": {
-          "title": "Inviter un client",
-          "description": "Envoyez une invitation d'intégration personnelle à un contact client."
+        "inviteFacility": {
+          "title": "Inviter un établissement",
+          "description": "Envoyez une invitation d'intégration personnelle à un contact d'établissement."
         }
       },
       "createRequestDialog": {
         "title": "Créer une demande",
-        "description": "Choisissez le client pour qui cette demande de personnel est créée.",
-        "clientLabel": "Client",
-        "searchPlaceholder": "Rechercher des clients…",
-        "empty": "Aucun client trouvé.",
+        "description": "Choisissez l'établissement pour qui cette demande de personnel est créée.",
+        "facilityLabel": "Établissement",
+        "searchPlaceholder": "Rechercher des établissements…",
+        "empty": "Aucun établissement trouvé.",
         "cancel": "Annuler",
         "continue": "Continuer"
       },
-      "inviteClient": {
-        "title": "Inviter un client",
-        "description": "Envoyez une invitation personnelle à l’intégration. Un lien permettra de terminer l’inscription client.",
-        "descriptionIndividual": "La personne configurera un profil client particulier.",
-        "descriptionOrganization": "La personne configurera un profil d’organisation et choisira le type d’établissement.",
+      "inviteFacility": {
+        "title": "Inviter un établissement",
+        "description": "Envoyez une invitation personnelle à l'intégration. Un lien permettra de terminer l'inscription de l'établissement.",
+        "descriptionIndividual": "La personne configurera un profil particulier.",
+        "descriptionOrganization": "La personne configurera un profil d'organisation et choisira le type d'établissement.",
         "accountKindLabel": "Type de compte",
         "accountKindPlaceholder": "Sélectionner le type de compte",
         "accountKindIndividual": "Particulier",
@@ -1818,7 +1823,7 @@
       "lists": {
         "requests": {
           "title": "Demandes",
-          "subtitle": "Toutes les demandes de personnel créées par les clients.",
+          "subtitle": "Toutes les demandes de personnel créées par les établissements.",
           "empty": "Aucune demande pour le moment"
         },
         "shifts": {
@@ -1840,6 +1845,16 @@
           "title": "Clients",
           "subtitle": "Toutes les organisations sur la plateforme.",
           "empty": "Aucun client pour le moment"
+        },
+        "facilities": {
+          "title": "Établissements",
+          "subtitle": "Toutes les organisations sur la plateforme.",
+          "empty": "Aucun établissement pour le moment"
+        },
+        "operators": {
+          "title": "Opérateurs",
+          "subtitle": "Comptes opérateurs d'établissement sur la plateforme.",
+          "empty": "Aucun opérateur pour le moment"
         },
         "workers": {
           "title": "Travailleurs",

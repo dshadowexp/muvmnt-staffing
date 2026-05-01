@@ -240,7 +240,7 @@ export function NewStaffRequestForm({
                         return;
                     }
                     router.push(
-                        `/dashboard/requests/${result.requestId}/pricing` as Parameters<
+                        `/app/requests/${result.requestId}/pricing` as Parameters<
                             typeof router.push
                         >[0],
                     );
@@ -288,7 +288,7 @@ export function NewStaffRequestPageClient({
         <div className="w-full max-w-4xl mx-auto space-y-6">
             
             <div className="space-y-6">
-                <BackLink backHref="/dashboard/requests" title={backTitle} />
+                <BackLink backHref="/app/requests" title={backTitle} />
                 
                 <StaffRequestJobProfileSettingsRow
                     profession={jobProfile.profession}

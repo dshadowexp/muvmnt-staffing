@@ -2,9 +2,10 @@
 
 import type Stripe from "stripe";
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getStripeServer } from "@/services/stripe/server";
 import { env } from "@/data/env/server";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 /**
  * Reconciles the Supabase user row when Firebase already has a verified
@@ -51,7 +52,7 @@ export async function createIdentityVerificationSession(): Promise<
 > {
     const authSession = await getSession();
     if (!authSession) return { error: "Unauthenticated" };
-    if (authSession.role !== "worker") return { error: "Unauthorized" };
+    if (authSession.role !== STAFF_ROLE) return { error: "Unauthorized" };
 
     const userId = authSession.userId;
     const supabase = await createAdminClient();
@@ -118,7 +119,7 @@ export async function createIdentityVerificationSession(): Promise<
         verificationSession = await getStripeServer().identity.verificationSessions.create({
             type: "document",
             client_reference_id: userId,
-            return_url: `${env.APP_URL}/dashboard/compliance`,
+            return_url: `${env.APP_URL}/staff/compliance`,
             metadata: { user_id: userId },
         });
     } catch (err) {

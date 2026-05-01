@@ -1,5 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import {
   type OnboardingStepsJson,
   parseOnboardingSteps,

@@ -1,4 +1,4 @@
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 
 const CARD_BRAND_LABELS: Record<string, string> = {
   visa: "Visa",

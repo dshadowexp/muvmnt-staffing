@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/get-session";
 import { getFacilityProfile } from "@/features/profile/dal/queries";
 import { getCurrentUser } from "@/features/users/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { env } from "@/data/env/server";
 import { sendDirectEmail } from "@/features/notifications/service/send-direct";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
@@ -26,6 +26,7 @@ import {
   assertCanCreateScreening,
   assertCanSendScreeningInvites,
 } from "@/features/billing/server/entitlements";
+import { OPERATOR_ROLE } from "../auth/types";
 
 // ─── Create screening ─────────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ export async function createScreeningAction(data: {
   require_identity: boolean;
 }): Promise<{ error: true; message: string } | { error: false; id: string }> {
   const session = await getSession();
-  if (!session || session.role !== "client") {
+  if (!session || session.role !== OPERATOR_ROLE) {
     return { error: true, message: "Not authorized" };
   }
 
@@ -72,7 +73,7 @@ export async function createScreeningAction(data: {
       allowed_languages: data.allowed_languages,
       require_identity: data.require_identity,
     });
-    revalidatePath("/dashboard/screenings");
+    revalidatePath("/app/screenings");
     return { error: false, id: screening.id };
   } catch (e) {
     return {
@@ -89,7 +90,7 @@ export async function updateScreeningStatusAction(
   status: "active" | "paused" | "closed",
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
-  if (!session || session.role !== "client") {
+  if (!session || session.role !== OPERATOR_ROLE) {
     return { error: true, message: "Not authorized" };
   }
 
@@ -98,8 +99,8 @@ export async function updateScreeningStatusAction(
 
   try {
     await updateScreeningStatus(screeningId, facility.id, status);
-    revalidatePath(`/dashboard/screenings/${screeningId}`);
-    revalidatePath("/dashboard/screenings");
+    revalidatePath(`/app/screenings/${screeningId}`);
+    revalidatePath("/app/screenings");
     return { error: false };
   } catch (e) {
     return {
@@ -123,7 +124,7 @@ export async function updateScreeningAction(
   },
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
-  if (!session || session.role !== "client") {
+  if (!session || session.role !== OPERATOR_ROLE) {
     return { error: true, message: "Not authorized" };
   }
 
@@ -132,8 +133,8 @@ export async function updateScreeningAction(
 
   try {
     await updateScreening(screeningId, facility.id, data);
-    revalidatePath(`/dashboard/screenings/${screeningId}`);
-    revalidatePath(`/dashboard/screenings/${screeningId}/edit`);
+    revalidatePath(`/app/screenings/${screeningId}`);
+    revalidatePath(`/app/screenings/${screeningId}/edit`);
     return { error: false };
   } catch (e) {
     return {
@@ -231,7 +232,7 @@ export async function sendScreeningInviteAction(
   email: string,
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
-  if (!session || session.role !== "client") {
+  if (!session || session.role !== OPERATOR_ROLE) {
     return { error: true, message: "Not authorized" };
   }
 
@@ -258,7 +259,7 @@ export async function sendScreeningInviteAction(
       throw err;
     });
     await deliverScreeningInviteNotifications(screening, facility, invite);
-    revalidatePath(`/dashboard/screenings/${screeningId}`);
+    revalidatePath(`/app/screenings/${screeningId}`);
     return { error: false };
   } catch (e) {
     return {
@@ -281,7 +282,7 @@ export async function sendScreeningInvitesBatchAction(
   rawEmails: string[],
 ): Promise<{ error: true; message: string } | { error: false; results: ScreeningInviteBatchResultItem[] }> {
   const session = await getSession();
-  if (!session || session.role !== "client") {
+  if (!session || session.role !== OPERATOR_ROLE) {
     return { error: true, message: "Not authorized" };
   }
 
@@ -347,7 +348,7 @@ export async function sendScreeningInvitesBatchAction(
     }
   }
 
-  revalidatePath(`/dashboard/screenings/${screeningId}`);
+  revalidatePath(`/app/screenings/${screeningId}`);
   return {
     error: false,
     results: normalizedOrder.map((email) => resultsByEmail.get(email)!),
@@ -361,7 +362,7 @@ export async function revokeScreeningInviteAction(
   inviteId: string,
 ): Promise<{ error: true; message: string } | { error: false }> {
   const session = await getSession();
-  if (!session || session.role !== "client") {
+  if (!session || session.role !== OPERATOR_ROLE) {
     return { error: true, message: "Not authorized" };
   }
 
@@ -398,6 +399,6 @@ export async function revokeScreeningInviteAction(
 
   if (error) return { error: true, message: error.message };
 
-  revalidatePath(`/dashboard/screenings/${screeningId}`);
+  revalidatePath(`/app/screenings/${screeningId}`);
   return { error: false };
 }

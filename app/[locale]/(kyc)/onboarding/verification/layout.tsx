@@ -2,7 +2,7 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
 import { requireOnboardingStepAccess } from "@/features/onboarding/server/require-step-access";
-import type { UserRole } from "@/features/auth/types";
+import { OPERATOR_ROLE, STAFF_ROLE, type UserRole } from "@/features/auth/types";
 
 export default async function VerificationStepLayout({
   children,
@@ -14,8 +14,8 @@ export default async function VerificationStepLayout({
   if (!session) return redirect({ href: "/sign-in", locale });
 
   const role = session.role as UserRole;
-  if (role !== "worker" && role !== "client") {
-    return redirect({ href: "/onboarding", locale });
+  if (role !== STAFF_ROLE && role !== OPERATOR_ROLE) {
+    return redirect({ href: "/", locale });
   }
 
   await requireOnboardingStepAccess(role, "verification");

@@ -1,5 +1,5 @@
-import { createAdminClient } from "@/services/supabase/server";
-import type { Json } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Json } from "@/supabase/types/database";
 
 export type QuizInsert = {
   user_id: string;

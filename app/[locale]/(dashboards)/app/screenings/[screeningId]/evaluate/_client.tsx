@@ -499,7 +499,7 @@ export function EvaluateClient({ screening, candidates }: Props) {
       {/* Top bar — fixed height, never scrolls */}
       <div className="flex shrink-0 items-center gap-3 border-b px-5 py-3">
         <BackLink
-          backHref={`/dashboard/screenings/${screening.id}`}
+          backHref={`/app/screenings/${screening.id}`}
           title={screening.title}
         />
       </div>

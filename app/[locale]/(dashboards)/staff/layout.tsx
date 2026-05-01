@@ -1,13 +1,47 @@
-import { redirect } from "@/i18n/navigation";
+import { PushTokenRegistrar } from "@/features/notifications/components/push-token-registrar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/lib/get-session";
+import { getWorkerProfile } from "@/features/profile/dal/queries";
+import { resolveWorkerPhotoSrc } from "@/features/shifts/lib/resolve-worker-photo-url";
+import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { STAFF_ROLE } from "@/features/auth/types";
+import { AppSidebar } from "./_components/app-sidebar";
+import { SiteHeader } from "./_components/site-header";
 
-export default async function WorkerDashboardLayout({ children }: { children: React.ReactNode }) {
+const shellStyle = {
+    "--sidebar-width": "calc(var(--spacing) * 72)",
+    "--header-height": "calc(var(--spacing) * 12)",
+} as React.CSSProperties;
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const locale = await getLocale();
     const session = await getSession();
+    if (!session || session?.role !== STAFF_ROLE) return redirect({ href: "/sign-in", locale });
+    let avatarSrc: string | null = null;
+    let displayName: string | null = null;
+    let workerStage: string | null = null;
 
-    if (session?.role !== STAFF_ROLE) return redirect({ href: "/dashboard", locale });
+    const profile = await getWorkerProfile();
+    avatarSrc = await resolveWorkerPhotoSrc(profile?.photo_url);
+    displayName = profile?.first_name + ' ' + profile?.last_name;;
+    workerStage = profile?.stage ?? null;
 
-    return <>{children}</>;
+    return (
+        <SidebarProvider
+            style={shellStyle}
+            className="h-svh min-h-0 overflow-hidden"
+        >
+            <PushTokenRegistrar />
+            <AppSidebar variant="sidebar" avatarSrc={avatarSrc} displayName={displayName} workerStage={workerStage} />
+            <SidebarInset className="min-h-0 flex-1 overflow-hidden">
+                <SiteHeader avatarSrc={avatarSrc} displayName={displayName} />
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain has-[[data-full-bleed]]:overflow-hidden">
+                    <div className="@container/main flex w-full min-w-0 flex-1 flex-col items-center gap-6 px-4 pb-10 pt-4 md:px-6 md:pt-5 has-[[data-full-bleed]]:items-stretch has-[[data-full-bleed]]:gap-0 has-[[data-full-bleed]]:p-0 has-[[data-full-bleed]]:overflow-hidden">
+                        {children}
+                    </div>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
+    );
 }

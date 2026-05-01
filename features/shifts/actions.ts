@@ -13,6 +13,7 @@ import {
 } from "./server/worker-actions";
 import { completeClientShift } from "./server/client-actions";
 import { rateClientShift, tipClientShift } from "./server/review";
+import { OPERATOR_ROLE, STAFF_ROLE } from "../auth/types";
 
 type ShiftActionResult = { error: string | null };
 
@@ -22,7 +23,7 @@ async function requireWorker(): Promise<
 > {
     const session = await getSession();
     if (!session?.token) return { ok: false, error: "You must be signed in." };
-    if (session.role !== "worker") {
+    if (session.role !== STAFF_ROLE) {
         return {
             ok: false,
             error: "Only workers can update shifts from this page.",
@@ -37,7 +38,7 @@ async function requireClient(): Promise<
 > {
     const session = await getSession();
     if (!session?.token) return { ok: false, error: "You must be signed in." };
-    if (session.role !== "client") {
+    if (session.role !== OPERATOR_ROLE) {
         return {
             ok: false,
             error: "Only clients can update shifts from this page.",

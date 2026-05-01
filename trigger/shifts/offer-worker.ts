@@ -1,7 +1,7 @@
 import { logger, task, tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { env } from "@/data/env/server";
 import { findFirstAvailableWorker } from "@/features/requests/server/matching";
 import type { InsertedWorkerShift } from "@/features/requests/server/shifts";
@@ -256,7 +256,7 @@ export const offerWorkerTask = task({
                     template: "shift-assigned",
                     data: {
                         count:    1,
-                        link:     `${env.APP_URL}/dashboard/shifts/requests/${shiftRow.request_id}`,
+                        link:     `${env.APP_URL}/staff/shifts/requests/${shiftRow.request_id}`,
                         deadline: window.deadlineFormatted,
                     },
                 },

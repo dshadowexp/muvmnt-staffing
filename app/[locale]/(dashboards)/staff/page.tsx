@@ -13,7 +13,7 @@ import {
 import {
   getWorkerPendingActions,
   type WorkerPendingAction,
-} from "@/features/workers/dal/queries";
+} from "@/features/staff/dal/queries";
 import { ShiftRequestCardsSkeleton, WorkerPendingShiftRequestCards } from "@/features/shifts/components/worker-pending-shift-request-cards";
 import { redirect } from "@/i18n/navigation";
 import {
@@ -38,7 +38,7 @@ import {
 import { startOfDay, endOfDay } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { Link } from "@/i18n/navigation";
-import { WorkerStageStrip } from "@/features/workers/components/worker-stage-strip";
+import { WorkerStageStrip } from "@/features/staff/components/worker-stage-strip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { LockedShiftSection } from "./_locked-shift-section";
 
@@ -123,7 +123,7 @@ async function TodayShifts({ workerId }: { workerId: string }) {
       </p>
       {todayShifts.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-border">
-          <ShiftsTable rows={todayShifts} variant="worker" />
+          <ShiftsTable rows={todayShifts} variant="staff" />
         </div>
       )}
     </>

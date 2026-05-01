@@ -8,17 +8,9 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { getSession } from "@/lib/get-session";
-
-function dashboardHomeHref(role: string | undefined): string {
-    if (role) return "/dashboard";
-    return "/";
-}
 
 export default async function DashboardNotFound() {
     const t = await getTranslations("notFound.dashboard");
-    const session = await getSession();
-    const href = dashboardHomeHref(session?.role);
 
     return (
         <div className="flex min-h-[min(60vh,32rem)] w-full flex-1 items-center justify-center py-12">
@@ -34,7 +26,7 @@ export default async function DashboardNotFound() {
                 </CardHeader>
                 <CardContent>
                     <Button asChild variant="default" className="w-full">
-                        <Link href={href}>{t("backDashboard")}</Link>
+                        <Link href="/app">{t("backDashboard")}</Link>
                     </Button>
                 </CardContent>
             </Card>

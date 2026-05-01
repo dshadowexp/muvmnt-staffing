@@ -3,9 +3,6 @@ import {
     User,
     CreditCard,
     Building2,
-    ShieldCheck,
-    MapPin,
-    CalendarClock,
 } from "lucide-react";
 import { UserRole } from "@/features/auth/types";
 import { MultistepFormStep } from "@/hooks/use-multistep-form";
@@ -76,8 +73,8 @@ const clientSteps: MultistepFormStep[] = [
 // ─── Step registry ────────────────────────────────────────────────────────────
 
 export const STEPS_BY_ROLE: Record<UserRole, MultistepFormStep[]> = {
-    worker:    workerSteps,
-    client:    clientSteps,
+    staff:    workerSteps,
+    operator:    clientSteps,
     admin:     [],
     candidate: [],
 }

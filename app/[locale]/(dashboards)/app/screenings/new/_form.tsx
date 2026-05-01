@@ -17,7 +17,7 @@ export function NewScreeningForm() {
       return;
     }
     toast.success("Screening created");
-    router.push(`/dashboard/screenings/${result.id}`);
+    router.push(`/app/screenings/${result.id}`);
   }
 
   return (

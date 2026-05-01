@@ -7,7 +7,7 @@ import {
 } from "@/features/admin/components/admin-metric-cards";
 import { AdminActions } from "@/features/admin/components/admin-actions";
 import {
-  getAdminClientsList,
+  getAdminFacilitiesList,
   getAdminDashboardSnapshot,
 } from "@/features/admin/dal/queries";
 
@@ -37,21 +37,29 @@ function formatBalance(cents: number, currency: string): string {
 const NUMBER_FORMATTER = new Intl.NumberFormat("en-CA");
 
 export default async function AdminDashboardPage() {
-  const [d, clients, t, tNav] = await Promise.all([
+  const [d, facilities, t, tNav] = await Promise.all([
     getAdminDashboardSnapshot(),
-    getAdminClientsList(500),
+    getAdminFacilitiesList(500),
     getTranslations("dashboard.admin.home"),
     getTranslations("dashboard.admin.home.metrics"),
   ]);
 
   const metrics: AdminMetric[] = [
     {
-      label: tNav("clients"),
-      value: NUMBER_FORMATTER.format(d.clientCount),
-      description: tNav("clientsDescription"),
-      icon: AdminMetricIcons.clients,
-      href: "/admin/clients",
+      label: tNav("facilities"),
+      value: NUMBER_FORMATTER.format(d.facilityCount),
+      description: tNav("facilitiesDescription"),
+      icon: AdminMetricIcons.facilities,
+      href: "/admin/facilities",
       tone: "indigo",
+    },
+    {
+      label: tNav("operators"),
+      value: NUMBER_FORMATTER.format(d.operatorCount),
+      description: tNav("operatorsDescription"),
+      icon: AdminMetricIcons.operators,
+      href: "/admin/operators",
+      tone: "violet",
     },
     {
       label: tNav("workers"),
@@ -86,7 +94,7 @@ export default async function AdminDashboardPage() {
     },
   ];
 
-  const actionClients = clients.map((c) => ({ id: c.id, name: c.name }));
+  const actionFacilities = facilities.map((f) => ({ id: f.id, name: f.name }));
 
   return (
     <div className="flex w-full flex-col gap-8">
@@ -108,7 +116,7 @@ export default async function AdminDashboardPage() {
             {t("quickActionsSubtitle")}
           </p>
         </div>
-        <AdminActions clients={actionClients} />
+        <AdminActions facilities={actionFacilities} />
       </div>
     </div>
   );

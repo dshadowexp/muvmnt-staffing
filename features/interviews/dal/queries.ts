@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
-import type { Database } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Database } from "@/supabase/types/database";
 import { redirect } from "next/navigation";
 
 export type InterviewRow = Database["public"]["Tables"]["interviews"]["Row"];

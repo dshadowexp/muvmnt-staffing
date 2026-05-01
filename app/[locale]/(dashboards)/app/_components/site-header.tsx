@@ -2,13 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import {
-  dashboardAccountHrefForRole,
-  dashboardAccountLabelKeyForRole,
-} from "@/app/[locale]/app/_components/dashboard-account";
-import {
   UserAccountDropdownMenuItems,
   type UserAccountMenuUser,
-} from "@/app/[locale]/app/_components/user-account-dropdown-menu";
+} from "./user-account-dropdown-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -21,7 +17,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
-import { InstallPrompt } from "@/features/notifications/components/install-prompt";
 import { FeedbackIcon } from "@/features/feedback/components/feedback-icon";
 import { controlIconButtonClassName } from "@/components/control-trigger";
 
@@ -37,8 +32,8 @@ export function SiteHeader({ menuUser: menuUserProp, avatarSrc, displayName }: S
   const { authUser, firebaseUser, loading } = useAuth();
   const tAccount = useTranslations("dashboard.accountMenu");
   const role = authUser?.role ?? null;
-  const accountHref = dashboardAccountHrefForRole(role);
-  const accountLabel = tAccount(dashboardAccountLabelKeyForRole(role));
+  const accountHref = "/app/account";
+  const accountLabel = tAccount("accountLabel");
 
   const menuUser: UserAccountMenuUser =
     menuUserProp ??
@@ -89,11 +84,7 @@ export function SiteHeader({ menuUser: menuUserProp, avatarSrc, displayName }: S
               align="end"
               sideOffset={8}
             >
-              <UserAccountDropdownMenuItems
-                user={menuUser}
-                accountHref={accountHref}
-                accountLabel={accountLabel}
-              />
+              <UserAccountDropdownMenuItems />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

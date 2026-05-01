@@ -439,7 +439,7 @@ export function OperatorSignUpForm() {
             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
               {t("lookingForWork")}{" "}
               <Link
-                href={withAuthParams("/sign-up/worker")}
+                href={withAuthParams("/sign-up/staff")}
                 className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
               >
                 {t("joinOurNetwork")}

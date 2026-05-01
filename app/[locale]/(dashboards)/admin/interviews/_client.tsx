@@ -146,7 +146,7 @@ export function AdminInterviewsClient({ interviews }: Props) {
   const router = useRouter();
 
   function goToReview(id: string) {
-    router.push(`/dashboard/admin/interviews/${id}` as Parameters<typeof router.push>[0]);
+    router.push(`/admin/interviews/${id}` as Parameters<typeof router.push>[0]);
   }
 
   return (

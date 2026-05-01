@@ -4,11 +4,11 @@ import ffmpeg from "fluent-ffmpeg";
 import * as fs from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { s3Api } from "@/services/s3/api";
 import { analyzeInterviewVideoBuffer } from "@/services/ai/interviews/video-analysis";
 import { tryAutoReview } from "@/features/interviews/services/auto-review";
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 import { Readable } from "stream";
 
 const payloadSchema = z.object({

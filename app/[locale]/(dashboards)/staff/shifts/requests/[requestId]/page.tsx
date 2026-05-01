@@ -13,7 +13,7 @@ export default async function WorkerShiftsRequestsRequestIdPage({
   const locale = await getLocale();
   const { requestId: id } = await params;
   const session = await getSession();
-  if (!session) return redirect({ href: "/dashboard", locale });
+  if (!session) return redirect({ href: "/staff", locale });
   const workerId = await getWorkerIdByUserId(session.userId);
   if (!workerId) notFound();
   return <StaffRequestWorkerDetail requestId={id} workerId={workerId} />;

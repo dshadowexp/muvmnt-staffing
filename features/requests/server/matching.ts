@@ -1,7 +1,7 @@
 import "server-only";
 
 import { gridDiskDistances } from "h3-js";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { H3_K } from "@/lib/constants";
 import {
     PRICING_TIER_CREDENTIALED,

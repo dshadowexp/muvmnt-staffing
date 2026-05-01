@@ -12,7 +12,7 @@ export function getOnboardingResumeRoute(
   completion: OnboardingStepsJson,
 ): string {
   const allSteps = STEPS_BY_ROLE[role];
-  if (!allSteps.length) return `/dashboard`;
+  if (!allSteps.length) return `/onboarding`;
 
   for (const step of allSteps) {
     if (completion[step.id]?.completed === true) continue;

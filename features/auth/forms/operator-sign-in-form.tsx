@@ -344,7 +344,7 @@ export function OperatorSignInForm() {
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-3">
                       <Link
-                        href={withAuthParams("/sign-up/client")}
+                        href={withAuthParams("/sign-up/operator")}
                         className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
                       >
                         {tSignUp("getStartedFree")}
@@ -364,7 +364,7 @@ export function OperatorSignInForm() {
                 <p className="text-center text-[0.82rem] font-light text-muted-foreground">
                   {tNav("noAccount")}{" "}
                   <Link
-                    href={withAuthParams("/sign-up/client")}
+                    href={withAuthParams("/sign-up/operator")}
                     className="font-semibold text-primary no-underline transition-colors hover:text-primary/80"
                   >
                     {tNav("signUpFree")}

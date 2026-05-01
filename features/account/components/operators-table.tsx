@@ -41,7 +41,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import type { OperatorRow, PendingInviteRow } from "@/features/account/dal/queries";
-import type { FacilityPermission } from "@/features/auth/types";
+import type { OperatorPermission } from "@/features/auth/types";
 import {
   sendFacilityInviteAction,
   leaveTeamAction,
@@ -59,21 +59,21 @@ function initials(email: string | null): string {
     .join("");
 }
 
-const ROLE_LABELS: Record<FacilityPermission, string> = {
+const ROLE_LABELS: Record<OperatorPermission, string> = {
   owner: "Owner",
   manager: "Manager",
   member: "Member",
   viewer: "Viewer",
 };
 
-const ROLE_COLORS: Record<FacilityPermission, string> = {
+const ROLE_COLORS: Record<OperatorPermission, string> = {
   owner: "bg-primary/10 text-primary border-primary/20",
   manager: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
   member: "bg-muted text-muted-foreground border-border",
   viewer: "bg-muted text-muted-foreground border-border",
 };
 
-function RoleBadge({ role }: { role: FacilityPermission }) {
+function RoleBadge({ role }: { role: OperatorPermission }) {
   return (
     <Badge
       variant="outline"
@@ -96,7 +96,7 @@ function InviteModal({
   onSuccess: () => void;
 }) {
   const [emails, setEmails] = useState<string[]>([""]);
-  const [role, setRole] = useState<FacilityPermission>("member");
+  const [role, setRole] = useState<OperatorPermission>("member");
   const [isPending, startTransition] = useTransition();
 
   function addEmailField() {
@@ -150,7 +150,7 @@ function InviteModal({
           {/* Role */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium w-full">Role</label>
-            <Select value={role} onValueChange={(v) => setRole(v as FacilityPermission)}>
+            <Select value={role} onValueChange={(v) => setRole(v as OperatorPermission)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -420,7 +420,7 @@ export function OperatorsTable({
                               </div>
                             </td>
                             <td className="px-4 py-3 w-28">
-                              <RoleBadge role={invite.permission as FacilityPermission} />
+                              <RoleBadge role={invite.permission as OperatorPermission} />
                             </td>
                             <td className="px-4 py-3 w-12 text-right">
                               <Button

@@ -5,7 +5,7 @@ import {
   getDefaultPaymentMethodSummaryForFacility,
   listStripeInvoicesForFacility,
 } from "@/features/billing/dal/payment-methods";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { BillingPanel } from "./_client";
 import { getLocale, getTranslations } from "next-intl/server";
 

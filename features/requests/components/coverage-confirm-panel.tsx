@@ -96,7 +96,7 @@ export function CoverageConfirmPanel({
     function handleBackToPricing() {
         startBackTransition(() => {
             router.push(
-                `/dashboard/requests/${requestId}/pricing` as Parameters<
+                `/app/requests/${requestId}/pricing` as Parameters<
                     typeof router.push
                 >[0],
             );
@@ -383,7 +383,7 @@ function ChargeRunTracker({
             {done && !failed ? (
                 <a
                     className="text-primary text-sm font-medium underline-offset-2 hover:underline"
-                    href={`/dashboard/requests/${requestId}`}
+                    href={`/app/requests/${requestId}`}
                 >
                     {t("viewConfirmedRequest")}
                 </a>

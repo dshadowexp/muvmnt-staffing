@@ -8,13 +8,14 @@ import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getScreeningCandidate } from "@/features/screenings/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import { professionLabelEn } from "@/lib/labels-en";
 import { normalizeProfessionId } from "@/lib/professions";
 import { getProfessionContext } from "@/services/ai/interviews/profession-context";
 import { getPresignedDownloadUrl } from "@/features/storage/dal/queries";
 import { LiveClient } from "./_client";
+import { CANDIDATE_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export default async function InterviewLivePage({
   params,
@@ -49,12 +50,12 @@ async function SuspendedContent({
 
   const session = await getSession();
   if (!session) return redirect({ href: "/sign-in", locale });
-  if (session.role !== "worker" && session.role !== "candidate") {
-    return redirect({ href: "/dashboard", locale });
+  if (session.role !== STAFF_ROLE && session.role !== CANDIDATE_ROLE) {
+    return redirect({ href: "/staff", locale });
   }
 
   const interview = await getInterviewByIdForUser(interviewId, session.userId);
-  if (!interview) return redirect({ href: "/dashboard", locale });
+  if (!interview) return redirect({ href: "/staff", locale });
 
   // Hume access token for voice session.
   const accessToken = await fetchAccessToken({
@@ -94,7 +95,7 @@ async function SuspendedContent({
   let photoUrl: string | null = null;
 
   if (session.role === "candidate") {
-    if (!interview.screening_id) return redirect({ href: "/dashboard", locale });
+    if (!interview.screening_id) return redirect({ href: "/staff", locale });
     const candidate = await getScreeningCandidate(session.userId, interview.screening_id);
     userName =
       [candidate?.first_name, candidate?.last_name].filter(Boolean).join(" ") ||
@@ -109,7 +110,7 @@ async function SuspendedContent({
     }
   } else {
     const worker = await getWorkerProfile();
-    if (!worker) return redirect({ href: "/dashboard", locale });
+    if (!worker) return redirect({ href: "/staff", locale });
     userName =
       [worker.first_name, worker.last_name].filter(Boolean).join(" ") ||
       tResume("candidateFallback");

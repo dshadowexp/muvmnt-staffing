@@ -31,20 +31,20 @@ async function EditPageContent({
   const locale = await getLocale();
 
   const facility = await getFacilityProfile();
-  if (!facility) return redirect({ href: "/dashboard", locale });
+  if (!facility) return redirect({ href: "/app", locale });
 
   const screening = await getScreeningById(screeningId, facility.id);
-  if (!screening) return redirect({ href: "/dashboard/screenings", locale });
+  if (!screening) return redirect({ href: "/app/screenings", locale });
 
   // Only allow edits when the screening is active
   if (screening.status !== "active") {
-    return redirect({ href: `/dashboard/screenings/${screeningId}`, locale });
+    return redirect({ href: `/app/screenings/${screeningId}`, locale });
   }
 
   return (
     <>
       <BackLink
-        backHref={`/dashboard/screenings/${screeningId}`}
+        backHref={`/app/screenings/${screeningId}`}
         title={screening.title}
       />
       <h1 className="text-lg font-semibold tracking-tight">Edit screening</h1>

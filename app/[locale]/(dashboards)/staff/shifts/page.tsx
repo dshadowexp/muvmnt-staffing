@@ -14,7 +14,7 @@ async function WorkerShiftsTableContent({ workerId }: { workerId: string }) {
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border">
-      <ShiftsTable rows={shifts} variant="worker" />
+      <ShiftsTable rows={shifts} variant="staff" />
     </div>
   );
 }

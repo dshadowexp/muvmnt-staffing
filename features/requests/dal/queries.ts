@@ -1,9 +1,11 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
-import { cardDisplayFromPaymentMethodJson } from "../lib/payment-method-card-display";
-import { parseSiteRowFromStaffRequestLocation } from "../lib/staff-request-location-json";
+import { createAdminClient } from "@/supabase/server";
+import {
+  parseSiteRowFromFacilityAddressJson,
+  parseSiteRowFromStaffRequestLocation,
+} from "../lib/staff-request-location-json";
 
 export async function getStaffRequest(id: string) {
     const session = await getSession();
@@ -63,13 +65,6 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
     return { error: true as const, message: srError?.message ?? "Not found" };
   }
 
-  const { data: opRow } = await supabase
-    .from("operators")
-    .select("user_id")
-    .eq("id", sr.operator_id)
-    .maybeSingle();
-  const creatorUserId = opRow?.user_id ?? null;
-
   const fromRequest = parseSiteRowFromStaffRequestLocation(sr.location);
   if (fromRequest) {
     const { data: payResData, error: payErr } = await supabase
@@ -96,16 +91,12 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
     };
   }
 
-  const [locRes, payRes] = await Promise.all([
-    creatorUserId
-      ? supabase
-          .from("locations")
-          .select(
-            "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
-          )
-          .eq("user_id", creatorUserId)
-          .maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
+  const [facilityRes, payRes] = await Promise.all([
+    supabase
+      .from("facilities")
+      .select("address")
+      .eq("id", sr.facility_id)
+      .maybeSingle(),
     supabase
       .from("payments")
       .select("id, amount_cents, currency, status, created_at")
@@ -113,8 +104,8 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
       .order("created_at", { ascending: false }),
   ]);
 
-  if (locRes.error) {
-    return { error: true as const, message: locRes.error.message };
+  if (facilityRes.error) {
+    return { error: true as const, message: facilityRes.error.message };
   }
   if (payRes.error) {
     return { error: true as const, message: payRes.error.message };
@@ -131,12 +122,9 @@ export async function getStaffRequestSiteAndPayments(requestId: string) {
     }),
   );
 
-  const loc = locRes.data
-    ? {
-        ...locRes.data,
-        instructions: null as string | null,
-      }
-    : null;
+  const loc = parseSiteRowFromFacilityAddressJson(
+    facilityRes.data?.address ?? null,
+  );
   const data: StaffRequestSiteAndPayments = {
     location: loc,
     payments,

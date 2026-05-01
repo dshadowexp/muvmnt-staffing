@@ -1,8 +1,8 @@
 import "server-only";
 
 import { randomBytes } from "node:crypto";
-import { createAdminClient } from "@/services/supabase/server";
-import type { Database } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Database } from "@/supabase/types/database";
 import { EMPTY_INTERVIEW_SUBJECT_REF } from "@/features/interviews/lib/interview-subject-ref";
 
 export type ScreeningRow = Database["public"]["Tables"]["screenings"]["Row"];

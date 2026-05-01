@@ -55,7 +55,7 @@ export const ROLES = {
       delete: true,
     },
   },
-  worker: {
+  staff: {
     comments: {
       view: true,
       create: true,
@@ -68,7 +68,7 @@ export const ROLES = {
       delete: (user, todo) => todo.completed,
     },
   },
-  client: {
+  operator: {
     comments: {
       view: (user, comment) => !user.blockedBy.includes(comment.authorId),
       create: true,

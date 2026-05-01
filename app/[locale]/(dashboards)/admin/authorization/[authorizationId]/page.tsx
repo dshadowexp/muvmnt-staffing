@@ -78,7 +78,7 @@ export default async function AdminAuthorizationPage({ params }: PageProps) {
         <CardContent>
           <dl className="space-y-3">
             <AdminDetailRow
-              label="Worker"
+              label="Staff"
               value={
                 worker ? (
                   <Link

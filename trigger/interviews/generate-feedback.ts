@@ -1,13 +1,13 @@
 import { logger, schemaTask } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { generateInterviewFeedbackObject } from "@/services/ai/interviews/generate-feedback";
 import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import { aiInterviewTitle } from "@/features/interviews/lib/interview-ai-title";
 import { professionLabelEn } from "@/lib/labels-en";
 import { tryAutoReview } from "@/features/interviews/services/auto-review";
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 
 const payloadSchema = z.object({
   interviewId: z.string().min(1),

@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/get-session";
 import { getStripeServer } from "@/services/stripe/server";
-import { createAdminClient } from "@/services/supabase/server";
-import type { Json } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Json } from "@/supabase/types/database";
 import { resolveFacilityIdForBillingSession } from "@/features/billing/dal/payment-methods";
 
 export interface CardSummary {

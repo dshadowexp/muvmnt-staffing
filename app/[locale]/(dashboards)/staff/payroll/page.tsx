@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { retrievePayrollAccountAction } from "@/features/payroll/actions";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
-import { isPayrollSectionUnlocked } from "@/features/workers/lib/worker-stage-order";
+import { isPayrollSectionUnlocked } from "@/features/staff/lib/worker-stage-order";
 import { redirect } from "@/i18n/navigation";
 // import { TipsTable } from "./_tips-table";
 import { Card, CardContent } from "@/components/ui/card";

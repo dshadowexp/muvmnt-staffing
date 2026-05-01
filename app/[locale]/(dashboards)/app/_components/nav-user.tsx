@@ -11,21 +11,22 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { UserAccountDropdownMenuItems } from "@/app/[locale]/app/_components/user-account-dropdown-menu"
-import type { UserAccountMenuUser } from "@/app/[locale]/app/_components/user-account-dropdown-menu"
+import { UserAccountDropdownMenuItems } from "./user-account-dropdown-menu"
 import { UserAvatar } from "@/components/ui/user-avatar"
 import { EllipsisVerticalIcon } from "lucide-react"
+import { useAuth } from "@/features/auth/providers/auth-provider"
+import { useTranslations } from "next-intl"
 
-export function NavUser({
-  user,
-  accountHref,
-  accountLabel,
-}: {
-  user: UserAccountMenuUser
-  accountHref: string
-  accountLabel?: string
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar()
+  const { firebaseUser, loading } = useAuth();
+  const tAccount = useTranslations("dashboard.accountMenu");
+
+  const user = {
+    name: firebaseUser?.displayName?.trim() ?? tAccount("defaultName"),
+    email: firebaseUser?.email ?? "",
+    avatar: firebaseUser?.photoURL ?? "",
+  };
 
   return (
     <SidebarMenu>
@@ -59,11 +60,7 @@ export function NavUser({
             align="end"
             sideOffset={8}
           >
-            <UserAccountDropdownMenuItems
-              user={user}
-              accountHref={accountHref}
-              accountLabel={accountLabel}
-            />
+            <UserAccountDropdownMenuItems />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { CircleDashedIcon } from "lucide-react";
 import type { Locale } from "next-intl";
 import { useTranslations } from "next-intl";
-import { claimReferralCode } from "./actions";
+import { claimReferralCode } from "./_actions";
 
 export function ClaimReferralRedirect({
   code,

@@ -7,6 +7,7 @@ import { getSkillById } from "@/features/profile/dal/queries";
 import { QuizClientPage } from "@/features/quizes/components/quiz-page";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export default async function QuizPage({
   params,
@@ -35,7 +36,7 @@ async function SuspendedContent({ skillId }: { skillId: string }) {
   const locale = await getLocale();
   const session = await getSession();
   if (!session) return redirect({ href: "/sign-in", locale });
-  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
+  if (session.role !== STAFF_ROLE) return redirect({ href: "/staff", locale });
 
   const skill = await getSkillById(skillId, session.userId);
   if (!skill) return notFound();

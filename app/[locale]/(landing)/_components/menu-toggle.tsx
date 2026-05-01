@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { CircleDashedIcon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import { ADMIN_ROLE, OPERATOR_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export function MenuToggle() {
   const { authUser, loading } = useAuth();
@@ -15,6 +16,7 @@ export function MenuToggle() {
   const navLinks = t.raw("links") as Array<{ label: string; href: string }>;
   const isLoggedIn = !!authUser;
   const role = authUser?.role;
+  const dashboardHref = role === STAFF_ROLE ? "/staff" : role === OPERATOR_ROLE ? "/app" : role === ADMIN_ROLE ? "/admin" : "/s";
 
   return (
     <>
@@ -46,7 +48,7 @@ export function MenuToggle() {
 
             {isLoggedIn && role ? (
               <Button asChild className="w-full justify-center">
-                <Link href={`/dashboard`} onClick={() => setOpen(false)}>
+                <Link href={dashboardHref} onClick={() => setOpen(false)}>
                   {t("dashboard")}
                 </Link>
               </Button>

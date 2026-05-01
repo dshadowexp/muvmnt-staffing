@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { EmailChannel } from "../channels/email.channel";
 import { PushChannel } from "../channels/push.channel";
 import { SmsChannel } from "../channels/sms.channel";

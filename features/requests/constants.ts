@@ -68,9 +68,9 @@ export function clientStaffRequestHref(row: {
   pricing_tier: string | null;
 }): string {
   if (row.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-    return `/dashboard/requests/${row.id}`;
+    return `/app/requests/${row.id}`;
   }
-  return `/dashboard/requests/new`;
+  return `/app/requests/new`;
 }
 
 /** Legacy tier IDs — kept so existing rows and the matching filter don't break. */

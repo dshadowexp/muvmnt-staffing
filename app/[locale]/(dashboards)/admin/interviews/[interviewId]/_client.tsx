@@ -713,7 +713,7 @@ export function AdminInterviewReviewClient({
         toast.error(res.message ?? "Failed to submit review.");
       } else {
         toast.success(result === "pass" ? "Marked as passed." : "Marked as failed.");
-        router.push("/dashboard/admin/interviews");
+        router.push("/admin/interviews");
         router.refresh();
       }
     } finally {

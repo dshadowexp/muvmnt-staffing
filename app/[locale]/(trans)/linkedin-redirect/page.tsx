@@ -34,7 +34,7 @@ export default function LinkedInRedirectPage() {
 
       try {
         // Default to worker for the LinkedIn flow; allow the pre-redirect value to override.
-        setPendingRole(intendedRole === "client" ? "client" : "worker");
+        setPendingRole(intendedRole === "operator" ? "operator" : "staff");
         await signInWithCustomToken(handoff.token);
         await clearLinkedInHandoffCookie();
       } catch {
@@ -44,7 +44,7 @@ export default function LinkedInRedirectPage() {
         return;
       }
 
-      router.replace("/dashboard");
+      router.replace("/staff");
       router.refresh();
     });
   }, [router, setPendingRole]);
@@ -55,13 +55,13 @@ export default function LinkedInRedirectPage() {
         <h1 className="text-lg font-semibold">Could not complete sign-in</h1>
         <p className="text-muted-foreground text-sm max-w-md">
           The LinkedIn handoff is missing or expired. Try LinkedIn again from the
-          worker sign-in page.
+          staff sign-in page.
         </p>
         <Link
-          href="/sign-in/worker"
+          href="/sign-in/staff"
           className="text-primary text-sm font-medium underline underline-offset-4"
         >
-          Back to worker sign in
+          Back to staff sign in
         </Link>
       </div>
     );
@@ -72,14 +72,14 @@ export default function LinkedInRedirectPage() {
       <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
         <h1 className="text-lg font-semibold">Sign-in failed</h1>
         <p className="text-muted-foreground text-sm max-w-md">
-          Something went wrong finishing sign-in. Try again from the worker
+          Something went wrong finishing sign-in. Try again from the staff
           sign-in page.
         </p>
         <Link
-          href="/sign-in/worker"
+          href="/sign-in/staff"
           className="text-primary text-sm font-medium underline underline-offset-4"
         >
-          Back to worker sign in
+          Back to staff sign in
         </Link>
       </div>
     );

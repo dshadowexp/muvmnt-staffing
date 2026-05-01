@@ -1,8 +1,8 @@
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { toDbTime } from "../lib/week-state";
 import type { AvailabilityOnboardingPayload } from "../schema";
-import { tryPromoteWorkerAfterAvailabilityChecks } from "@/features/workers/server/stage-promotion";
+import { tryPromoteWorkerAfterAvailabilityChecks } from "@/features/staff/server/stage-promotion";
 
 export async function saveWorkerAvailabilityBundle(
   payload: AvailabilityOnboardingPayload,

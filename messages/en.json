@@ -1349,6 +1349,8 @@
       "authorization": "Authorization",
       "interviews": "Interviews",
       "clients": "Clients",
+      "facilities": "Facilities",
+      "operators": "Operators",
       "workers": "Workers",
       "settings": "Settings",
       "getHelp": "Get help",
@@ -1357,7 +1359,8 @@
       "referAndEarn": "Refer and earn",
       "referrals": "Referrals",
       "feedback": "Feedback",
-      "loading": "Loading…"
+      "loading": "Loading…",
+      "facilityFallback": "Organization"
     },
     "accountMenu": {
       "accountLabel": "Account",
@@ -1739,8 +1742,10 @@
         "quickActionsTitle": "Quick actions",
         "quickActionsSubtitle": "Create a request or invite people to the platform.",
         "metrics": {
-          "clients": "Clients",
-          "clientsDescription": "Total organizations",
+          "facilities": "Facilities",
+          "facilitiesDescription": "Total organizations",
+          "operators": "Operators",
+          "operatorsDescription": "Facility operator accounts",
           "workers": "Workers",
           "workersDescription": "Registered professionals",
           "balance": "Balance",
@@ -1759,40 +1764,40 @@
         "recentAuthorizationDescription": "New work authorization documents",
         "recentCompliance": "Recent compliance",
         "recentComplianceDescription": "Newly uploaded compliance credentials",
-        "recentClients": "Recent clients",
-        "recentClientsDescription": "Organizations on the platform",
+        "recentFacilities": "Recent facilities",
+        "recentFacilitiesDescription": "Organizations on the platform",
         "recentWorkers": "Recent workers",
         "recentWorkersDescription": "Latest registered profiles",
         "recentJobs": "Recent job postings",
-        "recentJobsDescription": "Staff requests from clients"
+        "recentJobsDescription": "Staff requests from facilities"
       },
       "actions": {
         "createRequest": {
           "title": "Create a request",
-          "description": "Start a new staff request on behalf of a client."
+          "description": "Start a new staff request on behalf of a facility."
         },
         "inviteWorker": {
           "title": "Invite a worker",
           "description": "Email one healthcare professional or paste a list to invite many at once."
         },
-        "inviteClient": {
-          "title": "Invite a client",
-          "description": "Send a personal onboarding invite to a client contact."
+        "inviteFacility": {
+          "title": "Invite a facility",
+          "description": "Send a personal onboarding invite to a facility contact."
         }
       },
       "createRequestDialog": {
         "title": "Create a request",
-        "description": "Choose the client this staff request is being created on behalf of.",
-        "clientLabel": "Client",
-        "searchPlaceholder": "Search clients…",
-        "empty": "No clients found.",
+        "description": "Choose the facility this staff request is being created on behalf of.",
+        "facilityLabel": "Facility",
+        "searchPlaceholder": "Search facilities…",
+        "empty": "No facilities found.",
         "cancel": "Cancel",
         "continue": "Continue"
       },
-      "inviteClient": {
-        "title": "Invite a client",
-        "description": "Send a personal onboarding invitation. They will receive a link to complete client onboarding.",
-        "descriptionIndividual": "They will set up an individual client profile.",
+      "inviteFacility": {
+        "title": "Invite a facility",
+        "description": "Send a personal onboarding invitation. They will receive a link to complete facility onboarding.",
+        "descriptionIndividual": "They will set up an individual profile.",
         "descriptionOrganization": "They will set up an organization profile and choose the facility type.",
         "accountKindLabel": "Account type",
         "accountKindPlaceholder": "Select account type",
@@ -1832,6 +1837,8 @@
         "home": "Admin | ReadyKare",
         "workers": "Workers | Admin",
         "clients": "Clients | Admin",
+        "facilities": "Facilities | Admin",
+        "operators": "Operators | Admin",
         "requests": "Requests | Admin",
         "shifts": "Shifts | Admin",
         "authorization": "Authorization | Admin",
@@ -1841,7 +1848,7 @@
       "lists": {
         "requests": {
           "title": "Requests",
-          "subtitle": "All staff requests created by clients.",
+          "subtitle": "All staff requests created by facilities.",
           "empty": "No requests yet"
         },
         "shifts": {
@@ -1863,6 +1870,16 @@
           "title": "Clients",
           "subtitle": "All organizations on the platform.",
           "empty": "No clients yet"
+        },
+        "facilities": {
+          "title": "Facilities",
+          "subtitle": "All organizations on the platform.",
+          "empty": "No facilities yet"
+        },
+        "operators": {
+          "title": "Operators",
+          "subtitle": "Facility operator accounts on the platform.",
+          "empty": "No operators yet"
         },
         "workers": {
           "title": "Workers",

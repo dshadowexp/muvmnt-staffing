@@ -1,5 +1,5 @@
 import type { AddressFields, AddressLocation, PlaceDetails } from "@/features/geo/types";
-import { Json } from "@/services/supabase/types/database";
+import { Json } from "@/supabase/types/database";
 
 function nonEmpty(s: string | undefined | null): string | null {
   const t = s?.trim();

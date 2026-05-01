@@ -73,7 +73,7 @@ export function PricingTierPicker({ requestId, quote }: PricingTierPickerProps) 
     function handleBackToSchedule() {
         startBackTransition(() => {
             router.push(
-                "/dashboard/requests/new" as Parameters<typeof router.push>[0],
+                "/app/requests/new" as Parameters<typeof router.push>[0],
             );
         });
     }
@@ -91,7 +91,7 @@ export function PricingTierPicker({ requestId, quote }: PricingTierPickerProps) 
                 return;
             }
             router.push(
-                `/dashboard/requests/${requestId}/coverage` as Parameters<
+                `/app/requests/${requestId}/coverage` as Parameters<
                     typeof router.push
                 >[0],
             );

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 
 /** Payload for `upsertStaffRequestScheduleAction` (validated in create draft schema). */
 export const createDraftLocationSchema = z.object({
@@ -66,6 +66,47 @@ export function parseSiteRowFromStaffRequestLocation(
 }
 
 /**
+ * Parse `facilities.address` JSON (`toAddressJson` camelCase + snake_case fallbacks).
+ */
+export function parseSiteRowFromFacilityAddressJson(
+    json: Json | null,
+): StaffRequestSiteAddressRow | null {
+    if (json == null || typeof json !== "object" || Array.isArray(json)) {
+        return null;
+    }
+    const o = json as Record<string, unknown>;
+    const trim = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+    const line1 = trim(o.addressLine1) || trim(o.address_line_1);
+    const line2 = trim(o.addressLine2) || trim(o.address_line_2);
+    const city = trim(o.city);
+    const admin = trim(o.adminArea) || trim(o.admin_area);
+    const postal = trim(o.postalCode) || trim(o.postal_code);
+    const country = trim(o.countryCode) || trim(o.country_code);
+    const single = trim(o.address);
+    const composed = [
+        line1,
+        line2,
+        [city, admin].filter(Boolean).join(", ") || null,
+        postal,
+        country,
+    ]
+        .filter(Boolean)
+        .join(", ");
+    const display = single || composed;
+    if (!display) return null;
+    return {
+        address: single || display,
+        address_line_1: line1 || null,
+        address_line_2: line2 || null,
+        city: city || null,
+        admin_area: admin || null,
+        postal_code: postal || null,
+        country_code: country || null,
+        instructions: trim(o.instructions) || null,
+    };
+}
+
+/**
  * Lat/lng + address for shift rows and worker emails (matches `ShiftLocationPayload`).
  */
 export function parseShiftLocationFromStaffRequestLocation(
@@ -97,4 +138,35 @@ export function formatStaffRequestSiteLine(
         loc.country_code,
     ].filter(Boolean) as string[];
     return parts.length > 0 ? parts.join(", ") : "";
+}
+
+function trimUnknown(v: unknown): string {
+    return typeof v === "string" ? v.trim() : "";
+}
+
+/**
+ * Single-line address for admin / summaries. Handles stored request JSON
+ * (snake_case draft), `toAddressJson`-style camelCase, and partial rows.
+ */
+export function formatStaffRequestLocationDisplay(json: Json | null): string {
+    const row = parseSiteRowFromStaffRequestLocation(json);
+    if (row) {
+        const line = formatStaffRequestSiteLine(row);
+        if (line.trim()) return line;
+    }
+    if (json != null && typeof json === "object" && !Array.isArray(json)) {
+        const j = json as Record<string, unknown>;
+        const parts = [
+            trimUnknown(j.addressLine1) || trimUnknown(j.address_line_1),
+            trimUnknown(j.addressLine2) || trimUnknown(j.address_line_2),
+            trimUnknown(j.city),
+            trimUnknown(j.adminArea) || trimUnknown(j.admin_area),
+            trimUnknown(j.postalCode) || trimUnknown(j.postal_code),
+            trimUnknown(j.countryCode) || trimUnknown(j.country_code),
+        ].filter(Boolean);
+        if (parts.length > 0) return parts.join(", ");
+        const a = trimUnknown(j.address);
+        if (a) return a;
+    }
+    return "—";
 }

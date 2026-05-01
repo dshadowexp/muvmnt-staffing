@@ -42,7 +42,7 @@ export function AvailabilitySettingsClient({ dataPromise }: Props) {
     if (state.ok === true) {
       toast.success("Availability saved");
       setIsDirty(false);
-      router.push("/dashboard/availability");
+      router.push("/staff/availability");
     } else if (state.ok === false) {
       toast.error(state.error);
     }
@@ -75,7 +75,7 @@ export function AvailabilitySettingsClient({ dataPromise }: Props) {
               disabled={isPending}
             >
               <Link
-                href="/dashboard/availability"
+                href="/staff/availability"
                 aria-label="Back to availability"
                 aria-disabled={isPending}
                 tabIndex={isPending ? -1 : undefined}

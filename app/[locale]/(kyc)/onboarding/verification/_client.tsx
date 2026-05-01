@@ -8,20 +8,21 @@ import { EmailVerification } from "@/features/verification/components/email-veri
 import { PhoneVerification } from "@/features/verification/components/phone-verification";
 import { verifyDetailsAction } from "./_action";
 import { useAuth } from "@/features/auth/providers/auth-provider";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export function VerificationClient() {
     const { firebaseUser, authUser } = useAuth();
     const [state, formAction] = useActionState(verifyDetailsAction, undefined);
     useOnboardingFormNavigate(state);
 
-    const continueCheck = authUser?.role === "worker"
+    const continueCheck = authUser?.role === STAFF_ROLE
         ? (firebaseUser?.emailVerified && !!firebaseUser?.phoneNumber)
         : firebaseUser?.emailVerified;
 
     return (
         <div className="space-y-6">
             <EmailVerification />
-            {authUser?.role === "worker" && 
+            {authUser?.role === STAFF_ROLE && 
                 <>
                     <Separator className="my-6" />
                     <PhoneVerification />

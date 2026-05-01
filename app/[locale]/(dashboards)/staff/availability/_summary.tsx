@@ -72,7 +72,7 @@ export async function AvailabilitySummaryCard({
 
   return (
     <Link
-      href="/dashboard/availability/edit"
+      href="/staff/availability/edit"
       aria-label={tSummary("editAria")}
       className="block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >

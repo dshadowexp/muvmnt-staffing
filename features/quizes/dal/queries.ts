@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";
 

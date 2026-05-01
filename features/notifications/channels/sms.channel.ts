@@ -1,5 +1,5 @@
 import { env } from '@/data/env/server';
-import { renderSms } from '../template-engine';
+import { renderSms } from '../lib/template-engine';
 
 interface SendSmsParams {
     to:       string | null

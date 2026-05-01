@@ -1,4 +1,4 @@
-import type { Database } from "@/services/supabase/types/database";
+import type { Database } from "@/supabase/types/database";
 
 type Json = Database["public"]["Tables"]["interviews"]["Row"]["subject_ref"];
 

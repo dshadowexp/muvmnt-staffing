@@ -1,7 +1,7 @@
 "use server";
 
 import type Stripe from "stripe";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { env } from "@/data/env/server";
 
@@ -137,7 +137,7 @@ export async function handleIdentityVerificationSessionRequiresInput(
     .maybeSingle();
 
   const firstName = worker?.first_name ?? "there";
-  const complianceUrl = `${env.APP_URL}/dashboard/compliance`;
+  const complianceUrl = `${env.APP_URL}/staff/compliance`;
 
   await enqueueNotification({
     userId,

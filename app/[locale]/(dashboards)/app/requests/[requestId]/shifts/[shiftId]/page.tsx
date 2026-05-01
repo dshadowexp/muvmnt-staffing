@@ -24,6 +24,7 @@ import { getSession } from "@/lib/get-session";
 import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
+import { OPERATOR_ROLE } from "@/features/auth/types";
 
 function workerDisplayName(
   first: string | null | undefined,
@@ -92,7 +93,7 @@ async function ShiftContent({
               {workerPhotoSrc ? (
                 <AvatarImage
                   src={workerPhotoSrc}
-                  alt={workerName === "—" ? "Worker" : workerName}
+                  alt={workerName === "—" ? "Staff" : workerName}
                 />
               ) : null}
               <AvatarFallback className="text-[10px] font-medium">
@@ -198,12 +199,12 @@ export default async function ClientShiftDetailPage({
   const { requestId, shiftId } = await params;
   const session = await getSession();
   if (!session) return redirect({ href: "/sign-in", locale });
-  if (session.role !== "client") return redirect({ href: "/dashboard", locale });
-  if (!session.facilityId) return redirect({ href: "/dashboard", locale });
+  if (session.role !== OPERATOR_ROLE) return redirect({ href: "/app", locale });
+  if (!session.facilityId) return redirect({ href: "/app", locale });
 
   return (
     <div className="flex w-full max-w-5xl mx-auto flex-col gap-8">
-      <BackLink backHref={`/dashboard/requests/${requestId}`} title="Request" />
+      <BackLink backHref={`/app/requests/${requestId}`} title="Request" />
 
       <Suspense fallback={<DetailSkeleton />}>
         <ShiftContent

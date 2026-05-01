@@ -38,7 +38,7 @@ export default async function InterviewReviewPage({
     ? fetchChatMessages(interview.hume_chat_id, interview.chat_group_id).then(condenseChatMessages)
     : Promise.resolve([]);
 
-  const backHref = "/dashboard/admin/assessments";
+  const backHref = "/admin/assessments";
 
   // Format dates on the server so the client renders identical text on both
   // SSR and hydration (avoids Intl locale/timezone mismatches).

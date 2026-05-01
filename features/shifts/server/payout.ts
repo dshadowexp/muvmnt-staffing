@@ -190,7 +190,7 @@ async function sendShiftPayoutReceivedEmail(params: {
     const baseWeb = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
     const privacyUrl = `${baseWeb}/privacy`;
     const unsubscribeUrl = `${baseWeb}/settings`;
-    const shiftsUrl = `${baseWeb}/dashboard/shifts`;
+    const shiftsUrl = `${baseWeb}/staff/shifts`;
 
     const currencyCode = params.currency.trim().toUpperCase() || "CAD";
     const amountLine = new Intl.NumberFormat("en-CA", {

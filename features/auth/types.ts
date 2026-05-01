@@ -1,5 +1,8 @@
 export const STAFF_ROLE = "staff";
 
+/** Legacy `users.role` value; new rows use {@link STAFF_ROLE}. Still honored on reads and in cookies. */
+export const LEGACY_STAFF_DB_ROLE = "worker";
+
 export const CANDIDATE_ROLE = "candidate";
 
 export const OPERATOR_ROLE = "operator";

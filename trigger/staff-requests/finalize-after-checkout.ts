@@ -9,11 +9,13 @@ import {
     type CoverageDataCache,
 } from "@/features/requests/server/staff-request";
 import { runStaffRequestBookingSideEffects } from "@/features/shifts/server/post-shift-insert-booking";
+import { parseShiftLocationFromStaffRequestLocation } from "@/features/requests/lib/staff-request-location-json";
 import {
     insertShiftsFromCoverage,
     type ShiftLocationPayload,
 } from "@/features/requests/server/shifts";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
+import type { Json } from "@/supabase/types/database";
 import { getStripeServer } from "@/services/stripe/server";
 import { getUserIdForOperator } from "@/features/account/server/operator-context";
 
@@ -25,17 +27,20 @@ export type FinalizeAfterCheckoutPayload = z.infer<
     typeof finalizeAfterCheckoutPayloadSchema
 >;
 
-async function loadLocation(
-    clientUserId: string,
+async function loadShiftLocationForRequest(
+    facilityId: string,
+    requestLocation: Json,
 ): Promise<ShiftLocationPayload | null> {
+    const fromRequest = parseShiftLocationFromStaffRequestLocation(requestLocation);
+    if (fromRequest) return fromRequest;
+
     const supabase = await createAdminClient();
-    const { data } = await supabase
-        .from("locations")
-        .select("address, lat, lng")
-        .eq("user_id", clientUserId)
+    const { data: fac } = await supabase
+        .from("facilities")
+        .select("address")
+        .eq("id", facilityId)
         .maybeSingle();
-    if (!data) return null;
-    return { address: data.address, lat: data.lat, lng: data.lng };
+    return parseShiftLocationFromStaffRequestLocation(fac?.address ?? null);
 }
 
 async function expandSession(sessionId: string): Promise<Stripe.Checkout.Session> {
@@ -114,9 +119,11 @@ export const finalizeAfterCheckoutTask = task({
             currency: intent.currency ?? "cad",
         });
 
+        const location = await loadShiftLocationForRequest(
+            row.facility_id,
+            row.location,
+        );
         const creatorUserId = await getUserIdForOperator(row.operator_id);
-        const location =
-            creatorUserId != null ? await loadLocation(creatorUserId) : null;
         const inserted = await insertShiftsFromCoverage({
             staffRequestId: payload.requestId,
             facilityId: row.facility_id,

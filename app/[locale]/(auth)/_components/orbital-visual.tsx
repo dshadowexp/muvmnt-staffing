@@ -8,6 +8,7 @@ import {
   Clock,
   Activity,
   type LucideIcon,
+  Sparkles,
 } from "lucide-react"
 
 const OUTER_ITEMS: { icon: LucideIcon; label: string }[] = [
@@ -20,6 +21,7 @@ const OUTER_ITEMS: { icon: LucideIcon; label: string }[] = [
 const INNER_ITEMS: { icon: LucideIcon; label: string }[] = [
   { icon: Clock,    label: "Scheduling" },
   { icon: Activity, label: "Monitoring" },
+  { icon: Sparkles, label: "Automation" },
 ]
 
 const OUTER_DURATION = 28

@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { env } from "@/data/env/server";
 
@@ -164,8 +164,8 @@ export async function tryAutoReview(
     }
 
     // 8. Send email + push notification
-    const complianceUrl = `${env.APP_URL}/dashboard/compliance`;
-    const dashboardUrl = `${env.APP_URL}/dashboard`;
+    const complianceUrl = `${env.APP_URL}/staff/compliance`;
+    const dashboardUrl = `${env.APP_URL}/staff`;
 
     const notificationData = {
       firstName,

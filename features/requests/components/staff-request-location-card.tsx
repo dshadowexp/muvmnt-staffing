@@ -5,7 +5,7 @@ import {
     formatStaffRequestSiteLine,
     parseSiteRowFromStaffRequestLocation,
 } from "@/features/requests/lib/staff-request-location-json";
-import type { Database } from "@/services/supabase/types/database";
+import type { Database } from "@/supabase/types/database";
 
 type StaffRequestLocationCardProps = {
     /** When set, shows this request’s stored site (from `staff_requests.location`). */

@@ -9,6 +9,7 @@ import { getScreeningCandidate } from "@/features/screenings/dal/queries";
 import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import { saveCandidatePhotoAction } from "@/features/screenings/candidate-actions";
 import { PhotoStepClient } from "./_client";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export default async function PhotoStepPage({
   params,
@@ -61,9 +62,9 @@ async function SuspendedContent({
     );
   }
 
-  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
+  if (session.role !== STAFF_ROLE) return redirect({ href: "/s", locale });
   const worker = await getWorkerProfile();
-  if (!worker) return redirect({ href: "/dashboard", locale });
+  if (!worker) return redirect({ href: "/s", locale });
 
   return (
     <PhotoStepClient

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WORKER_STAGE_ORDER } from "@/features/workers/lib/worker-stage-order";
+import { WORKER_STAGE_ORDER } from "@/features/staff/lib/worker-stage-order";
 import { useRouter } from "@/i18n/navigation";
 import * as React from "react";
 import { toast } from "sonner";

@@ -1,6 +1,6 @@
 import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
-import { createAdminClient } from "@/services/supabase/server";
-import type { Database } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Database } from "@/supabase/types/database";
 import { getInterviewByIdForUser } from "./queries";
 import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import { aiInterviewTitle } from "@/features/interviews/lib/interview-ai-title";

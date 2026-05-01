@@ -1,4 +1,4 @@
-import type { Database } from "@/services/supabase/types/database";
+import type { Database } from "@/supabase/types/database";
 import type { InterviewFeedback, InterviewScore } from "@/services/ai/interviews/schema";
 
 export type InterviewFeedbackParsed = {

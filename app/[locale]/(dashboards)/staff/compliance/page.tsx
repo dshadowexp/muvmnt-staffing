@@ -19,12 +19,13 @@ import {
   getWorkerProfile,
 } from "@/features/profile/dal/queries";
 import { CompliancesClient, type CompliancesRow } from "./_client";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export default async function WorkerCompliancePage() {
   const locale = await getLocale();
   const session = await getSession();
   if (!session) return redirect({ href: "/sign-in", locale });
-  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
+  if (session.role !== STAFF_ROLE) return redirect({ href: "/staff", locale });
 
   const worker = await getWorkerProfile();
   const stage = worker?.stage ?? null;

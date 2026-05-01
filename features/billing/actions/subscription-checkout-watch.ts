@@ -4,6 +4,7 @@ import { auth as triggerAuth, runs } from "@trigger.dev/sdk/v3";
 import { getSession } from "@/lib/get-session";
 import { getSubscription } from "@/features/billing/dal/subscriptions";
 import type { SubscriptionRow } from "@/features/billing/dal/subscriptions";
+import { OPERATOR_ROLE } from "@/features/auth/types";
 
 function subscriptionRowIsActive(sub: SubscriptionRow | null): boolean {
     if (!sub?.stripe_subscription_id) return false;
@@ -33,7 +34,7 @@ export type SubscriptionCheckoutWatchState =
  */
 export async function getSubscriptionCheckoutWatchState(): Promise<SubscriptionCheckoutWatchState> {
     const session = await getSession();
-    if (!session?.facilityId || session.role !== "client") {
+    if (!session?.facilityId || session.role !== OPERATOR_ROLE) {
         return { phase: "unauthenticated" };
     }
 

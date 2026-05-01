@@ -20,7 +20,7 @@ CREATE TABLE users (
   email               text,
   phone_number        text,
   push_token          text,
-  role                text        CHECK (role IN ('admin', 'worker', 'client')),
+  role                text        CHECK (role IN ('admin', 'staff', 'worker', 'client')),
   is_active           boolean     NOT NULL DEFAULT true,
   is_email_verified   boolean     NOT NULL DEFAULT false,
   is_phone_verified   boolean     NOT NULL DEFAULT false,
@@ -254,7 +254,7 @@ CREATE INDEX        identity_verification_session_id_idx ON identity_verificatio
 CREATE TABLE feedbacks (
   id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id        uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-  role           text        NOT NULL CHECK (role IN ('admin', 'worker', 'client')),
+  role           text        NOT NULL CHECK (role IN ('admin', 'staff', 'worker', 'client')),
   category       text        NOT NULL,
   message        text        NOT NULL,
   rating         integer     CHECK (rating >= 1 AND rating <= 5),
@@ -317,7 +317,7 @@ CREATE TABLE referrals (
   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   referrer_id   uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   referred_id   uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-  referrer_role text        NOT NULL CHECK (referrer_role IN ('admin', 'worker', 'client')),
+  referrer_role text        NOT NULL CHECK (referrer_role IN ('admin', 'staff', 'worker', 'client')),
   status        text        NOT NULL DEFAULT 'pending'
                   CHECK (status IN ('pending', 'completed', 'cancelled')),
   reward_cents  integer,

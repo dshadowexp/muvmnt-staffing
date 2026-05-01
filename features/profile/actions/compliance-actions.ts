@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { s3Api } from "@/services/s3/api";
 import {
   complianceItemSchema,
@@ -10,7 +10,7 @@ import {
 } from "@/features/profile/schemas/compliance";
 
 const COMPLIANCE_PATHS = [
-  "/dashboard/compliance",
+  "/staff/compliance",
   "/onboarding/compliance",
 ] as const;
 

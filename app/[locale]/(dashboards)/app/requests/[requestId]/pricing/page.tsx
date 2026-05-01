@@ -25,20 +25,20 @@ export default async function PricingStepPage({ params }: PageProps) {
     const result = await getStaffRequestRow(requestId);
     if (!result.ok) {
         if (result.message === "Unauthenticated") {
-            return redirect({ href: "/sign-in?redirect=/dashboard/requests/${requestId}/pricing", locale });
+            return redirect({ href: "/sign-in/operator?redirect=/app/requests/${requestId}/pricing", locale });
         }
         if (result.message === "Unauthorized") {
-            return redirect({ href: "/dashboard", locale });
+            return redirect({ href: "/app", locale });
         }
-        return redirect({ href: "/dashboard/requests/new", locale });
+        return redirect({ href: "/app/requests/new", locale });
     }
 
     const { data } = result;
     if (!data) {
-        return redirect({ href: "/dashboard/requests/new", locale });
+            return redirect({ href: "/app/requests/new", locale });
     }
     if (data.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-        return redirect({ href: `/dashboard/requests/${requestId}`, locale });
+        return redirect({ href: `/app/requests/${requestId}`, locale });
     }
 
     return (

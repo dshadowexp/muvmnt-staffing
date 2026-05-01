@@ -6,8 +6,9 @@ import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getScreeningCandidate } from "@/features/screenings/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { ResumeStepClient } from "./_client";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export default async function ResumeStepPage({
   params,
@@ -75,9 +76,9 @@ async function SuspendedContent({
   }
 
   // Worker assessment
-  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
+  if (session.role !== STAFF_ROLE) return redirect({ href: "/app", locale });
   const worker = await getWorkerProfile();
-  if (!worker) return redirect({ href: "/dashboard", locale });
+  if (!worker) return redirect({ href: "/staff", locale });
 
   const userName =
     [worker.first_name, worker.last_name].filter(Boolean).join(" ") || t("fallbackName");

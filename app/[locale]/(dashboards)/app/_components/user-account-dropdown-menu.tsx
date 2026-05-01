@@ -10,6 +10,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { Link } from "@/i18n/navigation";
 import { LogOutIcon, UserIcon } from "lucide-react";
+import { useAuth } from "@/features/auth/providers/auth-provider";
 
 export type UserAccountMenuUser = {
   name: string;
@@ -18,17 +19,16 @@ export type UserAccountMenuUser = {
 };
 
 /** Shared body for the user account dropdown (sidebar NavUser + header avatar). */
-export function UserAccountDropdownMenuItems({
-  user,
-  accountHref,
-  accountLabel,
-}: {
-  user: UserAccountMenuUser;
-  accountHref: string;
-  accountLabel?: string;
-}) {
+export function UserAccountDropdownMenuItems() {
   const t = useTranslations("dashboard.accountMenu");
-  const resolvedAccountLabel = accountLabel ?? t("accountLabel");
+  const resolvedAccountLabel = t("accountLabel");
+  const { firebaseUser, loading } = useAuth();
+
+  const user = {
+    name: firebaseUser?.displayName?.trim() ?? t("defaultName"),
+    email: firebaseUser?.email ?? "",
+    avatar: firebaseUser?.photoURL ?? "",
+  };
 
   return (
     <>
@@ -50,7 +50,7 @@ export function UserAccountDropdownMenuItems({
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
-        <Link href={accountHref} className="cursor-pointer">
+        <Link href="/app/account" className="cursor-pointer">
           <UserIcon className="size-4" />
           {resolvedAccountLabel}
         </Link>

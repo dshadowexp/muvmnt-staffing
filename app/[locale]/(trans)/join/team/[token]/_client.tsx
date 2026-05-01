@@ -48,15 +48,15 @@ export function JoinTeamClient({
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <Button asChild variant="outline">
-            <Link href={withAuthParams("/sign-in/facility")}>{t("ctaSignIn")}</Link>
+            <Link href={withAuthParams("/sign-in/operator")}>{t("ctaSignIn")}</Link>
           </Button>
         </CardContent>
       </Card>
     );
   }
 
-  const signUpHref = withAuthParams(`/sign-up/client?invite_token=${encodeURIComponent(token)}`);
-  const signInHref = withAuthParams(`/sign-in/facility?invite_token=${encodeURIComponent(token)}`);
+  const signUpHref = withAuthParams(`/sign-up/operator?invite_token=${encodeURIComponent(token)}`);
+  const signInHref = withAuthParams(`/sign-in/operator?invite_token=${encodeURIComponent(token)}`);
 
   return (
     <Card className="w-full max-w-lg">

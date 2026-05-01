@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 import { auth as triggerAuth, tasks } from "@trigger.dev/sdk/v3";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import type { matchCoverageTask } from "@/trigger/staff-requests";
 import {
     DEFAULT_STAFF_REQUEST_PROFESSION,
@@ -27,11 +27,12 @@ import {
 import { totalCoveredHoursFromMatchSchedule } from "../pricing/staff-request-pricing";
 import { getSession } from "@/lib/get-session";
 import { normalizeProfessionId } from "@/lib/professions";
-import type { Database, Json } from "@/services/supabase/types/database";
+import type { Database, Json } from "@/supabase/types/database";
 import {
     createDraftLocationSchema,
     locationPayloadToJson,
 } from "../lib/staff-request-location-json";
+import { OPERATOR_ROLE } from "@/features/auth/types";
 
 const dailyWindowSchema = z.object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -108,7 +109,7 @@ async function getRowOrFail(requestId: string) {
 export async function getStaffRequestRow(requestId: string) {
     const session = await getSession();
     if (!session) return { ok: false, message: "Unauthenticated" };
-    if (session.role !== "client") return { ok: false, message: "Unauthorized" };
+    if (session.role !== OPERATOR_ROLE) return { ok: false, message: "Unauthorized" };
     if (!session.facilityId) return { ok: false, message: "Unauthorized" };
     const result = await getRowOrFail(requestId);
     if (!result.ok) return result;
@@ -126,7 +127,7 @@ export async function getPendingPricingStaffRequestForClient(
 ): Promise<{ ok: true; data: StaffRequestRow } | { ok: false; message: string }> {
     const session = await getSession();
     if (!session) return { ok: false, message: "Unauthenticated" };
-    if (session.role !== "client") return { ok: false, message: "Unauthorized" };
+    if (session.role !== OPERATOR_ROLE) return { ok: false, message: "Unauthorized" };
     if (!session.facilityId) return { ok: false, message: "Unauthorized" };
 
     const supabase = await createAdminClient();

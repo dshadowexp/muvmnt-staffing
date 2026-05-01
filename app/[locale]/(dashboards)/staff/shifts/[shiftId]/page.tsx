@@ -82,7 +82,7 @@ async function ShiftContent({
       </dl>
 
       <ShiftTimeline
-        audience="worker"
+        audience="staff"
         shift={{
           created_at: shift.created_at,
           confirm_time: shift.confirm_time,
@@ -149,7 +149,7 @@ export default async function WorkerShiftDetailPage({
 
   return (
     <div className="flex w-full max-w-2xl mx-auto flex-col gap-8">
-      <BackLink backHref="/dashboard/shifts" title="Shifts" />
+      <BackLink backHref="/staff/shifts" title="Shifts" />
 
       <Suspense fallback={<DetailSkeleton />}>
         <ShiftContent shiftId={shiftId} workerId={worker.id} />

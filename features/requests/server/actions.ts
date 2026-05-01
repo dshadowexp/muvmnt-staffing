@@ -202,12 +202,12 @@ export async function confirmStaffRequestAction(requestId: string) {
     if (!row.ok) return { error: true as const, message: row.message };
     if (!row.data) return { error: true as const, message: "Request not found" };
     if (row.data.status === STAFF_REQUEST_STATUS_CONFIRMED) {
-        redirect(`/dashboard/requests/${requestId}`);
+        redirect(`/app/requests/${requestId}`);
     }
 
     const cache = row.data.coverage_data as CoverageDataCache | null;
     if (!cache?.schedule?.length || row.data.pricing_rate == null) {
-        redirect(`/dashboard/requests/${requestId}/pricing`);
+        redirect(`/app/requests/${requestId}/pricing`);
     }
 
     const handle = await tasks.trigger<typeof confirmAndChargeTask>(
@@ -232,18 +232,6 @@ export async function confirmStaffRequestAction(requestId: string) {
         runId: handle.id,
         publicAccessToken,
     };
-}
-
-function totalFromCache(cache: CoverageDataCache, rate: number): number {
-    let hours = 0;
-    for (const day of cache.schedule) {
-        for (const a of day.assignments) {
-            const [sh = 0, sm = 0] = a.startTime.split(":").map(Number);
-            const [eh = 0, em = 0] = a.endTime.split(":").map(Number);
-            hours += Math.max(0, (eh * 60 + em - sh * 60 - sm) / 60);
-        }
-    }
-    return Math.round(hours * rate * 100);
 }
 
 // ─── Worker photo (S3 key → presigned URL) ─────────────────────────────────

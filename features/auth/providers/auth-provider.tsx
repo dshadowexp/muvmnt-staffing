@@ -11,12 +11,23 @@ import React, {
 } from "react";
 import { auth } from "@/services/firebase/auth";
 import { deleteSession, setSession } from "@/lib/session";
-import { ADMIN_ROLE, CANDIDATE_ROLE, UserAuth, UserRole } from "@/features/auth/types";
+import { ADMIN_ROLE, CANDIDATE_ROLE, OPERATOR_ROLE, STAFF_ROLE, UserAuth, UserRole } from "@/features/auth/types";
 import { useRouter } from "@/i18n/navigation";
 import { logout } from "@/services/firebase/auth";
 import { recordReferralAction } from "@/features/referrals/actions";
 import { deregisterPushTokenAction } from "@/features/notifications/actions";
 import { exchangeFirebaseUser } from "../actions";
+
+const OPERATOR_LS_FIRST_NAME = "readykare_operator_first_name";
+const OPERATOR_LS_LAST_NAME = "readykare_operator_last_name";
+
+function peekOperatorSignupNames(): { firstName: string; lastName: string } | null {
+    if (typeof window === "undefined") return null;
+    const f = localStorage.getItem(OPERATOR_LS_FIRST_NAME)?.trim();
+    const l = localStorage.getItem(OPERATOR_LS_LAST_NAME)?.trim();
+    if (!f || !l) return null;
+    return { firstName: f, lastName: l };
+}
 import posthog from "posthog-js";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
@@ -139,12 +150,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const inviteToken =
             pendingInviteTokenRef.current ?? searchParams.get("invite_token");
 
+        const operatorSignupNames =
+            pendingRoleRef.current === OPERATOR_ROLE ? peekOperatorSignupNames() : null;
+
         const result = await exchangeFirebaseUser({
             authId: user.uid,
             email: user.email ?? "",
             emailVerified: user.emailVerified ?? false,
             role: pendingRoleRef.current ?? undefined,
             inviteToken: inviteToken ?? undefined,
+            operatorSignupNames,
         });
 
         if (result.status === "not_found") return "not_found";
@@ -165,6 +180,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // status === "ok" — persist session and update state
         setAuthUser(result.user);
         await setSession(result.user);
+
+        if (
+            result.user.role === OPERATOR_ROLE &&
+            typeof window !== "undefined"
+        ) {
+            localStorage.removeItem(OPERATOR_LS_FIRST_NAME);
+            localStorage.removeItem(OPERATOR_LS_LAST_NAME);
+        }
 
         // Capture and clear pending refs before any async work
         const pendingReferral = pendingReferralCodeRef.current;
@@ -306,14 +329,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             !redirectParam.startsWith("//")
                                 ? redirectParam
                                 : null;
-                        const defaultDest =
-                            outcome.user.role === ADMIN_ROLE
-                                ? "/admin"
-                                : "/dashboard";
-                        router.push(
-                            (safeParam ??
-                                defaultDest) as Parameters<typeof router.push>[0],
-                        );
+                        let dest = "/";
+                        if (outcome.user.role === ADMIN_ROLE) dest = "/admin";
+                        if (outcome.user.role === STAFF_ROLE) dest = "/staff";
+                        if (outcome.user.role === OPERATOR_ROLE)
+                            dest = outcome.user.facilityId ? "/app" : "/onboarding";
+                        if (outcome.user.role === CANDIDATE_ROLE) dest = "/s";
+                        const target = safeParam ?? dest;
+                        const normalized =
+                            outcome.user.role === OPERATOR_ROLE &&
+                            !outcome.user.facilityId &&
+                            (target === "/app" || target.startsWith("/app/"))
+                                ? "/onboarding"
+                                : target;
+                        router.push(normalized as Parameters<typeof router.push>[0]);
                     }
                     // Else: session restored on an in-app or marketing URL — keep current route (reload / deep link).
                 }

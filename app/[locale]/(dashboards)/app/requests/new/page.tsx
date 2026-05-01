@@ -64,10 +64,10 @@ async function NewStaffRequestPageContent() {
     const tWizard = await getTranslations("staffRequest.wizard");
     if (!pendingDraft.ok) {
         if (pendingDraft.message === "Unauthenticated") {
-            redirect({ href: "/sign-in?redirect=/dashboard/requests/new", locale: "en" });
+            redirect({ href: "/sign-in?redirect=/app/requests/new", locale: "en" });
         }
         if (pendingDraft.message === "Unauthorized") {
-            redirect({ href: "/dashboard", locale: "en" });
+            redirect({ href: "/app", locale: "en" });
         }
     }
 

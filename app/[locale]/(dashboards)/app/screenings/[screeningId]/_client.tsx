@@ -311,7 +311,7 @@ export function ScreeningDetailClient({
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
-      <BackLink backHref="/dashboard/screenings" title="Screenings" />
+      <BackLink backHref="/app/screenings" title="Screenings" />
       <div className="flex items-start gap-3">
         <h1 className="text-lg font-semibold tracking-tight">
           {screening.title}
@@ -460,7 +460,7 @@ export function ScreeningDetailClient({
           return (
             <Link
               className="transition-[transform_opacity] hover:scale-[1.02]"
-              href={`/dashboard/screenings/${screening.id}/edit`}
+              href={`/app/screenings/${screening.id}/edit`}
             >
               {card}
             </Link>
@@ -535,7 +535,7 @@ export function ScreeningDetailClient({
           return (
             <Link
               className="transition-transform hover:scale-[1.02]"
-              href={`/dashboard/screenings/${screening.id}/evaluate`}
+              href={`/app/screenings/${screening.id}/evaluate`}
             >
               {card}
             </Link>

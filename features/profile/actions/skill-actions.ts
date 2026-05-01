@@ -1,7 +1,7 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import {
   skillsSchema,
   type SkillsFormValues,

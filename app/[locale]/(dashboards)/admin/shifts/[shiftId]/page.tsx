@@ -32,7 +32,7 @@ export default async function AdminShiftPage({ params }: PageProps) {
   const data = await getAdminShiftReview(shiftId);
   if (!data) notFound();
 
-  const { shift, client, worker, request } = data;
+  const { shift, facility, worker, request } = data;
   const workerName = worker
     ? `${worker.first_name} ${worker.last_name}`.trim()
     : null;
@@ -112,7 +112,7 @@ export default async function AdminShiftPage({ params }: PageProps) {
       <Card size="sm">
         <CardHeader>
           <CardTitle>Parties</CardTitle>
-          <CardDescription>Worker, client and source request</CardDescription>
+          <CardDescription>Worker, facility and source request</CardDescription>
         </CardHeader>
         <CardContent>
           <dl className="space-y-3">
@@ -132,14 +132,14 @@ export default async function AdminShiftPage({ params }: PageProps) {
               }
             />
             <AdminDetailRow
-              label="Client"
+              label="Facility"
               value={
-                client ? (
+                facility ? (
                   <Link
-                    href={`/admin/clients/${client.id}`}
+                    href={`/admin/facilities/${facility.id}`}
                     className="text-primary hover:underline"
                   >
-                    {client.name}
+                    {facility.name}
                   </Link>
                 ) : (
                   "—"

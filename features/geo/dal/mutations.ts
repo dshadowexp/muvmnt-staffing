@@ -1,12 +1,13 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import type { AddressLocation } from "@/features/geo/types";
 import { latLngToCell } from "h3-js";
 import { H3_RESOLUTION } from "@/lib/constants";
 import { toAddressJson } from "../lib/build-address-location";
-import { tryPromoteWorkerAfterAvailabilityChecks } from "@/features/workers/server/stage-promotion";
+import { tryPromoteWorkerAfterAvailabilityChecks } from "@/features/staff/server/stage-promotion";
+import { OPERATOR_MANAGER_PERMISSION, OPERATOR_OWNER_PERMISSION, OPERATOR_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 
 /**
@@ -21,7 +22,7 @@ export async function upsertLocationAction(location: AddressLocation) {
   const supabase = await createAdminClient();
   const addressJson = toAddressJson(location);
 
-  if (session.role === "worker") {
+  if (session.role === STAFF_ROLE) {
     const { error } = await supabase
       .from("workers")
       .update({ address: addressJson })
@@ -34,7 +35,7 @@ export async function upsertLocationAction(location: AddressLocation) {
     return { error: false, message: "Address updated successfully" };
   }
 
-  if (session.role === "client") {
+  if (session.role === OPERATOR_ROLE && (session.facilityRole === OPERATOR_OWNER_PERMISSION || session.facilityRole === OPERATOR_MANAGER_PERMISSION) ) {
     const { facilityId } = session;
     if (!facilityId) return { error: true, message: "No facility found" };
 

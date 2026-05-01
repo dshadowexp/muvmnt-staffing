@@ -3,11 +3,12 @@ import { Suspense } from "react";
 import { getLocale } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
 import { getCurrentUser } from "@/features/users/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { resolveScreeningToken, type CandidateIdentityVerification } from "@/features/screenings/dal/queries";
 import { getOrCreateScreeningCandidate } from "@/features/screenings/dal/mutations";
 import { redirect } from "@/i18n/navigation";
 import { ScreeningCandidateClient } from "./_client";
+import { CANDIDATE_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export default async function ScreeningTokenPage({
   params,
@@ -78,7 +79,7 @@ async function SuspendedContent({
   }
 
   // Only candidates and workers may access screening links
-  if (session.role !== "candidate" && session.role !== "worker") {
+  if (session.role !== CANDIDATE_ROLE && session.role !== STAFF_ROLE) {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
         <h1 className="text-2xl font-semibold">Wrong account type</h1>

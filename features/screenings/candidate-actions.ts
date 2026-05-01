@@ -69,7 +69,7 @@ export async function saveCandidateDetailsAction(
 
   // Idempotent: already past details
   if (candidate.stage !== "details") {
-    const { createAdminClient } = await import("@/services/supabase/server");
+    const { createAdminClient } = await import("@/supabase/server");
     const supabase = await createAdminClient();
     const { data: iv } = await supabase
       .from("interviews")

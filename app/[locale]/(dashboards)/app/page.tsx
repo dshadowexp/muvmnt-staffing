@@ -165,7 +165,7 @@ export default async function ClientHomePage() {
           {t("makeRequest")}
         </h1>
         <div>
-          <Link className="transition-opacity" href="/dashboard/requests/new" prefetch={true}>
+          <Link className="transition-opacity" href="/app/requests/new" prefetch={true}>
             <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
               <div className="text-lg flex items-center gap-2">
                 <UserRoundSearchIcon className="size-6" />
@@ -181,7 +181,7 @@ export default async function ClientHomePage() {
           {t("createScreening")}
         </h1>
         <div>
-          <Link className="transition-opacity" href="/dashboard/screenings/new" prefetch={true}>
+          <Link className="transition-opacity" href="/app/screenings/new" prefetch={true}>
             <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
               <div className="text-lg flex items-center gap-2">
                 <FingerprintIcon className="size-6" />

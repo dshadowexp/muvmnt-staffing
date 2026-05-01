@@ -12,7 +12,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   resolveActiveNavHref,
   sidebarNavItemClassName,
-} from "./sidebar-nav-active";
+} from "@/components/sidebar-nav-active";
 import { LockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 

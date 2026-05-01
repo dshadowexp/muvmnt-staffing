@@ -98,7 +98,7 @@ export async function GET(request: Request) {
       oauthError.includes("cancel") || oauthError.includes("denied")
         ? "cancelled"
         : "failed";
-    const backToSignIn = new URL("/sign-in/worker", currentUrl.origin);
+    const backToSignIn = new URL("/sign-in/staff", currentUrl.origin);
     backToSignIn.searchParams.set("oauth", "linkedin");
     backToSignIn.searchParams.set("status", status);
     return NextResponse.redirect(backToSignIn);
@@ -106,7 +106,7 @@ export async function GET(request: Request) {
 
   const code = currentUrl.searchParams.get("code");
   if (!code) {
-    const backToSignIn = new URL("/sign-in/worker", currentUrl.origin);
+    const backToSignIn = new URL("/sign-in/staff", currentUrl.origin);
     backToSignIn.searchParams.set("oauth", "linkedin");
     backToSignIn.searchParams.set("status", "failed");
     return NextResponse.redirect(backToSignIn);
@@ -178,7 +178,7 @@ export async function GET(request: Request) {
     return res;
   } catch (error) {
     console.error("[linkedin] Error during LinkedIn authentication:", error);
-    const backToSignIn = new URL("/sign-in/worker", currentUrl.origin);
+    const backToSignIn = new URL("/sign-in/staff", currentUrl.origin);
     backToSignIn.searchParams.set("oauth", "linkedin");
     backToSignIn.searchParams.set("status", "failed");
     return NextResponse.redirect(backToSignIn);

@@ -34,16 +34,16 @@ async function EvaluateContent({
   const locale = await getLocale();
 
   const facility = await getFacilityProfile();
-  if (!facility) return redirect({ href: "/dashboard", locale });
+  if (!facility) return redirect({ href: "/app", locale });
 
   const [screening, candidates] = await Promise.all([
     getScreeningById(screeningId, facility.id),
     getCandidatesForScreening(screeningId),
   ]);
 
-  if (!screening) return redirect({ href: "/dashboard/screenings", locale });
+  if (!screening) return redirect({ href: "/app/screenings", locale });
   if (candidates.length === 0) {
-    return redirect({ href: `/dashboard/screenings/${screeningId}`, locale });
+    return redirect({ href: `/app/screenings/${screeningId}`, locale });
   }
 
   // Resolve S3 keys → presigned URLs for all candidate photos in parallel

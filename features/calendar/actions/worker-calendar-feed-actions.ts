@@ -1,7 +1,7 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { env } from "@/data/env/client";
 import { rotateWorkerCalendarFeedToken } from "@/features/calendar/server/worker-calendar-feed";
 

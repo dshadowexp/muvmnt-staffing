@@ -1,7 +1,7 @@
 import "server-only";
-import { createAdminClient } from "@/services/supabase/server";
-import type { UserRole } from "@/features/auth/types";
-import type { Database } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import { STAFF_ROLE, type UserRole } from "@/features/auth/types";
+import type { Database } from "@/supabase/types/database";
 import { enqueueNotification } from "@/features/notifications/service/enqueue";
 import { env } from "@/data/env/server";
 
@@ -116,8 +116,8 @@ export async function findOrCreateUser(params: {
           template: "welcome-followup",
           data: {
             firstName: null,
-            isWorker: newUser.role === "worker",
-            dashboardUrl: `${baseUrl}/dashboard`,
+            isWorker: newUser.role === STAFF_ROLE,
+            dashboardUrl: `${baseUrl}/staff`,
             previewText: "A few quick next steps",
             unsubscribeUrl: `${baseUrl}/`,
             privacyUrl: `${baseUrl}/`,

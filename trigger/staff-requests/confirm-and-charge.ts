@@ -10,10 +10,10 @@ import {
     insertShiftsFromCoverage,
     type ShiftLocationPayload,
 } from "@/features/requests/server/shifts";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { parseShiftLocationFromStaffRequestLocation } from "@/features/requests/lib/staff-request-location-json";
 import { STAFF_REQUEST_STATUS_CONFIRMED } from "@/features/requests/constants";
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 import { runStaffRequestBookingSideEffects } from "@/features/shifts/server/post-shift-insert-booking";
 import { getUserIdForOperator } from "@/features/account/server/operator-context";
 

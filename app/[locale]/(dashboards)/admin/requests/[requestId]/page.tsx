@@ -19,6 +19,7 @@ import {
   AdminDetailRow,
 } from "@/features/admin/components/admin-detail-layout";
 import { getAdminRequestReview } from "@/features/admin/dal/queries";
+import { formatStaffRequestLocationDisplay } from "@/features/requests/lib/staff-request-location-json";
 import { Link } from "@/i18n/navigation";
 import { format } from "date-fns";
 import type { Metadata } from "next";
@@ -35,24 +36,6 @@ export async function generateMetadata({
   return {
     title: `Request ${data.request.id.slice(0, 8)} | Admin`,
   };
-}
-
-function formatLocation(
-  loc: Awaited<ReturnType<typeof getAdminRequestReview>> extends infer T
-    ? T extends { location: infer L }
-      ? L
-      : never
-    : never,
-): string {
-  if (!loc) return "—";
-  const parts = [
-    loc.address,
-    loc.city,
-    loc.admin_area,
-    loc.postal_code,
-    loc.country_code,
-  ].filter((p): p is string => Boolean(p));
-  return parts.join(", ");
 }
 
 function formatCents(cents: number | null, currency: string) {
@@ -74,7 +57,7 @@ export default async function AdminRequestPage({ params }: PageProps) {
   const data = await getAdminRequestReview(requestId);
   if (!data) notFound();
 
-  const { request, client, location, shifts, payments } = data;
+  const { request, facility, shifts, payments } = data;
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-6">
@@ -94,19 +77,19 @@ export default async function AdminRequestPage({ params }: PageProps) {
       <Card size="sm">
         <CardHeader>
           <CardTitle>Overview</CardTitle>
-          <CardDescription>Schedule, scope, and client</CardDescription>
+          <CardDescription>Schedule, scope, and facility</CardDescription>
         </CardHeader>
         <CardContent>
           <dl className="space-y-3">
             <AdminDetailRow
-              label="Client"
+              label="Facility"
               value={
-                client ? (
+                facility ? (
                   <Link
-                    href={`/admin/clients/${client.id}`}
+                    href={`/admin/facilities/${facility.id}`}
                     className="text-primary hover:underline"
                   >
-                    {client.name}
+                    {facility.name}
                   </Link>
                 ) : (
                   "—"
@@ -136,7 +119,10 @@ export default async function AdminRequestPage({ params }: PageProps) {
                   : "—"
               }
             />
-            <AdminDetailRow label="Location" value={formatLocation(location)} />
+            <AdminDetailRow
+              label="Location"
+              value={formatStaffRequestLocationDisplay(request.location)}
+            />
             {request.notes ? (
               <AdminDetailRow label="Notes" value={request.notes} />
             ) : null}
