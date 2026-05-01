@@ -191,7 +191,7 @@ async function ShiftsSection({
         <p className="text-muted-foreground text-sm">{t("shiftsDescription")}</p>
       </div>
       <div className="overflow-x-auto rounded-xl border border-border">
-        <ShiftsTable rows={shifts} variant="worker-request" />
+        <ShiftsTable rows={shifts} variant="staff-request" />
       </div>
     </section>
   );
@@ -324,7 +324,7 @@ export async function StaffRequestWorkerDetail({
 
   return (
     <div className="w-full max-w-5xl space-y-8">
-      <BackLink backHref="/dashboard/shifts" title={t("backTitle")} />
+      <BackLink backHref="/staff/shifts" title={t("backTitle")} />
 
       <header className="space-y-3">
         <div className="flex items-start justify-between gap-4">

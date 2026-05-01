@@ -9,8 +9,9 @@ import { redirect } from "@/i18n/navigation";
 import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import { saveCandidatePhotoAction } from "@/features/screenings/candidate-actions";
 import { getScreeningCandidate } from "@/features/screenings/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { InterviewStepsClient } from "./_steps-client";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export default async function InterviewPage({
   params,
@@ -105,7 +106,7 @@ async function SuspendedContent({
   }
 
   // ── Worker flow ─────────────────────────────────────────────────────────────
-  if (session.role !== "worker") return redirect({ href: "/dashboard", locale });
+  if (session.role !== STAFF_ROLE) return redirect({ href: "/staff", locale });
 
   const [interview, worker] = await Promise.all([
     getInterviewByIdForUser(interviewId, session.userId),
@@ -113,11 +114,11 @@ async function SuspendedContent({
   ]);
 
   // Not found, wrong owner, or worker profile missing
-  if (!interview || !worker) return redirect({ href: "/dashboard", locale });
+  if (!interview || !worker) return redirect({ href: "/staff", locale });
 
   // Locked (passed, or failed and still in retry window) — nothing to do here
   if (isAssessmentInterviewLocked(interview)) {
-    return redirect({ href: "/dashboard", locale });
+    return redirect({ href: "/staff", locale });
   }
 
   const t = await getTranslations("assessments.interview");
@@ -129,9 +130,9 @@ async function SuspendedContent({
   return (
     <InterviewStepsClient
       interviewId={interview.id}
-      role="worker"
+      role={STAFF_ROLE}
       userName={userName}
-      backHref="/dashboard"
+      backHref="/staff"
       title={t("hub.defaultTitle")}
       subtitle={t("hub.defaultSubtitle")}
       hasPhoto={Boolean(worker.photo_url)}

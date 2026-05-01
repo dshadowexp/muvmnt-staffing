@@ -1,8 +1,11 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
-import type { Tables } from "@/services/supabase/types/database";
-import { parseSiteRowFromStaffRequestLocation } from "../lib/staff-request-location-json";
+import { createAdminClient } from "@/supabase/server";
+import type { Tables } from "@/supabase/types/database";
+import {
+  parseSiteRowFromFacilityAddressJson,
+  parseSiteRowFromStaffRequestLocation,
+} from "../lib/staff-request-location-json";
 
 export type StaffRequestSiteRow = {
   address: string;
@@ -15,7 +18,6 @@ export type StaffRequestSiteRow = {
   instructions: string | null;
 };
 
-/** Worker-visible slice of a staff request (no client pricing tier / rate on the page). */
 export type WorkerStaffRequestSummary = Pick<
   Tables<"staff_requests">,
   | "id"
@@ -73,7 +75,7 @@ export async function getStaffRequestSiteForWorker(
   const supabase = await createAdminClient();
   const { data: sr, error: srErr } = await supabase
     .from("staff_requests")
-    .select("operator_id, location")
+    .select("facility_id, location")
     .eq("id", requestId)
     .single();
 
@@ -82,26 +84,14 @@ export async function getStaffRequestSiteForWorker(
   const fromRequest = parseSiteRowFromStaffRequestLocation(sr.location);
   if (fromRequest) return { location: fromRequest };
 
-  const { data: opRow } = await supabase
-    .from("operators")
-    .select("user_id")
-    .eq("id", sr.operator_id)
-    .maybeSingle();
-  const creatorUserId = opRow?.user_id ?? null;
-  if (!creatorUserId) return { location: null };
-
-  const { data: loc, error: locErr } = await supabase
-    .from("locations")
-    .select(
-      "address, address_line_1, address_line_2, city, admin_area, postal_code, country_code",
-    )
-    .eq("user_id", creatorUserId)
+  const { data: fac, error: facErr } = await supabase
+    .from("facilities")
+    .select("address")
+    .eq("id", sr.facility_id)
     .maybeSingle();
 
-  if (locErr) throw new Error(locErr.message);
+  if (facErr) throw new Error(facErr.message);
   return {
-    location: loc
-      ? { ...loc, instructions: null as string | null }
-      : null,
+    location: parseSiteRowFromFacilityAddressJson(fac?.address ?? null),
   };
 }

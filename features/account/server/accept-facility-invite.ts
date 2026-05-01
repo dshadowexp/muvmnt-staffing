@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 export type AcceptFacilityInviteResult =
   | { ok: true; facilityId: string | null }

@@ -1,7 +1,7 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
-import type { Database, TablesInsert } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Database, TablesInsert } from "@/supabase/types/database";
 import type { SubscriptionPlan } from "@/services/stripe/server";
 
 /** Persisted `subscriptions.status` — matches Postgres enum `subscription_status`. */

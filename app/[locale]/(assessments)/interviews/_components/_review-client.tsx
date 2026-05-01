@@ -46,7 +46,7 @@ import {
   parseInterviewFeedback,
   type InterviewFeedbackParsed,
 } from "@/features/interviews/lib/interview-feedback-json";
-import type { Database } from "@/services/supabase/types/database";
+import type { Database } from "@/supabase/types/database";
 import { InterviewHeader } from "../_components/interview-header";
 
 type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
@@ -220,7 +220,7 @@ function FeedbackSection({
           <CardDescription>{t("notReadyDescription")}</CardDescription>
           <div className="flex justify-center">
             <Link 
-              href={retakeHref ?? "/dashboard/assessments"}
+              href={retakeHref ?? "/staff"}
               className="text-muted-foreground hover:text-foreground inline-flex w-fit shrink-0 items-center gap-2 rounded-lg border border-dashed border-border bg-muted/15 px-3 py-2 text-sm font-medium transition-colors hover:border-primary/40 hover:bg-muted/30"
             >
               {t("completeInterview")}

@@ -1,5 +1,5 @@
 import { PROFESSION_IDS, type ProfessionalRole } from "@/lib/professions";
-import { UserRole } from "@/features/auth/types";
+import { ADMIN_ROLE, CANDIDATE_ROLE, OPERATOR_ROLE, STAFF_ROLE, UserRole } from "@/features/auth/types";
 import { env } from "@/data/env/client";
 
 // ── Site ─────────────────────────────────────────────────────────────────────
@@ -60,10 +60,10 @@ export const INACTIVE_PREFIXES: string[] = [
 // Only the root prefix is needed — startsWith handles all sub-routes
 
 export const DASHBOARD_PREFIXES: Record<UserRole, string[]> = {
-  worker:    ["/dashboard", "/interviews", "/s"],
-  client:    ["/dashboard", "/upgrade"],
-  admin:     ["/dashboard/admin", "/dashboard/referrals"],
-  candidate: ["/s", "/interviews"],
+  [STAFF_ROLE]:    ["/staff", "/interviews"],
+  [OPERATOR_ROLE]:  ["/app", "/upgrade"],
+  [ADMIN_ROLE]:     ["/admin"],
+  [CANDIDATE_ROLE]: ["/s", "/interviews"],
 };
 
 export type RequesterType =

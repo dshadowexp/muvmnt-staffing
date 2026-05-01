@@ -22,7 +22,7 @@ export default async function OnboardingPage() {
 
   if (is_completed) {
     return redirect({
-      href: session.isActive ? `/dashboard` : "/review",
+      href: "/review",
       locale,
     });
   }

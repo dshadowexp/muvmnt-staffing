@@ -1,6 +1,5 @@
+import { OPERATOR_ROLE } from "@/features/auth/types"
 import { Permissions, ROLES, RolesWithPermissions, Todo,User } from "./rules"
-
-
 
 export function hasPermission<Resource extends keyof Permissions>(
     user: User,
@@ -18,7 +17,7 @@ export function hasPermission<Resource extends keyof Permissions>(
   }
   
   // USAGE:
-  const user: User = { blockedBy: ["2"], id: "1", roles: ["client"] }
+  const user: User = { blockedBy: ["2"], id: "1", roles: [OPERATOR_ROLE] }
   const todo: Todo = {
     completed: false,
     id: "3",

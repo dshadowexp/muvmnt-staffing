@@ -1,9 +1,9 @@
 import "server-only";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { redirect } from "next/navigation";
-import type { FacilityRole } from "@/features/auth/types";
+import { OperatorPermission } from "@/features/auth/types";
 
 // ─── Facility ─────────────────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ export async function updateFacility(
 export async function updateOperatorPermission(
   operatorId: string,
   facilityId: string,
-  permission: FacilityRole,
+  permission: OperatorPermission,
 ) {
   const supabase = await createAdminClient();
   const { error } = await supabase

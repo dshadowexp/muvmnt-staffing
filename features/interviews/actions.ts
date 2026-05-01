@@ -2,7 +2,7 @@
 
 import { getSession } from "@/lib/get-session";
 import { professionLabelEn } from "@/lib/labels-en";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import {
   getInterviewByIdForUser,

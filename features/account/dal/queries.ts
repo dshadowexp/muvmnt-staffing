@@ -1,13 +1,13 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
-import type { FacilityRole } from "@/features/auth/types";
+import { createAdminClient } from "@/supabase/server";
+import { OperatorPermission } from "@/features/auth/types";
 
 export type OperatorRow = {
   id: string;
   user_id: string;
   email: string | null;
-  permission: FacilityRole;
+  permission: OperatorPermission;
   invited_by: string | null;
   created_at: string;
 };
@@ -35,7 +35,7 @@ export async function getOperators(facilityId: string): Promise<OperatorRow[]> {
     id: row.id,
     user_id: row.user_id,
     email: (row.user as { email: string | null } | null)?.email ?? null,
-    permission: row.permission as FacilityRole,
+    permission: row.permission as OperatorPermission,
     invited_by: row.invited_by,
     created_at: row.created_at,
   }));

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/get-session";
 import { saveWorkerAvailabilityBundle } from "./dal/mutations";
 import { availabilityOnboardingPayloadSchema } from "./schema";
+import { STAFF_ROLE } from "../auth/types";
 
 export type UpdateWorkerAvailabilityState =
   | undefined
@@ -18,7 +19,7 @@ export async function updateWorkerAvailabilityAppAction(
   if (!session) {
     return { ok: false, error: "Not signed in" };
   }
-  if (session.role !== "worker") {
+  if (session.role !== STAFF_ROLE) {
     return { ok: false, error: "Only workers can update availability" };
   }
 
@@ -45,8 +46,8 @@ export async function updateWorkerAvailabilityAppAction(
     return { ok: false, error: saved.message };
   }
 
-  revalidatePath("/dashboard/availability");
-  revalidatePath("/dashboard/availability/edit");
+  revalidatePath("/staff/availability");
+  revalidatePath("/staff/availability/edit");
 
   return { ok: true };
 }

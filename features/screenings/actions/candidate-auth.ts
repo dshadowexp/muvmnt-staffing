@@ -1,7 +1,7 @@
 "use server";
 
 import { getAdminAuth } from "@/services/firebase/admin";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 /**
  * Resolves a screening invite token → generates a Firebase custom token

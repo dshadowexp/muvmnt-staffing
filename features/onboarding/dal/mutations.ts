@@ -1,8 +1,8 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
-import type { Json } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Json } from "@/supabase/types/database";
 import type {
   CompleteOnboardingStepResult,
   OnboardingStepsJson,

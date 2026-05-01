@@ -65,16 +65,16 @@ export function ShiftsTable({
   variant,
 }: {
   rows: ShiftTableRow[];
-  variant: "worker" | "worker-request" | "client-all" | "client-request";
+  variant: "staff" | "staff-request" | "client-all" | "client-request";
 }) {
   const router = useRouter();
-  const showWorker = variant !== "worker" && variant !== "worker-request";
+  const showAssigneeColumn = variant !== "staff" && variant !== "staff-request";
   const showRequestLink = variant === "client-all";
-  const showRateAndPay = variant === "worker" || variant === "worker-request";
+  const showRateAndPay = variant === "staff" || variant === "staff-request";
   const showRequestColumn = variant === "client-all";
   const showHoursColumn = variant === "client-all";
   const isClientRequestVariant = variant === "client-request";
-  const isWorkerRequestVariant = variant === "worker-request";
+  const isStaffRequestVariant = variant === "staff-request";
 
   const pagination = useTablePagination(allRows);
   const rows = pagination.rows;
@@ -92,10 +92,10 @@ export function ShiftsTable({
     <Table>
       <TableHeader>
         <TableRow>
-          {variant === "worker" || variant === "worker-request" ? (
+          {variant === "staff" || variant === "staff-request" ? (
             <>
               <TableHead>
-                {variant === "worker-request" ? "Shift" : "Location"}
+                {variant === "staff-request" ? "Shift" : "Location"}
               </TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Duration</TableHead>
@@ -106,7 +106,7 @@ export function ShiftsTable({
           ) : (
             <>
               {showRequestColumn ? <TableHead>Request</TableHead> : null}
-              {showWorker ? <TableHead>Worker</TableHead> : null}
+              {showAssigneeColumn ? <TableHead>Staff</TableHead> : null}
               <TableHead>From</TableHead>
               <TableHead>To</TableHead>
               {showHoursColumn ? (
@@ -140,7 +140,7 @@ export function ShiftsTable({
           const addressLine = formatShiftLocationLine(row.location);
           const fallbackDate = sr?.start_date ?? null;
 
-          if (variant === "worker" || variant === "worker-request") {
+          if (variant === "staff" || variant === "staff-request") {
             const dateLabel = formatShiftWorkerTableDate(
               row.start_time,
               fallbackDate,
@@ -154,46 +154,46 @@ export function ShiftsTable({
               <TableRow
                 key={row.id}
                 className={
-                  isWorkerRequestVariant
+                  isStaffRequestVariant
                     ? undefined
                     : cn(
                         "cursor-pointer rounded-md hover:bg-muted/60",
                         "focus-within:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                       )
                 }
-                tabIndex={isWorkerRequestVariant ? undefined : 0}
-                role={isWorkerRequestVariant ? undefined : "button"}
+                tabIndex={isStaffRequestVariant ? undefined : 0}
+                role={isStaffRequestVariant ? undefined : "button"}
                 aria-label={
-                  isWorkerRequestVariant
+                  isStaffRequestVariant
                     ? undefined
                     : `Open shift on ${dateLabel}`
                 }
                 onClick={
-                  isWorkerRequestVariant
+                  isStaffRequestVariant
                     ? undefined
                     : () => {
-                        router.push(`/dashboard/shifts/${row.id}`);
+                        router.push(`/staff/shifts/${row.id}`);
                       }
                 }
                 onKeyDown={
-                  isWorkerRequestVariant
+                  isStaffRequestVariant
                     ? undefined
                     : (e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          router.push(`/dashboard/shifts/${row.id}`);
+                          router.push(`/staff/shifts/${row.id}`);
                         }
                       }
                 }
               >
                 <TableCell
                   className={
-                    isWorkerRequestVariant
+                    isStaffRequestVariant
                       ? "font-mono text-muted-foreground text-sm tabular-nums"
                       : "max-w-[min(28rem,55vw)] text-muted-foreground"
                   }
                 >
-                  {isWorkerRequestVariant ? (
+                  {isStaffRequestVariant ? (
                     <span className="tracking-tight" title={row.id}>
                       {row.id.slice(0, 8)}
                     </span>
@@ -216,7 +216,7 @@ export function ShiftsTable({
                   {payLabel}
                 </TableCell>
                 <TableCell className="w-[1%] whitespace-nowrap">
-                  {isWorkerRequestVariant ? (
+                  {isStaffRequestVariant ? (
                     <ShiftStatusBadge status={row.status} />
                   ) : (
                     <div
@@ -258,7 +258,7 @@ export function ShiftsTable({
               onClick={
                 isClientRequestVariant
                   ? () => {
-                      router.push(`/dashboard/requests/${row.request_id}/shifts/${row.id}`);
+                      router.push(`/app/requests/${row.request_id}/shifts/${row.id}`);
                     }
                   : undefined
               }
@@ -267,7 +267,7 @@ export function ShiftsTable({
                   ? (e: KeyboardEvent<HTMLTableRowElement>) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        router.push(`/dashboard/requests/${row.request_id}/shifts/${row.id}`);
+                        router.push(`/app/requests/${row.request_id}/shifts/${row.id}`);
                       }
                     }
                   : undefined
@@ -277,7 +277,7 @@ export function ShiftsTable({
                 showRequestLink ? (
                   <TableCell className="max-w-[220px] font-medium">
                     <Link
-                      href={`/dashboard/requests/${row.request_id}/shifts/${row.id}`}
+                      href={`/app/requests/${row.request_id}/shifts/${row.id}`}
                       className="text-primary hover:underline"
                     >
                       {requestLabel}
@@ -287,7 +287,7 @@ export function ShiftsTable({
                   <TableCell className="max-w-[200px] font-medium">{requestLabel}</TableCell>
                 )
               ) : null}
-              {showWorker ? (
+              {showAssigneeColumn ? (
                 <TableCell className="text-muted-foreground">
                   <div className="flex min-w-0 max-w-[min(100%,18rem)] items-center gap-2">
                     <Avatar size="sm" className="shrink-0">

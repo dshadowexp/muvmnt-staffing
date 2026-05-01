@@ -2,7 +2,7 @@
 
 import { addDays, format } from "date-fns";
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import {
   submitInterviewReview,
   promoteWorkerToCompliance,
@@ -80,8 +80,8 @@ export async function submitInterviewReviewAction(
   }
 
   const template = result === "pass" ? "interview-passed" : "interview-failed";
-  const complianceUrl = `${env.APP_URL}/dashboard/compliance`;
-  const dashboardUrl = `${env.APP_URL}/dashboard`;
+  const complianceUrl = `${env.APP_URL}/staff/compliance`;
+  const dashboardUrl = `${env.APP_URL}/staff`;
 
   const notificationData = {
     firstName,

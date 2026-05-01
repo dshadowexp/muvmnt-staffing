@@ -1,7 +1,8 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getSession } from "@/lib/get-session";
+import { OPERATOR_ROLE } from "@/features/auth/types";
 
 export type OperatorContext = {
   userId: string;
@@ -14,7 +15,7 @@ export async function requireOperatorContext(): Promise<
 > {
   const session = await getSession();
   if (!session) return { ok: false, message: "Unauthenticated" };
-  if (session.role !== "client") return { ok: false, message: "Unauthorized" };
+  if (session.role !== OPERATOR_ROLE) return { ok: false, message: "Unauthorized" };
   if (!session.facilityId) return { ok: false, message: "No facility" };
 
   const supabase = await createAdminClient();

@@ -67,7 +67,7 @@ export function LandingAuthCtas({
                     className,
                 )}
             >
-                <Link href="/dashboard" className={ctaPrimary}>{tNav("dashboard")}</Link>
+                <Link href="/staff" className={ctaPrimary}>{tNav("dashboard")}</Link>
             </div>
         );
     }

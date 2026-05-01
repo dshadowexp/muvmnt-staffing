@@ -4,8 +4,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { SetupClient } from "./_client";
+import { CANDIDATE_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 
 export default async function InterviewSetupPage({
@@ -38,7 +39,7 @@ async function SuspendedContent({
   if (!session) return redirect({ href: "/sign-in", locale });
 
   // Only workers/candidates should enter setup.
-  if (session.role !== "worker" && session.role !== "candidate") {
+  if (session.role !== STAFF_ROLE && session.role !== CANDIDATE_ROLE) {
     return redirect({ href: "/dashboard", locale });
   }
 

@@ -1,6 +1,7 @@
 import { env } from "@/data/env/client";
+import { STAFF_ROLE, OPERATOR_ROLE } from "@/features/auth/types";
 
-export type ReferralRoleHint = "worker" | "client";
+export type ReferralRoleHint = typeof STAFF_ROLE | typeof OPERATOR_ROLE;
 
 /**
  * Canonical share URL for a referral code.

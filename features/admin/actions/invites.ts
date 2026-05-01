@@ -10,6 +10,7 @@ import {
   buildReferralUrl,
   type ReferralRoleHint,
 } from "@/features/referrals/lib/build-referral-url";
+import { OPERATOR_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export type AdminInviteResult = {
   sent: number;
@@ -106,7 +107,7 @@ export async function sendClientInviteAction(input: {
 }): Promise<AdminInviteResult> {
   return sendInvitations({
     recipients: [{ email: input.email, name: input.name }],
-    as: "client",
+    as: OPERATOR_ROLE,
     template: "invite-client",
     subject: "You're invited to join readykare",
   });
@@ -122,7 +123,7 @@ export async function sendWorkerInvitesAction(input: {
 }): Promise<AdminInviteResult> {
   return sendInvitations({
     recipients: input.emails.map((email) => ({ email })),
-    as: "worker",
+    as: STAFF_ROLE,
     template: "invite-worker",
     subject: "You're invited to join readykare",
   });

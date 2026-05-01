@@ -3,10 +3,11 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "../providers/auth-provider";
+import { ADMIN_ROLE, CANDIDATE_ROLE, OPERATOR_ROLE, STAFF_ROLE } from "../types";
 
 const PRESERVED_AUTH_PARAM_KEYS = ["redirect", "as", "ref", "token"] as const;
 
-const DEFAULT_REDIRECT = "/dashboard";
+const DEFAULT_REDIRECT = "/";
 
 export type UseAuthRedirect = {
     redirectTo: string;
@@ -20,8 +21,11 @@ export function useAuthRedirect(): UseAuthRedirect {
     const redirectTo = useMemo(() => {
         const raw = searchParams.get("redirect");
         if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
-            // Role-aware default so admins skip the /dashboard → /dashboard/admin server redirect
-            if (authUser?.role === "admin") return "/dashboard/admin";
+            if (authUser?.role === ADMIN_ROLE) return "/admin";
+            if (authUser?.role === STAFF_ROLE) return "/staff";
+            if (authUser?.role === OPERATOR_ROLE)
+                return authUser.facilityId ? "/app" : "/onboarding";
+            if (authUser?.role === CANDIDATE_ROLE) return "/s";
             return DEFAULT_REDIRECT;
         }
         return raw;

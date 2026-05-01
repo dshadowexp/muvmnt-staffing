@@ -1,6 +1,7 @@
 "use server";
 
 import { getFirebaseUser } from "@/features/auth/actions";
+import { STAFF_ROLE } from "@/features/auth/types";
 import { completeOnboardingStep } from "@/features/onboarding/dal/mutations";
 import {
   onboardingStepError,
@@ -34,7 +35,7 @@ export const verifyDetailsAction = async (
       );
     }
   }
-  if (user.role === "worker" && !user.is_phone_verified) {
+  if (user.role === STAFF_ROLE && !user.is_phone_verified) {
     if (!firebaseUser.phoneNumber) return onboardingStepError("phoneNotVerified");
     try {
       await syncPhoneFromAuth(firebaseUser.phoneNumber);
@@ -53,6 +54,6 @@ export const verifyDetailsAction = async (
   }
 
   const redirectTo =
-    user.role === "worker" ? "/onboarding/profile" : "/onboarding/details";
+    user.role === STAFF_ROLE ? "/onboarding/profile" : "/onboarding/details";
   return { ok: true, redirectTo, steps: persist.steps };
 };

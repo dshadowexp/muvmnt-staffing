@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { tasks } from "@trigger.dev/sdk/v3";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import {
     verifyShiftResponseToken,
     type ShiftResponseAction,
@@ -267,7 +267,7 @@ export async function GET(req: NextRequest) {
                             template: "shift-reminder",
                             data: {
                                 shiftId: s.id,
-                                link:    `${APP_URL}/dashboard/shifts/${s.id}`,
+                                link:    `${APP_URL}/staff/shifts/${s.id}`,
                             },
                         }],
                         delayMs,

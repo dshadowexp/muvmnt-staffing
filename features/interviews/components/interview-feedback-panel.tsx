@@ -8,7 +8,7 @@ import {
   canRetakeFailedInterview,
   type InterviewFeedbackParsed,
 } from "@/features/interviews/lib/interview-feedback-json";
-import type { Database } from "@/services/supabase/types/database";
+import type { Database } from "@/supabase/types/database";
 
 type FeedbackSource = Database["public"]["Tables"]["interviews"]["Row"]["feedback"];
 

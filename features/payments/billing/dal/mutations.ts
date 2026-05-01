@@ -74,7 +74,7 @@ export async function createCheckoutSession(priceId: string) {
             },
         ],
         mode: "subscription",
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
         metadata: {
             userId: user.id,
@@ -104,7 +104,7 @@ export async function createPortalSession(): Promise<
 
     const portalSession = await getStripeServer().billingPortal.sessions.create({
         customer: ensured.customerId,
-        return_url: `${env.APP_URL}${user.is_active ? "/dashboard/account" : "/onboarding/billing"}`,
+        return_url: `${env.APP_URL}${user.is_active ? "/app/account" : "/onboarding/billing"}`,
         flow_data: {
             type: "payment_method_update",
         },

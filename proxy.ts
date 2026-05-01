@@ -8,7 +8,15 @@ import {
     INACTIVE_PREFIXES,
     DASHBOARD_PREFIXES,
 } from "./lib/constants";
-import { UserAuth, UserRole } from "./features/auth/types";
+import {
+    ADMIN_ROLE,
+    CANDIDATE_ROLE,
+    LEGACY_STAFF_DB_ROLE,
+    OPERATOR_ROLE,
+    STAFF_ROLE,
+    UserAuth,
+    UserRole,
+} from "./features/auth/types";
 import arcjet, { detectBot, shield, slidingWindow } from "@/services/arcjet/client";
 
 const ajBase = arcjet
@@ -80,8 +88,16 @@ function isInactivePath(path: string): boolean {
     return INACTIVE_PREFIXES.some((p) => hasPrefix(path, p));
 }
 
-function isAllowedForRole(pathname: string, role: UserRole): boolean {
-    return DASHBOARD_PREFIXES[role].some((p) => hasPrefix(pathname, p));
+/** Cookie may still carry legacy `"client"` or staff-role-as-`"worker"` from older sessions. */
+function roleForDashboardPrefixes(role: string): UserRole {
+    if (role === "client") return OPERATOR_ROLE;
+    if (role === LEGACY_STAFF_DB_ROLE) return STAFF_ROLE;
+    return role as UserRole;
+}
+
+function isAllowedForRole(pathname: string, role: UserRole | string): boolean {
+    const key = roleForDashboardPrefixes(String(role));
+    return DASHBOARD_PREFIXES[key].some((p) => hasPrefix(pathname, p));
 }
 
 function isRoleScopedPath(pathname: string): boolean {
@@ -89,10 +105,13 @@ function isRoleScopedPath(pathname: string): boolean {
     return prefixes.some((p) => hasPrefix(pathname, p));
 }
 
-function defaultRouteForRole(role: UserRole): string {
-    if (role === "admin") return "/dashboard/admin";
-    if (role === "candidate") return "/s";
-    return "/dashboard";
+function defaultDestination(session: UserAuth): string {
+    const role = roleForDashboardPrefixes(session.role);
+    if (role === ADMIN_ROLE) return "/admin";
+    if (role === CANDIDATE_ROLE) return "/s";
+    if (role === STAFF_ROLE) return "/staff";
+    if (role === OPERATOR_ROLE) return session.facilityId ? "/app" : "/onboarding";
+    return "/";
 }
 
 // ─── Proxy ───────────────────────────────────────────────────────────────
@@ -136,7 +155,7 @@ export async function proxy(req: NextRequest) {
         if (session) {
             const redirectTo =
                 safeRedirect(req.nextUrl.searchParams.get("redirect")) ??
-                defaultRouteForRole(session.role);
+                defaultDestination(session);
             const dest = localePrefix ? `${localePrefix}${redirectTo}` : redirectTo;
             return NextResponse.redirect(new URL(dest, req.url));
         }
@@ -161,10 +180,19 @@ export async function proxy(req: NextRequest) {
         return intlMiddleware(req);
     }
 
+    // Facility operators must finish onboarding (facility linked) before /app or /upgrade.
+    const dashRole = roleForDashboardPrefixes(session.role);
+    if (dashRole === OPERATOR_ROLE && !session.facilityId) {
+        if (hasPrefix(path, "/app") || hasPrefix(path, "/upgrade")) {
+            const onboardingPath = `${localePrefix}/onboarding`;
+            return NextResponse.redirect(new URL(onboardingPath, req.url));
+        }
+    }
+
     // Role guard → bounce to role default if accessing wrong area.
     // Only applies to role-scoped prefixes so onboarding/legal/etc aren't affected.
     if (isRoleScopedPath(path) && !isAllowedForRole(path, session.role)) {
-        const redirectTo = defaultRouteForRole(session.role);
+        const redirectTo = defaultDestination(session);
         const dest = localePrefix ? `${localePrefix}${redirectTo}` : redirectTo;
         return NextResponse.redirect(new URL(dest, req.url));
     }

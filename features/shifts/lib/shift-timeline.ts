@@ -11,7 +11,7 @@ export type ShiftTimelineFields = Pick<
   "created_at" | "confirm_time" | "checkin_time" | "checkout_time" | "complete_time"
 >;
 
-export type ShiftTimelineAudience = "client" | "worker";
+export type ShiftTimelineAudience = "client" | "staff";
 
 /** Chronological list of milestone timestamps for the shift detail UI. */
 export function buildShiftTimelineEvents(
@@ -19,7 +19,7 @@ export function buildShiftTimelineEvents(
   audience: ShiftTimelineAudience = "client",
 ): ShiftTimelineEvent[] {
   const confirmLabel =
-    audience === "worker" ? "You accepted this shift" : "Worker accepted shift";
+    audience === "staff" ? "You accepted this shift" : "Staff accepted shift";
   const items: ShiftTimelineEvent[] = [
     { id: "created", label: "Shift booked", at: shift.created_at },
   ];

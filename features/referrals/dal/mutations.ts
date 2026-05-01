@@ -2,8 +2,9 @@
 
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getSession } from "@/lib/get-session";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 function generateCode(): string {
   return randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
@@ -15,6 +16,7 @@ export async function createReferralCode(): Promise<{
 }> {
   const session = await getSession();
   if (!session) return { code: null, error: "Not authenticated" };
+  if (session.role !== STAFF_ROLE) return { code: null, error: "Not authorized" };
 
   const supabase = await createAdminClient();
 
@@ -48,6 +50,7 @@ export async function recordReferral(): Promise<{
 }> {
   const session = await getSession();
   if (!session) return { success: false, error: "Not authenticated" };
+  if (session.role !== STAFF_ROLE) return { success: false, error: "Not authorized" };
 
   const cookieStore = await cookies();
   const referralCode = cookieStore.get("referral_code")?.value;
@@ -57,7 +60,7 @@ export async function recordReferral(): Promise<{
 
   const { data: codeRecord } = await supabase
     .from("referral_codes")
-    .select("user_id, role")
+    .select("user_id")
     .eq("code", referralCode)
     .maybeSingle();
 
@@ -86,7 +89,7 @@ export async function recordReferral(): Promise<{
   const { error } = await supabase.from("referrals").insert({
     referrer_id: codeRecord.user_id,
     referred_id: session.userId,
-    referrer_role: codeRecord.role,
+    referrer_role: STAFF_ROLE,
     status: "pending",
   });
 

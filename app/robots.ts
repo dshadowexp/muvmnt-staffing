@@ -8,12 +8,12 @@ export default function robots(): MetadataRoute.Robots {
         {
             userAgent: "*",
             allow: "/",
-            disallow: ["/dashboard/", "/interviews/", "/api/", "/onboarding/", "/privacy", "/terms"],
+            disallow: ["/admin/", "/app/", "/staff/", "/interviews/", "/api/", "/onboarding/", "/privacy", "/terms"],
         },
         {
             userAgent: "Googlebot",
             allow: "/",
-            disallow: ["/dashboard/", "/interviews/", "/api/", "/onboarding/", "/privacy", "/terms"],
+            disallow: ["/admin/", "/app/", "/staff/", "/interviews/", "/api/", "/onboarding/", "/privacy", "/terms"],
         }
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

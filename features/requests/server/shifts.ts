@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { wallClockShiftToUtcRange } from "@/features/shifts/lib/wall-clock-shift-range";
 import type { DaySchedule } from "./matching";
 

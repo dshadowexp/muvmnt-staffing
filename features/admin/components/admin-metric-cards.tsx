@@ -11,6 +11,7 @@ import {
   Building2Icon,
   CalendarDaysIcon,
   ListChecksIcon,
+  UserCogIcon,
   UsersIcon,
   WalletIcon,
 } from "lucide-react";
@@ -91,7 +92,7 @@ function MetricCard({ metric }: { metric: AdminMetric }) {
 
 export function AdminMetricCards({ metrics }: { metrics: AdminMetric[] }) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {metrics.map((m) => (
         <MetricCard key={m.label} metric={m} />
       ))}
@@ -100,7 +101,10 @@ export function AdminMetricCards({ metrics }: { metrics: AdminMetric[] }) {
 }
 
 export const AdminMetricIcons = {
+  facilities: <Building2Icon className="size-4" />,
+  /** @deprecated Use facilities */
   clients: <Building2Icon className="size-4" />,
+  operators: <UserCogIcon className="size-4" />,
   workers: <UsersIcon className="size-4" />,
   balance: <WalletIcon className="size-4" />,
   requests: <ListChecksIcon className="size-4" />,

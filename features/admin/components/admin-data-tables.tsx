@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import {
   Table,
   TableBody,
@@ -18,9 +19,10 @@ import { format } from "date-fns";
 import { CircleCheckIcon, ClockIcon } from "lucide-react";
 import type {
   AdminAuthorizationRow,
-  AdminClientRow,
   AdminComplianceRow,
+  AdminFacilityRow,
   AdminJobRow,
+  AdminOperatorRow,
   AdminShiftRow,
 } from "@/features/admin/dal/queries";
 
@@ -87,23 +89,23 @@ function PaginatedShell({
   );
 }
 
-// ---------- Clients ----------
+// ---------- Facilities ----------
 
-export function AdminClientsTable({
-  clients,
+export function AdminFacilitiesTable({
+  facilities,
   preview = false,
-  emptyLabel = "No clients yet",
+  emptyLabel = "No facilities yet",
 }: {
-  clients: AdminClientRow[];
+  facilities: AdminFacilityRow[];
   preview?: boolean;
   emptyLabel?: string;
 }) {
   const router = useRouter();
-  const pagination = useTablePagination(clients);
-  const rows = preview ? clients : pagination.rows;
+  const pagination = useTablePagination(facilities);
+  const rows = preview ? facilities : pagination.rows;
 
-  function go(clientId: string) {
-    router.push(`/admin/clients/${clientId}`);
+  function go(facilityId: string) {
+    router.push(`/admin/facilities/${facilityId}`);
   }
 
   return (
@@ -155,6 +157,102 @@ export function AdminClientsTable({
   );
 }
 
+/** @deprecated Use AdminFacilitiesTable */
+export function AdminClientsTable({
+  clients,
+  ...props
+}: Omit<ComponentProps<typeof AdminFacilitiesTable>, "facilities"> & {
+  clients: AdminFacilityRow[];
+}) {
+  return (
+    <AdminFacilitiesTable facilities={clients} {...props} />
+  );
+}
+
+// ---------- Operators ----------
+
+export function AdminOperatorsTable({
+  operators,
+  preview = false,
+  emptyLabel = "No operators yet",
+}: {
+  operators: AdminOperatorRow[];
+  preview?: boolean;
+  emptyLabel?: string;
+}) {
+  const router = useRouter();
+  const pagination = useTablePagination(operators);
+  const rows = preview ? operators : pagination.rows;
+
+  function displayName(o: AdminOperatorRow): string {
+    const n = `${o.first_name ?? ""} ${o.last_name ?? ""}`.trim();
+    if (n) return n;
+    return o.email ?? o.user_email ?? "—";
+  }
+
+  function go(operatorId: string) {
+    router.push(`/admin/operators/${operatorId}`);
+  }
+
+  return (
+    <PaginatedShell preview={preview} pagination={pagination}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Facility</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead className="text-right">Joined</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="text-muted-foreground py-8 text-center"
+              >
+                {emptyLabel}
+              </TableCell>
+            </TableRow>
+          ) : (
+            rows.map((o) => (
+              <TableRow
+                key={o.id}
+                role="button"
+                tabIndex={0}
+                className="hover:bg-muted/50 cursor-pointer"
+                onClick={() => go(o.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    go(o.id);
+                  }
+                }}
+              >
+                <TableCell className="font-medium">{displayName(o)}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {o.user_email ?? o.email ?? "—"}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {o.facility_name ?? "—"}
+                </TableCell>
+                <TableCell className="text-muted-foreground capitalize">
+                  {o.permission}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-right">
+                  {format(new Date(o.created_at), "MMM d, yyyy")}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </PaginatedShell>
+  );
+}
+
 // ---------- Requests (jobs) ----------
 
 export function AdminJobsTable({
@@ -179,7 +277,7 @@ export function AdminJobsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Client</TableHead>
+            <TableHead>Facility</TableHead>
             <TableHead className="text-right">Positions</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Start</TableHead>
@@ -211,7 +309,7 @@ export function AdminJobsTable({
                 }}
               >
                 <TableCell className="font-medium">
-                  {j.client_name ?? "—"}
+                  {j.facility_name ?? "—"}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {j.positions}
@@ -256,7 +354,7 @@ export function AdminShiftsTable({
         <TableHeader>
           <TableRow>
             <TableHead>Worker</TableHead>
-            <TableHead>Client</TableHead>
+            <TableHead>Facility</TableHead>
             <TableHead>Start</TableHead>
             <TableHead>End</TableHead>
             <TableHead>Status</TableHead>

@@ -63,7 +63,7 @@ export async function runStaffRequestBookingSideEffects(params: {
         data: {
           name: clientName,
           requestId,
-          link: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}`,
+          link: `${process.env.NEXT_PUBLIC_APP_URL}/app/requests/${requestId}`,
         },
       },
     ],
@@ -138,7 +138,7 @@ export async function notifyWorkersAndScheduleOffersAfterInsert(
             template: "shift-assigned",
             data: {
               count: shifts.length,
-              link: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/shifts/requests/${params.requestId}`,
+              link: `${process.env.NEXT_PUBLIC_APP_URL}/staff/shifts/requests/${params.requestId}`,
               deadline: window.deadlineFormatted,
             },
           },

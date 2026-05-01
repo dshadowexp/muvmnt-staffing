@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 /**
  * Submit an admin pass/fail decision for an interview.

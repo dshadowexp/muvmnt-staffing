@@ -1,7 +1,7 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
-import type { Database } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Database } from "@/supabase/types/database";
 
 export type InvoiceInsert = Database["public"]["Tables"]["invoices"]["Insert"];
 

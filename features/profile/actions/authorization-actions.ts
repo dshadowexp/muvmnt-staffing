@@ -1,7 +1,7 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getOnboardingCompletionStatus } from "@/features/onboarding/dal/queries";
 import {
   authorizationSchema,
@@ -9,7 +9,7 @@ import {
   normalizeSocialNumber,
   requiresSinExpiry,
 } from "@/features/profile/schemas/authorization";
-import { tryPromoteWorkerAfterComplianceChecks } from "@/features/workers/server/stage-promotion";
+import { tryPromoteWorkerAfterComplianceChecks } from "@/features/staff/server/stage-promotion";
 
 type UpsertWorkAuthorizationInput = {
   type: string;

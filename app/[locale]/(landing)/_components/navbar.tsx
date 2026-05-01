@@ -7,6 +7,7 @@ import { Logo } from "@/components/logo";
 import { useAuth } from "@/features/auth/providers/auth-provider";
 import { useTranslations } from "next-intl";
 import { CircleDashedIcon } from "lucide-react";
+import { ADMIN_ROLE, CANDIDATE_ROLE, OPERATOR_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 function NavbarAuthButtons() {
   const { authUser, loading } = useAuth();
@@ -15,7 +16,18 @@ function NavbarAuthButtons() {
   if (loading) return <CircleDashedIcon className="animate-spin" />;
 
   if (authUser) {
-    return <Link href="/dashboard" className={ctaPrimarySm}>{t("dashboard")}</Link>;
+    if (authUser.role === STAFF_ROLE) {
+      return <Link href="/staff" className={ctaPrimarySm}>{t("dashboard")}</Link>;
+    }
+    if (authUser.role === OPERATOR_ROLE) {
+      return <Link href="/app" className={ctaPrimarySm}>{t("dashboard")}</Link>;
+    }
+    if (authUser.role === ADMIN_ROLE) {
+      return <Link href="/admin" className={ctaPrimarySm}>{t("dashboard")}</Link>;
+    }
+    if (authUser.role === CANDIDATE_ROLE) {
+      return <Link href="/s" className={ctaPrimarySm}>{t("dashboard")}</Link>;
+    }
   }
 
   return (

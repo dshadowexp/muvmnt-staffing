@@ -1,7 +1,7 @@
 import { logger, task } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 export const syncWorkerRatingPayloadSchema = z.object({
     /** workers.id (the internal UUID, not the Firebase user id). */

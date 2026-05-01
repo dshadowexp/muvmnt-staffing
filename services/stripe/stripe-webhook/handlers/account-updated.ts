@@ -1,7 +1,7 @@
 import "server-only";
 
 import type Stripe from "stripe";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 /**
  * Reconcile a Stripe Connect account with our `payroll_accounts` table.

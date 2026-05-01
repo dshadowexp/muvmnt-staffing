@@ -2,12 +2,13 @@
 
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { sendDirectEmail } from "@/features/notifications/service/send-direct";
 import { env } from "@/data/env/server";
 import { randomUUID } from "crypto";
-import type { FacilityRole } from "@/features/auth/types";
+
 import { assertCanAddFacilityTeamInvites } from "@/features/billing/server/entitlements";
+import { OPERATOR_ROLE, OperatorPermission } from "@/features/auth/types";
 
 type ActionResult = { error: false; message: string } | { error: true; message: string };
 
@@ -53,11 +54,11 @@ export async function previewFacilityTeamInviteAction(token: string): Promise<
 /** Send one or more email invitations for a facility (DB row + email with magic link). */
 export async function sendFacilityInviteAction(
   emails: string[],
-  permission: FacilityRole,
+  permission: OperatorPermission,
 ): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
-  if (session.role !== "client") return { error: true, message: "Not authorized" };
+  if (session.role !== OPERATOR_ROLE) return { error: true, message: "Not authorized" };
 
   const { userId, facilityId } = session;
   if (!facilityId) return { error: true, message: "No facility found" };
@@ -176,7 +177,7 @@ export async function sendFacilityInviteAction(
 export async function leaveTeamAction(): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
-  if (session.role !== "client") return { error: true, message: "Not authorized" };
+  if (session.role !== OPERATOR_ROLE) return { error: true, message: "Not authorized" };
 
   const { userId, facilityId } = session;
   if (!facilityId) return { error: true, message: "No facility found" };
@@ -220,7 +221,7 @@ export async function leaveTeamAction(): Promise<ActionResult> {
 export async function revokeInviteAction(inviteId: string): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { error: true, message: "User not authenticated" };
-  if (session.role !== "client") return { error: true, message: "Not authorized" };
+  if (session.role !== OPERATOR_ROLE) return { error: true, message: "Not authorized" };
 
   const { facilityId } = session;
   if (!facilityId) return { error: true, message: "No facility found" };

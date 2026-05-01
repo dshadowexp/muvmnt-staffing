@@ -1,4 +1,4 @@
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 
 /** One segment within a calendar day (JSON shape). */
 export type StaffRequestDaySlotJson = {

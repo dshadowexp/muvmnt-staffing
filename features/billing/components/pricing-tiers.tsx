@@ -156,6 +156,7 @@ function PlanCard({
                 <p className={cn("mb-1 text-base font-semibold", popular && "text-primary")}>
                     {name}
                 </p>
+                <p className="text-sm text-muted-foreground">{description}</p>
             </div>
 
             {/* Price */}

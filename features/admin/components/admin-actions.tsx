@@ -48,10 +48,13 @@ import {
   sendWorkerInvitesAction,
 } from "@/features/admin/actions/invites";
 
-export type AdminActionClient = {
+export type AdminActionFacility = {
   id: string;
   name: string;
 };
+
+/** @deprecated Use AdminActionFacility */
+export type AdminActionClient = AdminActionFacility;
 
 const EMAIL_REGEX_GLOBAL = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -111,15 +114,15 @@ function ActionCard({
 function CreateRequestDialog({
   open,
   onOpenChange,
-  clients,
+  facilities,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clients: AdminActionClient[];
+  facilities: AdminActionFacility[];
 }) {
   const t = useTranslations("dashboard.admin.createRequestDialog");
   const router = useRouter();
-  const [selected, setSelected] = React.useState<AdminActionClient | null>(
+  const [selected, setSelected] = React.useState<AdminActionFacility | null>(
     null,
   );
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -133,9 +136,7 @@ function CreateRequestDialog({
 
   function handleContinue() {
     if (!selected) return;
-    // TODO(admin): support an admin-side new request flow that accepts a
-    // pre-selected client (e.g. /admin/requests/new?clientId=...).
-    router.push(`/dashboard/requests/new?clientId=${selected.id}`);
+    router.push(`/app/requests/new?facilityId=${selected.id}`);
     onOpenChange(false);
   }
 
@@ -148,7 +149,7 @@ function CreateRequestDialog({
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label>{t("clientLabel")}</Label>
+          <Label>{t("facilityLabel")}</Label>
           <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -177,7 +178,7 @@ function CreateRequestDialog({
                 <CommandList>
                   <CommandEmpty>{t("empty")}</CommandEmpty>
                   <CommandGroup>
-                    {clients.map((c) => (
+                    {facilities.map((c) => (
                       <CommandItem
                         key={c.id}
                         value={c.name}
@@ -221,16 +222,16 @@ function CreateRequestDialog({
   );
 }
 
-// ---------- Invite client ----------
+// ---------- Invite facility contact ----------
 
-function InviteClientFormDialog({
+function InviteFacilityFormDialog({
   open,
   onOpenChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const t = useTranslations("dashboard.admin.inviteClient");
+  const t = useTranslations("dashboard.admin.inviteFacility");
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
@@ -583,11 +584,15 @@ function InviteWorkerBulkDialog({
 
 // ---------- Public component ----------
 
-export function AdminActions({ clients }: { clients: AdminActionClient[] }) {
+export function AdminActions({
+  facilities,
+}: {
+  facilities: AdminActionFacility[];
+}) {
   const t = useTranslations("dashboard.admin.actions");
   const [createOpen, setCreateOpen] = React.useState(false);
   const [workerOpen, setWorkerOpen] = React.useState(false);
-  const [clientOpen, setClientOpen] = React.useState(false);
+  const [facilityInviteOpen, setFacilityInviteOpen] = React.useState(false);
 
   return (
     <>
@@ -606,19 +611,22 @@ export function AdminActions({ clients }: { clients: AdminActionClient[] }) {
         />
         <ActionCard
           icon={<MailPlusIcon className="size-5" />}
-          title={t("inviteClient.title")}
-          description={t("inviteClient.description")}
-          onClick={() => setClientOpen(true)}
+          title={t("inviteFacility.title")}
+          description={t("inviteFacility.description")}
+          onClick={() => setFacilityInviteOpen(true)}
         />
       </div>
 
       <CreateRequestDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        clients={clients}
+        facilities={facilities}
       />
       <InviteWorkerBulkDialog open={workerOpen} onOpenChange={setWorkerOpen} />
-      <InviteClientFormDialog open={clientOpen} onOpenChange={setClientOpen} />
+      <InviteFacilityFormDialog
+        open={facilityInviteOpen}
+        onOpenChange={setFacilityInviteOpen}
+      />
     </>
   );
 }

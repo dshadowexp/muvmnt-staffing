@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 
 // ─── Types matching the jsonb column shapes ───────────────────────────────────
 

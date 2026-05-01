@@ -4,11 +4,11 @@ import ffmpeg from "fluent-ffmpeg";
 import * as fs from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { s3Api } from "@/services/s3/api";
 import { analyzeInterviewVideoBuffer } from "@/services/ai/interviews/video-analysis";
 import { tryAutoReview } from "@/features/interviews/services/auto-review";
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 import { Readable } from "stream";
 
 const payloadSchema = z.object({
@@ -20,9 +20,9 @@ const payloadSchema = z.object({
 export const analyzeInterviewVideoTask = schemaTask({
   id: "interviews.analyze-video",
   schema: payloadSchema,
-  maxDuration: 1800,
+  maxDuration: 900,
   retry: {
-    maxAttempts: 2,
+    maxAttempts: 1,
   },
   run: async (payload) => {
     const { interviewId, userId, recordingKey } = payload;
@@ -47,7 +47,6 @@ export const analyzeInterviewVideoTask = schemaTask({
     }
 
     // Temp file paths
-    let inputPath: string | null = null;
     let outputPath: string | null = null;
 
     try {
@@ -55,13 +54,13 @@ export const analyzeInterviewVideoTask = schemaTask({
       logger.log("Downloading video from S3", { recordingKey });
       const download = await s3Api.download(recordingKey);
 
-      // const chunks: Buffer[] = [];
-      // for await (const chunk of download.stream) {
-      //   chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-      // }
-      // const videoBuffer = Buffer.concat(chunks);
+      const chunks: Buffer[] = [];
+      for await (const chunk of download.stream) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      const videoBuffer = Buffer.concat(chunks);
 
-      // logger.log("Video downloaded", { bytes: videoBuffer.byteLength, mimeType: download.mimeType });
+      logger.log("Video downloaded", { bytes: videoBuffer.byteLength, mimeType: download.mimeType });
 
       // 3. Transcode video and fetch profile photo in parallel
       const tempDir = tmpdir();
@@ -70,7 +69,7 @@ export const analyzeInterviewVideoTask = schemaTask({
       logger.log("Transcoding video and fetching profile photo in parallel", { outputPath });
 
       const transcodePromise = new Promise<void>((resolve, reject) => {
-        ffmpeg(download.stream)
+        ffmpeg(Readable.from(videoBuffer))
           .outputOptions([
             "-vf scale=854:480",
             "-an",               // no audio (matches your original flag)
@@ -122,7 +121,11 @@ export const analyzeInterviewVideoTask = schemaTask({
 
       // 4. Read compressed output
       const compressedBuffer = await fs.readFile(outputPath);
-      logger.log("Transcoding complete", { compressedBytes: compressedBuffer.byteLength });
+      logger.log("Transcode complete", {
+        inputBytes: videoBuffer.byteLength,
+        outputBytes: compressedBuffer.byteLength,
+        compressionRatio: (compressedBuffer.byteLength / videoBuffer.byteLength).toFixed(2),
+      });
 
       // 5. Analyze with Gemini (video + optional profile photo)
       logger.log("Sending to Gemini for analysis", { hasProfilePhoto: profilePhoto != null });
@@ -172,8 +175,9 @@ export const analyzeInterviewVideoTask = schemaTask({
       throw err;
     } finally {
       // Clean up temp files
-      const cleanups = [inputPath, outputPath].filter(Boolean) as string[];
-      await Promise.allSettled(cleanups.map((p) => fs.unlink(p)));
+      if (outputPath) {
+        await fs.unlink(outputPath).catch(() => {});
+      }
     }
   },
 });

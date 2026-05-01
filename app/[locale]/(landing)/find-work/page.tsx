@@ -95,7 +95,7 @@ export default async function FindWorkPage() {
 
             {/* CTAs */}
             <LandingAuthCtas
-              signUpHref="/sign-up/worker"
+              signUpHref="/sign-up/staff"
               ctaCreateLabel={t("ctaCreate")}
               ctaSignInLabel={t("ctaSignIn")}
               variant="onLight"

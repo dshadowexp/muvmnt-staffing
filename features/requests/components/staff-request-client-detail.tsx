@@ -60,7 +60,7 @@ export function StaffRequestClientDetail({
 
   return (
     <div className="w-full max-w-4xl space-y-8">
-      <BackLink backHref="/dashboard/requests" title="Staff requests" />
+      <BackLink backHref="/app/requests" title="Staff requests" />
 
       <StaffRequestHeader staffRequest={staffRequest} />
 
@@ -381,7 +381,7 @@ function ActionsSection({ requestId }: { requestId: string }) {
         {ACTION_OPTIONS.map((option) => (
           <Link
             key={option.href}
-            href={`/dashboard/requests/${requestId}/${option.href}`}
+            href={`/app/requests/${requestId}/${option.href}`}
             className="group block transition-opacity hover:opacity-90"
           >
             <Card className="h-full transition-shadow group-hover:shadow-md">

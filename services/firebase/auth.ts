@@ -16,6 +16,7 @@ import {
 } from "firebase/auth";
 import { firebaseApp } from "./client";
 import { env } from "@/data/env/client";
+import { STAFF_ROLE } from "@/features/auth/types";
 
 export const auth = getAuth(firebaseApp);
 auth.useDeviceLanguage();
@@ -175,7 +176,7 @@ export async function loginWithLinkedIn() {
     // Persist intended role across the full-page OAuth redirect.
     // Without this, any in-memory auth context (pending role) is lost.
     try {
-        window.localStorage.setItem("rk_oauth_intended_role", "worker");
+        window.localStorage.setItem("rk_oauth_intended_role", STAFF_ROLE);
     } catch {
         // Non-fatal (private mode / blocked storage).
     }

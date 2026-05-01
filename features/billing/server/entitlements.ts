@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getSubscription } from "@/features/billing/dal/subscriptions";
 import type { SubscriptionRow } from "@/features/billing/dal/subscriptions";
 

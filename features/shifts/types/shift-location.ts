@@ -1,4 +1,4 @@
-import type { Database } from "@/services/supabase/types/database";
+import type { Database } from "@/supabase/types/database";
 
 export type ShiftLocation = {
   address: string;

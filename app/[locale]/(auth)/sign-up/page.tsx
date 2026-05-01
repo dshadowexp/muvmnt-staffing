@@ -5,6 +5,7 @@ import { Stethoscope, ArrowRight, SearchIcon } from "lucide-react";
 import { SITE_NAME } from "@/lib/constants";
 import { withAuthParams } from "@/features/auth/lib/auth-params";
 import { cn } from "@/lib/utils";
+import { CANDIDATE_ROLE, OPERATOR_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export const metadata: Metadata = {
   title: `Sign Up | ${SITE_NAME}`,
@@ -24,24 +25,24 @@ export default async function SignUpPage({ searchParams }: Props) {
 
   // Server-side redirect — no flash, no client JS needed
   const as = typeof params.as === "string" ? params.as : null;
-  if (as === "worker")    redirect({ href: `/sign-up/worker${refSuffix}`, locale });
-  if (as === "client")    redirect({ href: `/sign-up/client${refSuffix}`, locale });
-  if (as === "candidate") redirect({ href: `/sign-up/candidate${refSuffix}`, locale });
+  if (as === STAFF_ROLE)    redirect({ href: `/sign-up/staff${refSuffix}`, locale });
+  if (as === OPERATOR_ROLE)    redirect({ href: `/sign-up/operator${refSuffix}`, locale });
+  if (as === CANDIDATE_ROLE) redirect({ href: `/sign-up/candidate${refSuffix}`, locale });
 
   const t = await getTranslations("auth.signUp");
 
   const roles = [
     {
-      value: "client",
-      href: `/sign-up/client${refSuffix}`,
+      value: "operator",
+      href: `/sign-up/operator${refSuffix}`,
       icon: SearchIcon,
       title: t("roleClient"),
       description: t("roleClientDescription"),
       featured: false,
     },
     {
-      value: "worker",
-      href: `/sign-up/worker${refSuffix}`,
+      value: "staff",
+      href: `/sign-up/staff${refSuffix}`,
       icon: Stethoscope,
       title: t("roleWorker"),
       description: t("roleWorkerDescription"),

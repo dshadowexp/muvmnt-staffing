@@ -3,8 +3,21 @@
 import { getAdminAuth } from "@/services/firebase/admin";
 import { findOrCreateUser } from "@/features/users/dal/mutations";
 import { acceptFacilityInviteForUser } from "@/features/account/server/accept-facility-invite";
-import { createAdminClient } from "@/services/supabase/server";
-import type { UserAuth, UserRole } from "@/features/auth/types";
+import { createAdminClient } from "@/supabase/server";
+import {
+  ADMIN_ROLE,
+  CANDIDATE_ROLE,
+  OPERATOR_ROLE,
+  OperatorPermission,
+  LEGACY_STAFF_DB_ROLE,
+  STAFF_ROLE,
+  type UserAuth,
+  type UserRole,
+} from "@/features/auth/types";
+import { isFacilityOperatorRole } from "@/features/auth/lib/facility-operator-role";
+import { ensureOperatorRecordForExchange } from "@/features/account/server/ensure-operator-record-for-exchange";
+import { getSession } from "@/lib/get-session";
+import { setSession } from "@/lib/session";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,7 +47,7 @@ export type ExchangeResult =
  * - "existing_client"  → email belongs to an existing client/admin user → show sign-in options
  * - "invite_pending"   → email has an unaccepted, unexpired facility invite → check email
  * - "personal_email"   → personal domain (gmail, etc.) → prompt for work email
- * - "wrong_role"       → user exists but as worker/candidate → redirect them
+ * - "wrong_role"       → user exists but as staff/candidate → redirect them
  * - "not_found"        → no account, no invite → suggest sign-up or contact admin
  * - "error"            → unexpected server failure
  */
@@ -42,7 +55,7 @@ export type CheckEmailOutcome =
 | { status: "existing_client" }
 | { status: "invite_pending" }
 | { status: "personal_email" }
-| { status: "wrong_role"; hint: "worker" | "candidate" }
+| { status: "wrong_role"; hint: typeof STAFF_ROLE | typeof CANDIDATE_ROLE }
 | { status: "not_found" }
 | { status: "error"; message: string };
 
@@ -81,6 +94,7 @@ export async function exchangeFirebaseUser({
   emailVerified,
   role,
   inviteToken,
+  operatorSignupNames,
 }: {
   authId: string;
   email: string;
@@ -88,6 +102,8 @@ export async function exchangeFirebaseUser({
   role: UserRole | undefined;
   /** Optional facility invite token from `/join/team/...` → sign-up/sign-in query. */
   inviteToken?: string | null;
+  /** First / last name from operator email sign-up (browser localStorage handoff). */
+  operatorSignupNames?: { firstName: string; lastName: string } | null;
 }): Promise<ExchangeResult> {
   try {
     // NOTE: Personal-email restriction temporarily disabled for testing.
@@ -98,9 +114,19 @@ export async function exchangeFirebaseUser({
     if (result === "NOT_FOUND") return { status: "not_found" };
     if (result === "EMAIL_TAKEN") return { status: "email_taken" };
 
-    const userRole = (result.role ?? "client") as UserRole;
+    const dbRole = result.role as string;
+    const userRole: UserRole =
+      dbRole === LEGACY_STAFF_DB_ROLE || dbRole === STAFF_ROLE
+        ? STAFF_ROLE
+        : dbRole === OPERATOR_ROLE
+          ? OPERATOR_ROLE
+          : dbRole === ADMIN_ROLE
+            ? ADMIN_ROLE
+            : dbRole === CANDIDATE_ROLE
+              ? CANDIDATE_ROLE
+              : ((result.role ?? OPERATOR_ROLE) as UserRole);
 
-    if (userRole === "client") {
+    if (userRole === OPERATOR_ROLE) {
       const accepted = await acceptFacilityInviteForUser({
         userId: result.id,
         email,
@@ -112,13 +138,18 @@ export async function exchangeFirebaseUser({
           message: accepted.message,
         };
       }
+
+      await ensureOperatorRecordForExchange({
+        userId: result.id,
+        signupNames: operatorSignupNames ?? null,
+      });
     }
 
-    // For client users, resolve their facility + permission from the operators table
+    // For facility operators, resolve facility + permission from the operators table
     let facilityId: string | null = null;
-    let facilityRole: import("@/features/auth/types").FacilityRole | null = null;
+    let facilityRole: OperatorPermission | null = null;
 
-    if (userRole === "client") {
+    if (userRole === OPERATOR_ROLE) {
       const supabase = await createAdminClient();
       const { data: op } = await supabase
         .from("operators")
@@ -128,7 +159,7 @@ export async function exchangeFirebaseUser({
 
       if (op) {
         facilityId = op.facility_id;
-        facilityRole = op.permission as import("@/features/auth/types").FacilityRole;
+        facilityRole = op.permission as OperatorPermission;
       }
     }
 
@@ -137,7 +168,7 @@ export async function exchangeFirebaseUser({
       user: {
         token: "",
         userId: result.id,
-        role: userRole,
+        role:  userRole,
         isActive: result.is_active,
         facilityId,
         facilityRole,
@@ -152,6 +183,31 @@ export async function exchangeFirebaseUser({
           : "Unexpected error during authentication",
     };
   }
+}
+
+/** Re-read `operators` and refresh the session cookie (e.g. after linking a facility). */
+export async function refreshOperatorSessionAction(): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (!session?.userId) return { ok: false };
+  if (!isFacilityOperatorRole(session.role)) return { ok: false };
+
+  const supabase = await createAdminClient();
+  const { data: op } = await supabase
+    .from("operators")
+    .select("facility_id, permission")
+    .eq("user_id", session.userId)
+    .maybeSingle();
+
+  const facilityRole = (op?.permission as OperatorPermission | null) ?? null;
+
+  await setSession({
+    ...session,
+    role: OPERATOR_ROLE,
+    facilityId: op?.facility_id ?? null,
+    facilityRole,
+  });
+
+  return { ok: true };
 }
 
 export async function getFirebaseUser(authId: string) {
@@ -187,14 +243,14 @@ export async function checkEmailAction(
       .maybeSingle();
 
     if (user) {
-      if (user.role === "client" || user.role === "admin") {
+      if (user.role === OPERATOR_ROLE || user.role === ADMIN_ROLE) {
         return { status: "existing_client" };
       }
-      if (user.role === "worker") {
-        return { status: "wrong_role", hint: "worker" };
+      if (user.role === STAFF_ROLE) {
+        return { status: "wrong_role", hint: STAFF_ROLE };
       }
-      if (user.role === "candidate") {
-        return { status: "wrong_role", hint: "candidate" };
+      if (user.role === CANDIDATE_ROLE) {
+        return { status: "wrong_role", hint: CANDIDATE_ROLE };
       }
     }
 
@@ -278,7 +334,7 @@ export type FacilityOperatorSignInCheck =
       domain: string;
     }
   | { status: "invite_pending" }
-  | { status: "wrong_role"; hint: "worker" | "candidate" }
+  | { status: "wrong_role"; hint: typeof STAFF_ROLE | typeof CANDIDATE_ROLE }
   | { status: "no_operator_access" }
   | { status: "not_found" };
 
@@ -298,13 +354,13 @@ export async function checkFacilityOperatorSignInAction(
       .maybeSingle();
 
     if (user) {
-      if (user.role === "worker") {
-        return { status: "wrong_role", hint: "worker" };
+      if (user.role === STAFF_ROLE) {
+        return { status: "wrong_role", hint: STAFF_ROLE };
       }
-      if (user.role === "candidate") {
-        return { status: "wrong_role", hint: "candidate" };
+      if (user.role === CANDIDATE_ROLE) {
+        return { status: "wrong_role", hint: CANDIDATE_ROLE };
       }
-      if (user.role !== "client" && user.role !== "admin") {
+      if (!isFacilityOperatorRole(user.role) && user.role !== ADMIN_ROLE) {
         return { status: "no_operator_access" };
       }
 

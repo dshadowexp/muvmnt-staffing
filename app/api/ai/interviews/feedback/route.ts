@@ -7,7 +7,8 @@ import { streamAiInterviewFeedback } from "@/services/ai/interviews/interviews";
 import { normalizeFeedbackJsonString } from "@/features/interviews/lib/interview-feedback-json";
 import { parseInterviewSubjectRef } from "@/features/interviews/lib/interview-subject-ref";
 import { aiInterviewTitle } from "@/features/interviews/lib/interview-ai-title";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
+import { ADMIN_ROLE, OPERATOR_ROLE } from "@/features/auth/types";
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -50,9 +51,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Interview not found" }, { status: 404 });
   }
 
-  if (session.role === "admin") {
+  if (session.role === ADMIN_ROLE) {
     // ok
-  } else if (session.role === "client") {
+  } else if (session.role === OPERATOR_ROLE) {
     if (!session.facilityId || !interview.screening_id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
             event: "interview_feedback_generated",
             properties: {
               interview_id: interviewId,
-              interview_kind: interview.screening_id ? "screening" : "worker",
+              interview_kind: interview.screening_id ? "screening" : "staff",
             },
           });
           await posthog?.shutdown();

@@ -3,9 +3,10 @@ import "server-only";
 import { env } from "@/data/env/server";
 import { getSession } from "@/lib/get-session";
 import { getCurrentUser } from "@/features/users/dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getStripeServer } from "@/services/stripe/server";
 import { getLocale } from "next-intl/server";
+import { OPERATOR_ROLE } from "@/features/auth/types";
 
 // ─── Facility resolution (session + operators fallback for onboarding) ─────
 
@@ -14,7 +15,7 @@ export async function resolveFacilityIdForBillingSession(): Promise<string | nul
     const session = await getSession();
     if (!session) return null;
     if (session.facilityId) return session.facilityId;
-    if (session.role !== "client") return null;
+    if (session.role !== OPERATOR_ROLE) return null;
 
     const supabase = await createAdminClient();
     const { data } = await supabase
@@ -247,7 +248,7 @@ export async function createPortalSession(): Promise<
 
     const portalSession = await getStripeServer().billingPortal.sessions.create({
         customer: ensured.customerId,
-        return_url: `${env.APP_URL}${user.is_active ? "/dashboard/billing" : "/onboarding/billing"}`,
+        return_url: `${env.APP_URL}${user.is_active ? "/app/billing" : "/onboarding/billing"}`,
         locale: locale as any,
     });
 

@@ -2,8 +2,9 @@
 
 import { getSession } from "@/lib/get-session";
 import { AddressLocation, PlaceDetails } from "@/features/geo/types";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getGoogleMapsClient } from "@/services/google-maps/client";
+import { OPERATOR_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export async function searchAddresses(
   input: string,
@@ -41,7 +42,7 @@ export async function getAddressLocation(): Promise<AddressLocation | undefined>
 
   const supabase = await createAdminClient();
 
-  if (session.role === "worker") {
+  if (session.role === STAFF_ROLE) {
     const { data, error } = await supabase
       .from("workers")
       .select("address")
@@ -54,7 +55,7 @@ export async function getAddressLocation(): Promise<AddressLocation | undefined>
     return data.address as unknown as AddressLocation;
   }
 
-  if (session.role === "client") {
+  if (session.role === OPERATOR_ROLE) {
     const { facilityId } = session;
     if (!facilityId) return undefined;
 

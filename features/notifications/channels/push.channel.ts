@@ -1,5 +1,5 @@
 import { Messaging } from 'firebase-admin/messaging';
-import { renderPush } from '../template-engine';
+import { renderPush } from '../lib/template-engine';
 import { getAdminMessaging } from '@/services/firebase/admin';
 
 interface SendPushParams {

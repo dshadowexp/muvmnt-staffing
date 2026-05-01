@@ -1,4 +1,4 @@
-import type { Json } from "@/services/supabase/types/database";
+import type { Json } from "@/supabase/types/database";
 import { parseInterviewSubjectRef } from "./interview-subject-ref";
 
 /** Short label for AI feedback prompts (replaces legacy interviews.subject). */

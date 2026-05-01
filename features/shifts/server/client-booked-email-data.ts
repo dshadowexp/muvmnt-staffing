@@ -39,6 +39,6 @@ export function formatClientBookedEmailData(params: {
     shiftsLine,
     rateLine,
     requestId,
-    requestUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/requests/${requestId}`,
+    requestUrl: `${process.env.NEXT_PUBLIC_APP_URL}/app/requests/${requestId}`,
   };
 }

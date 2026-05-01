@@ -1,17 +1,61 @@
 "use server";
 
 import { getSession } from "@/lib/get-session";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { getStripeServer } from "@/services/stripe/server";
 import { calendarPartsFromYyyyMmDd } from "@/lib/formatters";
 import { env } from "@/data/env/server";
 import { getCurrentUser } from "@/features/users/dal/queries";
 import { professionLabelEn } from "@/lib/labels-en";
+import { LEGACY_STAFF_DB_ROLE, STAFF_ROLE } from "@/features/auth/types";
+import type { Json } from "@/supabase/types/database";
+
+function trimStr(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+/**
+ * Reads `workers.address` JSON (see `toAddressJson` — camelCase) plus legacy snake_case keys.
+ */
+function stripeAddressFromWorkerAddressJson(raw: Json | null): {
+  country: string;
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+} {
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+    return {
+      country: "",
+      line1: "",
+      line2: "",
+      city: "",
+      state: "",
+      postal_code: "",
+    };
+  }
+  const j = raw as Record<string, Json | undefined>;
+  const line1 =
+    trimStr(j.addressLine1) ||
+    trimStr(j.address_line_1) ||
+    trimStr(j.address);
+  const line2 = trimStr(j.addressLine2) || trimStr(j.address_line_2);
+  const city = trimStr(j.city);
+  const state = trimStr(j.adminArea) || trimStr(j.admin_area);
+  const postal_code = trimStr(j.postalCode) || trimStr(j.postal_code);
+  const country = (
+    trimStr(j.countryCode) || trimStr(j.country_code)
+  ).toUpperCase();
+  return { country, line1, line2, city, state, postal_code };
+}
 
 export async function createConnectedAccountLink() {
   const user = await getCurrentUser();
   if (!user) return { error: "Unauthenticated" };
-  if (user.role !== 'worker') return { error: "Unauthorized" };
+  if (user.role !== STAFF_ROLE && user.role !== LEGACY_STAFF_DB_ROLE) {
+    return { error: "Unauthorized" };
+  }
   if (!user.is_email_verified || !user.email || !user.phone_number || !user.is_phone_verified) {
     return { error: "UserIncomplete" };
   }
@@ -20,11 +64,9 @@ export async function createConnectedAccountLink() {
   const [
     { data: payrollRow, error: payrollError },
     { data: workerProfileData, error: workerProfileError },
-    { data: locationData, error: locationError },
   ] = await Promise.all([
     supabase.from("payroll_accounts").select("*").eq("user_id", user.id).single(),
     supabase.from("workers").select("*").eq("user_id", user.id).single(),
-    supabase.from("locations").select("*").eq("user_id", user.id).single(),
   ]);
 
   if (payrollError && payrollError.code !== "PGRST116") {
@@ -33,11 +75,7 @@ export async function createConnectedAccountLink() {
   if (workerProfileError && workerProfileError.code !== "PGRST116") {
     return { error: workerProfileError.message };
   }
-  if (locationError && locationError.code !== "PGRST116") {
-    return { error: locationError.message };
-  }
   if (!workerProfileData) return { error: "Your profile is not completed" };
-  if (!locationData) return { error: "Your location is not completed" };
 
   let stripeAccountId;
   const dobParts = calendarPartsFromYyyyMmDd(workerProfileData.date_of_birth);
@@ -45,19 +83,22 @@ export async function createConnectedAccountLink() {
     return { error: "Invalid date of birth" };
   }
   if (!payrollRow) {
+    const addr = stripeAddressFromWorkerAddressJson(workerProfileData.address);
     const account = await getStripeServer().accounts.create({
-      type: 'express',
-      country: locationData.country_code?.trim().toUpperCase(),
+      type: "express",
+      country: addr.country,
       email: user.email ?? "",
       metadata: { user_id: user.id },
-      business_type: 'individual',
+      business_type: "individual",
       capabilities: {
         transfers: { requested: true },
       },
       business_profile: {
-        mcc: '7361',
+        mcc: "7361",
         name: `${workerProfileData.first_name} ${workerProfileData.last_name}`,
-        ...(env.NODE_ENV === "production" ? { url: env.APP_URL } : { url: "https://readykare.com" }),
+        ...(env.NODE_ENV === "production"
+          ? { url: env.APP_URL }
+          : { url: "https://readykare.com" }),
         product_description: `Healthcare Professional, ${professionLabelEn(workerProfileData.profession)}`,
         support_email: user.email,
       },
@@ -69,17 +110,17 @@ export async function createConnectedAccountLink() {
         email: user.email,
         phone: user.phone_number,
         address: {
-            line1: locationData.address_line_1?.trim() ?? locationData.address,
-            line2: locationData.address_line_2?.trim() ?? "",
-            city: locationData.city?.trim() ?? "",
-            state: locationData.admin_area?.trim() ?? "",
-            postal_code: locationData.postal_code?.trim() ?? "",
-            country: locationData.country_code?.trim().toUpperCase(),
+          line1: addr.line1,
+          line2: addr.line2 || undefined,
+          city: addr.city,
+          state: addr.state,
+          postal_code: addr.postal_code,
+          country: addr.country,
         },
         relationship: {
-          title: 'Healthcare Professional',
+          title: "Healthcare Professional",
         },
-      }
+      },
     });
 
     await supabase.from('payroll_accounts').insert({
@@ -108,8 +149,9 @@ export async function createPayrollBalancesAccountSession(): Promise<
 > {
   const session = await getSession();
   if (!session) return { ok: false, message: "Unauthenticated" };
-  if (session.role !== "worker") {
-    return { ok: false, message: "Only workers can view payroll balance." };
+  const sessionRole = session.role as string;
+  if (sessionRole !== STAFF_ROLE && sessionRole !== LEGACY_STAFF_DB_ROLE) {
+    return { ok: false, message: "Only staff can view payroll balance." };
   }
 
   const supabase = await createAdminClient();

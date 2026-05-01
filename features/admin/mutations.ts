@@ -1,11 +1,11 @@
 "use server";
 
-import type { WorkerLifecycleStage } from "@/features/workers/lib/worker-stage-order";
+import type { WorkerLifecycleStage } from "@/features/staff/lib/worker-stage-order";
 import {
   setWorkerLifecycleStage,
   tryPromoteWorkerAfterComplianceChecks,
-} from "@/features/workers/server/stage-promotion";
-import { createAdminClient } from "@/services/supabase/server";
+} from "@/features/staff/server/stage-promotion";
+import { createAdminClient } from "@/supabase/server";
 import { s3Api } from "@/services/s3/api";
 import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "./dal/queries";

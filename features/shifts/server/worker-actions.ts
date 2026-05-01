@@ -19,7 +19,7 @@ import {
     getShiftWithStaffRequest,
     getWorkerIdByUserId,
 } from "../dal/queries";
-import { createAdminClient } from "@/services/supabase/server";
+import { createAdminClient } from "@/supabase/server";
 import { patchShiftById } from "../dal/mutations";
 import { shiftWindowFromTimestamps } from "../lib/shift-time";
 

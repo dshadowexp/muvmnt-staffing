@@ -1,5 +1,5 @@
-import { createAdminClient } from "@/services/supabase/server";
-import type { Database } from "@/services/supabase/types/database";
+import { createAdminClient } from "@/supabase/server";
+import type { Database } from "@/supabase/types/database";
 
 export type ShiftInsert = Database["public"]["Tables"]["shifts"]["Insert"];
 export type ShiftUpdate = Database["public"]["Tables"]["shifts"]["Update"];

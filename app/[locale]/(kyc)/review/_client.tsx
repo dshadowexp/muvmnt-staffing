@@ -22,7 +22,7 @@ export default function ReviewClient() {
 
   useEffect(() => {
     if (loading || !authUser?.isActive) return;
-    router.replace(`/dashboard`);
+    router.replace(`/staff`);
   }, [loading, authUser, router]);
 
   if (loading || authUser?.isActive) {

@@ -147,7 +147,7 @@ export default async function FindStaffPage() {
               </p>
             </div>
             <LandingAuthCtas
-              signUpHref="/sign-up/client"
+              signUpHref="/sign-up/operator"
               ctaCreateLabel={t("account.ctaCreate")}
               ctaSignInLabel={t("account.ctaSignIn")}
               variant="onLight"

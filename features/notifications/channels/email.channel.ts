@@ -1,5 +1,5 @@
 import { resendClient } from '@/services/resend/client';
-import { renderEmail } from '../template-engine';
+import { renderEmail } from '../lib/template-engine';
 import { Resend } from 'resend';
 
 interface SendEmailParams {
