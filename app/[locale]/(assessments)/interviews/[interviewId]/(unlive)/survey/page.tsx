@@ -1,6 +1,6 @@
 import { CircleDashedIcon } from "lucide-react";
 import { Suspense } from "react";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { redirect } from "@/i18n/navigation";
@@ -11,11 +11,18 @@ export default async function SurveyPage({
 }: {
   params: Promise<{ interviewId: string }>;
 }) {
+  const tCommon = await getTranslations("common");
+
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-svh items-center justify-center">
+        <div
+          className="flex min-h-svh flex-col items-center justify-center gap-2"
+          role="status"
+          aria-live="polite"
+        >
           <CircleDashedIcon className="size-8 animate-spin text-muted-foreground" />
+          <span className="sr-only">{tCommon("loading")}</span>
         </div>
       }
     >
@@ -36,7 +43,7 @@ async function SuspendedContent({
   if (!session) return redirect({ href: "/sign-in", locale });
 
   const interview = await getInterviewByIdForUser(interviewId, session.userId);
-  if (!interview) return redirect({ href: "/dashboard", locale });
+  if (!interview) return redirect({ href: "/staff", locale });
 
   // Decide where to land after the survey:
   //   screening interview (candidate)  → screening portal (shows completed state)
@@ -47,7 +54,7 @@ async function SuspendedContent({
     redirectTo =
       session.role === "candidate"
         ? `/s/${interview.screening_id}`
-        : "/dashboard";
+        : "/staff";
   } else {
     redirectTo = `/interviews/${interviewId}`;
   }

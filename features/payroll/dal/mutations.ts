@@ -7,7 +7,7 @@ import { calendarPartsFromYyyyMmDd } from "@/lib/formatters";
 import { env } from "@/data/env/server";
 import { getCurrentUser } from "@/features/users/dal/queries";
 import { professionLabelEn } from "@/lib/labels-en";
-import { LEGACY_STAFF_DB_ROLE, STAFF_ROLE } from "@/features/auth/types";
+import { isStaffDbRole } from "@/features/auth/lib/session-role";
 import type { Json } from "@/supabase/types/database";
 
 function trimStr(v: unknown): string {
@@ -53,7 +53,7 @@ function stripeAddressFromWorkerAddressJson(raw: Json | null): {
 export async function createConnectedAccountLink() {
   const user = await getCurrentUser();
   if (!user) return { error: "Unauthenticated" };
-  if (user.role !== STAFF_ROLE && user.role !== LEGACY_STAFF_DB_ROLE) {
+  if (!isStaffDbRole(String(user.role ?? ""))) {
     return { error: "Unauthorized" };
   }
   if (!user.is_email_verified || !user.email || !user.phone_number || !user.is_phone_verified) {
@@ -150,7 +150,7 @@ export async function createPayrollBalancesAccountSession(): Promise<
   const session = await getSession();
   if (!session) return { ok: false, message: "Unauthenticated" };
   const sessionRole = session.role as string;
-  if (sessionRole !== STAFF_ROLE && sessionRole !== LEGACY_STAFF_DB_ROLE) {
+  if (!isStaffDbRole(sessionRole)) {
     return { ok: false, message: "Only staff can view payroll balance." };
   }
 

@@ -2,7 +2,6 @@
   "site": {
     "name": "ReadyKare",
     "tagline": "Obtenez une couverture de quart en santé en moins de 5 minutes",
-    "phone": "1-437-979-7797",
     "email": "support@readykare.com",
     "countries": "Canada, États-Unis, Royaume-Uni",
     "copyright": "© {year} readykare Inc. Tous droits réservés."
@@ -146,6 +145,10 @@
       {
         "label": "Pourquoi nous",
         "href": "/#why"
+      },
+      {
+        "label": "Tarifs",
+        "href": "/pricing"
       }
     ],
     "findWork": "Trouver un quart",
@@ -167,8 +170,12 @@
             "href": "/find-staff"
           },
           {
-            "label": "Fonctionnement",
-            "href": "/#how"
+            "label": "Présélection IA",
+            "href": "/screening"
+          },
+          {
+            "label": "Tarifs",
+            "href": "/pricing"
           }
         ]
       },
@@ -208,7 +215,8 @@
       "titleLead": "Combler les quarts ouverts",
       "titleAccent": "en moins de",
       "titleTail": "5 minutes.",
-      "subtitle": "readykare vous met en relation avec des professionnels de la santé à la demande, présélectionnés et certifiés, prêts à couvrir des quarts de travail lorsque vous en avez besoin.",
+      "subtitle1": "We help healthcare teams fill staffing gaps quickly with AI-powered, data-driven solutions, ensuring teams are consistently staffed with the right professionals for every shift.",
+      "subtitle2": "",
       "ctaRequest": "Demander du personnel →",
       "ctaProfessional": "Je suis un professionnel",
       "stats": [
@@ -335,9 +343,7 @@
           "name": "Maria T.",
           "role": "Gestionnaire RH — Vancouver"
         }
-      ],
-      "ctaRequest": "Demander du personnel →",
-      "ctaFindWork": "Trouver un quart"
+      ]
     },
     "audienceSplit": {
       "worker": {
@@ -408,6 +414,7 @@
         "Votre équipe"
       ],
       "cta": "Explorer la présélection IA",
+      "ctaExplore": "Learn more",
       "ctaSub": "ou parcourir les travailleurs disponibles"
     }
   },
@@ -548,26 +555,74 @@
       "productInterestLabel": "Quels produits ReadyKare vous intéressent?",
       "productInterestPlaceholder": "Choisir un produit",
       "staffSizes": [
-        { "value": "1-10", "label": "1–10 employés réguliers" },
-        { "value": "11-50", "label": "11–50 employés réguliers" },
-        { "value": "51-200", "label": "51–200 employés réguliers" },
-        { "value": "201-500", "label": "201–500 employés réguliers" },
-        { "value": "501+", "label": "501+ employés réguliers" }
+        {
+          "value": "1-10",
+          "label": "1–10 employés réguliers"
+        },
+        {
+          "value": "11-50",
+          "label": "11–50 employés réguliers"
+        },
+        {
+          "value": "51-200",
+          "label": "51–200 employés réguliers"
+        },
+        {
+          "value": "201-500",
+          "label": "201–500 employés réguliers"
+        },
+        {
+          "value": "501+",
+          "label": "501+ employés réguliers"
+        }
       ],
       "productInterests": [
-        { "value": "temporary_staffing_relief", "label": "Renfort temporaire en dotation" },
-        { "value": "candidate_screening_solutions", "label": "Solutions de présélection des candidats" }
+        {
+          "value": "temporary_staffing_relief",
+          "label": "Renfort temporaire en dotation"
+        },
+        {
+          "value": "candidate_screening_solutions",
+          "label": "Solutions de présélection des candidats"
+        }
       ],
       "countries": [
-        { "value": "CA", "label": "Canada" },
-        { "value": "US", "label": "États-Unis" },
-        { "value": "GB", "label": "Royaume-Uni" },
-        { "value": "IE", "label": "Irlande" },
-        { "value": "AU", "label": "Australie" },
-        { "value": "NZ", "label": "Nouvelle-Zélande" },
-        { "value": "FR", "label": "France" },
-        { "value": "DE", "label": "Allemagne" },
-        { "value": "OTHER", "label": "Autre" }
+        {
+          "value": "CA",
+          "label": "Canada"
+        },
+        {
+          "value": "US",
+          "label": "États-Unis"
+        },
+        {
+          "value": "GB",
+          "label": "Royaume-Uni"
+        },
+        {
+          "value": "IE",
+          "label": "Irlande"
+        },
+        {
+          "value": "AU",
+          "label": "Australie"
+        },
+        {
+          "value": "NZ",
+          "label": "Nouvelle-Zélande"
+        },
+        {
+          "value": "FR",
+          "label": "France"
+        },
+        {
+          "value": "DE",
+          "label": "Allemagne"
+        },
+        {
+          "value": "OTHER",
+          "label": "Autre"
+        }
       ],
       "privacyNotice": "En cliquant sur <cta>Planifier une démo</cta> ci-dessous, vous confirmez avoir lu et accepté la <policy>Politique de confidentialité</policy> de ReadyKare.",
       "submit": "Planifier une démo",
@@ -978,7 +1033,6 @@
       "and": "et les",
       "terms": "Conditions d'utilisation"
     },
-    "google": "Continuer avec Google",
     "or": "OU",
     "signIn": {
       "meta": {
@@ -1144,13 +1198,17 @@
         "description": "Créez votre compte ReadyKare gratuit. Inscrivez-vous comme professionnel ou comme établissement.",
         "titleWorker": "Inscription comme professionnel",
         "titleClient": "Inscription comme établissement",
+        "titleCandidate": "Sign Up as a Candidate",
         "descriptionWorker": "...",
-        "descriptionClient": "..."
+        "descriptionClient": "...",
+        "descriptionCandidate": "Create your ReadyKare candidate account to begin your screening."
       },
+      "google": "Sign up with Google",
       "choiceTitle": "Comment voulez-vous rejoindre ReadyKare?",
       "choiceSubtitle": "Choisissez l'option qui vous décrit le mieux pour commencer.",
       "roleWorkerDescription": "Parcourez les quarts disponibles et soyez jumelé à des établissements locaux.",
       "roleClientDescription": "Publiez des quarts et trouvez des professionnels de santé vérifiés.",
+      "roleCandidateDescription": "Ici pour une invitation de présélection? Commencez votre candidature.",
       "titleWorker": "Créez votre compte professionnel",
       "titleClient": "Créez votre compte établissement",
       "titleCandidate": "Créez votre compte",
@@ -1163,6 +1221,7 @@
       "roleLabel": "Je cherche",
       "roleClient": "Établissement de santé",
       "roleWorker": "Professionnel de santé",
+      "roleCandidate": "Candidat",
       "emailLabel": "Adresse courriel",
       "emailPlaceholder": "vous@organisation.ca",
       "firstNameLabel": "Prénom",
@@ -1184,8 +1243,8 @@
       "submit": "Créer un compte →",
       "haveAccount": "Vous avez déjà un compte?",
       "signIn": "Se connecter",
-      "roleCandidate": "Candidat",
-      "roleCandidateDescription": "Ici pour une invitation de présélection? Commencez votre candidature.",
+      "lookingForWork": "Looking for work?",
+      "joinOurNetwork": "Join our network",
       "submitMagicLink": "S'inscrire",
       "magicLinkSentTitle": "Vérifiez votre courriel",
       "magicLinkSentSubtitle": "Nous avons envoyé un lien de connexion à {email}. Cliquez dessus pour finaliser la création de votre compte — les liens expirent après 15 minutes.",
@@ -1251,7 +1310,11 @@
       "passwordLength": "Utilisez 9 caractères ou plus pour un mot de passe plus robuste.",
       "passwordUpper": "Incluez au moins une majuscule.",
       "passwordNumber": "Incluez au moins un chiffre.",
-      "passwordSpecial": "Incluez au moins un caractère spécial."
+      "passwordSpecial": "Incluez au moins un caractère spécial.",
+      "firstNameRequired": "First name is required.",
+      "lastNameRequired": "Last name is required.",
+      "companyEmailPersonal": "Please use a valid business email address. Please contact support@readykare.com if you believe this is an error.",
+      "inviteNotFound": "No screening invite was found for this email. Please use the email address your invite was sent to."
     },
     "errors": {
       "invalidCredentials": "Courriel ou mot de passe invalide.",
@@ -1399,7 +1462,9 @@
           "description": "Effectuez une vérification d'identité rapide pour confirmer qui vous êtes.",
           "descriptionVerified": "Votre identité a été vérifiée.",
           "beginVerification": "Commencer la vérification",
-          "beginning": "Redirection…"
+          "continueVerification": "Continue verification",
+          "beginning": "Redirection…",
+          "startError": "Could not start identity verification. Please try again."
         },
         "photoCard": {
           "title": "Ajouter une photo de profil",
@@ -1610,7 +1675,7 @@
       "home": {
         "welcome": "Bienvenue",
         "welcomeWithName": "Bienvenue, {name}",
-        "subtitle": "Voici un aperçu de votre activité.",
+        "subtitle": "Présélections et personnel en un coup d’œil.",
         "shiftsCompleted": "Quarts terminés",
         "totalTimeCovered": "Temps total couvert",
         "makeRequest": "Besoin de personnel temporaire?",
@@ -1618,9 +1683,21 @@
         "createScreening": "Créer une vérification",
         "createScreeningSubtitle": "Créez une vérification pour commencer.",
         "newStaffRequest": "Demander du personnel temporaire",
+        "newScreening": "Créer une présélection pour évaluer les candidats.",
+        "statScreenings": "Présélections",
+        "statActiveCandidates": "Candidats actifs",
+        "statPendingInvites": "Invitations en attente",
+        "screeningsHeading": "Vos présélections",
+        "viewAllScreenings": "Tout voir",
+        "emptyScreenings": "Aucune présélection pour le moment. Créez-en une pour inviter des candidats.",
         "todaysShifts": "Quarts d'aujourd'hui",
         "noShifts": "Aucun quart prévu aujourd'hui.",
-        "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui."
+        "shiftsToday": "Vous avez {count, plural, one {# quart} other {# quarts}} aujourd'hui.",
+        "screeningCardMenu": {
+          "openMenu": "Actions sur la présélection",
+          "view": "Voir les détails",
+          "edit": "Modifier la présélection"
+        }
       },
       "subscriptionCheckout": {
         "loading": "Vérification de votre abonnement…",
@@ -1814,6 +1891,8 @@
         "home": "Admin | ReadyKare",
         "workers": "Travailleurs | Admin",
         "clients": "Clients | Admin",
+        "facilities": "Établissements | Admin",
+        "operators": "Opérateurs | Admin",
         "requests": "Demandes | Admin",
         "shifts": "Quarts | Admin",
         "authorization": "Autorisation | Admin",
@@ -2398,6 +2477,17 @@
         "continue": "Continuer",
         "backTitle": "Tableau de bord"
       },
+      "survey": {
+        "title": "Entrevue terminée",
+        "subtitle": "Aidez-nous à nous améliorer en partageant votre expérience.",
+        "cardTitle": "Comment s’est passée votre entrevue ?",
+        "commentLabel": "Autre chose à ajouter ? (facultatif)",
+        "commentPlaceholder": "Partagez vos impressions…",
+        "submit": "Envoyer la rétroaction",
+        "submitting": "Envoi…",
+        "skip": "Passer",
+        "ariaRateStar": "Noter {star} sur 5"
+      },
       "review": {
         "back": "Retour aux évaluations",
         "heading": "Entretien :",
@@ -2808,64 +2898,8 @@
       "description": "Tarifs de dotation transparents et plans de présélection IA pour les organisations de soins de santé."
     },
     "back": "Retour au tableau de bord",
-    "hero": {
-      "badge": "Présélection IA de candidats",
-      "title": "Recrutez mieux, pas plus.",
-      "subtitle1": "Des entretiens IA structurés pour chaque candidat. Une liste classée vous est livrée — sans planification, sans approximation.",
-      "subtitle2": "Publiez votre offre aujourd'hui et recevez une liste de candidats qualifiés et présélectionnés dans les 48 heures.",
-      "monthlyLabel": "Mensuel",
-      "annualLabel": "Annuel",
-      "annualBadge": "2 mois offerts",
-      "billedAnnually": "C${total}/an facturé annuellement",
-      "perMonth": "/mois",
-      "free": "Gratuit"
-    },
-    "tiers": {
-      "mostPopular": "Le plus populaire",
-      "currentPlan": "Plan actuel",
-      "ctaContact": "Contacter les ventes",
-      "free": {
-        "name": "Gratuit",
-        "description": "Essayez la présélection IA sans engagement.",
-        "cta": "Commencer gratuitement",
-        "features": [
-          "1 présélection active à la fois",
-          "5 candidats par présélection",
-          "Entretiens texte par IA",
-          "Classement de base des candidats",
-          "Délai candidat de 7 jours"
-        ]
-      },
-      "starter": {
-        "name": "Starter",
-        "description": "Pour les équipes en croissance qui recrutent régulièrement.",
-        "cta": "Passer à Starter",
-        "features": [
-          "5 présélections actives",
-          "50 candidats par présélection",
-          "Entretiens vidéo + texte par IA",
-          "Classement et notation avancés",
-          "Vérification d'identité",
-          "Notifications par courriel et push",
-          "Support courriel prioritaire"
-        ]
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "Pour les équipes qui recrutent à grande échelle.",
-        "cta": "Passer à Pro",
-        "features": [
-          "Présélections actives illimitées",
-          "Candidats illimités",
-          "Entretiens vidéo + texte par IA",
-          "Questions d'entretien personnalisées",
-          "Rapports et analytiques détaillés",
-          "Vérification d'identité",
-          "Gestionnaire de compte dédié"
-        ]
-      }
-    },
     "faq": {
+      "badge": "FAQ",
       "title": "Questions fréquentes",
       "subtitle": "Tout ce que vous devez savoir sur la présélection IA.",
       "items": [

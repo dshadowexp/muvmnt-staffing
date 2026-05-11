@@ -122,7 +122,7 @@ export function InterviewReviewClient({
     ? t("subject.screening")
     : t("subject.combined");
 
-  const retakeHref = "/assessments";
+  const retakeHref = "/staff";
 
   return (
     <div className="flex min-h-svh flex-col">

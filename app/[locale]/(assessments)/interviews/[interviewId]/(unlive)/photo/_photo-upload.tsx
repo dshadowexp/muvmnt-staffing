@@ -45,7 +45,7 @@ const FALLBACK_TIPS = [
 
 export function PhotoUploadStep({
   initialPhotoKey,
-  backHref = "/dashboard",
+    backHref = "/staff",
   onSavePhoto,
   onComplete,
   titleOverride,

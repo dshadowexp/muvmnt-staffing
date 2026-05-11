@@ -23,8 +23,8 @@ function normalizeCode(raw: string): string | null {
 
 /**
  * Resolves a referral link:
- *  - Already signed in + self-referral → back to dashboard with `ref_error=self`.
- *  - Already signed in + someone else's code → back to dashboard with `ref_notice=already_member`.
+ *  - Already signed in + self-referral → back to staff home with `ref_error=self`.
+ *  - Already signed in + someone else's code → back to staff home with `ref_notice=already_member`.
  *  - Anonymous + invalid code → `/sign-up?ref_error=invalid|not_found`.
  *  - Anonymous + valid code → set `referral_code` cookie, go to
  *    `/sign-up?ref=CODE&as=<role>` so the sign-up form preselects the correct

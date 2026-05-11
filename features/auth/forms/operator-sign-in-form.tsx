@@ -297,6 +297,7 @@ export function OperatorSignInForm() {
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
                   <GoogleButton
+                    text={tFlow("google")}
                     className="min-w-0 flex-1 basis-0 sm:w-auto"
                     disabled={isBusyEmail}
                   />
@@ -397,7 +398,9 @@ export function OperatorSignInForm() {
                       <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Link
-                      href={withAuthParams("/forgot-password")}
+                      href={withAuthParams(
+                        `/forgot-password?signInReturn=${encodeURIComponent("/sign-in/operator")}`,
+                      )}
                       className="text-[0.775rem] font-medium text-primary no-underline transition-colors hover:text-primary/80"
                     >
                       {tFlow("forgotPassword")}

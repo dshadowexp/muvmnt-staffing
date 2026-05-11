@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { CircleDashedIcon, CheckCircle2Icon, StarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ type Props = {
 
 export function SurveyClient({ interviewId, redirectTo }: Props) {
   const router = useRouter();
+  const t = useTranslations("assessments.interview.survey");
   const [rating, setRating] = useState<number | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const [comment, setComment] = useState("");
@@ -44,18 +46,14 @@ export function SurveyClient({ interviewId, redirectTo }: Props) {
               <CheckCircle2Icon className="size-5 text-primary" />
             </div>
           </div>
-          <h1 className="text-xl font-semibold tracking-tight">Interview complete</h1>
-          <p className="text-sm text-muted-foreground">
-            Help us improve by sharing your experience.
-          </p>
+          <h1 className="text-xl font-semibold tracking-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         {/* Survey card */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              How was your interview experience?
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t("cardTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
 
@@ -71,7 +69,7 @@ export function SurveyClient({ interviewId, redirectTo }: Props) {
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHovered(star)}
                   className="rounded p-1 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  aria-label={`Rate ${star} out of 5`}
+                  aria-label={t("ariaRateStar", { star })}
                 >
                   <StarIcon
                     className={cn(
@@ -87,11 +85,9 @@ export function SurveyClient({ interviewId, redirectTo }: Props) {
 
             {/* Optional comment */}
             <div className="space-y-1.5">
-              <p className="text-xs text-muted-foreground">
-                Anything else you&apos;d like to share? (optional)
-              </p>
+              <p className="text-xs text-muted-foreground">{t("commentLabel")}</p>
               <Textarea
-                placeholder="Share your thoughts…"
+                placeholder={t("commentPlaceholder")}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
@@ -111,7 +107,7 @@ export function SurveyClient({ interviewId, redirectTo }: Props) {
             {submitting ? (
               <CircleDashedIcon className="size-4 animate-spin" />
             ) : (
-              "Submit feedback"
+              t("submit")
             )}
           </Button>
           <Button
@@ -120,7 +116,7 @@ export function SurveyClient({ interviewId, redirectTo }: Props) {
             className="w-full text-muted-foreground"
             disabled={submitting}
           >
-            Skip
+            {t("skip")}
           </Button>
         </div>
 

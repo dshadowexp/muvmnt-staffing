@@ -127,7 +127,9 @@ export function StaffSignInForm({
                     {t("passwordLabel")} <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Link
-                    href={withAuthParams("/forgot-password")}
+                    href={withAuthParams(
+                      `/forgot-password?signInReturn=${encodeURIComponent("/sign-in/staff")}`,
+                    )}
                     className="text-[0.775rem] font-medium text-primary no-underline transition-colors hover:text-primary/80"
                   >
                     {t("forgotPassword")}
@@ -159,7 +161,7 @@ export function StaffSignInForm({
             {variant === "default" && (
               <>
                 <OrDivider text="or continue with" />
-                <GoogleButton text="Google" />
+                <GoogleButton text={t("google")} />
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
                   <LinkedInButton className="min-w-0 flex-1 basis-0 sm:w-auto" disabled={isLoading} />
                   <MicrosoftButton className="min-w-0 flex-1 basis-0 sm:w-auto" disabled={isLoading} />

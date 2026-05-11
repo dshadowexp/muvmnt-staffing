@@ -1,7 +1,7 @@
 import "server-only";
 import { getSession } from "@/lib/get-session";
 import { createAdminClient } from "@/supabase/server";
-import { LEGACY_STAFF_DB_ROLE, STAFF_ROLE } from "@/features/auth/types";
+import { STAFF_DB_ROLE_QUERY_VALUES } from "@/features/auth/lib/session-role";
 
 export async function getCurrentUser() {
     const session = await getSession();
@@ -27,7 +27,7 @@ export async function getUser(id: string) {
 }
 
 /**
- * Returns true if the given email belongs to an existing staff user (`staff` or legacy `worker` role).
+ * Returns true if the given email belongs to an existing staff user.
  * Used to decide which auth gate to show on the screening invite page.
  */
 export async function isStaffEmail(email: string): Promise<boolean> {
@@ -36,11 +36,8 @@ export async function isStaffEmail(email: string): Promise<boolean> {
         .from("users")
         .select("id")
         .eq("email", email)
-        .in("role", [STAFF_ROLE, LEGACY_STAFF_DB_ROLE])
+        .in("role", [...STAFF_DB_ROLE_QUERY_VALUES])
         .maybeSingle();
     return data !== null;
 }
-
-/** @deprecated Use {@link isStaffEmail} */
-export const isWorkerEmail = isStaffEmail;
 

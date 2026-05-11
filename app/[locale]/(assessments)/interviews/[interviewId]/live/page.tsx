@@ -155,7 +155,7 @@ async function SuspendedContent({
       user={{ name: userName, imageUrl: photoUrl ?? "" }}
       title={title}
       description={description}
-      returnPath={session.role === "candidate" && interview.screening_id ? `/s/${interview.screening_id}` : "/dashboard"}
+      returnPath={session.role === "candidate" && interview.screening_id ? `/s/${interview.screening_id}` : "/staff"}
       allowedLocales={allowedLocales}
       durationSecs={durationSecs}
       initialSelectedLocale={langParam}

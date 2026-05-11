@@ -26,7 +26,7 @@ function useMainNavItems(): NavItem[] {
 
   return [
     { title: t("home"), url: "/app", icon: <LayoutDashboardIcon className="size-4" /> },
-    { title: t("requests"), url: "/app/requests", icon: <UserRoundSearchIcon className="size-4" /> },
+    // { title: t("requests"), url: "/app/requests", icon: <UserRoundSearchIcon className="size-4" /> },
     { title: t("screenings"), url: "/app/screenings", icon: <FingerprintIcon className="size-4" /> },
     { title: t("billing"), url: "/app/billing", icon: <WalletIcon className="size-4" /> },
     { title: t("account"), url: "/app/account", icon: <Columns3CogIcon className="size-4" /> },

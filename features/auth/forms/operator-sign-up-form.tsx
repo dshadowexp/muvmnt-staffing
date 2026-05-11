@@ -320,6 +320,7 @@ export function OperatorSignUpForm() {
                 <OrDivider text="get started with"/>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
                   <GoogleButton
+                    text={t("google")}
                     className="min-w-0 flex-1 basis-0 sm:w-auto"
                     disabled={detailsForm.formState.isSubmitting}
                   />

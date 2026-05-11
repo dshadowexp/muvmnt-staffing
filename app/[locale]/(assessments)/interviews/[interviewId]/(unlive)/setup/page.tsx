@@ -6,7 +6,7 @@ import { getSession } from "@/lib/get-session";
 import { getInterviewByIdForUser } from "@/features/interviews/dal/queries";
 import { createAdminClient } from "@/supabase/server";
 import { SetupClient } from "./_client";
-import { CANDIDATE_ROLE, STAFF_ROLE } from "@/features/auth/types";
+import { ADMIN_ROLE, CANDIDATE_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 
 export default async function InterviewSetupPage({
@@ -40,11 +40,14 @@ async function SuspendedContent({
 
   // Only workers/candidates should enter setup.
   if (session.role !== STAFF_ROLE && session.role !== CANDIDATE_ROLE) {
-    return redirect({ href: "/dashboard", locale });
+    return redirect({
+      href: session.role === ADMIN_ROLE ? "/admin" : "/staff",
+      locale,
+    });
   }
 
   const interview = await getInterviewByIdForUser(interviewId, session.userId);
-  if (!interview) return redirect({ href: "/dashboard", locale });
+  if (!interview) return redirect({ href: "/staff", locale });
 
   // Title/description:
   // - screening interview: use screening title/description if available

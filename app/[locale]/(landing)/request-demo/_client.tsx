@@ -29,7 +29,7 @@ import { LoadingSwap } from "@/components/ui/loading-swap";
 import {
   linkDemoCalBookingAction,
   submitDemoLeadAction,
-} from "@/features/landing/demo-request/actions";
+} from "@/app/[locale]/(landing)/request-demo/_actions";
 
 const CAL_NAMESPACE =
   process.env.NEXT_PUBLIC_CAL_COM_NAMESPACE?.trim() || "30min";
@@ -50,7 +50,7 @@ function buildSchema(
   const countryValues = new Set(countries.map((o) => o.value));
   const productValues = new Set(productInterests.map((o) => o.value));
   return z.object({
-    email: z.string().email(tVal("emailInvalid")),
+    email: z.email(tVal("emailInvalid")),
     firstName: z.string().min(1, tVal("firstNameRequired")),
     lastName: z.string().min(1, tVal("lastNameRequired")),
     companyName: z.string().min(1, tVal("companyRequired")),

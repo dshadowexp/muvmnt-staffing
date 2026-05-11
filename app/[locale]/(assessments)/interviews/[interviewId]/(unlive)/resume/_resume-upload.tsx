@@ -138,7 +138,7 @@ export function ResumeUpload({
   professionContext,
   onResumeReady,
   onBack,
-  backHref = "/dashboard",
+    backHref = "/staff",
   layout = "page",
 }: Props) {
   const t = useTranslations("assessments.interview.resume");

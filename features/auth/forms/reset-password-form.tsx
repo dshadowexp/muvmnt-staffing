@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,12 +23,22 @@ import {
 } from "@/features/auth/components/auth-primitives";
 import { getAuthErrorKey, resetPassword } from "@/services/firebase/auth";
 import { useAuthRedirect } from "@/features/auth/hooks/use-auth-redirect";
+import { safeSignInReturnPath } from "@/features/auth/lib/allowed-sign-in-return";
 import { SITE_EMAIL } from "@/lib/constants";
 
 export function ResetPasswordForm() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const searchParams = useSearchParams();
     const { withAuthParams } = useAuthRedirect();
+
+    const backToSignInHref = useMemo(() => {
+        const explicit = safeSignInReturnPath(
+            searchParams.get("signInReturn"),
+        );
+        const base = explicit ?? "/sign-in";
+        return withAuthParams(base);
+    }, [searchParams, withAuthParams]);
     const t = useTranslations("auth.forgot");
     const tValidation = useTranslations("auth.validation");
     const tErrors = useTranslations("auth.errors");
@@ -131,7 +142,7 @@ export function ResetPasswordForm() {
                             <p className="text-center text-[0.82rem] font-light text-muted-foreground">
                                 {t("remembered")}{" "}
                                 <Link
-                                    href={withAuthParams("/sign-in")}
+                                    href={backToSignInHref}
                                     className="font-semibold text-primary no-underline hover:text-primary/80"
                                 >
                                     {t("backToSignIn")}
@@ -157,7 +168,7 @@ export function ResetPasswordForm() {
                         <SuccessBanner message={success} />
 
                         <Button asChild size="lg" className="w-full">
-                        <Link href={withAuthParams("/sign-in")}>{t("backButton")}</Link>
+                        <Link href={backToSignInHref}>{t("backButton")}</Link>
                         </Button>
 
                         <p className="text-center text-[0.78rem] font-light leading-[1.6] text-muted-foreground">

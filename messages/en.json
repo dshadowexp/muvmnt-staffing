@@ -343,10 +343,7 @@
           "name": "Maria T.",
           "role": "HR Manager — Kitchener"
         }
-      ],
-      "ctaGetStarted": "Get started →",
-      "ctaRequest": "Request staff →",
-      "ctaFindWork": "Find work"
+      ]
     },
     "audienceSplit": {
       "worker": {
@@ -988,8 +985,6 @@
       "and": "and",
       "terms": "Terms of Use"
     },
-    "googleSignUp": "Sign up with Google",
-    "googleSignIn": "Continue with Google",
     "or": "OR",
     "signIn": {
       "meta": {
@@ -1632,7 +1627,7 @@
       "home": {
         "welcome": "Welcome",
         "welcomeWithName": "Welcome, {name}",
-        "subtitle": "Here's a snapshot of your activity.",
+        "subtitle": "Screenings and staffing at a glance.",
         "shiftsCompleted": "Shifts completed",
         "totalTimeCovered": "Total time covered",
         "makeRequest": "Need temporary staff?",
@@ -1641,9 +1636,20 @@
         "createScreeningSubtitle": "Create a screening to evaluate candidates.",
         "newStaffRequest": "Get one now",
         "newScreening": "Create a screening to evaluate candidates.",
+        "statScreenings": "Screenings",
+        "statActiveCandidates": "Active candidates",
+        "statPendingInvites": "Pending invites",
+        "screeningsHeading": "Your screenings",
+        "viewAllScreenings": "View all",
+        "emptyScreenings": "No screenings yet. Create one to invite candidates.",
         "todaysShifts": "Today's shifts",
         "noShifts": "No shifts scheduled for today.",
-        "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today."
+        "shiftsToday": "You have {count, plural, one {# shift} other {# shifts}} today.",
+        "screeningCardMenu": {
+          "openMenu": "Screening actions",
+          "view": "View details",
+          "edit": "Edit screening"
+        }
       },
       "subscriptionCheckout": {
         "loading": "Checking your subscription…",
@@ -2423,6 +2429,17 @@
         "continue": "Continue",
         "backTitle": "Dashboard"
       },
+      "survey": {
+        "title": "Interview complete",
+        "subtitle": "Help us improve by sharing your experience.",
+        "cardTitle": "How was your interview experience?",
+        "commentLabel": "Anything else you'd like to share? (optional)",
+        "commentPlaceholder": "Share your thoughts…",
+        "submit": "Submit feedback",
+        "submitting": "Submitting…",
+        "skip": "Skip",
+        "ariaRateStar": "Rate {star} out of 5"
+      },
       "review": {
         "back": "Back to assessments",
         "heading": "Interview:",
@@ -2833,62 +2850,6 @@
       "description": "Transparent staffing rates and AI screening plans for healthcare organizations."
     },
     "back": "Back to dashboard",
-    "hero": {
-      "badge": "AI Candidate Screening",
-      "title": "Hire smarter, not harder.",
-      "subtitle": "Structured AI interviews on every applicant. A ranked shortlist delivered — no scheduling, no guesswork.",
-      "monthlyLabel": "Monthly",
-      "annualLabel": "Annual",
-      "annualBadge": "2 month free",
-      "billedAnnually": "C${total}/year billed annually",
-      "perMonth": "/mo",
-      "free": "Free"
-    },
-    "tiers": {
-      "mostPopular": "Most Popular",
-      "currentPlan": "Current plan",
-      "ctaContact": "Contact sales",
-      "free": {
-        "name": "Free",
-        "description": "Try AI screening with no commitment.",
-        "cta": "Get started",
-        "features": [
-          "1 active screening at a time",
-          "5 candidates per screening",
-          "AI text interviews",
-          "Basic candidate ranking",
-          "7-day candidate deadline"
-        ]
-      },
-      "starter": {
-        "name": "Starter",
-        "description": "For growing teams hiring regularly.",
-        "cta": "Upgrade to Starter",
-        "features": [
-          "5 active screenings",
-          "50 candidates per screening",
-          "AI video + text interviews",
-          "Advanced ranking & scoring",
-          "Identity verification",
-          "Email & push notifications",
-          "Priority email support"
-        ]
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "For teams that hire at scale.",
-        "cta": "Upgrade to Pro",
-        "features": [
-          "Unlimited active screenings",
-          "Unlimited candidates",
-          "AI video + text interviews",
-          "Custom interview questions",
-          "Detailed reports & analytics",
-          "Identity verification",
-          "Dedicated account manager"
-        ]
-      }
-    },
     "faq": {
       "badge": "FAQ",
       "title": "Frequently asked questions",

@@ -186,3 +186,62 @@ export async function getScreeningCandidate(
   if (error && error.code !== "PGRST116") throw new Error(error.message);
   return data ?? null;
 }
+
+export type FacilityScreeningOverviewStats = {
+  screeningCount: number;
+  activeCandidatesCount: number;
+  pendingInvitesCount: number;
+};
+
+/** Aggregate screening metrics for a facility home dashboard. */
+export async function getFacilityScreeningOverviewStats(
+  facilityId: string,
+): Promise<FacilityScreeningOverviewStats> {
+  const supabase = await createAdminClient();
+
+  const { count: screeningCount, error: sErr } = await supabase
+    .from("screenings")
+    .select("*", { count: "exact", head: true })
+    .eq("facility_id", facilityId);
+
+  if (sErr) throw new Error(sErr.message);
+
+  const { data: idRows, error: idErr } = await supabase
+    .from("screenings")
+    .select("id")
+    .eq("facility_id", facilityId);
+
+  if (idErr) throw new Error(idErr.message);
+
+  const screeningIds = (idRows ?? []).map((r) => r.id);
+  if (screeningIds.length === 0) {
+    return {
+      screeningCount: screeningCount ?? 0,
+      activeCandidatesCount: 0,
+      pendingInvitesCount: 0,
+    };
+  }
+
+  const [{ count: activeCandidatesCount, error: cErr }, { count: pendingInvitesCount, error: iErr }] =
+    await Promise.all([
+      supabase
+        .from("screening_candidates")
+        .select("*", { count: "exact", head: true })
+        .in("screening_id", screeningIds)
+        .neq("stage", "completed"),
+      supabase
+        .from("screening_invites")
+        .select("*", { count: "exact", head: true })
+        .in("screening_id", screeningIds)
+        .in("status", ["pending", "sent"]),
+    ]);
+
+  if (cErr) throw new Error(cErr.message);
+  if (iErr) throw new Error(iErr.message);
+
+  return {
+    screeningCount: screeningCount ?? 0,
+    activeCandidatesCount: activeCandidatesCount ?? 0,
+    pendingInvitesCount: pendingInvitesCount ?? 0,
+  };
+}

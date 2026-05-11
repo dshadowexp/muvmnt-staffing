@@ -9,12 +9,12 @@ import {
   CANDIDATE_ROLE,
   OPERATOR_ROLE,
   OperatorPermission,
-  LEGACY_STAFF_DB_ROLE,
   STAFF_ROLE,
   type UserAuth,
   type UserRole,
 } from "@/features/auth/types";
 import { isFacilityOperatorRole } from "@/features/auth/lib/facility-operator-role";
+import { canonicalUserRole } from "@/features/auth/lib/session-role";
 import { ensureOperatorRecordForExchange } from "@/features/account/server/ensure-operator-record-for-exchange";
 import { getSession } from "@/lib/get-session";
 import { setSession } from "@/lib/session";
@@ -115,16 +115,7 @@ export async function exchangeFirebaseUser({
     if (result === "EMAIL_TAKEN") return { status: "email_taken" };
 
     const dbRole = result.role as string;
-    const userRole: UserRole =
-      dbRole === LEGACY_STAFF_DB_ROLE || dbRole === STAFF_ROLE
-        ? STAFF_ROLE
-        : dbRole === OPERATOR_ROLE
-          ? OPERATOR_ROLE
-          : dbRole === ADMIN_ROLE
-            ? ADMIN_ROLE
-            : dbRole === CANDIDATE_ROLE
-              ? CANDIDATE_ROLE
-              : ((result.role ?? OPERATOR_ROLE) as UserRole);
+    const userRole = canonicalUserRole(dbRole ?? "");
 
     if (userRole === OPERATOR_ROLE) {
       const accepted = await acceptFacilityInviteForUser({

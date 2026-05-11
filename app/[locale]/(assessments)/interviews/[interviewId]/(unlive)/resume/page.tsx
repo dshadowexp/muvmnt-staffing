@@ -8,7 +8,7 @@ import { getWorkerProfile } from "@/features/profile/dal/queries";
 import { getScreeningCandidate } from "@/features/screenings/dal/queries";
 import { createAdminClient } from "@/supabase/server";
 import { ResumeStepClient } from "./_client";
-import { STAFF_ROLE } from "@/features/auth/types";
+import { ADMIN_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export default async function ResumeStepPage({
   params,
@@ -39,7 +39,7 @@ async function SuspendedContent({
   if (!session) return redirect({ href: "/sign-in", locale });
 
   const interview = await getInterviewByIdForUser(interviewId, session.userId);
-  if (!interview) return redirect({ href: "/dashboard", locale });
+  if (!interview) return redirect({ href: "/staff", locale });
 
   const t = await getTranslations("assessments.interview.resumeStep");
 
@@ -76,7 +76,12 @@ async function SuspendedContent({
   }
 
   // Worker assessment
-  if (session.role !== STAFF_ROLE) return redirect({ href: "/app", locale });
+  if (session.role !== STAFF_ROLE) {
+    return redirect({
+      href: session.role === ADMIN_ROLE ? "/admin" : "/staff",
+      locale,
+    });
+  }
   const worker = await getWorkerProfile();
   if (!worker) return redirect({ href: "/staff", locale });
 

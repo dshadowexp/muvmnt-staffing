@@ -194,7 +194,7 @@ export function StaffSignUpForm({
               </Button>
             </form>
             <OrDivider />
-            <GoogleButton text="Sign up with Google" />
+            <GoogleButton text={t("google")} />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
               <LinkedInButton className="min-w-0 flex-1 basis-0 sm:w-auto" text="LinkedIn" disabled={isLoading} />
               <MicrosoftButton className="min-w-0 flex-1 basis-0 sm:w-auto" text="Facebook" disabled={isLoading} />

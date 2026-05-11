@@ -7,7 +7,7 @@ export default defineConfig({
   logLevel: "log",
   // The max compute seconds a task is allowed to run. Override per task.
   // See https://trigger.dev/docs/runs/max-duration
-  maxDuration: 3600,
+  maxDuration: 1800,
   retries: {
     enabledInDev: true,
     default: {

@@ -9,14 +9,14 @@ import {
     DASHBOARD_PREFIXES,
 } from "./lib/constants";
 import {
-    ADMIN_ROLE,
-    CANDIDATE_ROLE,
-    LEGACY_STAFF_DB_ROLE,
     OPERATOR_ROLE,
-    STAFF_ROLE,
     UserAuth,
     UserRole,
 } from "./features/auth/types";
+import {
+    canonicalUserRole,
+    defaultAuthHomePath,
+} from "./features/auth/lib/session-role";
 import arcjet, { detectBot, shield, slidingWindow } from "@/services/arcjet/client";
 
 const ajBase = arcjet
@@ -88,15 +88,8 @@ function isInactivePath(path: string): boolean {
     return INACTIVE_PREFIXES.some((p) => hasPrefix(path, p));
 }
 
-/** Cookie may still carry legacy `"client"` or staff-role-as-`"worker"` from older sessions. */
-function roleForDashboardPrefixes(role: string): UserRole {
-    if (role === "client") return OPERATOR_ROLE;
-    if (role === LEGACY_STAFF_DB_ROLE) return STAFF_ROLE;
-    return role as UserRole;
-}
-
 function isAllowedForRole(pathname: string, role: UserRole | string): boolean {
-    const key = roleForDashboardPrefixes(String(role));
+    const key = canonicalUserRole(String(role));
     return DASHBOARD_PREFIXES[key].some((p) => hasPrefix(pathname, p));
 }
 
@@ -106,12 +99,7 @@ function isRoleScopedPath(pathname: string): boolean {
 }
 
 function defaultDestination(session: UserAuth): string {
-    const role = roleForDashboardPrefixes(session.role);
-    if (role === ADMIN_ROLE) return "/admin";
-    if (role === CANDIDATE_ROLE) return "/s";
-    if (role === STAFF_ROLE) return "/staff";
-    if (role === OPERATOR_ROLE) return session.facilityId ? "/app" : "/onboarding";
-    return "/";
+    return defaultAuthHomePath(session);
 }
 
 // ─── Proxy ───────────────────────────────────────────────────────────────
@@ -150,7 +138,7 @@ export async function proxy(req: NextRequest) {
         return intlMiddleware(req);
     }
 
-    // Auth pages — redirect to dashboard if already signed in
+    // Auth pages — redirect to role home if already signed in
     if (isAuthPath(path)) {
         if (session) {
             const redirectTo =
@@ -181,7 +169,7 @@ export async function proxy(req: NextRequest) {
     }
 
     // Facility operators must finish onboarding (facility linked) before /app or /upgrade.
-    const dashRole = roleForDashboardPrefixes(session.role);
+    const dashRole = canonicalUserRole(session.role);
     if (dashRole === OPERATOR_ROLE && !session.facilityId) {
         if (hasPrefix(path, "/app") || hasPrefix(path, "/upgrade")) {
             const onboardingPath = `${localePrefix}/onboarding`;

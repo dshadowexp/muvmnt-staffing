@@ -9,7 +9,7 @@ import { getScreeningCandidate } from "@/features/screenings/dal/queries";
 import { updateWorkerPhotoAction } from "@/features/profile/actions/worker-actions";
 import { saveCandidatePhotoAction } from "@/features/screenings/candidate-actions";
 import { PhotoStepClient } from "./_client";
-import { STAFF_ROLE } from "@/features/auth/types";
+import { ADMIN_ROLE, STAFF_ROLE } from "@/features/auth/types";
 
 export default async function PhotoStepPage({
   params,
@@ -40,7 +40,7 @@ async function SuspendedContent({
   if (!session) return redirect({ href: "/sign-in", locale });
 
   const interview = await getInterviewByIdForUser(interviewId, session.userId);
-  if (!interview) return redirect({ href: "/dashboard", locale });
+  if (!interview) return redirect({ href: "/staff", locale });
 
   const t = await getTranslations("assessments.interview.photoStep");
 
@@ -62,9 +62,14 @@ async function SuspendedContent({
     );
   }
 
-  if (session.role !== STAFF_ROLE) return redirect({ href: "/s", locale });
+  if (session.role !== STAFF_ROLE) {
+    return redirect({
+      href: session.role === ADMIN_ROLE ? "/admin" : "/staff",
+      locale,
+    });
+  }
   const worker = await getWorkerProfile();
-  if (!worker) return redirect({ href: "/s", locale });
+  if (!worker) return redirect({ href: "/staff", locale });
 
   return (
     <PhotoStepClient

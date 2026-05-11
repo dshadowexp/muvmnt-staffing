@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
+import { CircleDashedIcon } from "lucide-react";
 import { ResetPasswordForm } from "@/features/auth/forms/reset-password-form";
 
 export async function generateMetadata({
@@ -15,6 +17,18 @@ export async function generateMetadata({
   };
 }
 
+function ForgotPasswordFallback() {
+  return (
+    <div className="flex min-h-[40vh] w-full max-w-[440px] items-center justify-center">
+      <CircleDashedIcon className="size-10 animate-spin text-muted-foreground" aria-hidden />
+    </div>
+  );
+}
+
 export default function ForgotPasswordPage() {
-  return <ResetPasswordForm />;
+  return (
+    <Suspense fallback={<ForgotPasswordFallback />}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
 }
